@@ -3,10 +3,13 @@ import { useForm } from "react-hook-form";
 import Input from "../../../core/inputs/Input";
 import { Select } from "../../../core/inputs/Selects";
 import { useState } from "react";
+import AddInput from "../../../core/inputs/AddInput";
 
-const skills = ["Habilidad Nro 1", "Habilidad Nro 2"];
 
-const civilStatusList = ["Soltero", "Casado", "Divorciado", "Viudo"]
+const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+
+const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
+
 
 
 const testValidationRules = {
@@ -17,17 +20,22 @@ const testValidationRules = {
 }
 
 
-
 export default function SkillForm({ submitTriggerRef }) {
 
-    const { register, handleSubmit, control, formState } = useForm({ mode: "onChange" });
+    const { register, handleSubmit, formState } = useForm({ mode: "onChange" });
 
     const { errors, isSubmitted } = formState;
 
+    const [skills, setSkills] = useState([]);
 
-    const [gender, setGender] = useState(genders[0]);
+    const [allergies, setAllergies] = useState([]);
 
-    const [civilStatus, setCivilStatus] = useState(civilStatusList[0]);
+
+    const [bloodType, setBloodType] = useState(bloodTypes[0]);
+
+    const [shirtSize, setShirtSize] = useState(shirtSizes[0])
+
+    const [pantsSize, setPantsSize] = useState(shirtSizes[0])
 
 
     function handleSubmitInternal(data) {
@@ -42,88 +50,113 @@ export default function SkillForm({ submitTriggerRef }) {
             onSubmit={handleSubmit((data) => { handleSubmitInternal(data) })}
             className="mx-auto my-10 w-full max-w-[365px] md:max-w-[100%]">
 
-            <h2 className="text-sm text-center mb-4 uppercase">Datos basicos del usuario</h2>
+            <h2 className="text-sm text-center mb-4 uppercase">Habilidades y Alergias</h2>
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-3 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[720px]">
 
-                    <div className="md:flex md:space-x-2">
-                        <Input
-                            register={register}
-                            validationRules={testValidationRules}
-                            label={"Habilidad"}
-                            inputName={"skill"}
-                            useDotLabel={true}
-                            placeHolder="Habilidad Ejem:Paramedico"
-                            errMessage={errors.skill?.message}
-                            useStrongErrColor={isSubmitted}
-                            
-                        />
+                    <AddInput
+
+                        label={"Habilidades"}
+                        inputName={"skill"}
+                        useDotLabel={true}
+                        placeHolder="Habilidad Ejem:Paramedico"
+                        useStrongErrColor={isSubmitted}
+                        items={skills}
+                        setItems={setSkills}
+                    />
 
 
-                        <Input label={"Alergia"} inputName={"email"} useDotLabel={true} placeHolder="jondoe@example.com" />
-                    </div>
+
+                    <div className="md:flex md:items-baseline md:space-x-4">
 
 
-                    <div className="md:flex  md:space-x-2">
+                        <div className="md:flex-1">
+                            <AddInput
 
-                        <div className="flex-1">
-                            <Input label={"Nombre"} inputName={"first_name"} useDotLabel={true} placeHolder="Jon" />
-
+                                label={"Alergias"}
+                                inputName={"allergie"}
+                                useDotLabel={true}
+                                placeHolder="Alergia Ejem:Nuez"
+                                useStrongErrColor={isSubmitted}
+                                items={allergies}
+                                setItems={setAllergies}
+                            />
                         </div>
 
-                        <div className="flex-1">
-                            <Input label={"Apellido"} inputName={"last_name"} useDotLabel={true} placeHolder="Doe" />
-
-                        </div>
-                    </div>
-
-                    <div className="md:flex md:space-x-2">
-
-                        <Input label={"Fecha de Nacimiento"} inputName={"birth_date"} useDotLabel={true} placeHolder="01-01-0001" />
-
-
-                        <Input label={"Codigo de Area"} inputName={"zip_code"} useDotLabel={true} placeHolder="0244" />
-
-
-                    </div>
-
-
-                    <div className="md:flex md:space-x-2">
-
-
-                        <div className="w-full">
-                            <Select label={"Estado Civil"} useDotLabel={true} options={civilStatusList}
-                                value={civilStatus} onChange={(v) => { setCivilStatus(v) }} />
-                        </div>
-
-                        <div className="w-full">
-                            <Select label={"Genero"} useDotLabel={true} options={genders}
-                                value={gender} onChange={(v) => { setGender(v) }} />
+                        <div className="md:w-[20%]">
+                            <Select label={"Tipo de Sangre"} useDotLabel={true} options={bloodTypes}
+                                value={bloodType} onChange={(v) => { setBloodType(v) }} openUp={true} />
                         </div>
 
 
+                    </div>
 
+
+
+                    <div className="md:flex md:space-x-2 md:justify-between">
+
+
+                        <div className=" md:w-[15%]">
+                            <Select label={"Talla Camisa"} useDotLabel={true} options={shirtSizes}
+                                value={shirtSize} onChange={(v) => { setShirtSize(v) }}
+                                openUp={true}
+                            />
+                        </div>
+
+                        <div className=" md:w-[15%]">
+                            <Select label={"Talla Pantalon"} useDotLabel={true} options={shirtSizes}
+                                value={pantsSize} onChange={(v) => { setPantsSize(v) }}
+                                openUp={true}
+                            />
+                        </div>
+
+                        <div className="md:w-[15%]">
+                            <Input
+                                register={register}
+                                validationRules={testValidationRules}
+                                label={"Talla Zapatos"}
+
+                                inputName={"shoes_size"} useDotLabel={true}
+                                placeHolder="37"
+                                useStrongErrColor={isSubmitted}
+                                errMessage={errors.shoes_size?.message}
+                            />
+                        </div>
+
+                        <div className="md:w-[10%]">
+                            <Input label={"Altura"}
+                                register={register}
+                                validationRules={testValidationRules}
+                                inputName={"height"} useDotLabel={true}
+                                placeHolder="1.70"
+                                useStrongErrColor={isSubmitted}
+                                errMessage={errors.height?.message} />
+                        </div>
+
+                        <div className="md:w-[10%]">
+                            <Input label={"Peso"}
+                                register={register}
+                                validationRules={testValidationRules}
+                                inputName={"weight"}
+                                useDotLabel={true}
+                                placeHolder="60"
+                                useStrongErrColor={isSubmitted}
+                                errMessage={errors.weight?.message}
+                            />
+                        </div>
 
 
 
                     </div>
 
-
-                    <div className="md:flex md:space-x-2">
-                        <Input label={"Telefono"} inputName={"phone"} useDotLabel={true} placeHolder="02129998877" />
-
-                        <Input label={"Telefono Secundario"} inputName={"secondary_phone"} useDotLabel={true} placeHolder="02129998877" />
-                    </div>
-
-                    <Input label={"Residencia"} inputName={"residence"} useDotLabel={true} />
-
-                    <button ref={submitTriggerRef} type="submit" className="opacity-0"></button>
 
                 </div>
 
             </div>
+
+            <button ref={submitTriggerRef} type="submit" className="w-0 h-0 opacity-0"></button>
 
         </form>
     )

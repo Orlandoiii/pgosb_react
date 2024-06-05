@@ -23,7 +23,7 @@ function OptionContainerButton({ option, onClick }) {
     )
 }
 
-function OptionSelectorButton({ open, setOpen, buttonRef }) {
+function OptionSelectorButton({ open, setOpen, buttonRef, openUp }) {
     return (
         <button
             type="button"
@@ -35,8 +35,8 @@ function OptionSelectorButton({ open, setOpen, buttonRef }) {
         >
             <svg
                 ref={buttonRef}
-                className={`${!open ? 'fill-gray-400' : ''} hover:fill-blue-400 w-4 
-          ${open ? 'fill-blue-400 rotate-180 transition-transform duration-200 ease-in-out' : 'transition-transform duration-200 ease-in-out'}`}
+                className={`${!open ? 'fill-gray-400' : ''} hover:fill-blue-400 w-4 ${openUp ? "rotate-180" : ""}
+          ${open ? `fill-blue-400  ${openUp ? "rotate-0" : "rotate-180"}  transition-transform duration-200 ease-in-out` : 'transition-transform duration-200 ease-in-out'}`}
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 80 80"
             >
@@ -56,13 +56,26 @@ function Options({
     onSelected,
     setOpen,
     autoCompleted = false,
+
+
 }) {
 
+
+
+    const justOneMacht = useRef("");
+
+    useEffect(() => {
+        if (justOneMacht.current != "") {
+            setOpen(false);
+            onSelected(justOneMacht.current)
+        }
+    }, [options, value])
 
     function handleOnClick(v) {
         if (onSelected) onSelected(v)
         setOpen(false)
     }
+
 
     return useMemo(() => {
         const OPTIONS = autoCompleted
@@ -73,7 +86,13 @@ function Options({
                         .toLowerCase()
                         .indexOf(value.toString().toLowerCase()) !== -1
             )
-            : options
+            : options;
+
+        if (OPTIONS?.length === 1) {
+            justOneMacht.current = OPTIONS[0];
+        } else {
+            justOneMacht.current = "";
+        }
 
         return OPTIONS.length > 0
             ? OPTIONS.map((o, i) => (
@@ -81,6 +100,7 @@ function Options({
                     option={o}
                     key={i}
                     onClick={handleOnClick}
+
                 />
             ))
             : [
@@ -91,6 +111,7 @@ function Options({
                         if (onSelected) onSelected(options[0])
                         setOpen(false)
                     }}
+
                 />,
             ]
     }, [options, value])
@@ -103,11 +124,14 @@ function OptionsContainer({
     setOpen,
     onSelected,
     autoCompleted,
+    openUp,
+    bottomSeparation = "bottom-12"
+
 }) {
     return (
         <div
             id="options"
-            className={`absolute w-full top-15 z-10 border-[#3B82F6]  
+            className={`absolute w-full  ${openUp ? bottomSeparation : "top-18"} z-10 border-[#3B82F6]  
             rounded-md overflow-auto transition-all duration-300  
             text-black translate-y-3",
             ${open ? 'max-h-52 border' : 'max-h-0 border-0'}`}
@@ -119,6 +143,7 @@ function OptionsContainer({
                     setOpen={setOpen}
                     onSelected={onSelected}
                     autoCompleted={autoCompleted}
+
                 />
             }
         </div>
@@ -135,11 +160,16 @@ function SelectWithSearch({
     useDotLabel = false,
     useFloatingLabel = false,
     useStrongErrColor = false,
-    onError
+    onError,
+    openUp = false
 }) {
     const [open, setOpen] = useState(false)
 
     const ref = useRef(null) // Ref for the main Select div
+
+
+
+    const inputRef = useRef(null)
 
     const isTouch = useRef(false)
 
@@ -179,7 +209,9 @@ function SelectWithSearch({
     }
 
     function handleOnSelected(selectValue) {
-        if (onChange) onChange(selectValue)
+        if (onChange)
+            onChange(selectValue)
+        inputRef.current?.blur();
     }
 
     function handleOnFocus(e) {
@@ -195,7 +227,7 @@ function SelectWithSearch({
     }
 
     return (
-        <div ref={ref} className="relative space-y-1 text-left bg-inherit">
+        <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
             {useFloatingLabel ? <InputFloatLabel
                 label={label}
                 value={value}
@@ -206,9 +238,10 @@ function SelectWithSearch({
                 onFocus={handleOnFocus}
                 errMessage={errMessage}
                 useStrongErrColor={useStrongErrColor}
-                icons={<OptionSelectorButton open={open} setOpen={setOpen} />}
+                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
             /> :
                 <Input
+
                     label={label}
                     value={value}
                     type={type}
@@ -219,7 +252,8 @@ function SelectWithSearch({
                     useDotLabel={useDotLabel}
                     errMessage={errMessage}
                     useStrongErrColor={useStrongErrColor}
-                    icons={<OptionSelectorButton open={open} setOpen={setOpen} />}
+                    outsideInputRef={inputRef}
+                    icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
                 />
             }
 
@@ -230,6 +264,8 @@ function SelectWithSearch({
                 value={value}
                 onSelected={handleOnSelected}
                 autoCompleted={true}
+                openUp={openUp}
+                bottomSeparation='bottom-20'
             />
         </div>
     )
@@ -244,6 +280,7 @@ function Select({
     onChangeRaw,
     useDotLabel = false,
     useFloatingLabel = false,
+    openUp = false
 
 }) {
     const [open, setOpen] = useState(false)
@@ -281,7 +318,7 @@ function Select({
     }
 
     return (
-        <div ref={ref} className="relative space-y-1 text-left bg-inherit">
+        <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
             {useFloatingLabel ? <InputFloatLabel
                 label={label}
                 value={value}
@@ -290,7 +327,7 @@ function Select({
                 onChangeEvent={handleOnChange}
                 readOnly={true}
                 onFocus={handleOnFocus}
-                icons={<OptionSelectorButton open={open} setOpen={setOpen} />}
+                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
             /> :
                 <Input
                     label={label}
@@ -301,7 +338,7 @@ function Select({
                     readOnly={true}
                     onFocus={handleOnFocus}
                     useDotLabel={useDotLabel}
-                    icons={<OptionSelectorButton open={open} setOpen={setOpen} />}
+                    icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
                 />
             }
             <OptionsContainer
@@ -311,6 +348,7 @@ function Select({
                 value={value}
                 onSelected={handleOnSelected}
                 autoCompleted={false}
+                openUp={openUp}
             />
         </div>
     )

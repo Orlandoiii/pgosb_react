@@ -1,129 +1,198 @@
+import { useEffect, useRef, useState } from "react";
+import OpenEyeIcon from "../icons/OpenEyeIncon";
+import PlusIcon from "../icons/PlusIcon";
 import { CommonLogic } from "./ShareLogic";
+import MiniXIcon from "../icons/MiniXIcon";
+import ModalContainer from "../modal/ModalContainer";
 
 const common = new CommonLogic();
 
 
-function AddButton({ }) {
+
+
+function EyeButton({ onClick, children }) {
     return (
-        <button type='button' className='border border-gray-500 rounded-e-md  h-full w-9  bg-[#3C50E0]  flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-indigo-700'>
-            <svg className="w-4 h-4" viewBox='0 0 10 10' fill='none' xmlns='http://www.w3.org/2000/svg'>
-                <path d='M1.22229 5.00019H8.77785M5.00007 8.77797V1.22241'
-                    stroke='white' strokeWidth='1.6'
-                    strokeLinecap='round'
-                    strokeLinejoin='round'></path>
-            </svg>
+        <button type='button'
+            onClick={(e) => { if (onClick) onClick(e) }}
+            className='relative h-full w-9 border-gray-500 
+        rounded-e-md bg-[#3C50E0] flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-indigo-700'>
+            <OpenEyeIcon width="w-5" heigth="h-5" />
+
+            {children}
+
         </button>
     )
 }
 
 
-function EyeButton({ }) {
+function AddButtonFloat({ onClick }) {
     return (
-        <button type='button' className='h-full w-9 border-gray-500 rounded-e-md bg-[#3C50E0] flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-indigo-700'>
-            <svg className="w-4 h-4" fill="#FFFFFF" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                <g stroke="#000000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1">
-                    <path d="m1 12s4-8 11-8 11 8 11 8" />
-                    <path d="m1 12s4 8 11 8 11-8 11-8" />
-                    <circle cx="12" cy="12" r="3" />
-                </g>
-            </svg>
+        <button type='button'
+            onClick={(e) => { if (onClick) onClick(e) }}
+            className='
+        w-5 h-5  bg-[#3C50E0] rounded-full flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-indigo-700'>
+            <PlusIcon heigth="h-3" width="w-3" />
         </button>
     )
 }
 
-
-function EyeButtonFloat({ }) {
+function StoreItem({ item, onDelete }) {
     return (
-        <button type='button' className='absolute top-1/2 right-1 transform -translate-y-1/2 w-5 h-5 bg-[#3C50E0] rounded-full flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-indigo-700'>
-            <svg className="w-3 h-3" fill="#FFFFFF" viewBox="0 0 24 24" width="24" xmlns="http://www.w3.org/2000/svg">
-                <g stroke="#000000" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1">
-                    <path d="m1 12s4-8 11-8 11 8 11 8" />
-                    <path d="m1 12s4 8 11 8 11-8 11-8" />
-                    <circle cx="12" cy="12" r="3" />
-                </g>
-            </svg>
-        </button>
+        <div className="relative bg-[#29323C] text-[whitesmoke] py-2 px-8 
+         border border-gray-500 shadow-lg rounded-full flex justify-center items-center">
+            <p className="text-sm">
+                {item}
+            </p>
+            <button onClick={() => {
+                if (onDelete)
+                    onDelete(item);
+            }}
+                className="absolute w-5 h-5 top-1/2 right-1.5 transform -translate-y-1/2">
+                <MiniXIcon color="#F43F5E" />
+            </button>
+        </div>
+
     )
 }
 
 
-function Buttons({ }) {
+function StoreList({ items, onDelete }) {
     return (
-        <div className="h-full w-auto flex justify-between rounded-md">
-           
-            <AddButton />
+        <div className="w-full h-full flex flex-wrap justify-around space-x-1 space-y-1 ">
+            {items && items.map(v => {
+                return <StoreItem item={v} key={v} onDelete={onDelete} />
+            })}
         </div>
     )
-
 }
 
 
 export default function AddInput({
     inputName,
     label,
-    value,
     type = "text",
-    onChangeEvent,
-    onFocus,
-    onMouseDown = null,
-    readOnly = false,
-    icons = null,
-    errMessage = '',
-    register = null,
-    validationRules = null,
+    allowPattern = "^[A-Za-z0-9 ]*$",
+    customValidator = null,
     useDotLabel = false,
     useStrongErrColor = false,
-    placeHolder = ""
+    placeHolder = "",
+    items = [],
+    setItems,
 }) {
 
     if (!inputName)
         inputName = label;
 
 
-    const { onChange, onBlur, name, ref } = register != null ?
-        register(inputName, validationRules ?? {}) : CommonLogic.emptyRegister;
+    const inputRef = useRef(null);
 
+    const [errMessage, setErrMessage] = useState("");
+
+    const [showModal, setShowModal] = useState(false);
+
+    let itemsTotal = items?.length;
+
+    if (itemsTotal > 9) {
+        itemsTotal = `${9}+`
+    }
+
+    function addValue() {
+
+        if (errMessage && errMessage.length > 0)
+            return;
+
+
+        //inputRef.current?.blur();
+
+        let value = inputRef.current?.value?.trim();
+
+        if (!value || value.length == 0) {
+            return;
+        }
+
+        console.log("Anadiendo valor", value);
+
+        if (items?.includes(value))
+            return;
+
+        if (!setItems)
+            return;
+
+        setItems(currentItems => {
+            let newItems = [...currentItems, value];
+            return newItems;
+        })
+
+
+    }
+
+    function handleKeyDown(e) {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            addValue();
+            return;
+        }
+        if (!e.key.match(allowPattern)) {
+            e.preventDefault();
+            return;
+        }
+    }
+
+    function handleClickEyeButton() {
+        if (items.length == 0)
+            return;
+
+        setShowModal(true);
+    }
 
     function handleOnChange(e) {
-        if (readOnly)
-            return;
 
-        if (register) {
-            onChange(e);
+        let value = inputRef.current?.value;
+
+        if (!value.match(allowPattern)) {
+            setErrMessage("El formato no es correcto")
             return;
         }
-        if (onChangeEvent)
-            onChangeEvent(e);
+        if (customValidator) {
+            let err = customValidator(value);
+            if (err != null) {
+                setErrMessage(err);
+            }
+        }
+        setErrMessage("");
     }
 
-    function handleOnBlur(e) {
-        if (readOnly)
+    function handleDeleteItem(item) {
+        if (!setItems)
             return;
 
-        if (onBlur) {
-            onBlur(e)
-        }
+        setItems(currentArray => {
+            let newArray = currentArray.filter(v => v !== item);
+            return newArray;
+        })
+
     }
 
-    function handleOnMouseDown(e) {
-        if (readOnly)
-            return;
-        if (onMouseDown) {
-            onMouseDown(e)
+
+    useEffect(() => {
+        if (items.length == 0) {
+            setShowModal(false);
         }
-    }
+    }, [items])
+
 
     return (
-        <div className={`group w-full relative flex flex-col justify-center`}>
 
+
+        <div className={`group w-full relative flex flex-col justify-center`}>
             <label className={`block text-sm mb-2`} htmlFor={inputName}>
                 {`${useDotLabel ? label + ":" : label}`}
             </label>
 
             <div className="flex">
 
-                <div className={`relative h-11 w-full  rounded-md shadow-md flex
-                             border-2 
+                <div className={`relative h-11 w-full  rounded-s-md shadow-md flex
+                             border-2  border-r-0
                              ${!common.isErr(errMessage, useStrongErrColor) ?
                         CommonLogic.neutralColor :
                         (useStrongErrColor ? CommonLogic.errColor : CommonLogic.errSoftColor)}  
@@ -131,24 +200,23 @@ export default function AddInput({
                              has-[:focus]:border-3.5 has-[:focus]:${common.borderColor(errMessage, useStrongErrColor)} `}>
                     <input
                         className="w-full h-full outline-none p-2 my-auto border-0 bg-transparent"
-                        ref={ref}
+                        ref={inputRef}
                         id={inputName}
                         type={type}
-                        value={value}
-                        name={name}
                         onChange={handleOnChange}
-                        onFocus={onFocus}
-                        onMouseDown={handleOnMouseDown}
-                        readOnly={readOnly}
-                        onBlur={handleOnBlur}
+                        onKeyDown={handleKeyDown}
                         placeholder={placeHolder}
 
                     />
-                    {<EyeButtonFloat/>}
-
+                    <div className="absolute top-1/2 right-1.5 transform -translate-y-1/2">
+                        {<AddButtonFloat onClick={() => { addValue() }} />}
+                    </div>
                 </div>
-                <div className="rounded-md"> 
-                    <Buttons />
+                <div className="relative">
+                    <EyeButton onClick={handleClickEyeButton}>
+                        {items.length > 0 && <p className="absolute rounded-full h-[22px] w-[22px] z-1 p-2 text-sm -top-1 -right-3 
+        text-[whitesmoke] bg-rose-500 flex items-center justify-center">{itemsTotal}</p>}
+                    </EyeButton>
                 </div>
             </div>
 
@@ -157,6 +225,12 @@ export default function AddInput({
                 <span className={`text-[0.7rem] font-light p-1 bg-transparent  
                 ${useStrongErrColor ? "text-rose-500" : "text-slate-500"} `}>{errMessage}</span>
                 : null}
+
+
+            <ModalContainer title={label} show={showModal} showX={true} onClose={() => { setShowModal(false) }}>
+                <StoreList items={items} onDelete={handleDeleteItem}></StoreList>
+            </ModalContainer>
+
 
         </div>
     )

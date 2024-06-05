@@ -3,10 +3,11 @@ import { useForm } from "react-hook-form";
 import Input from "../../../core/inputs/Input";
 import { Select } from "../../../core/inputs/Selects";
 import { useState } from "react";
+import AddInput from "../../../core/inputs/AddInput";
 
-const genders = ["Masculino", "Femenino"];
+const genders = ["M", "F"];
 
-const civilStatusList = ["Soltero", "Casado", "Divorciado", "Viudo"]
+const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
 
 
 const testValidationRules = {
@@ -18,9 +19,9 @@ const testValidationRules = {
 
 
 
-export default function InfoPersonalForm({ formRef }) {
+export default function InfoPersonalForm({ submitTriggerRef }) {
 
-    const { register, handleSubmit, control, formState } = useForm({ mode: "onChange" });
+    const { register, handleSubmit, formState } = useForm({ mode: "onChange" });
 
     const { errors, isSubmitted } = formState;
 
@@ -28,6 +29,8 @@ export default function InfoPersonalForm({ formRef }) {
     const [gender, setGender] = useState(genders[0]);
 
     const [civilStatus, setCivilStatus] = useState(civilStatusList[0]);
+
+    const [items, setItems] = useState([]);
 
 
     function handleSubmitInternal(data) {
@@ -62,67 +65,61 @@ export default function InfoPersonalForm({ formRef }) {
 
 
                         <Input label={"Email"} inputName={"email"} useDotLabel={true} placeHolder="jondoe@example.com" />
+
+                        <div className="md:w-[20%]">
+                            <Select label={"Genero"} useDotLabel={true} options={genders}
+                                value={gender} onChange={(v) => { setGender(v) }} openUp={false} />
+                        </div>
+
                     </div>
 
 
                     <div className="md:flex  md:space-x-2">
 
-                        <div className="flex-1">
-                            <Input label={"Nombre"} inputName={"first_name"} useDotLabel={true} placeHolder="Jon" />
 
+                        <Input label={"Nombre"} inputName={"first_name"} useDotLabel={true} placeHolder="Jon" />
+
+
+                        <Input label={"Apellido"} inputName={"last_name"} useDotLabel={true} placeHolder="Doe" />
+
+
+                        <div className="w-[45%]">
+                            <Input label={"Fe. Nacimiento"} inputName={"birth_date"} useDotLabel={true} placeHolder="01-01-0001" />
                         </div>
 
-                        <div className="flex-1">
-                            <Input label={"Apellido"} inputName={"last_name"} useDotLabel={true} placeHolder="Doe" />
 
-                        </div>
                     </div>
 
                     <div className="md:flex md:space-x-2">
 
-                        <Input label={"Fecha de Nacimiento"} inputName={"birth_date"} useDotLabel={true} placeHolder="01-01-0001" />
 
-
-                        <Input label={"Codigo de Area"} inputName={"zip_code"} useDotLabel={true} placeHolder="0244" />
-
-
-                    </div>
-
-
-                    <div className="md:flex md:space-x-2">
-
-
-                        <div className="w-full">
-                            <Select label={"Estado Civil"} useDotLabel={true} options={civilStatusList}
-                                value={civilStatus} onChange={(v) => { setCivilStatus(v) }} />
-                        </div>
-
-                        <div className="w-full">
-                            <Select label={"Genero"} useDotLabel={true} options={genders}
-                                value={gender} onChange={(v) => { setGender(v) }} />
-                        </div>
-
-
-
-
-
-
-                    </div>
-
-
-                    <div className="md:flex md:space-x-2">
                         <Input label={"Telefono"} inputName={"phone"} useDotLabel={true} placeHolder="02129998877" />
 
-                        <Input label={"Telefono Secundario"} inputName={"secondary_phone"} useDotLabel={true} placeHolder="02129998877" />
+                        <Input label={"Telefono 2"} inputName={"secondary_phone"} useDotLabel={true} placeHolder="02129998877" />
+
+                        <div className="md:w-[27%]">
+                            <Input label={"Cod. Area"} inputName={"zip_code"} useDotLabel={true} placeHolder="0244" />
+
+                        </div>
+
                     </div>
 
-                    <Input label={"Residencia"} inputName={"residence"} useDotLabel={true} />
 
-                    <button ref={formRef} type="submit" className="opacity-0"></button>
+                    <div className="md:flex md:space-x-2">
 
+
+                        <div className="w-[30%]">
+                            <Select label={"Estado Civil"} useDotLabel={true} options={civilStatusList}
+                                value={civilStatus} onChange={(v) => { setCivilStatus(v) }} openUp={true} />
+                        </div>
+
+                        <Input label={"Residencia"} inputName={"residence"} useDotLabel={true} />
+                    </div>
                 </div>
 
             </div>
+
+            <button ref={submitTriggerRef} type="submit" className="w-0 h-0 opacity-0"></button>
 
         </form>
     )

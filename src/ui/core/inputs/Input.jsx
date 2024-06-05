@@ -17,7 +17,8 @@ export default function Input({
     validationRules = null,
     useDotLabel = false,
     useStrongErrColor = false,
-    placeHolder = ""
+    placeHolder = "",
+    outsideInputRef = null
 }) {
 
     if (!inputName)
@@ -73,7 +74,12 @@ export default function Input({
                              has-[:focus]:border-3.5 has-[:focus]:${common.borderColor(errMessage, useStrongErrColor)} `}>
                 <input
                     className="w-full h-full outline-none px-2 my-auto border-0 bg-transparent"
-                    ref={ref}
+                    ref={e => {
+                        if (ref)
+                            ref(e);
+                        if (outsideInputRef)
+                            outsideInputRef.current = e;
+                    }}
                     id={inputName}
                     type={type}
                     value={value}
@@ -87,11 +93,13 @@ export default function Input({
 
                 />
                 {icons}
+
             </div>
             {errMessage && errMessage?.length > 0 ?
                 <span className={`text-[0.7rem] font-light p-1 bg-transparent  
                 ${useStrongErrColor ? "text-rose-500" : "text-slate-500"} `}>{errMessage}</span>
                 : null}
+
 
         </div>
     )

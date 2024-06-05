@@ -36,20 +36,24 @@ export default function ModalContainer({ show, onClose, showX = true, children =
     return parentNode?.current != null ? (createPortal(<div className={`fixed left-0 top-0 w-screen h-screen overflow-auto  md:h-screen md:w-screen flex items-center justify-center 
            bg-black bg-opacity-20 duration-300 ease-in-out z-10 ${!show ? "opacity-0 pointer-events-none" : ""}`}>
 
-        <div className="relative w-full h-full md:h-auto overflow-auto rounded-xl bg-white shadow-lg shadow-gray-400 lg:max-w-[1000px]">
+        <div className="relative w-auto h-full md:h-auto overflow-auto rounded-xl  
+        bg-white shadow-lg shadow-gray-400 lg:max-w-[970px]">
 
             {showX && <CloseXSimbol onClose={onClose} />}
 
             {title && title.length > 0 && <h2 className='w-full bg-[#3C50E0] rounded-t-xl flex justify-center items-center
-            text-[whitesmoke] text-md h-11 p-2 shadow-md'>{title}</h2>}
+            text-[whitesmoke] text-md h-11 p-2 shadow-lg'>{title}</h2>}
 
-            <div className='w-full h-auto p-5 min-w-[375px]  min-h-[375px] shadow-md'>
+            <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px]'>
 
                 {show && children}
 
             </div>
-
+           
+            <span className='block h-0 md:block md:bg-[#3C50E0] md:h-[7px] md:w-full md:shadow-md '></span>
+        
         </div>
+        
     </div >, parentNode.current)
     ) : <></>;
 }

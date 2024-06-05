@@ -33,9 +33,7 @@ export default function InputFloatLabel({
         register(inputName, validationRules ?? {}) : CommonLogic.emptyRegister;
 
 
-    if (ref) {
-
-    }
+   
 
     function handleOnChange(e) {
         if (readOnly)

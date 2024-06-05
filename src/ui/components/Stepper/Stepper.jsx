@@ -1,9 +1,11 @@
+import { useRef, useState } from "react";
+
 class StepObject {
 
-    constructor(title, content, isValid) {
+    constructor(title, content) {
         this.title = title;
         this.content = content;
-        this.isValid = isValid;
+
     }
 }
 
@@ -69,11 +71,11 @@ function StepButton({ children, nextButton = true, onClick }) {
     )
 }
 
-function StepperTrackerItem({ title, number, isActive = false }) {
+function StepTrackerItem({ title, number, isActive = false }) {
 
     return (
         <li className="flex-1 md:max-w-[310px] shadow-sm">
-            <div className={`flex items-center font-medium px-4 py-5 w-full rounded-lg ${isActive ? 'bg-indigo-50' : 'bg-slate-200'} `}>
+            <div className={`flex items-center font-medium px-4 py-5 w-full rounded-lg ${isActive ? 'bg-indigo-100' : 'bg-slate-200'} `}>
                 <span className={`w-8 h-8 ${isActive ? 'bg-indigo-600 text-white' : 'bg-[whitesmoke] text-slate-700'} 
                    rounded-full flex justify-center items-center 
                    mr-3 text-sm lg:w-[40px] lg:h-[40px]`}>{number}</span>
@@ -84,14 +86,17 @@ function StepperTrackerItem({ title, number, isActive = false }) {
 
 }
 
-function StepperTracker({ steps }) {
+function StepperTracker({ steps, stepCounter = 0 }) {
+
+
+
     return (
         <ol className="w-full space-y-4  md:flex md:flex-row md:items-center  md:justify-between
             md:space-y-0 md:space-x-1  ">
             {steps.map((st, idx) => {
                 return (
-                    <StepperTrackerItem title={st.title}
-                        key={st.title} isActive={false} number={`${0}${idx}`} />
+                    <StepTrackerItem title={st.title}
+                        key={st.title} isActive={idx < stepCounter} number={`${0}${idx}`} />
                 )
             })}
         </ol>
@@ -100,42 +105,89 @@ function StepperTracker({ steps }) {
 
 }
 
-function Step({ children, title, onValid }) {
-
-
+function Step({ }) {
+    return (
+        <div className="w-full">
+        </div>
+    )
 
 }
 
 
-export { StepperTracker }
+export default function Stepper({ steps, onClickNext, onFinish, onClose }) {
 
 
-export default function Stepper({ steps, children, onClickNext, onClickPrev }) {
 
+    const [stepCounter, setStepCounter] = useState(0);
+
+    const [currentStep, setCurrentStep] = useState(steps[0]);
+
+
+    console.log("Renderizo", stepCounter, currentStep)
+
+    function handleNext() {
+
+        console.log("Next", stepCounter, steps.length);
+
+
+        let isSuccess = onClickNext();
+
+        if (!isSuccess)
+            return;
+
+
+
+        if (stepCounter == steps.length - 1) {
+
+            console.log("Test de aqui---->")
+            if (onFinish)
+                onFinish();
+
+            return;
+        }
+
+        console.log("Next", stepCounter, steps.length, currentStep);
+
+        setStepCounter(stepCounter + 1)
+        setCurrentStep(steps[stepCounter + 1])
+    }
+
+    function handlePrevious() {
+
+        console.log("Previous", stepCounter, currentStep);
+        if (stepCounter == 0) {
+
+            if (onClose)
+                onClose();
+
+            return;
+
+        }
+
+        setStepCounter(stepCounter - 1);
+        setCurrentStep(steps[stepCounter - 1])
+    }
 
 
     return (
         <div className="h-full w-full flex flex-col justify-between p-2">
 
             <div>
-                <StepperTracker steps={steps} />
+                <StepperTracker steps={steps} stepCounter={stepCounter} />
 
             </div>
 
             <div className="w-full">
-
-                {children}
-
-
+                {currentStep.content}
             </div>
 
 
 
             <div className="flex justify-between">
 
-                <StepButton nextButton={false} onClick={onClickPrev}>Anterior</StepButton>
+                <StepButton nextButton={false} onClick={handlePrevious}>Anterior</StepButton>
 
-                <StepButton nextButton={true} onClick={onClickNext}>Siguiente</StepButton>
+                <StepButton nextButton={true} onClick={handleNext}>Siguiente</StepButton>
 
             </div>
 

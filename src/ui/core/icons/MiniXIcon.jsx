@@ -1,4 +1,4 @@
-export default function ({ color = '#000001' }) {
+export default function MiniXIcon ({ color = '#000001' }) {
     return (
         <svg
             fill="iconNormal"

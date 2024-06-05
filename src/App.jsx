@@ -11,10 +11,12 @@ import FireFigther from "./assets/logo-3.png"
 import ShieldLogo from './ui/core/logo/ShieldLogo'
 import LoginForm from './ui/components/Authentication/LoginForm'
 import ModalContainer from './ui/core/modal/ModalContainer'
-import Stepper, { StepperTracker } from './ui/components/Stepper/Stepper'
+import Stepper from './ui/components/Stepper/Stepper'
 import InfoPersonalForm from './ui/components/Users/Forms/InfoPersonalForm'
-import AddInputFloat from './ui/core/inputs/AddInputFloat'
 import AddInput from './ui/core/inputs/AddInput'
+import SkillForm from './ui/components/Users/Forms/SkillsForm'
+import InstitutionInfoForm from './ui/components/Users/Forms/InstitutionInfoForm'
+import Toggle from './ui/core/buttons/Toggle'
 function TestComponent({ }) {
     return <div className="w-10  text-center flex"></div>
 }
@@ -105,6 +107,9 @@ function FormValidationTest({ }) {
 
     console.log(isSubmitted);
 
+    const [items, setItems] = useState([]);
+
+
     renderCount++;
 
     return (
@@ -144,21 +149,19 @@ function FormValidationTest({ }) {
                     errMessage={errors.test?.message} /> */}
 
 
-                <AddInputFloat label="Test" inputName="test" register={register} validationRules={{
+                {/* <AddInputFloat label="Test" inputName="test" register={register} validationRules={{
                     required: "Es campo es requerido",
                     minLength: { value: 5, message: "El campo debe superar 5" },
                     maxLength: { value: 10, message: "El campo no debe superar 10" }
 
                 }}
                     useStrongErrColor={isSubmitted}
-                    errMessage={errors.test?.message} />
+                    errMessage={errors.test?.message} /> */}
 
-                <AddInput label="Test" inputName="test" register={register} validationRules={{
-                    required: "Es campo es requerido",
-                    minLength: { value: 5, message: "El campo debe superar 5" },
-                    maxLength: { value: 10, message: "El campo no debe superar 10" }
-
-                }}
+                <AddInput label="Habilidad" inputName="skill"
+                    items={items}
+                    setItems={setItems}
+                    useDotLabel={true}
                     useStrongErrColor={isSubmitted}
                     errMessage={errors.test?.message} />
 
@@ -221,9 +224,28 @@ function LoginTestEffect() {
     )
 }
 
+const stepsObjects = [
+    {
+        title: "Registro Datos Basicos Usuario",
+        content: <InfoPersonalForm />
 
-function App() {
+    },
+    {
+        title: "Registro Datos Alergias y Habilidades",
+        content: <SkillForm />
+    },
+    {
+        title: "Registro Datos Institucionales",
+        content: <InstitutionInfoForm />
+    }
+]
+
+
+function StepperTest({ }) {
+
     const [openModel, setOpenModal] = useState(false);
+
+
 
     const infoUserForm = useRef(null)
 
@@ -231,26 +253,73 @@ function App() {
         infoUserForm.current?.click()
     }
 
+    return (
+        <>
+
+            <Button onClick={(e) => { setOpenModal(o => !o) }}>Click Me</Button>
+
+
+
+
+            <ModalContainer show={openModel} onClose={() => setOpenModal(false)} title='Registro de Usuario'>
+                <Stepper steps={stepsObjects} onClickNext={() => {
+                    return true;
+                }} onFinish={() => setOpenModal(false)}>
+
+                </Stepper>
+            </ModalContainer>
+        </>
+    )
+}
+
+function App() {
+
+
 
     return (
         <>
-            <main className="bg-[#F1F5F9] w-full h-screen flex flex-col justify-center items-center">
-                <Button onClick={(e) => { setOpenModal(o => !o) }}>Click Me</Button>
-                {/* <LoginForm></LoginForm> */}
+            <div className="bg-[#F1F5F9] w-full h-full">
 
-                <div className="flex flex-col justify-center items-center max-w-[420px] p-8 rounded-md shadow-lg bg-white">
-                    <FormValidationTest></FormValidationTest>
+
+                <div className='max-w-[1900px]'>
+
+                    <div className='relative flex w-full h-screen overflow-hidden'>
+
+
+                        <aside className='absolute top-0 z-10 h-screen w-[17rem] rounded-ms 
+                          overflow-y-hidden bg-[#1C2434] shadow-lg 
+                          trasition-position ease-in-out duration-500 
+                          md:static md:translate-x-0 -translate-x-full '>
+                        </aside>
+
+                        <div className='w-full overflow-y-auto overflow-x-hidden'>
+
+                            <nav className='sticky top-0 flex w-full h-[70px] 
+                            bg-[whitesmoke] shadow-lg rounded-sm'>
+                                TEST
+                            </nav>
+
+                            <main className='overflow-auto w-full h-auto'>
+                                  
+                                  <div className='w-20 h-20 border border-black'>
+
+                                  </div>
+
+                                  <div className='h-[900px] w-20'>
+
+                                  </div>
+
+                            </main>
+
+                        </div>
+
+                    </div>
+
+
                 </div>
 
+            </div>
 
-                <ModalContainer show={openModel} onClose={() => setOpenModal(false)} title='Probemos con un titulo bien largo'>
-                    <Stepper steps={steps} onClickNext={handleNextClick}>
-                        <InfoPersonalForm formRef={infoUserForm} />
-                    </Stepper>
-                </ModalContainer>
-
-                {/* <LoginTestEffect></LoginTestEffect> */}
-            </main>
             <div id="modal-root"></div>
         </>
     )
