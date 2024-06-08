@@ -18,7 +18,8 @@ export default function Input({
     useDotLabel = false,
     useStrongErrColor = false,
     placeHolder = "",
-    outsideInputRef = null
+    outsideInputRef = null,
+    
 }) {
 
     if (!inputName)

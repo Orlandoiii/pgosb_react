@@ -73,23 +73,26 @@ export default function ToggleColorTheme({ onToggle }) {
     }, [setToggle])
 
     return (
-        <button className="block relative w-[64px] h-[35px] shadow-sm border 
-        border-slate-300  rounded-full p-2 bg-slate-200 dark:bg-[#3C50E0] focus:outline-none"
+        <button className="block relative w-[60px] h-[33px] shadow-md border 
+        border-slate-300  rounded-full p-1 bg-slate-200 dark:bg-[#3C50E0] focus:outline-none"
             onClick={(e) => { handleToggle(setToggle, onToggle) }}>
 
-
-            <div className={`absolute  z-1  w-[25px] h-[25px] rounded-full 
+            <div className="w-full h-full shadow-sm rounded-full">
+                <div className={`absolute  z-1  w-[24px] h-[24px] rounded-full 
             bg-transparent  transition-position ease-in-out top-1/2  transform  -translate-y-1/2  
           duration-300 ${toggle ? "translate-x-full" : "translate-x-0"}`} >
 
-            </div>
+                </div>
 
-            <div className={`absolute  w-[25px] z-0 h-[25px] rounded-full  
+                <div className={`absolute  w-[24px] z-0 h-[24px] rounded-full  
             transition-position ease-in-out top-1/2  transform  -translate-y-1/2  
           duration-300 ${toggle ? "translate-x-0" : "translate-x-full"} shadow-sm`} >
-                {toggle ? <SunIcon /> : <MoonIcon />}
+                    {toggle ? <SunIcon /> : <MoonIcon />}
 
+                </div>
             </div>
+
+
         </button>
     )
 }
