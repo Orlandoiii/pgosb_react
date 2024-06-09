@@ -1,3 +1,4 @@
+import { useState, useRef } from "react";
 import Button from "../../../core/buttons/Button";
 import ModalContainer from "../../../core/modal/ModalContainer";
 import Stepper from "../../Stepper/Stepper";
@@ -22,7 +23,7 @@ const stepsObjects = [
 ]
 
 
-function RegisterUser({ }) {
+export function RegisterUser({ }) {
 
     const [openModel, setOpenModal] = useState(false);
 

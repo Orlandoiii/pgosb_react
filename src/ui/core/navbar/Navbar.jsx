@@ -59,7 +59,7 @@ export default function Navbar({ children }) {
 
             </nav>
 
-            <main className='overflow-auto w-full h-auto'>
+            <main className='overflow-auto w-full h-auto mx-auto p-8'>
                 {children}
             </main>
 

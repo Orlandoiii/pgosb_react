@@ -1,6 +1,16 @@
 import MainLayout from './ui/components/Layouts/MainLayout'
 
+
+
+
 function App() {
+
+    console.log(testJson);
+
+    let testParse = JSON.parse(testJson);
+
+    console.log(testParse);
+
 
     return (
         <>

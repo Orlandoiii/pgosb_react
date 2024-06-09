@@ -1,6 +1,12 @@
+import { useRouteError } from "react-router-dom";
+
+
+
 export default function NotFound({ }) {
+    const error = useRouteError();
+
     return (
-        <section className="flex items-center h-full sm:p-16 dark:bg-gray-50 dark:text-gray-800">
+        <section className="flex  justify-center items-center h-screen sm:p-16 dark:bg-gray-50 dark:text-gray-800">
             <div className="container flex flex-col items-center justify-center px-5 mx-auto my-8 space-y-8 text-center sm:max-w-md">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" className="w-40 h-40 dark:text-gray-400">
                     <path fill="currentColor" d="M256,16C123.452,16,16,123.452,16,256S123.452,496,256,496,496,388.548,496,256,388.548,16,256,16ZM403.078,403.078a207.253,207.253,0,1,1,44.589-66.125A207.332,207.332,0,0,1,403.078,403.078Z">
@@ -15,7 +21,9 @@ export default function NotFound({ }) {
                     </polygon>
                 </svg>
                 <p className="text-3xl">Opps!! Parece que estas visitando un recurso que no existe</p>
-                <a rel="noopener noreferrer" href="#" className="px-8 py-3 font-semibold rounded dark:bg-violet-600 dark:text-gray-50">Back to homepage</a>
+                <p className="text-2xl text-rose-600">Error: {error.statusText || error.message}</p>
+                <a rel="noopener noreferrer" href="/" className="text-[whitesmoke] px-8 py-3 font-semibold bg-[#3C50E0] rounded dark:bg-violet-600 dark:text-gray-50">
+                    Regresar</a>
             </div>
         </section>
     )
