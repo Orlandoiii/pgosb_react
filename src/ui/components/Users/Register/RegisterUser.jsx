@@ -1,5 +1,4 @@
-import { useState, useRef } from "react";
-import Button from "../../../core/buttons/Button";
+import {  useRef } from "react";
 import ModalContainer from "../../../core/modal/ModalContainer";
 import Stepper from "../../Stepper/Stepper";
 import InfoPersonalForm from "../Forms/InfoPersonalForm";
@@ -23,11 +22,7 @@ const stepsObjects = [
 ]
 
 
-export function RegisterUser({ }) {
-
-    const [openModel, setOpenModal] = useState(false);
-
-
+export function RegisterUser({ showModal, onClose, onFinish }) {
 
     const infoUserForm = useRef(null)
 
@@ -37,17 +32,11 @@ export function RegisterUser({ }) {
 
     return (
         <>
-
-            <Button onClick={(e) => { setOpenModal(o => !o) }}>Click Me</Button>
-
-
-
-
-            <ModalContainer show={openModel} onClose={() => setOpenModal(false)}
+            <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
                 title='Registro de Usuario'>
                 <Stepper steps={stepsObjects} onClickNext={() => {
                     return true;
-                }} onFinish={() => setOpenModal(false)}>
+                }} onFinish={() => { if (onFinish) onFinish() }}>
 
                 </Stepper>
             </ModalContainer>

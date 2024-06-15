@@ -29,7 +29,9 @@ export default function ModalContainer({ show, onClose, showX = true, children =
 
     useEffect(() => {
         let doc = document.querySelector("#modal-root");
+
         parentNode.current = doc;
+
     }, [])
 
 
@@ -49,11 +51,11 @@ export default function ModalContainer({ show, onClose, showX = true, children =
                 {show && children}
 
             </div>
-           
+
             <span className='block h-0 md:block md:bg-[#3C50E0] md:h-[7px] md:w-full md:shadow-md '></span>
-        
+
         </div>
-        
+
     </div >, parentNode.current)
     ) : <></>;
 }

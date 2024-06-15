@@ -1,9 +1,4 @@
-import { useRouteError } from "react-router-dom";
-
-
-
 export default function NotFound({ }) {
-    const error = useRouteError();
 
     return (
         <section className="flex  justify-center items-center h-screen sm:p-16 dark:bg-gray-50 dark:text-gray-800">
@@ -21,7 +16,6 @@ export default function NotFound({ }) {
                     </polygon>
                 </svg>
                 <p className="text-3xl">Opps!! Parece que estas visitando un recurso que no existe</p>
-                <p className="text-2xl text-rose-600">Error: {error.statusText || error.message}</p>
                 <a rel="noopener noreferrer" href="/" className="text-[whitesmoke] px-8 py-3 font-semibold bg-[#3C50E0] rounded dark:bg-violet-600 dark:text-gray-50">
                     Regresar</a>
             </div>

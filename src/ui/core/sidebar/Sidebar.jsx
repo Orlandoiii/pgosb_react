@@ -22,23 +22,27 @@ export default function Sidebar({ }) {
                     <h1 className='text-[whitesmoke] text-3xl uppercase font-medium'>Pgosb</h1>
                 </div>
             </div>
-
-
-
             <div className='flex flex-col overflow-y-auto no-scrollbar'>
 
                 <nav className='w-full  mt-8 px-4'>
 
                     <div className='space-y-3'>
+
                         <h2 className='px-2 uppercase text-[whitesmoke] opacity-60  text-sm mb-5 font-semibold'>Menu</h2>
-                        <SideBarLink icon={<UsersIcon />} name='Usuarios' />
-                        <SideBarLink icon={<ServiceIcon />} name='Servicios' />
-                        <SideBarLink icon={<RolsIncon />} name='Roles' />
-                        <SideBarLink icon={<StationIcon />} name='Estaciones' />
-                        <SideBarLink icon={<UnitIcon />} name='Unidades' />
-                        <SideBarLink icon={<LocationIcon />} name='Locaciones' />
-                        <SideBarLink icon={<AmbulanceIcon />} name='Centros Asistenciales' />
+
+                        <div className="space-y-4">
+                            <SideBarLink link="/users" icon={<UsersIcon />} name='Usuarios' />
+                            <SideBarLink link="/services" icon={<ServiceIcon />} name='Servicios' />
+                            <SideBarLink link="/roles" icon={<RolsIncon />} name='Roles' />
+                            <SideBarLink link="/stations" icon={<StationIcon />} name='Estaciones' />
+                            <SideBarLink link="/units" icon={<UnitIcon />} name='Unidades' />
+                            <SideBarLink link="/locations" icon={<LocationIcon />} name='Locaciones' />
+                            <SideBarLink link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' />
+                        </div>
                     </div>
+
+
+
                 </nav>
             </div>
         </aside>
