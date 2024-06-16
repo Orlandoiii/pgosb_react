@@ -3,7 +3,6 @@ import Input from './Input'
 import InputFloatLabel from './InputFloatLabel';
 import { CommonLogic } from "./ShareLogic";
 
-const common = new CommonLogic();
 
 function OptionContainerButton({ option, onClick }) {
     function handleOnClick() {
@@ -189,7 +188,6 @@ function SelectWithSearch({
 
 
     useEffect(() => {
-        console.log("aqui")
         if (isTouch.current && options.indexOf(value) === -1) {
             setErrMessage("Debe eligir una opcion valida");
             if (onError)

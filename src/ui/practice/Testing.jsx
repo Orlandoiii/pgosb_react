@@ -1,13 +1,14 @@
+import Accordion from "../core/accordion/Accordion";
 import AddIcon from "../core/icons/AddIcon";
 import DeleteIcon from "../core/icons/DeleteIcon";
 import ModifyIcon from "../core/icons/ModifyIcon";
+import FireLogo from "../core/logo/FireLogo";
 
-export default function Testing({ }) {
+
+function Buttons({ }) {
     return (
-        <div className="flex space-x-2">
-
-
-            <button className="w-[40px] h-[40px] p-1.5 bg-slate-600 rounded-full flex justify-center items-center shadow-md">
+        <>
+            {/* <button className="w-[40px] h-[40px] p-1.5 bg-slate-600 rounded-full flex justify-center items-center shadow-md">
                 <AddIcon />
             </button>
             <button className="w-[40px] h-[40px] p-1.5 bg-slate-600 rounded-full flex justify-center items-center shadow-md">
@@ -16,11 +17,18 @@ export default function Testing({ }) {
 
             <button className="w-[40px] h-[40px] p-2 bg-slate-600 rounded-full flex justify-center items-center shadow-md">
                 <DeleteIcon />
-            </button>
+            </button> */}
 
 
 
 
-        </div>
+
+        </>
+    )
+}
+
+export default function Testing({ }) {
+    return (
+        <FireLogo />
     )
 }

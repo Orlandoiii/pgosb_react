@@ -1,9 +1,8 @@
 import { useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
-import { RegisterUser } from "./Register/RegisterUser"
-import { Bounce, toast } from "react-toastify";
-import SmallToast from "../../core/alerts/SmallToast";
+
 import AlertController from "../../core/alerts/AlertController";
+import { RegisterUnit } from "./Register/RegisterUnit";
 
 const testJson = `[
     {
@@ -859,7 +858,7 @@ const testJson = `[
  ]`
 
 
-export default function UserPage({ }) {
+export default function UnitPage({ }) {
 
    const [openAddForm, setOpenAddForm] = useState(false);
 
@@ -878,13 +877,13 @@ export default function UserPage({ }) {
       <>
          <div className="">
             <TableDataGrid rawData={testJson} onAdd={() => { setOpenAddForm(true) }} onUpdate={onUpdate} />
-            <RegisterUser showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
+            <RegisterUnit showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={() => { setOpenAddForm(false) }} />
          </div>
 
-      
-     
-        
+
+
+
       </>
 
    )

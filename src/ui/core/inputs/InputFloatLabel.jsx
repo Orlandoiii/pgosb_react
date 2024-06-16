@@ -114,7 +114,7 @@ export default function InputFloatLabel({
             {icons}
 
             {errMessage && errMessage.length ?
-                <span className={`text-[0.7rem] font-light p-1 bg-transparent 
+                <span className={`text-xs font-light p-1 bg-transparent 
                 ${useStrongErrColor ? "text-rose-500" : "text-slate-500"} `}>{errMessage}</span>
                 : null}
 

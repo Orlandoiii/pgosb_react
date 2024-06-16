@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import ShieldLogo from "../../../core/logo/ShieldLogo"
 import Input from "../../../core/inputs/Input"
 import Button from "../../../core/buttons/Button";
+import logger from "../../../../logic/Logger/logger";
+import FireLogo from "../../../core/logo/FireLogo";
 
 function MessageIcon() {
     return (
@@ -48,19 +50,22 @@ export default function LoginForm({ }) {
 
     }
 
+    logger.log("Renderizando LoginForm");
+
     return (
 
         <section className="relative h-screen w-full  py-6 px-2 shadow-md rounded-xl 
-            border border-slate-150 flex flex-col justify-between items-center sm:h-auto sm:max-w-[30rem]  bg-[whitesmoke] sm:z-10">
+            border border-slate-150 flex flex-col justify-between items-center sm:h-auto sm:max-w-[30rem]  bg-[whitesmoke] bg-opacity-[0.98] sm:z-10">
 
-            <div className="py-6 px-2">
+            <div className="py-6 px-6  md:min-w-[500px] md:min-h-[600px]">
 
-                <div className="mb-8">
-                    <ShieldLogo width="w-[60px]" height="h-[60px]" />
+                <div className="mb-8 flex justify-center items-center space-x-2">
+                    <FireLogo width="w-[70px]" height="h-[70px]" bgColor="" />
+                    <h1 className="uppercase text-5xl ">pgsob</h1>
                 </div>
 
                 <h2 className="text-center mb-8 text-lg">
-                    Coloca usuario o correo y contraseña para Ingresar
+                    Coloca usuario o correo y contraseña para ingresar
                 </h2>
 
                 <form noValidate className="flex flex-col justify-center bg-inherit"
@@ -93,17 +98,11 @@ export default function LoginForm({ }) {
                         <Button>Registrarse</Button>
 
                     </div>
-
-
-
-
                 </form>
-
-
             </div>
-          
+
             <div className="text-center">
-                <a className="text-sm">Terminos y condiciones</a>
+                <a className="">Terminos y condiciones</a>
             </div>
 
         </section>

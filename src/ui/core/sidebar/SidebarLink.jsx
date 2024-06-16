@@ -1,25 +1,7 @@
 import { NavLink } from 'react-router-dom';
-import ArrowIcon from '../icons/ArrowIcon'
 
-function ArrowButton({ active, onClick }) {
-    return (
-        <button onClick={onClick}>
-            <ArrowIcon active={active} />
-        </button>
-    )
-}
 
 export default function SideBarLink({ icon = null, name = "", link = "" }) {
-
-
-
-    // let realLink = link;
-
-    // const isSectionLink = optLinks?.length > 0;
-
-    // if (isSectionLink) {
-    //     realLink = "";
-    // }
 
     return (
         <div className="">

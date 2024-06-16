@@ -10,7 +10,7 @@ const common = new CommonLogic();
 
 
 
-function EyeButton({ onClick, children }) {
+export function EyeButton({ onClick, children }) {
     return (
         <button type='button'
             onClick={(e) => { if (onClick) onClick(e) }}
@@ -36,31 +36,33 @@ function AddButtonFloat({ onClick }) {
     )
 }
 
-function StoreItem({ item, onDelete }) {
+export function StoreItem({ item, onDelete, showDelete }) {
     return (
         <div className="relative bg-[#29323C] text-[whitesmoke] py-2 px-8 
          border border-gray-500 shadow-lg rounded-full flex justify-center items-center">
             <p className="text-sm">
                 {item}
             </p>
-            <button onClick={() => {
+
+            {showDelete && <button onClick={() => {
                 if (onDelete)
                     onDelete(item);
             }}
                 className="absolute w-5 h-5 top-1/2 right-1.5 transform -translate-y-1/2">
                 <MiniXIcon color="#F43F5E" />
-            </button>
+            </button>}
+
         </div>
 
     )
 }
 
 
-function StoreList({ items, onDelete }) {
+export function StoreList({ items, onDelete, showDelete = true }) {
     return (
         <div className="w-full h-full flex flex-wrap justify-around space-x-1 space-y-1 ">
             {items && items.map(v => {
-                return <StoreItem item={v} key={v} onDelete={onDelete} />
+                return <StoreItem item={v} key={v} onDelete={onDelete} showDelete={showDelete} />
             })}
         </div>
     )
@@ -222,7 +224,7 @@ export default function AddInput({
 
 
             {errMessage && errMessage?.length > 0 ?
-                <span className={`text-[0.7rem] font-light p-1 bg-transparent  
+                <span className={`text-xs font-light p-1 bg-transparent  
                 ${useStrongErrColor ? "text-rose-500" : "text-slate-500"} `}>{errMessage}</span>
                 : null}
 

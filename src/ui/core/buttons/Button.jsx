@@ -1,5 +1,5 @@
 const defaultBgColors = {
-    Primary: 'bg-[#007BFF]',
+    Primary: 'bg-[#3C50E0]',
     Secondary: 'bg-[#6C757D]',
     Success: 'bg-[#28A745]',
     Danger: 'bg-[#DC3545]',
@@ -20,7 +20,7 @@ export default function Button({
 
     return (
         <button
-            className={`block px-3 py-2 border-2  bg-[#3C50E0] text-white  
+            className={`block px-3 py-2 border-2  ${colorType} text-white  
             text-md rounded-md shadow hover:bg-[#0069D9]`}
             onClick={handleOnClick}
         >

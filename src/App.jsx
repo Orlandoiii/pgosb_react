@@ -10,7 +10,8 @@ import Testing from "./ui/practice/Testing";
 import UserPage from "./ui/components/Users/UserPage";
 import ComingSoonPage from "./ui/core/errors/ComingSoonPage";
 import LoginPage from "./ui/components/Authentication/LoginPage";
-import { ToastContainer } from "react-toastify";
+import UnitPage from "./ui/components/Units/UnitPage";
+import logger from "./logic/Logger/logger.js";
 
 
 
@@ -39,7 +40,7 @@ const router = createBrowserRouter([
          },
          {
             path: "units/",
-            element: <ComingSoonPage />
+            element: <UnitPage />
          },
          {
             path: "locations/",
@@ -48,6 +49,10 @@ const router = createBrowserRouter([
          {
             path: "assist/",
             element: <ComingSoonPage />
+         },
+         {
+            path: "test/",
+            element: <Testing />
          }
 
       ]
@@ -65,6 +70,8 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
+   logger.log("Renderizo App");
+   
    return (
       <>
          <RouterProvider router={router} />

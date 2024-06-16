@@ -35,8 +35,8 @@ function ErrorIcon({ }) {
 
 const InfoData = { icon: <InfoIcon />, bgColor: "bg-blue-500", textColor: "text-blue-500", title: "Informacion" };
 const SuccessData = { icon: <SuccessIcon />, bgColor: "bg-emerald-500", textColor: "text-emerald-500", title: "Exitoso" }
-const WarningData = { icon: <WarningIcon />, bgColor: "bg-yellow-400", textColor: "text-yellow-400", title: "Advertencia" }
-const ErrorData = { icon: <InfoIcon />, bgColor: "bg-rose-500", textColor: "text-rose-500", title: "Error" }
+const WarningData = { icon: <WarningIcon />, bgColor: "bg-[#FACC15]", textColor: "text-[#FACC15]", title: "Advertencia" }
+const ErrorData = { icon: <ErrorIcon />, bgColor: "bg-rose-500", textColor: "text-rose-500", title: "Error" }
 
 function GetData(type) {
 
@@ -54,14 +54,13 @@ function GetData(type) {
     return { icon: <></>, bgColor: "", textColor: "", title: "" }
 }
 
-
 export default function SmallToast({ type = "info", message = "" }) {
 
     const { icon, bgColor, textColor, title } = GetData(type);
 
 
     return (
-        <div className="flex w-full max-w-sm overflow-hidden bg-white rounded-lg shadow-md">
+        <div className="absolute  top-0 left-0 flex w-full h-full rounded-md  bg-white">
             <div className={`flex items-center justify-center w-12 ${bgColor}`}>
                 {icon}
             </div>

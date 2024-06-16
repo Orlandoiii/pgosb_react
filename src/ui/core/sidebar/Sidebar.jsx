@@ -7,6 +7,8 @@ import StationIcon from "../icons/StationIcon"
 import UnitIcon from "../icons/UnitIcon"
 import LocationIcon from "../icons/LocationIcon"
 import AmbulanceIcon from "../icons/AmbulanceIcon"
+import TestIcon from "../icons/TestIcon"
+import FireLogo from "../logo/FireLogo"
 
 export default function Sidebar({ }) {
     return (
@@ -16,9 +18,9 @@ export default function Sidebar({ }) {
          trasition-position ease-in-out duration-500 
          md:static md:translate-x-0 -translate-x-full'>
 
-            <div className='py-6 pl-6'>
-                <div className='flex space-x-2'>
-                    <TailAdminLogo />
+            <div className='py-6 '>
+                <div className='flex justify-center items-center space-x-2  '>
+                    <FireLogo />
                     <h1 className='text-[whitesmoke] text-3xl uppercase font-medium'>Pgosb</h1>
                 </div>
             </div>
@@ -38,9 +40,10 @@ export default function Sidebar({ }) {
                             <SideBarLink link="/units" icon={<UnitIcon />} name='Unidades' />
                             <SideBarLink link="/locations" icon={<LocationIcon />} name='Locaciones' />
                             <SideBarLink link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' />
+                            <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' />
+
                         </div>
                     </div>
-
 
 
                 </nav>

@@ -3,8 +3,8 @@ import { useEffect, useRef } from "react";
 
 function CloseXSimbol({ onClose }) {
     return (
-        <button className='w-7 bg-rose-500 rounded-full p-2 
-        absolute top-2 right-4 shadow-md swadow-slate-500 focus:outline-none'
+        <button className='w-7 bg-rose-700 rounded-full p-2 
+        absolute z-10 top-2 right-4 shadow-md swadow-slate-500 focus:outline-none '
             onClick={(e) => {
                 e.stopPropagation();
                 if (onClose) onClose(e);
@@ -23,7 +23,7 @@ function CloseXSimbol({ onClose }) {
 }
 
 
-export default function ModalContainer({ show, onClose, showX = true, children = null, childrenHeigth = "", title = "" }) {
+export default function ModalContainer({ show, onClose, showX = true, children = null,  title = "" }) {
 
     const parentNode = useRef(null);
 
@@ -35,24 +35,25 @@ export default function ModalContainer({ show, onClose, showX = true, children =
     }, [])
 
 
-    return parentNode?.current != null ? (createPortal(<div className={`fixed left-0 top-0 w-screen h-screen overflow-auto  md:h-screen md:w-screen flex items-center justify-center 
+    return parentNode?.current != null ? (createPortal(<div className={`fixed left-0 top-0 w-screen h-screen overflow-auto  
+        md:h-screen md:w-screen flex items-center justify-center 
            bg-black bg-opacity-20 duration-300 ease-in-out z-10 ${!show ? "opacity-0 pointer-events-none" : ""}`}>
 
-        <div className="relative w-auto h-full md:h-auto overflow-auto rounded-xl  
-        bg-white shadow-lg shadow-gray-400 lg:max-w-[970px]">
+        <div className="relative w-full md:w-auto h-full md:h-auto overflow-auto rounded-xl  
+        bg-slate-100 shadow-lg shadow-gray-400 ">
 
             {showX && <CloseXSimbol onClose={onClose} />}
 
-            {title && title.length > 0 && <h2 className='w-full bg-[#3C50E0] rounded-t-xl flex justify-center items-center
+            {title && title.length > 0 && <h2 className='relative w-full bg-[#3C50E0] rounded-t-xl flex justify-center items-center
             text-[whitesmoke] text-md h-11 p-2 shadow-lg'>{title}</h2>}
 
-            <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px]'>
+            <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px] bg-slate-100'>
 
                 {show && children}
 
             </div>
 
-            <span className='block h-0 md:block md:bg-[#3C50E0] md:h-[7px] md:w-full md:shadow-md '></span>
+            <span className='h-0 md:block md:bg-[#3C50E0] md:h-[7px] md:w-full md:shadow-md '></span>
 
         </div>
 

@@ -2,39 +2,48 @@ import { useForm } from "react-hook-form";
 
 import Input from "../../../core/inputs/Input";
 import { Select } from "../../../core/inputs/Selects";
-import { useState } from "react";
-import AddInput from "../../../core/inputs/AddInput";
+import { useContext, useState } from "react";
+import { StepContext } from "../../Stepper/Stepper";
+import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
+import FormTitle from "../../../core/titles/FormTitle";
 
 const genders = ["M", "F"];
 
 const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
 
 
-const testValidationRules = {
+const requiredRule = {
     required: {
-        value: true,
+        value: false,
         message: "El campo es requerido",
     }
 }
 
 
 
-export default function InfoPersonalForm({ submitTriggerRef }) {
 
-    const { register, handleSubmit, formState } = useForm({ mode: "onChange" });
+export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
+
+    const { clickNextRef, currentData, Next } = useContext(StepContext);
+
+    const { register, handleSubmit, formState } = useForm({
+        mode: "onChange",
+        defaultValues: currentData,
+    });
 
     const { errors, isSubmitted } = formState;
 
+    const [gender, setGender] = useState(currentData?.gender ?? genders[0]);
 
-    const [gender, setGender] = useState(genders[0]);
-
-    const [civilStatus, setCivilStatus] = useState(civilStatusList[0]);
-
-    const [items, setItems] = useState([]);
-
+    const [civilStatus, setCivilStatus] = useState(currentData?.civil_status ?? civilStatusList[0]);
 
     function handleSubmitInternal(data) {
 
+        if (onSubmit)
+            onSubmit(data);
+
+        if (Next)
+            Next(data);
     }
 
     return (
@@ -42,10 +51,17 @@ export default function InfoPersonalForm({ submitTriggerRef }) {
         <form
             noValidate
 
-            onSubmit={handleSubmit((data) => { handleSubmitInternal(data) })}
-            className="mx-auto my-10 w-full max-w-[365px] md:max-w-[100%]">
+            onSubmit={
+                handleSubmit((data) => {
 
-            <h2 className="text-sm text-center mb-4 uppercase">Datos basicos del usuario</h2>
+                    const newData = { ...data, "gender": gender, "civil_status": civilStatus }
+
+                    handleSubmitInternal(newData)
+                })}
+
+            className="mx-auto my-10 w-full max-w-[500px] md:max-w-[100%]">
+
+            <FormTitle title={"Datos basicos del usuario"} />
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
@@ -53,18 +69,32 @@ export default function InfoPersonalForm({ submitTriggerRef }) {
 
                     <div className="md:flex md:space-x-2">
                         <Input
+
                             register={register}
-                            validationRules={testValidationRules}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.user_name?.message}
+                            useStrongErrColor={isSubmitted}
+
                             label={"Usuario"}
                             inputName={"user_name"}
                             useDotLabel={true}
                             placeHolder="jondoe"
-                            errMessage={errors.user_name?.message}
-                            useStrongErrColor={isSubmitted}
+
                         />
 
 
-                        <Input label={"Email"} inputName={"email"} useDotLabel={true} placeHolder="jondoe@example.com" />
+                        <Input
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.email?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Email"}
+                            inputName={"email"}
+                            useDotLabel={true}
+                            placeHolder="jondoe@example.com" />
 
                         <div className="md:w-[20%]">
                             <Select label={"Genero"} useDotLabel={true} options={genders}
@@ -77,14 +107,50 @@ export default function InfoPersonalForm({ submitTriggerRef }) {
                     <div className="md:flex  md:space-x-2">
 
 
-                        <Input label={"Nombre"} inputName={"first_name"} useDotLabel={true} placeHolder="Jon" />
+                        <Input
+
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.first_name?.message}
+                            useStrongErrColor={isSubmitted}
 
 
-                        <Input label={"Apellido"} inputName={"last_name"} useDotLabel={true} placeHolder="Doe" />
+                            label={"Nombre"}
+                            inputName={"first_name"}
+                            useDotLabel={true}
+                            placeHolder="Jon" />
+
+
+                        <Input
+
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.last_name?.message}
+                            useStrongErrColor={isSubmitted}
+
+
+                            label={"Apellido"}
+                            inputName={"last_name"}
+                            useDotLabel={true}
+                            placeHolder="Doe" />
 
 
                         <div className="w-[45%]">
-                            <Input label={"Fe. Nacimiento"} inputName={"birth_date"} useDotLabel={true} placeHolder="01-01-0001" />
+                            <Input
+
+                                register={register}
+                                validationRules={requiredRule}
+
+                                errMessage={errors.birth_date?.message}
+                                useStrongErrColor={isSubmitted}
+
+                                label={"Fe. Nacimiento"}
+                                inputName={"birth_date"}
+                                useDotLabel={true}
+                                placeHolder="01-01-0001" />
+
                         </div>
 
 
@@ -93,12 +159,44 @@ export default function InfoPersonalForm({ submitTriggerRef }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <Input label={"Telefono"} inputName={"phone"} useDotLabel={true} placeHolder="02129998877" />
+                        <Input
 
-                        <Input label={"Telefono 2"} inputName={"secondary_phone"} useDotLabel={true} placeHolder="02129998877" />
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.phone?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Telefono"}
+                            inputName={"phone"}
+                            useDotLabel={true}
+                            placeHolder="02129998877" />
+
+                        <Input
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.secondary_phone?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Telefono 2"}
+                            inputName={"secondary_phone"}
+                            useDotLabel={true}
+                            placeHolder="02129998877" />
 
                         <div className="md:w-[27%]">
-                            <Input label={"Cod. Area"} inputName={"zip_code"} useDotLabel={true} placeHolder="0244" />
+                            <Input
+
+                                register={register}
+                                validationRules={requiredRule}
+
+                                errMessage={errors.zip_code?.message}
+                                useStrongErrColor={isSubmitted}
+
+                                label={"Cod. Area"}
+                                inputName={"zip_code"}
+                                useDotLabel={true}
+                                placeHolder="0244" />
 
                         </div>
 
@@ -113,13 +211,23 @@ export default function InfoPersonalForm({ submitTriggerRef }) {
                                 value={civilStatus} onChange={(v) => { setCivilStatus(v) }} openUp={true} />
                         </div>
 
-                        <Input label={"Residencia"} inputName={"residence"} useDotLabel={true} />
+                        <Input
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.residence?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Residencia"}
+                            inputName={"residence"}
+                            useDotLabel={true} />
+
                     </div>
                 </div>
 
             </div>
 
-            <button ref={submitTriggerRef} type="submit" className="w-0 h-0 opacity-0"></button>
+            <FormHiddenButton clickNextRef={clickNextRef} clickSubmitRef={clickSubmitRef} />
 
         </form>
     )

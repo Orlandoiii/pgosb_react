@@ -203,6 +203,31 @@
     }
 
 
+    .toast-container {
+        width: 300px;
+    }
+
+    @media screen and (min-width:700px) {
+        .toast-container {
+            width: 600px;
+        }
+    }
+
+
+    .capitalize-first::first-letter {
+        text-transform: uppercase;
+    }
+
+
+    .login-bg {
+        background-image: linear-gradient(to right bottom,rgba(22, 57, 87, 0.788),rgba(29, 32, 34, 0.849)),
+            url("./assets/bg-login-image.jpg");
+        background-repeat: no-repeat;
+        background-position: bottom;
+        background-size: cover;
+        opacity: 0.95;
+       
+    }
 
 
 
