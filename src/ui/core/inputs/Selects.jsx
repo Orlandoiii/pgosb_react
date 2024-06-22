@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import Input from './Input'
 import InputFloatLabel from './InputFloatLabel';
-import { CommonLogic } from "./ShareLogic";
+import logger from '../../../logic/Logger/logger';
 
 
 function OptionContainerButton({ option, onClick }) {
@@ -22,7 +22,7 @@ function OptionContainerButton({ option, onClick }) {
     )
 }
 
-function OptionSelectorButton({ open, setOpen, buttonRef, openUp }) {
+export function OptionSelectorButton({ open, setOpen, buttonRef, openUp }) {
     return (
         <button
             type="button"
@@ -30,8 +30,7 @@ function OptionSelectorButton({ open, setOpen, buttonRef, openUp }) {
             onMouseDown={(e) => {
                 e.stopPropagation()
                 setOpen((o) => !o)
-            }}
-        >
+            }}>
             <svg
                 ref={buttonRef}
                 className={`${!open ? 'fill-gray-400' : ''} hover:fill-blue-400 w-4 ${openUp ? "rotate-180" : ""}
@@ -49,17 +48,13 @@ function OptionSelectorButton({ open, setOpen, buttonRef, openUp }) {
     )
 }
 
-function Options({
+export function Options({
     options,
     value,
     onSelected,
     setOpen,
     autoCompleted = false,
-
-
 }) {
-
-
 
     const justOneMacht = useRef("");
 
@@ -116,16 +111,12 @@ function Options({
     }, [options, value])
 }
 
-function OptionsContainer({
-    options,
-    value,
-    open,
-    setOpen,
-    onSelected,
-    autoCompleted,
-    openUp,
-    bottomSeparation = "bottom-12"
+export function OptionsContainer({
 
+    open,
+    openUp,
+    bottomSeparation = "bottom-12",
+    children,
 }) {
     return (
         <div
@@ -133,223 +124,111 @@ function OptionsContainer({
             className={`absolute w-full  ${openUp ? bottomSeparation : "top-18"} z-10 border-[#3B82F6]  
             rounded-md overflow-auto transition-all duration-300  
             text-black translate-y-3",
-            ${open ? 'max-h-52 border' : 'max-h-0 border-0'}`}
-        >
-            {
+            ${open ? 'max-h-52 border' : 'max-h-0 border-0'}`}>
+            {children}
+        </div>
+    )
+}
+
+
+export default function Select({
+    inputName,
+    label,
+    useDotLabel = false,
+    value,
+    type = "text",
+
+    onSelected,
+    onFocus,
+    onMouseDown,
+
+    register,
+    setValue,
+    controlled = false,
+    options = [],
+    openUp = false
+
+}) {
+
+    logger.log("Renderizo new Select")
+
+    const [open, setOpen] = useState(false)
+
+    const ref = useRef(null) // Ref for the main Select div
+
+    const inputRef = useRef(null)
+
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (open && ref?.current && !ref.current.contains(event.target)) {
+                setOpen(false)
+            }
+        }
+        document.addEventListener('mousedown', handleClickOutside)
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [open, setOpen])
+
+
+    function handleOnSelected(selectValue) {
+
+        if (!controlled && register && selectValue !== '') {
+
+            inputRef.current.value = selectValue;
+            if (setValue)
+                setValue(inputName, selectValue);
+            return;
+        }
+
+        if (onSelected && selectValue !== '')
+            onSelected(selectValue)
+
+    }
+
+    function handleOnFocus(e) {
+        setOpen(true);
+        if (onFocus)
+            onFocus(e);
+    }
+
+    function handleOnClick(e) {
+        e.stopPropagation()
+        setOpen((o) => !o)
+    }
+
+    return (
+        <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
+
+            <Input
+                label={label}
+                inputName={inputName}
+                value={value}
+                controlled={false}
+
+                {...(register ? { register: register } : {})}
+
+                type={type}
+                onClick={handleOnClick}
+                onMouseDown={onMouseDown}
+
+                inputRef={inputRef}
+
+                readOnly={true}
+                onFocus={handleOnFocus}
+                useDotLabel={useDotLabel}
+                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
+            />
+
+            <OptionsContainer open={open} openUp={openUp}>
                 <Options
                     options={options}
                     value={value}
                     setOpen={setOpen}
-                    onSelected={onSelected}
-                    autoCompleted={autoCompleted}
-
-                />
-            }
+                    onSelected={handleOnSelected} />
+            </OptionsContainer>
         </div>
     )
 }
 
-function SelectWithSearch({
-    label,
-    value,
-    type = 'text',
-    options = [],
-    onChange,
-    onChangeRaw,
-    useDotLabel = false,
-    useFloatingLabel = false,
-    useStrongErrColor = false,
-    onError,
-    openUp = false
-}) {
-    const [open, setOpen] = useState(false)
-
-    const ref = useRef(null) // Ref for the main Select div
-
-
-
-    const inputRef = useRef(null)
-
-    const isTouch = useRef(false)
-
-    const [errMessage, setErrMessage] = useState("");
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (open && ref?.current && !ref.current.contains(event.target)) {
-                setOpen(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [open, setOpen])
-
-
-    useEffect(() => {
-        if (isTouch.current && options.indexOf(value) === -1) {
-            setErrMessage("Debe eligir una opcion valida");
-            if (onError)
-                onError(true);
-            return;
-        }
-        if (onError)
-            onError(false);
-        setErrMessage("");
-
-    }, [errMessage, setErrMessage, value])
-
-    function handleOnChange(e) {
-        isTouch.current = true;
-        if (onChange) onChange(e.target.value)
-        if (onChangeRaw) onChangeRaw(e)
-    }
-
-    function handleOnSelected(selectValue) {
-        if (onChange)
-            onChange(selectValue)
-        inputRef.current?.blur();
-    }
-
-    function handleOnFocus(e) {
-        isTouch.current = true;
-        setOpen(true)
-        if (onChange) onChange('')
-    }
-
-    function handleOnClick(e) {
-
-        e.stopPropagation()
-        setOpen((o) => !o)
-    }
-
-    return (
-        <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
-            {useFloatingLabel ? <InputFloatLabel
-                label={label}
-                value={value}
-                type={type}
-                onClick={handleOnClick}
-                onChangeEvent={handleOnChange}
-                readOnly={false}
-                onFocus={handleOnFocus}
-                errMessage={errMessage}
-                useStrongErrColor={useStrongErrColor}
-                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
-            /> :
-                <Input
-
-                    label={label}
-                    value={value}
-                    type={type}
-                    onClick={handleOnClick}
-                    onChangeEvent={handleOnChange}
-                    readOnly={false}
-                    onFocus={handleOnFocus}
-                    useDotLabel={useDotLabel}
-                    errMessage={errMessage}
-                    useStrongErrColor={useStrongErrColor}
-                    outsideInputRef={inputRef}
-                    icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
-                />
-            }
-
-            <OptionsContainer
-                open={open}
-                setOpen={setOpen}
-                options={options}
-                value={value}
-                onSelected={handleOnSelected}
-                autoCompleted={true}
-                openUp={openUp}
-                bottomSeparation='bottom-20'
-            />
-        </div>
-    )
-}
-
-function Select({
-    label,
-    value,
-    type = 'text',
-    options = [],
-    onChange,
-    onChangeRaw,
-    useDotLabel = false,
-    useFloatingLabel = false,
-    openUp = false
-
-}) {
-    const [open, setOpen] = useState(false)
-
-    const ref = useRef(null) // Ref for the main Select div
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (open && ref?.current && !ref.current.contains(event.target)) {
-                setOpen(false)
-            }
-        }
-        document.addEventListener('mousedown', handleClickOutside)
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside)
-        }
-    }, [open, setOpen])
-
-    function handleOnChange(e) {
-        if (onChange) onChange(e.target.value)
-        if (onChangeRaw) onChangeRaw(e)
-    }
-
-    function handleOnSelected(selectValue) {
-        if (onChange && selectValue !== '') onChange(selectValue)
-    }
-
-    function handleOnFocus(e) {
-        setOpen(true)
-    }
-
-    function handleOnClick(e) {
-        e.stopPropagation()
-        setOpen((o) => !o)
-    }
-
-    return (
-        <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
-            {useFloatingLabel ? <InputFloatLabel
-                label={label}
-                value={value}
-                type={type}
-                onClick={handleOnClick}
-                onChangeEvent={handleOnChange}
-                readOnly={true}
-                onFocus={handleOnFocus}
-                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
-            /> :
-                <Input
-                    label={label}
-                    value={value}
-                    type={type}
-                    onClick={handleOnClick}
-                    onChangeEvent={handleOnChange}
-                    readOnly={true}
-                    onFocus={handleOnFocus}
-                    useDotLabel={useDotLabel}
-                    icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
-                />
-            }
-            <OptionsContainer
-                open={open}
-                setOpen={setOpen}
-                options={options}
-                value={value}
-                onSelected={handleOnSelected}
-                autoCompleted={false}
-                openUp={openUp}
-            />
-        </div>
-    )
-}
-
-export { Select, SelectWithSearch }

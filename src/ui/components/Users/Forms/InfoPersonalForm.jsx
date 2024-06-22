@@ -1,8 +1,8 @@
 import { useForm } from "react-hook-form";
 
 import Input from "../../../core/inputs/Input";
-import { Select } from "../../../core/inputs/Selects";
-import { useContext, useState } from "react";
+import  Select  from "../../../core/inputs/Selects";
+import { useContext } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import FormTitle from "../../../core/titles/FormTitle";
@@ -19,23 +19,18 @@ const requiredRule = {
     }
 }
 
-
-
-
 export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const { register, handleSubmit, formState } = useForm({
+    const { register, handleSubmit, formState, setValue } = useForm({
         mode: "onChange",
         defaultValues: currentData,
     });
 
     const { errors, isSubmitted } = formState;
 
-    const [gender, setGender] = useState(currentData?.gender ?? genders[0]);
 
-    const [civilStatus, setCivilStatus] = useState(currentData?.civil_status ?? civilStatusList[0]);
 
     function handleSubmitInternal(data) {
 
@@ -53,10 +48,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
             onSubmit={
                 handleSubmit((data) => {
-
-                    const newData = { ...data, "gender": gender, "civil_status": civilStatus }
-
-                    handleSubmitInternal(newData)
+                    handleSubmitInternal(data)
                 })}
 
             className="mx-auto my-10 w-full max-w-[500px] md:max-w-[100%]">
@@ -97,8 +89,15 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             placeHolder="jondoe@example.com" />
 
                         <div className="md:w-[20%]">
-                            <Select label={"Genero"} useDotLabel={true} options={genders}
-                                value={gender} onChange={(v) => { setGender(v) }} openUp={false} />
+                            <Select
+                                inputName={"gender"}
+                                register={register}
+                                setValue={setValue}
+                                label={"Genero"}
+                                useDotLabel={true}
+                                options={genders}
+                                value={genders[0]}
+                                openUp={false} />
                         </div>
 
                     </div>
@@ -207,8 +206,16 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
 
                         <div className="w-[30%]">
-                            <Select label={"Estado Civil"} useDotLabel={true} options={civilStatusList}
-                                value={civilStatus} onChange={(v) => { setCivilStatus(v) }} openUp={true} />
+                            <Select
+
+                                inputName={"civil_state"}
+                                label={"Estado Civil"}
+                                useDotLabel={true}
+                                options={civilStatusList}
+                                value={civilStatusList[0]}
+                                register={register}
+                                setValue={setValue}
+                                openUp={true} />
                         </div>
 
                         <Input

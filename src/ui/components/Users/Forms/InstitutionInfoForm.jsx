@@ -1,7 +1,9 @@
 import { useForm } from "react-hook-form";
 
 import Input from "../../../core/inputs/Input";
-import { Select, SelectWithSearch } from "../../../core/inputs/Selects";
+import Select from "../../../core/inputs/Selects";
+import SelectWithSearch from "../../../core/inputs/SelectWithSearch";
+
 import { useContext, useState } from "react";
 import Toggle from "../../../core/buttons/Toggle";
 import { StepContext } from "../../Stepper/Stepper";
@@ -36,7 +38,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
 
-    const { register, handleSubmit, formState } = useForm({
+    const { register, handleSubmit, formState, setValue } = useForm({
         mode: "onChange",
         defaultValues: currentData
     });
@@ -45,12 +47,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [rol, setRol] = useState(currentData?.rol ?? rolList[0]);
 
-
-    const [rank, setRank] = useState(currentData?.rank ?? rankList[0]);
-
-    const [rankErr, setRankErr] = useState("");
-
-
+    const [rolErr, setRolErr] = useState("");
 
     const [division, setDivision] = useState(currentData?.division ?? divisions[0]);
 
@@ -61,10 +58,6 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [profesionErr, setProfesionErr] = useState("");
 
-
-
-
-    const [institution, setInstitution] = useState(currentData?.institution ?? instituions[0]);
 
     const [isSystemUser, setIsSystemUser] = useState(currentData?.is_system_user ?? false);
 
@@ -89,17 +82,15 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
             onSubmit={handleSubmit((
                 data) => {
 
-                if (rankErr.length > 0 || divisionErr.length > 0 || profesionErr.length > 0)
+                if (rolErr || divisionErr || profesionErr)
                     return
 
                 const newData = {
                     ...data,
                     "is_system_user": isSystemUser,
-                    "rank": rank,
                     "profesion": profesion,
                     "rol": rol,
                     "division": division,
-                    "institution": institution
                 }
 
                 handleSubmitInternal(newData)
@@ -165,24 +156,29 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
                         <div className="w-full h-full">
-                            <Select label={"Jerarquia"}
-
+                            <Select
+                                label={"Jerarquia"}
+                                inputName="rank"
+                                register={register}
+                                setValue={setValue}
                                 useDotLabel={true}
                                 options={rankList}
-                                value={rank}
-                                onChange={(v) => { setRank(v) }} openUp={true} useStrongErrColor={isSubmitted} />
+                                value={rankList[0]}
+                                openUp={true} />
 
                         </div>
                         <div className="w-full h-full">
                             <SelectWithSearch
 
-                                onError={(err) => { setRankErr(err) }}
                                 label={"Rol"}
                                 useDotLabel={true}
                                 options={rolList}
                                 value={rol}
                                 onChange={(v) => { setRol(v) }}
                                 openUp={true}
+
+                                errMessage={rolErr}
+                                onError={(err) => { setRolErr(err) }}
                                 useStrongErrColor={isSubmitted} />
                         </div>
 
@@ -214,12 +210,13 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <Select
                             label={"Institucion"}
+                            inputName={"institution"}
+                            register={register}
+                            setValue={setValue}
                             useDotLabel={true}
-                            options={rankList}
-                            value={institution}
-                            onChange={(v) => { setInstitution(v) }}
-                            openUp={true}
-                            useStrongErrColor={isSubmitted} />
+                            options={instituions}
+                            value={instituions[0]}
+                            openUp={true} />
 
                     </div>
 

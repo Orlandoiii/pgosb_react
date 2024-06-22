@@ -1,10 +1,12 @@
-import { useReducer, useState } from "react";
+import { useReducer, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Select, SelectWithSearch } from "../core/inputs/Selects";
+import Select from "../core/inputs/Selects";
+import SelectWithSearch from '../core/inputs/SelectWithSearch';
 import logger from "../../logic/Logger/logger";
 import Input from "../core/inputs/Input";
 import AddInput from "../core/inputs/AddInput";
 import Button from "../core/buttons/Button";
+import SycomComponent from "./SycomComponent";
 
 
 
@@ -127,14 +129,19 @@ function FormTest({ }) {
 
     const [civilStatus, setCivilStatus] = useState(civilStatusList[0]);
 
-    const { register, handleSubmit, formState } = useForm({
+    const { register, handleSubmit, formState, setValue } = useForm({
         mode: "onChange",
 
     });
 
+    const [outside, setOutSide] = useState("");
+
+    const outSideRef = useRef("");
+
     const { errors, isSubmitted } = formState;
 
 
+    logger.log("Renderizo Forma Test")
 
 
     return (
@@ -168,8 +175,35 @@ function FormTest({ }) {
                 />
 
 
-                <Select label={"Estado Civil"} useDotLabel={true} options={civilStatusList}
-                    value={civilStatus} onChange={(v) => { setCivilStatus(v) }} openUp={true} />
+                <Input
+
+                    label={"Apellido"}
+
+                    readOnly={false}
+
+
+                    register={register}
+                    validationRules={requiredRule}
+
+                    useStrongErrColor={isSubmitted}
+                    errMessage={errors.last_name?.message}
+
+                    inputName={"last_name"}
+                    useDotLabel={true}
+                    placeHolder="Doe"
+                    onChangeEvent={(e) => { logger.log("Cambio Uncontrolled Input") }}
+
+                />
+
+
+                <Select register={register}
+                    label={"Estado Civil"}
+                    inputName={"civil_state"}
+                    useDotLabel={true}
+                    options={civilStatusList}
+                    value={civilStatus}
+                    setValue={setValue}
+                    openUp={true} />
 
 
                 <SelectWithSearch
@@ -194,9 +228,39 @@ function FormTest({ }) {
                     setItems={setAllergies}
                 />
 
+
+
                 <Button>Submit</Button>
 
             </form>
+
+            <div className="flex flex-col justify-center items-center mt-8">
+                <h2>Outside Form Input</h2>
+
+                <Input
+
+                    label={"Outside"}
+
+                    readOnly={false}
+
+
+                    controlled={false}
+
+                    useStrongErrColor={isSubmitted}
+
+                    value={"Init"}
+                    inputName={"outside"}
+                    useDotLabel={true}
+                    placeHolder="Outside"
+                    inputRef={outSideRef}
+                    onChangeEvent={(e) => {
+                        logger.log("Cambio controlled Input: ", outSideRef.current.value);
+
+                    }}
+
+                />
+
+            </div>
         </div>
     )
 }
@@ -204,6 +268,11 @@ function FormTest({ }) {
 
 export default function Testing({ }) {
     return (
-        <FormTest />
+
+        <>
+            <SycomComponent />
+            <FormTest />
+
+        </>
     )
 }

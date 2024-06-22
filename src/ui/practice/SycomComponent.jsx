@@ -14,7 +14,7 @@ export default function SycomComponent({ }) {
             </h2>
 
 
-            <a href="https://pruebas.local.sypago.net/checkout/free/12345789"
+            <a href="https://desarrollo.sypago.net/checkout/free/12345789"
                 className="p-2 bg-sky-400 text-white rounded-sm">Click Me</a>
 
 

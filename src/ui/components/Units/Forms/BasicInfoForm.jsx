@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import { useForm } from "react-hook-form";
 import FormTitle from "../../../core/titles/FormTitle";
-import { SelectWithSearch } from "../../../core/inputs/Selects";
+import SelectWithSearch  from "../../../core/inputs/SelectWithSearch";
 import Input from "../../../core/inputs/Input";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 
 import Input from "../../../core/inputs/Input";
-import { Select } from "../../../core/inputs/Selects";
+import Select from "../../../core/inputs/Selects";
 import { useContext, useState } from "react";
 import AddInput from "../../../core/inputs/AddInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
@@ -26,7 +26,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
 
-    const { register, handleSubmit, formState } = useForm({ mode: "onChange", defaultValues: currentData });
+    const { register, handleSubmit, formState, setValue } = useForm({ mode: "onChange", defaultValues: currentData });
 
     const { errors, isSubmitted } = formState;
 
@@ -35,11 +35,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
     const [allergies, setAllergies] = useState(currentData?.allergies ?? []);
 
 
-    const [bloodType, setBloodType] = useState(currentData?.blood_type ?? bloodTypes[0]);
 
-    const [shirtSize, setShirtSize] = useState(currentData?.shirt_size ?? shirtSizes[0])
-
-    const [pantsSize, setPantsSize] = useState(currentData?.pants_size ?? shirtSizes[0])
 
 
     function handleSubmitInternal(data) {
@@ -60,8 +56,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
             onSubmit={handleSubmit((data) => {
 
                 const newData = {
-                    ...data, "blood_type": bloodType, "skills": skills, "allergies": allergies,
-                    "shirt_size": shirtSize, "pants_size": pantsSize
+                    ...data, "skills": skills, "allergies": allergies,
                 }
 
                 handleSubmitInternal(newData)
@@ -104,11 +99,15 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                         </div>
 
                         <div className="md:w-[20%]">
-                            <Select label={"Tipo de Sangre"}
+                            <Select
+                                label={"Tipo de Sangre"}
+                                inputName={"blood_type"}
+                                register={register}
                                 useDotLabel={true}
                                 options={bloodTypes}
-                                value={bloodType}
-                                onChange={(v) => { setBloodType(v) }} openUp={true} />
+                                value={bloodTypes[0]}
+                                setValue={setValue}
+                                openUp={true} />
                         </div>
 
 
@@ -121,12 +120,13 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                         <div className=" md:w-[15%]">
                             <Select
-
+                                inputName={"shirt_size"}
                                 label={"Talla Camisa"}
                                 useDotLabel={true}
                                 options={shirtSizes}
-                                value={shirtSize}
-                                onChange={(v) => { setShirtSize(v) }}
+                                value={shirtSizes[0]}
+                                register={register}
+                                setValue={setValue}
                                 openUp={true}
 
                             />
@@ -134,11 +134,12 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                         <div className=" md:w-[15%]">
                             <Select label={"Talla Pantalon"}
-
+                                inputName={"pants_size"}
+                                register={register}
+                                setValue={setValue}
                                 useDotLabel={true}
                                 options={shirtSizes}
-                                value={pantsSize}
-                                onChange={(v) => { setPantsSize(v) }}
+                                value={shirtSizes[0]}
                                 openUp={true}
                             />
                         </div>

@@ -1,63 +1,67 @@
+import logger from "../../../logic/Logger/logger";
 import { CommonLogic } from "./ShareLogic";
 
 const common = new CommonLogic();
 
 export default function Input({
+
     inputName,
     label,
+    useDotLabel = false,
     value,
     type = "text",
+    placeHolder = "",
+    readOnly = false,
+
+    errMessage = '',
+    useStrongErrColor = false,
+    icons,
+
     onChangeEvent,
     onFocus,
-    onMouseDown = null,
-    readOnly = false,
-    icons = null,
-    errMessage = '',
-    register = null,
-    validationRules = null,
-    useDotLabel = false,
-    useStrongErrColor = false,
-    placeHolder = "",
-    outsideInputRef = null,
-    
+    onMouseDown,
+
+    register,
+    validationRules,
+
+    inputRef = null,
+    controlled = false
+
+
 }) {
+
+
+    logger.log("Renderizo NewInput")
 
     if (!inputName)
         inputName = label;
 
 
-    const { onChange, onBlur, name, ref } = register != null ?
+    const { onChange, onBlur, ref } = register != null && !controlled ?
         register(inputName, validationRules ?? {}) : CommonLogic.emptyRegister;
 
 
     function handleOnChange(e) {
-        if (readOnly)
-            return;
-
         if (register) {
+          
             onChange(e);
             return;
         }
-        if (onChangeEvent)
-            onChangeEvent(e);
+
+        if (onChangeEvent) {
+            onChangeEvent(e)
+        }
+
     }
 
     function handleOnBlur(e) {
-        if (readOnly)
-            return;
 
         if (onBlur) {
             onBlur(e)
         }
     }
 
-    function handleOnMouseDown(e) {
-        if (readOnly)
-            return;
-        if (onMouseDown) {
-            onMouseDown(e)
-        }
-    }
+
 
     return (
         <div className={`group w-full relative flex flex-col justify-center`}>
@@ -78,19 +82,26 @@ export default function Input({
                     ref={e => {
                         if (ref)
                             ref(e);
-                        if (outsideInputRef)
-                            outsideInputRef.current = e;
+                        if (inputRef)
+                            inputRef.current = e;
                     }}
+
                     id={inputName}
                     type={type}
-                    value={value}
-                    name={name}
+                    {...(controlled ? { value: value } : { defaultValue: value })}
+
+
+                    name={inputName}
+                    placeholder={placeHolder}
+                    readOnly={readOnly}
+
+
                     onChange={handleOnChange}
                     onFocus={onFocus}
-                    onMouseDown={handleOnMouseDown}
-                    readOnly={readOnly}
+                    onMouseDown={onMouseDown}
                     onBlur={handleOnBlur}
-                    placeholder={placeHolder}
+
+
 
                 />
                 {icons}
@@ -105,3 +116,4 @@ export default function Input({
         </div>
     )
 }
+

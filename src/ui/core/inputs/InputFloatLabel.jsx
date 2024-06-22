@@ -1,4 +1,3 @@
-import { useRef } from "react";
 import { CommonLogic } from "./ShareLogic";
 
 const common = new CommonLogic();
@@ -8,59 +7,60 @@ const activeClasses = "h-auto -top-[30%] text-sm bg-inherit";
 const neutralClasses = "bg-transparent  h-full  top-0 left-2"
 
 export default function InputFloatLabel({
+
     inputName,
     label,
+
     value,
-    type,
+    type = "text",
+    placeHolder = "",
+    readOnly = false,
+
+    errMessage = '',
+    useStrongErrColor = false,
+    icons,
+
     onChangeEvent,
     onFocus,
-    onMouseDown = null,
-    readOnly,
-    icons = null,
-    errMessage = '',
-    register = null,
-    validationRules = null,
-    useStrongErrColor = false
+    onMouseDown,
+
+    register,
+    validationRules,
+
+    inputRef = null,
+    controlled = false
+
+
 }) {
+
+
+    logger.log("Renderizo NewInput")
 
     if (!inputName)
         inputName = label;
 
 
-    const inputRef = useRef(null);
-
-    const { onChange, onBlur, name, ref } = register != null ?
+    const { onChange, onBlur, ref } = register != null && !controlled ?
         register(inputName, validationRules ?? {}) : CommonLogic.emptyRegister;
 
 
-   
-
     function handleOnChange(e) {
-        if (readOnly)
-            return;
-
         if (register) {
+
             onChange(e);
             return;
         }
-        if (onChangeEvent)
-            onChangeEvent(e);
+
+        if (onChangeEvent) {
+            onChangeEvent(e)
+        }
+
     }
 
     function handleOnBlur(e) {
-        if (readOnly)
-            return;
 
         if (onBlur) {
             onBlur(e)
-        }
-    }
-
-    function handleOnMouseDown(e) {
-        if (readOnly)
-            return;
-        if (onMouseDown) {
-            onMouseDown(e)
         }
     }
 
@@ -83,19 +83,27 @@ export default function InputFloatLabel({
                 className={`peer w-full h-full appearance-none rounded-md bg-transparent
                 border-transparent
                 px-3 py-4 text-gray-900 placeholder-transparent outline-none focus:ring-0`}
+
                 ref={e => {
                     if (ref)
                         ref(e);
-                    inputRef.current = e;
+                    if (inputRef)
+                        inputRef.current = e;
                 }}
+
                 id={inputName}
                 type={type}
-                value={value}
-                name={name}
+                {...(controlled ? { value: value } : { defaultValue: value })}
+
+
+                name={inputName}
+                placeholder={placeHolder}
+                readOnly={readOnly}
+
+
                 onChange={handleOnChange}
                 onFocus={onFocus}
-                onMouseDown={handleOnMouseDown}
-                readOnly={readOnly}
+                onMouseDown={onMouseDown}
                 onBlur={handleOnBlur}
             />
 

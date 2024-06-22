@@ -881,10 +881,6 @@ export default function UserPage({ }) {
             <RegisterUser showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={() => { setOpenAddForm(false) }} />
          </div>
-
-      
-     
-        
       </>
 
    )
