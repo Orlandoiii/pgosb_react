@@ -2,7 +2,7 @@ import { useContext, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import { useForm } from "react-hook-form";
 import FormTitle from "../../../core/titles/FormTitle";
-import SelectWithSearch  from "../../../core/inputs/SelectWithSearch";
+import SelectWithSearch from "../../../core/inputs/SelectWithSearch";
 import Input from "../../../core/inputs/Input";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 
@@ -102,6 +102,14 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
+                        <SelectWithSearch label={"Tipo"}
+                            useDotLabel={true}
+                            options={types}
+                            value={type}
+                            onChange={(v) => { setType(v) }}
+                            openUp={true}
+                            onError={(err) => { setTypeErr(err) }}
+                            useStrongErrColor={isSubmitted} />
 
                         <SelectWithSearch label={"Marca"}
                             useDotLabel={true}
@@ -124,24 +132,56 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
                     </div>
 
+                    <div className="">
+
+                        <SelectWithSearch label={"Estacion"}
+                            useDotLabel={true}
+                            options={stations}
+                            value={station}
+                            onChange={(v) => { setStation(v) }}
+                            openUp={true}
+                            onError={(err) => { setStationErr(err) }}
+                            useStrongErrColor={isSubmitted} />
+
+                    </div>
 
                     <div className="md:flex  md:space-x-2">
 
-                        <Input
 
-                            register={register}
-                            validationRules={requiredRule}
 
-                            errMessage={errors.alias?.message}
-                            useStrongErrColor={isSubmitted}
+                        <div className="md:w-[w-[50%]]">
+                            <Input
 
-                            label={"Alias"}
-                            inputName={"alias"}
-                            useDotLabel={true}
-                            placeHolder="El Caballito"
+                                register={register}
+                                validationRules={requiredRule}
 
-                        />
-                        <div className="md:w-[30%]">
+                                errMessage={errors.alias?.message}
+                                useStrongErrColor={isSubmitted}
+
+                                label={"Alias"}
+                                inputName={"alias"}
+                                useDotLabel={true}
+                                placeHolder="El Caballito"
+
+                            />
+                        </div>
+
+
+
+                        <div className="md:w-[25%]">
+                            <SelectWithSearch label={"Color"}
+                                useDotLabel={true}
+                                options={colors}
+                                value={color}
+                                onChange={(v) => { setColor(v) }}
+                                openUp={true}
+                                onError={(err) => { setColorErr(err) }}
+                                useStrongErrColor={isSubmitted} />
+                        </div>
+
+
+
+                        <div className="md:w-[25%]">
 
                             <Input
 
@@ -178,40 +218,9 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
                     </div>
 
-                    <div className="md:flex  md:space-x-2">
-
-                        <SelectWithSearch label={"Color"}
-                            useDotLabel={true}
-                            options={colors}
-                            value={color}
-                            onChange={(v) => { setColor(v) }}
-                            openUp={true}
-                            onError={(err) => { setColorErr(err) }}
-                            useStrongErrColor={isSubmitted} />
-
-                        <SelectWithSearch label={"Tipo"}
-                            useDotLabel={true}
-                            options={types}
-                            value={type}
-                            onChange={(v) => { setType(v) }}
-                            openUp={true}
-                            onError={(err) => { setTypeErr(err) }}
-                            useStrongErrColor={isSubmitted} />
-                    </div>
 
 
-                    <div className="">
 
-                        <SelectWithSearch label={"Estacion"}
-                            useDotLabel={true}
-                            options={stations}
-                            value={station}
-                            onChange={(v) => { setStation(v) }}
-                            openUp={true}
-                            onError={(err) => { setStationErr(err) }}
-                            useStrongErrColor={isSubmitted} />
-
-                    </div>
 
 
                 </div>

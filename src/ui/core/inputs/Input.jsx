@@ -70,7 +70,7 @@ export default function Input({
                 {`${useDotLabel ? label + ":" : label}`}
             </label>
 
-            <div className={`relative h-11 w-full  p-1 rounded-md shadow-md
+            <div className={`relative h-11 w-full  p-1 rounded-md shadow-sm
                              border-2 
                              ${!common.isErr(errMessage, useStrongErrColor) ?
                     CommonLogic.neutralColor :

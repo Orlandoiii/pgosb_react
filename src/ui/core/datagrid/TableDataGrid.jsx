@@ -89,7 +89,7 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
     const COLUMNS = [];
 
     Object.entries(parseData[0])
-        .forEach(([key, value]) => {
+        .forEach(([key, _]) => {
             COLUMNS.push(
                 {
                     Header: key,
@@ -177,6 +177,8 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
                     </div>
 
                 </header>
+              
+              
                 <div className="h-[580px] overflow-auto">
                     <table className="border-collapse w-full mt-2" {...getTableProps()} >
                         <thead className="">

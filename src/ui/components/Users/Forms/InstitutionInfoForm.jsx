@@ -155,32 +155,40 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <div className="w-full h-full">
-                            <Select
-                                label={"Jerarquia"}
-                                inputName="rank"
-                                register={register}
-                                setValue={setValue}
-                                useDotLabel={true}
-                                options={rankList}
-                                value={rankList[0]}
-                                openUp={true} />
+                        <SelectWithSearch
 
-                        </div>
-                        <div className="w-full h-full">
-                            <SelectWithSearch
+                            label={"Rol"}
+                            useDotLabel={true}
+                            options={rolList}
+                            value={rol}
+                            onChange={(v) => { setRol(v) }}
+                            openUp={true}
 
-                                label={"Rol"}
-                                useDotLabel={true}
-                                options={rolList}
-                                value={rol}
-                                onChange={(v) => { setRol(v) }}
-                                openUp={true}
+                            errMessage={rolErr}
+                            onError={(err) => { setRolErr(err) }}
+                            useStrongErrColor={isSubmitted} />
 
-                                errMessage={rolErr}
-                                onError={(err) => { setRolErr(err) }}
-                                useStrongErrColor={isSubmitted} />
-                        </div>
+                        <Select
+                            label={"Jerarquia"}
+                            inputName="rank"
+                            register={register}
+                            setValue={setValue}
+                            useDotLabel={true}
+                            options={rankList}
+                            value={rankList[0]}
+                            openUp={true} />
+
+
+
+                        <Select
+                            label={"Institucion"}
+                            inputName={"institution"}
+                            register={register}
+                            setValue={setValue}
+                            useDotLabel={true}
+                            options={instituions}
+                            value={instituions[0]}
+                            openUp={true} />
 
                     </div>
 
@@ -208,15 +216,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                             useStrongErrColor={isSubmitted} />
 
 
-                        <Select
-                            label={"Institucion"}
-                            inputName={"institution"}
-                            register={register}
-                            setValue={setValue}
-                            useDotLabel={true}
-                            options={instituions}
-                            value={instituions[0]}
-                            openUp={true} />
+
 
                     </div>
 

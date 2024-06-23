@@ -14,7 +14,8 @@ export default function SelectWithSearch({
     useDotLabel = false,
     useStrongErrColor = false,
     onError,
-    openUp = false
+    openUp = false,
+    disabled = false
 }) {
     const [open, setOpen] = useState(false)
 
@@ -25,6 +26,9 @@ export default function SelectWithSearch({
     const isTouch = useRef(false)
 
     const [errMessage, setErrMessage] = useState("");
+
+
+    
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -86,6 +90,7 @@ export default function SelectWithSearch({
                 type={type}
                 onClick={handleOnClick}
                 onChangeEvent={handleOnChange}
+                disabled={disabled}
                 readOnly={false}
                 controlled={true}
                 onFocus={handleOnFocus}

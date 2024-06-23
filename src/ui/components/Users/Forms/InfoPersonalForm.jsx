@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 
 import Input from "../../../core/inputs/Input";
-import  Select  from "../../../core/inputs/Selects";
+import Select from "../../../core/inputs/Selects";
 import { useContext } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
@@ -88,17 +88,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             useDotLabel={true}
                             placeHolder="jondoe@example.com" />
 
-                        <div className="md:w-[20%]">
-                            <Select
-                                inputName={"gender"}
-                                register={register}
-                                setValue={setValue}
-                                label={"Genero"}
-                                useDotLabel={true}
-                                options={genders}
-                                value={genders[0]}
-                                openUp={false} />
-                        </div>
+
 
                     </div>
 
@@ -136,21 +126,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             placeHolder="Doe" />
 
 
-                        <div className="w-[45%]">
-                            <Input
 
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.birth_date?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Fe. Nacimiento"}
-                                inputName={"birth_date"}
-                                useDotLabel={true}
-                                placeHolder="01-01-0001" />
-
-                        </div>
 
 
                     </div>
@@ -183,21 +159,6 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             useDotLabel={true}
                             placeHolder="02129998877" />
 
-                        <div className="md:w-[27%]">
-                            <Input
-
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.zip_code?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Cod. Area"}
-                                inputName={"zip_code"}
-                                useDotLabel={true}
-                                placeHolder="0244" />
-
-                        </div>
 
                     </div>
 
@@ -205,29 +166,69 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <div className="w-[30%]">
-                            <Select
+                        <div className="w-[50%] flex space-x-2"> 
+                            <div className="md:w-[35%]">
+                                <Input
 
-                                inputName={"civil_state"}
-                                label={"Estado Civil"}
-                                useDotLabel={true}
-                                options={civilStatusList}
-                                value={civilStatusList[0]}
-                                register={register}
-                                setValue={setValue}
-                                openUp={true} />
+                                    register={register}
+                                    validationRules={requiredRule}
+
+                                    errMessage={errors.zip_code?.message}
+                                    useStrongErrColor={isSubmitted}
+
+                                    label={"Cod. Area"}
+                                    inputName={"zip_code"}
+                                    useDotLabel={true}
+                                    placeHolder="0244" />
+
+                            </div>
+
+                            <div className="w-[65%]">
+                                <Select
+
+                                    inputName={"civil_state"}
+                                    label={"Estado Civil"}
+                                    useDotLabel={true}
+                                    options={civilStatusList}
+                                    value={civilStatusList[0]}
+                                    register={register}
+                                    setValue={setValue}
+                                    openUp={true} />
+                            </div>
                         </div>
 
-                        <Input
-                            register={register}
-                            validationRules={requiredRule}
+                        <div className="w-[50%] flex space-x-2">
+                            <div className="w-[80%]">
+                                <Input
 
-                            errMessage={errors.residence?.message}
-                            useStrongErrColor={isSubmitted}
+                                    register={register}
+                                    validationRules={requiredRule}
 
-                            label={"Residencia"}
-                            inputName={"residence"}
-                            useDotLabel={true} />
+                                    errMessage={errors.birth_date?.message}
+                                    useStrongErrColor={isSubmitted}
+
+                                    label={"Fe. Nacimiento"}
+                                    inputName={"birth_date"}
+                                    useDotLabel={true}
+                                    placeHolder="01-01-0001" />
+
+                            </div>
+
+
+                            <div className="md:w-[20%]">
+                                <Select
+                                    inputName={"gender"}
+                                    register={register}
+                                    setValue={setValue}
+                                    label={"Genero"}
+                                    useDotLabel={true}
+                                    options={genders}
+                                    value={genders[0]}
+                                    openUp={false} />
+                            </div>
+                        </div>
+
+
 
                     </div>
                 </div>

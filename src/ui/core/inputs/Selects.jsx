@@ -73,7 +73,7 @@ export function Options({
 
     return useMemo(() => {
         const OPTIONS = autoCompleted
-            ? options.filter(
+            ? options?.filter(
                 (o) =>
                     o
                         .toString()
@@ -88,8 +88,8 @@ export function Options({
             justOneMacht.current = "";
         }
 
-        return OPTIONS.length > 0
-            ? OPTIONS.map((o, i) => (
+        return OPTIONS?.length > 0
+            ? OPTIONS?.map((o, i) => (
                 <OptionContainerButton
                     option={o}
                     key={i}

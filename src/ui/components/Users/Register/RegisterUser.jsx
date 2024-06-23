@@ -6,6 +6,7 @@ import InstitutionInfoForm from "../Forms/InstitutionInfoForm";
 import SkillForm from "../Forms/SkillsForm";
 import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
+import LocationForm from "../../Locations/Forms/LocationForm";
 
 
 const stepsObjects = [
@@ -13,6 +14,10 @@ const stepsObjects = [
         title: "Datos Basicos",
         content: <InfoPersonalForm />,
 
+    },
+    {
+        title: "Ubicacion",
+        content: <LocationForm />
     },
     {
         title: "Alergias y Habilidades",

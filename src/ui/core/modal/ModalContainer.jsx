@@ -44,7 +44,7 @@ export default function ModalContainer({ show, onClose, showX = true, children =
 
             {showX && <CloseXSimbol onClose={onClose} />}
 
-            {title && title.length > 0 && <h2 className='relative w-full bg-[#3C50E0] rounded-t-xl flex justify-center items-center
+            {title && title.length > 0 && <h2 className='relative w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center
             text-[whitesmoke] text-md h-11 p-2 shadow-lg'>{title}</h2>}
 
             <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px] bg-slate-100'>
@@ -53,7 +53,7 @@ export default function ModalContainer({ show, onClose, showX = true, children =
 
             </div>
 
-            <span className='h-0 md:block md:bg-[#3C50E0] md:h-[7px] md:w-full md:shadow-md '></span>
+            <span className='h-0 md:block md:bg-[#0A2F4E] md:h-[7px] md:w-full md:shadow-md '></span>
 
         </div>
 

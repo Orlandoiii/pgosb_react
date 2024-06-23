@@ -79,17 +79,17 @@ function StepTrackerItem({ title, number, isActive = false, isCompleted = false 
 
 
     return (
-        <li className={`md:w-full md:max-w-[400px] ${isActive ? "shadow-xl" : "shadow-sm"} md:min-w-[220px] transform transition-all ease-in-out duration-300 
+        <li className={`md:w-full md:max-w-[300px] ${isActive ? "shadow-xl" : "shadow-sm"} md:min-w-[120px] transform transition-all ease-in-out duration-300 
         ${isActive ? " scale-110" : "scale-95"}`}>
 
             <div className={`relative flex items-center ${isActive ? "font-semibold" : ""}  
-            px-2 py-5 w-full    ${isCompleted ? 'bg-indigo-200' : 'bg-slate-200'}`}>
+            px-1 py-5 w-full    ${isCompleted ? 'bg-indigo-200' : 'bg-slate-200'}`}>
 
-                <span className={`absolute top-1/2 transform -translate-y-1/2 left-0 w-[0.15rem] h-full  rounded-lg ${isCompleted ? "bg-[#3C50E0]" : "bg-slate-400"}`} />
+                <span className={`absolute top-1/2 transform -translate-y-1/2 left-0 w-[0.10rem] h-full  rounded-lg ${isCompleted ? "bg-[#3C50E0]" : "bg-slate-400"}`} />
 
-                <span className={`w-8 h-8 ${isCompleted ? 'bg-[#3C50E0] text-white' : 'bg-[whitesmoke] text-slate-700'}
+                <span className={`w-[30px] h-[30px] ${isCompleted ? 'bg-[#3C50E0] text-white' : 'bg-[whitesmoke] text-slate-700'}
                    rounded-full flex justify-center items-center 
-                   mr-3 text-sm lg:w-[40px] lg:h-[40px] `}>{number}</span>
+                   mr-3 text-sm lg:w-[35px] lg:h-[35px] `}>{number}</span>
 
                 <h4 className={`text-center text-md ${isCompleted ? 'text-indigo-600' : ''}`}>{title}</h4>
 
@@ -197,7 +197,7 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
                 Next
             }}
         >
-            <div className="h-full  w-full md:w-[740px] md:h-[680px] flex flex-col justify-between p-1.5 space-y-4">
+            <div className="h-full  w-full md:w-[900px] md:h-[720px] flex flex-col justify-between p-1.5 space-y-4">
 
                 <div className="py-2 px-4 border border-gray-200 rounded-md shadow-md bg-slate-50">
                     <StepperTracker steps={steps} stepCounter={stepCounter} />

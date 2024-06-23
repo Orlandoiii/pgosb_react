@@ -85,30 +85,20 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:items-baseline md:space-x-4">
 
 
-                        <div className="md:flex-1">
-                            <AddInput
 
-                                label={"Alergias"}
-                                inputName={"allergies"}
-                                useDotLabel={true}
-                                placeHolder="Alergia Ejem:Nuez"
-                                useStrongErrColor={isSubmitted}
-                                items={allergies}
-                                setItems={setAllergies}
-                            />
-                        </div>
+                        <AddInput
 
-                        <div className="md:w-[20%]">
-                            <Select
-                                label={"Tipo de Sangre"}
-                                inputName={"blood_type"}
-                                register={register}
-                                useDotLabel={true}
-                                options={bloodTypes}
-                                value={bloodTypes[0]}
-                                setValue={setValue}
-                                openUp={true} />
-                        </div>
+                            label={"Alergias"}
+                            inputName={"allergies"}
+                            useDotLabel={true}
+                            placeHolder="Alergia Ejem:Nuez"
+                            useStrongErrColor={isSubmitted}
+                            items={allergies}
+                            setItems={setAllergies}
+                        />
+
+
+
 
 
                     </div>
@@ -117,79 +107,124 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2 md:justify-between">
 
+                        <div className="w-[50%] space-y-2">
 
-                        <div className=" md:w-[15%]">
-                            <Select
-                                inputName={"shirt_size"}
-                                label={"Talla Camisa"}
-                                useDotLabel={true}
-                                options={shirtSizes}
-                                value={shirtSizes[0]}
-                                register={register}
-                                setValue={setValue}
-                                openUp={true}
+                            <h2>Datos fisicos</h2>
 
-                            />
+
+                            <div className="flex space-x-2 ">
+                                <div className="md:w-[30%]">
+                                    <Input label={"Altura"}
+
+                                        register={register}
+                                        validationRules={requiredRule}
+
+                                        errMessage={errors.height?.message}
+                                        useStrongErrColor={isSubmitted}
+
+                                        inputName={"height"} useDotLabel={true}
+                                        placeHolder="1.70"
+                                    />
+                                </div>
+
+                                <div className="md:w-[30%]">
+                                    <Input label={"Peso"}
+
+                                        register={register}
+                                        validationRules={requiredRule}
+
+                                        errMessage={errors.weight?.message}
+                                        useStrongErrColor={isSubmitted}
+
+                                        inputName={"weight"}
+                                        useDotLabel={true}
+                                        placeHolder="70"
+
+                                    />
+                                </div>
+
+
+                                <div className="md:w-[40%]">
+                                    <Select
+                                        label={"Tipo de Sangre"}
+                                        inputName={"blood_type"}
+                                        register={register}
+                                        useDotLabel={true}
+                                        options={bloodTypes}
+                                        value={bloodTypes[0]}
+                                        setValue={setValue}
+                                        openUp={true} />
+                                </div>
+                            </div>
+
+
+
                         </div>
 
-                        <div className=" md:w-[15%]">
-                            <Select label={"Talla Pantalon"}
-                                inputName={"pants_size"}
-                                register={register}
-                                setValue={setValue}
-                                useDotLabel={true}
-                                options={shirtSizes}
-                                value={shirtSizes[0]}
-                                openUp={true}
-                            />
+
+                        <div className="w-[50%] space-y-2">
+
+                            <h2>Tallas</h2>
+
+                            <div className="flex space-x-2">
+
+
+
+                                <div className=" md:w-[33%]">
+                                    <Select
+                                        inputName={"shirt_size"}
+                                        label={"Camisa"}
+                                        useDotLabel={true}
+                                        options={shirtSizes}
+                                        value={shirtSizes[0]}
+                                        register={register}
+                                        setValue={setValue}
+                                        openUp={true}
+
+                                    />
+                                </div>
+
+
+                                <div className=" md:w-[33%]">
+                                    <Select label={"Pantalon"}
+                                        inputName={"pants_size"}
+                                        register={register}
+                                        setValue={setValue}
+                                        useDotLabel={true}
+                                        options={shirtSizes}
+                                        value={shirtSizes[0]}
+                                        openUp={true}
+                                    />
+                                </div>
+
+
+
+                                <div className="md:w-[33%]">
+                                    <Input
+
+                                        register={register}
+                                        validationRules={requiredRule}
+
+                                        errMessage={errors.shoes_size?.message}
+                                        useStrongErrColor={isSubmitted}
+
+
+                                        label={"Zapatos"}
+                                        inputName={"shoes_size"} useDotLabel={true}
+                                        placeHolder="37"
+
+                                    />
+                                </div>
+                            </div>
+
+
+
+
                         </div>
 
-                        <div className="md:w-[15%]">
-                            <Input
-
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.shoes_size?.message}
-                                useStrongErrColor={isSubmitted}
 
 
-                                label={"Talla Zapatos"}
-                                inputName={"shoes_size"} useDotLabel={true}
-                                placeHolder="37"
 
-                            />
-                        </div>
-
-                        <div className="md:w-[10%]">
-                            <Input label={"Altura"}
-
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.height?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                inputName={"height"} useDotLabel={true}
-                                placeHolder="1.70"
-                            />
-                        </div>
-
-                        <div className="md:w-[10%]">
-                            <Input label={"Peso"}
-
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.weight?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                inputName={"weight"}
-                                useDotLabel={true}
-                                placeHolder="70"
-
-                            />
-                        </div>
 
                     </div>
 

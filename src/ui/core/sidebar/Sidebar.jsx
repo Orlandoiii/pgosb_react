@@ -14,7 +14,7 @@ export default function Sidebar({ }) {
     return (
 
         <aside className='absolute top-0 z-10 h-screen min-w-[280px]  rounded-ms 
-        bg-[#1C2434] shadow-lg  overflow-y-hidden  flex flex-col
+        bg-[#0A2F4E] shadow-lg  overflow-y-hidden  flex flex-col
          trasition-position ease-in-out duration-500 
          md:static md:translate-x-0 -translate-x-full'>
 
