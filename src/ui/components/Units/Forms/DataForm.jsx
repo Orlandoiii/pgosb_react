@@ -47,9 +47,9 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                     handleSubmitInternal(newData)
                 })}
 
-            className="mx-auto my-10 w-full max-w-[500px] md:max-w-[100%]">
+            className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
-            <FormTitle title={"Caracteristicas del Vehiculo"} />
+            {/* <FormTitle title={"Caracteristicas del Vehiculo"} /> */}
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 

@@ -33,13 +33,13 @@ export default function Sidebar({ }) {
                         <h2 className='px-2 uppercase text-[whitesmoke] opacity-60  text-sm mb-5 font-semibold'>Menu</h2>
 
                         <div className="space-y-4">
-                            <SideBarLink link="/users" icon={<UsersIcon />} name='Usuarios' />
                             <SideBarLink link="/services" icon={<ServiceIcon />} name='Servicios' />
+                            <SideBarLink link="/users" icon={<UsersIcon />} name='Usuarios' />
                             <SideBarLink link="/roles" icon={<RolsIncon />} name='Roles' />
-                            <SideBarLink link="/stations" icon={<StationIcon />} name='Estaciones' />
                             <SideBarLink link="/units" icon={<UnitIcon />} name='Unidades' />
-                            <SideBarLink link="/locations" icon={<LocationIcon />} name='Locaciones' />
+                            <SideBarLink link="/stations" icon={<StationIcon />} name='Estaciones' />
                             <SideBarLink link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' />
+                            <SideBarLink link="/locations" icon={<LocationIcon />} name='Locaciones' />
                             <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' />
 
                         </div>

@@ -1,5 +1,6 @@
 import { createContext, useEffect, useRef, useState } from "react";
 import logger from "../../../logic/Logger/logger";
+import FormTitle from "../../core/titles/FormTitle";
 
 
 function PrevIcon({ }) {
@@ -57,9 +58,9 @@ function StepButton({ children, nextButton = true, onClick }) {
 
         <button type="button"
             onClick={(e) => { if (onClick) onClick(e) }}
-            className={`group relative min-w-[100px] min-h-[40px] transition-all ease-in-out duration-300 bg-slate-700 text-white block
+            className={`group relative min-w-[100px] min-h-[40px] transition-all ease-in-out duration-300 bg-[#0A2F4E] text-white block
           ${nextButton ? "border-l rounded-r-md" : " rounded-l-md border-r"} 
-                border-gray-100  hover:bg-[#3C50E0] 
+                border-gray-100  hover:bg-[#2286DD] 
                 hover:text-white`} >
 
             {nextButton ?
@@ -78,20 +79,48 @@ function StepTrackerItem({ title, number, isActive = false, isCompleted = false 
 
 
 
+    function getBgColorBar() {
+
+        if (isCompleted)
+            return "bg-[#0A2F4E]"
+
+        if (isActive) {
+            return "bg-[#1D74C1]"
+        }
+
+
+        return "bg-slate-400";
+    }
+
+    function getBgColor(){
+        if (isCompleted)
+            return "bg-[#D6EAF8]"
+
+        if (isActive) {
+            return "bg-[#ceeaff]"
+        }
+
+
+        return "bg-slate-200";
+    }
+
+
     return (
         <li className={`md:w-full md:max-w-[300px] ${isActive ? "shadow-xl" : "shadow-sm"} md:min-w-[120px] transform transition-all ease-in-out duration-300 
-        ${isActive ? " scale-110" : "scale-95"}`}>
+        ${isActive ? " scale-105" : "scale-95"}`}>
 
-            <div className={`relative flex items-center ${isActive ? "font-semibold" : ""}  
-            px-1 py-5 w-full    ${isCompleted ? 'bg-indigo-200' : 'bg-slate-200'}`}>
+            <div className={`relative flex justify-center items-center ${isActive ? "font-semibold" : ""}  
+            px-1 py-5 w-full ${getBgColor()}`}>
 
-                <span className={`absolute top-1/2 transform -translate-y-1/2 left-0 w-[0.10rem] h-full  rounded-lg ${isCompleted ? "bg-[#3C50E0]" : "bg-slate-400"}`} />
+                <span className={`absolute top-1/2 transform -translate-y-1/2 left-0 
+                    w-[0.35rem] h-full   
+                    ${getBgColorBar()}`} />
 
-                <span className={`w-[30px] h-[30px] ${isCompleted ? 'bg-[#3C50E0] text-white' : 'bg-[whitesmoke] text-slate-700'}
+                {/* <span className={`w-[30px] h-[30px] ${isCompleted ? 'bg-[#3C50E0] text-white' : 'bg-[whitesmoke] text-slate-700'}
                    rounded-full flex justify-center items-center 
-                   mr-3 text-sm lg:w-[35px] lg:h-[35px] `}>{number}</span>
+                   mr-3 text-sm lg:w-[35px] lg:h-[35px] `}>{number}</span> */}
 
-                <h4 className={`text-center text-md ${isCompleted ? 'text-indigo-600' : ''}`}>{title}</h4>
+                <h4 className={`text-center text-md ${isActive ? "text-lg": ""}  ${isCompleted ? 'text-black' : ''}`}>{title}</h4>
 
             </div>
 
@@ -197,14 +226,20 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
                 Next
             }}
         >
-            <div className="h-full  w-full md:w-[900px] md:h-[720px] flex flex-col justify-between p-1.5 space-y-4">
+            <div className="h-full  w-full md:w-[900px] md:h-[650px] flex flex-col justify-between p-1.5 space-y-4">
 
                 <div className="py-2 px-4 border border-gray-200 rounded-md shadow-md bg-slate-50">
                     <StepperTracker steps={steps} stepCounter={stepCounter} />
                 </div>
 
-                <div className="w-full  border bg-slate-50 px-4 py-0.5 rounded-md shadow-lg">
-                    {currentStep.content}
+                <div className="w-full  h-[520px]  flex flex-col   border bg-slate-50  rounded-md shadow-lg overflow-y-auto">
+                    <div className="">
+                        <FormTitle title={currentStep.title} />
+                    </div>
+                    <div>
+                        {currentStep.content}
+                    </div>
+
                 </div>
 
 

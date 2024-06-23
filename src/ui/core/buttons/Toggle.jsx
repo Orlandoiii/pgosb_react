@@ -5,7 +5,7 @@ function CheckIcon({ }) {
 
         <div className="w-5 h-5 p-1 bg-[whitesmoke] rounded-full">
 
-            <svg fill="#4F46E5" viewBox="0 0 12 12">
+            <svg fill="#0A2F4E" viewBox="0 0 12 12">
                 <path d="M3.707 5.293a1 1 0 00-1.414 1.414l1.414-1.414zM5 8l-.707.707a1 1 0 001.414 0L5 8zm4.707-3.293a1 1 0 00-1.414-1.414l1.414 1.414zm-7.414 2l2 2 1.414-1.414-2-2-1.414 1.414zm3.414 2l4-4-1.414-1.414-4 4 1.414 1.414z">
                 </path>
             </svg>
@@ -30,7 +30,7 @@ function XIcon({ }) {
 export default function Toggle({ active, setActive }) {
     return (
         <button type="button"
-            className={`relative  w-[48px]  h-[25px]  ring-2   ${active ? "bg-[#3C50E0] ring-offset-2 ring-indigo-700" : "bg-[#E5E7EB] ring-offset-1 ring-gray-400"}  flex px-1 py-1 rounded-full
+            className={`relative  w-[48px]  h-[25px]  ring-2   ${active ? "bg-[#0A2F4E] ring-offset-2 ring-[#0A2F4E]" : "bg-[#E5E7EB] ring-offset-1 ring-gray-400"}  flex px-1 py-1 rounded-full
         shadow-sm border-1 border-slate-400   transition-all ease-in-out duration-300`}
             onClick={() => { setActive(a => !a) }}
         >

@@ -15,7 +15,7 @@ export function EyeButton({ onClick, children }) {
         <button type='button'
             onClick={(e) => { if (onClick) onClick(e) }}
             className='relative h-full w-9 border-gray-500 
-        rounded-e-md bg-[#3C50E0] flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-indigo-700'>
+        rounded-e-md bg-[#0A2F4E] flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-[#2286DD]'>
             <OpenEyeIcon width="w-5" heigth="h-5" />
 
             {children}
@@ -30,7 +30,7 @@ function AddButtonFloat({ onClick }) {
         <button type='button'
             onClick={(e) => { if (onClick) onClick(e) }}
             className='
-        w-5 h-5  bg-[#3C50E0] rounded-full flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-indigo-700'>
+        w-5 h-5  bg-[#0A2F4E] rounded-full flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-[#2286DD]'>
             <PlusIcon heigth="h-3" width="w-3" />
         </button>
     )
@@ -38,7 +38,7 @@ function AddButtonFloat({ onClick }) {
 
 export function StoreItem({ item, onDelete, showDelete }) {
     return (
-        <div className="relative bg-[#29323C] text-[whitesmoke] py-2 px-8 
+        <div className="relative bg-[#0A2F4E] text-[whitesmoke] py-2 px-8 
          border border-gray-500 shadow-lg rounded-full flex justify-center items-center">
             <p className="text-sm">
                 {item}

@@ -24,6 +24,7 @@ export default function MainLayout({ }) {
                   <main className='w-full h-full overflow-hidden'>
                      <div className="h-full mx-auto p-4 mt-4  overflow-y-auto">
                         <Outlet />
+                        
                      </div>
                   </main>
 

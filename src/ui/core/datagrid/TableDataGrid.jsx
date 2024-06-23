@@ -74,8 +74,8 @@ function ForwardButton({ onClick, disabled = false }) {
 function NumberButton({ number = 1, active = false, onClick }) {
     return (
         <button onClick={onClick} className={` false h-8 mx-1 flex cursor-pointer items-center justify-center rounded-md 
-            p-1 px-3 ${active ? "bg-[#3c50e0] text-white" : ""} 
-        hover:bg-[#3c50e0] hover:text-white`}>{number}
+            p-1 px-3 ${active ? "bg-[#0A2F4E] text-white" : ""} 
+        hover:bg-[#1D74C1] hover:text-white`}>{number}
         </button>
     )
 }
@@ -133,32 +133,31 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
 
     return (
         <>
-            <div className="bg-[white] overflow-hidden ">
+            <div className="bg-[white] flex flex-col overflow-hidden ">
 
-                <header className="w-full mx-auto flex justify-between  py-4 px-8">
+                <header className=" w-full mx-auto flex justify-between  py-4 px-8 ">
+
+                    <div className="flex space-x-4">
+                        <button onClick={(e) => { if (onAdd) onAdd() }}
+                            className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
+                            <AddIcon />
+                        </button>
+                        <button onClick={(e) => { if (onUpdate) onUpdate() }}
+                            className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
+                            <ModifyIcon />
+                        </button>
+
+                        <button onClick={(e) => { if (onDelete) onDelete() }}
+                            className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
+                            <DeleteIcon />
+                        </button>
+                    </div>
 
                     <div className="w-1/2 pr-2">
                         <input type="text" className="outline-none p-3 h-12 w-full 
           border border-gray-300 rounded-md" placeholder="Buscar..." value={globalFilter}
                             onChange={(e) => { setGlobalFilter(e.target.value) }} />
                     </div>
-
-                    <div className="flex space-x-4">
-                        <button  onClick={(e)=>{if(onAdd) onAdd()}}
-                          className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <AddIcon />
-                        </button>
-                        <button onClick={(e)=>{if(onUpdate) onUpdate()}}
-                          className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <ModifyIcon />
-                        </button>
-
-                        <button onClick={(e)=>{if(onDelete) onDelete()}} 
-                          className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <DeleteIcon />
-                        </button>
-                    </div>
-
 
                     <div className=" flex items-center justify-end font-medium">
                         <select className="bg-transparent pl-2" value={pageSize} onChange={(e) => {
@@ -177,9 +176,10 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
                     </div>
 
                 </header>
-              
-              
-                <div className="h-[580px] overflow-auto">
+
+
+                <div className="max-h-[600px] overflow-auto">
+
                     <table className="border-collapse w-full mt-2" {...getTableProps()} >
                         <thead className="">
                             {headerGroups.map(headerGroup => (

@@ -1,6 +1,6 @@
 const defaultBgColors = {
-    Primary: 'bg-[#3C50E0]',
-    Secondary: 'bg-[#6C757D]',
+    Primary: 'bg-[#0A2F4E]',
+    Secondary: 'bg-[#2286DD]',
     Success: 'bg-[#28A745]',
     Danger: 'bg-[#DC3545]',
     Warning: 'bg-[#6C757D]',
@@ -11,6 +11,7 @@ export default function Button({
     colorType = defaultBgColors.Primary,
     onClickRaw,
     onClick,
+    hoverColor = "hover:bg-[#0069D9]"
 }) {
     function handleOnClick(e) {
         if (onClickRaw) onClickRaw(e)
@@ -20,8 +21,8 @@ export default function Button({
 
     return (
         <button
-            className={`block px-3 py-2 border-2  ${colorType} text-white  
-            text-md rounded-md shadow hover:bg-[#0069D9]`}
+            className={`block px-3 py-2 ${colorType} text-white  
+            text-md rounded-md shadow-md ${hoverColor}`}
             onClick={handleOnClick}
         >
             {children}

@@ -106,10 +106,10 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                 handleSubmitInternal(newData)
             })}
-            className="mx-auto my-10 w-full max-w-[365px] md:max-w-[100%]">
+            className="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
 
 
-            <FormTitle title={"Ubicacion"} />
+            {/* <FormTitle title={"Ubicacion"} /> */}
 
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">

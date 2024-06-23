@@ -20,7 +20,7 @@ const stepsObjects = [
         content: <LocationForm />
     },
     {
-        title: "Alergias y Habilidades",
+        title: "Caracteristicas",
         content: <SkillForm />,
 
     },
@@ -56,7 +56,7 @@ export function RegisterUser({ showModal, onClose }) {
                             return <Accordion title={v.title} value={v.data} key={v.title} />
                         })}
                         <div className="flex justify-between">
-                            <Button colorType="bg-rose-700" onClick={() => {
+                            <Button colorType="bg-rose-700" hoverColor="hover:bg-rose-900" onClick={() => {
                                 initialStep.current = stepsObjects.length - 1
                                 setShowAccordion(false);
                             }}>Cancelar</Button>
