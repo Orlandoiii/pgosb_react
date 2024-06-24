@@ -29,7 +29,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
 
 
-    const [institution, setInstution] = useState(institutions[0]);
+    const [institution, setInstution] = useState(institutions[1]);
 
     const [institutionErr, setInstutionErr] = useState("");
 
@@ -58,21 +58,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
             onSubmit={
                 handleSubmit((data) => {
-
-
-
-                    if (modelErr.length > 0 || brandErr.length > 0 ||
-                        stationErr.length > 0 || colorErr.length > 0 || typeErr.length > 0)
-                        return;
-
-
-                    const newData = {
-                        ...data, "brand": brand, "model": model,
-                        "station": station, "color": color, "type": type
-                    }
-
-
-                    handleSubmitInternal(newData)
+                    handleSubmitInternal(data)
                 })}
 
             className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
@@ -93,6 +79,59 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                         onError={(err) => { setInstutionErr(err) }}
                         useStrongErrColor={isSubmitted} />
 
+                    <Input
+
+                        register={register}
+                        validationRules={requiredRule}
+
+                        errMessage={errors.station_name?.message}
+                        useStrongErrColor={isSubmitted}
+
+                        label={"Nombre de la Estación"}
+                        inputName={"station_name"}
+                        useDotLabel={true}
+                        placeHolder="Nombre de la Estación..."
+
+                    />
+
+
+
+
+                    <div className="md:flex md:space-x-2">
+
+                        <Input
+
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.description?.message}
+                            useStrongErrColor={isSubmitted}
+                            label={"Descripción"}
+                            inputName={"description"}
+                            useDotLabel={true}
+                            placeHolder="Descripción...."
+
+                        />
+
+
+                        <div className="md:w-[37%]">
+
+
+                            <AddInput
+
+                                label={"Teléfonos"}
+                                inputName={"regions"}
+                                useDotLabel={true}
+                                placeHolder="0212-9855489"
+                                useStrongErrColor={isSubmitted}
+                                items={phones}
+                                setItems={setPhones}
+                            />
+
+                        </div>
+
+                    </div>
+
 
                     <div className="md:flex md:space-x-2">
 
@@ -105,7 +144,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                                 errMessage={errors.code?.message}
                                 useStrongErrColor={isSubmitted}
-                               
+
                                 label={"Código"}
                                 inputName={"code"}
                                 useDotLabel={true}
@@ -142,42 +181,6 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                             items={regions}
                             setItems={setRegions}
                         />
-
-                    </div>
-
-
-                    <div className="md:flex md:space-x-2">
-
-                        <Input
-
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.description?.message}
-                            useStrongErrColor={isSubmitted}
-                            label={"Descripción"}
-                            inputName={"description"}
-                            useDotLabel={true}
-                            placeHolder="Descripción...."
-
-                        />
-
-
-                        <div className="md:w-[37%]">
-
-
-                            <AddInput
-
-                                label={"Teléfonos"}
-                                inputName={"regions"}
-                                useDotLabel={true}
-                                placeHolder="0212-9855489"
-                                useStrongErrColor={isSubmitted}
-                                items={phones}
-                                setItems={setPhones}
-                            />
-
-                        </div>
 
                     </div>
 

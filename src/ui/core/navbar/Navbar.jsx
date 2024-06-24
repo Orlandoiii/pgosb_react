@@ -14,12 +14,12 @@ export default function Navbar({ onBellIconClik }) {
         <nav className='sticky top-0 flex w-full h-[80px] 
         bg-[whitesmoke] shadow-lg rounded-sm p-0.5 '>
 
-            <div className='w-full h-full max-w-[1600px] mx-auto flex justify-between px-2 md:justify-between items-center md:px-4'>
+            <div className='w-full h-full max-w-[1600px] mx-auto flex items-center justify-end  px-2  md:px-4'>
 
-                <div className="flex justify-center items-center space-x-1">
+                {/* <div className="flex justify-center items-center space-x-1">
                     <FireLogo width="w-[35px]" height="h-[35px]" bgColor=""/> 
                     <h3 className="hidden md:block uppercase text-rose-700 text-lg font-medium">pgosb</h3>
-                </div>
+                </div> */}
 
                 <div className="pr-6">
                     <div className='flex items-center space-x-3'>

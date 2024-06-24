@@ -10,12 +10,12 @@ import DataForm from "../Forms/DataForm";
 
 const stepsObjects = [
     {
-        title: "Datos Básicos del Vehículo",
+        title: "Datos Básicos",
         content: <BasicInfoForm />,
 
     },
     {
-        title: "Características del Vehículo",
+        title: "Características",
         content: <DataForm />,
     }
 ]
@@ -34,7 +34,7 @@ export function RegisterUnit({ showModal, onClose }) {
     return (
         <>
             <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
-                title='Registro de Vehículo'>
+                title='Registro de Unidad'>
                 {!showAccordion && <Stepper initialStep={initialStep.current} data={unitData} steps={stepsObjects} onFinish={(d) => {
                     setUnitData(d);
                     setShowAccordion(true);

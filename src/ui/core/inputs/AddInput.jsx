@@ -193,7 +193,7 @@ export default function AddInput({
 
             <div className="flex">
 
-                <div className={`relative h-11 w-full  rounded-s-md shadow-md flex
+                <div className={`relative h-11 w-full  rounded-s-md shadow-sm flex
                              border-2  border-r-0
                              ${!common.isErr(errMessage, useStrongErrColor) ?
                         CommonLogic.neutralColor :
