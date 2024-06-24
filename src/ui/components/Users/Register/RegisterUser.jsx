@@ -16,7 +16,7 @@ const stepsObjects = [
 
     },
     {
-        title: "Ubicacion",
+        title: "Ubicación",
         content: <LocationForm />
     },
     {

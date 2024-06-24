@@ -83,12 +83,9 @@ function NumberButton({ number = 1, active = false, onClick }) {
 
 export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
 
-    const parseData = JSON.parse(rawData);
-
-
     const COLUMNS = [];
 
-    Object.entries(parseData[0])
+    Object.entries(rawData[0])
         .forEach(([key, _]) => {
             COLUMNS.push(
                 {
@@ -103,7 +100,7 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
 
 
     const columns = useMemo(() => COLUMNS, [])
-    const data = useMemo(() => parseData, [])
+    const data = useMemo(() => rawData, [])
 
     const {
         getTableProps,

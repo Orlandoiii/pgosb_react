@@ -12,6 +12,7 @@ import ComingSoonPage from "./ui/core/errors/ComingSoonPage";
 import LoginPage from "./ui/components/Authentication/LoginPage";
 import UnitPage from "./ui/components/Units/UnitPage";
 import logger from "./logic/Logger/logger.js";
+import StationPage from "./ui/components/Stations/StationPage.jsx";
 
 
 
@@ -36,7 +37,7 @@ const router = createBrowserRouter([
          },
          {
             path: "stations/",
-            element: <ComingSoonPage />
+            element: <StationPage />
          },
          {
             path: "units/",

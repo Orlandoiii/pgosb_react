@@ -1,12 +1,11 @@
 import { useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
-
 import AlertController from "../../core/alerts/AlertController";
-import { RegisterUnit } from "./Register/RegisterUnit";
-import mockData from "../../../assets/Mock_Data_SIMF.json"
+import mockData  from "../../../assets/Mock_Data_SIMF.json"
+import { RegisterStation } from "./Register/RegisterStation";
 
 
-export default function UnitPage({ }) {
+export default function StationPage({ }) {
 
    const [openAddForm, setOpenAddForm] = useState(false);
 
@@ -25,13 +24,9 @@ export default function UnitPage({ }) {
       <>
          <div className="">
             <TableDataGrid rawData={mockData} onAdd={() => { setOpenAddForm(true) }} onUpdate={onUpdate} />
-            <RegisterUnit showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
+            <RegisterStation showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={() => { setOpenAddForm(false) }} />
          </div>
-
-
-
-
       </>
 
    )

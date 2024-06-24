@@ -8,7 +8,7 @@ import {
 
 } from "@tanstack/react-table"
 
-import moock_data from "./MOCK_DATA.json"
+import moock_data from "../../../assets/MOCK_DATA.json"
 import logger from "../../../logic/Logger/logger";
 import { useMemo, useRef, useState } from "react";
 import AddIcon from "../icons/AddIcon";

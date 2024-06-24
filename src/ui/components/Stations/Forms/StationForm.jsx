@@ -22,7 +22,7 @@ const requiredRule = {
     }
 }
 
-export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
+export default function StationForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
     const { register, handleSubmit, formState } = useForm({
