@@ -217,7 +217,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                         />
 
-                        <Input label={"Playa/Rio/Quebrada"}
+                        <Input label={"Playa/Río/Quebrada"}
                             register={register}
                             // validationRules={requiredRule}
 
