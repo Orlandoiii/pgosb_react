@@ -16,11 +16,11 @@ const rolList = ["Administrador", "Usuario", "Otro"]
 
 const rankList = ["Rango 1", "Rango 2", "Rango 3"]
 
-const divisions = ["Division 1", "Division 2", "Division 3"]
+const divisions = ["División 1", "División 2", "División 3"]
 
-const profesions = ["Profesion 1", "Profesion 2", "Profesion 3"]
+const profesions = ["Profesión 1", "Profesión 2", "Profesión 3"]
 
-const instituions = ["Institucion 1", "Institucion 2", "Institucion 3"]
+const instituions = ["Institución 1", "Institución 2", "Institución 3"]
 
 
 
@@ -108,7 +108,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
 
                     <div className="md:flex md:space-x-2">
-                        <Input label={"Codigo de Funcionario"}
+                        <Input label={"Código de Funcionario/a"}
 
                             register={register}
                             validationRules={requiredRule}
@@ -181,7 +181,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
 
                         <Select
-                            label={"Institucion"}
+                            label={"Institución"}
                             inputName={"institution"}
                             register={register}
                             setValue={setValue}
@@ -196,7 +196,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <SelectWithSearch label={"Division"}
+                        <SelectWithSearch label={"División"}
                             useDotLabel={true}
                             options={divisions}
                             value={division}
@@ -206,7 +206,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                             useStrongErrColor={isSubmitted} />
 
                         <SelectWithSearch
-                            label={"Profesion"}
+                            label={"Profesión"}
                             useDotLabel={true}
                             options={profesions}
                             value={profesion}

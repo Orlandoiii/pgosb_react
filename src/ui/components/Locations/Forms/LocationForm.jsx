@@ -11,12 +11,12 @@ import FormTitle from "../../../core/titles/FormTitle";
 
 
 
-const states = ["Miranda", "Caracas", "Bolivar", "Aragua", "Zulia"];
+const states = ["Miranda", "Caracas", "Bolívar", "Aragua", "Zulia"];
 
 const municipality = {
     "Miranda": ["Chacao", "Baruta", "Sucre", "Hatillo"],
     "Caracas": ["Libertador", "El Hatillo", "Baruta"],
-    "Bolivar": ["Caroní", "Heres", "Piar"],
+    "Bolívar": ["Caroní", "Heres", "Piar"],
     "Aragua": ["Girardot", "Mario Briceño Iragorry", "Santiago Mariño"],
     "Zulia": ["Maracaibo", "San Francisco", "Cabimas"]
 };
@@ -184,7 +184,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                         />
 
-                        <Input label={"Urbanizacion/Comunidad/Barrio"}
+                        <Input label={"Urbanización/Comunidad/Barrio"}
                             register={register}
                             // validationRules={requiredRule}
 
@@ -193,7 +193,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                             inputName={"urbanization"}
                             useDotLabel={true}
-                            placeHolder="Urbanizacion..."
+                            placeHolder="Urbanización..."
 
                         />
 
@@ -226,7 +226,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                             inputName={"urbanization"}
                             useDotLabel={true}
-                            placeHolder="Urbanizacion/Comunidad/Barrio"
+                            placeHolder="Urbanización/Comunidad/Barrio"
 
                         />
 
@@ -241,7 +241,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
 
 
-                    <Input label={"Direccion"}
+                    <Input label={"Dirección"}
                         register={register}
                         // validationRules={requiredRule}
 
@@ -250,7 +250,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                         inputName={"urbanization"}
                         useDotLabel={true}
-                        placeHolder="Urbanizacion/Comunidad/Barrio"
+                        placeHolder="Urbanización/Comunidad/Barrio"
 
                     />
 

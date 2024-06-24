@@ -169,7 +169,7 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
                             <option>100</option>
                             <option>500</option>
                         </select>
-                        <p className="pl-2 text-black text-sm font-medium">Registros Por Pagina</p>
+                        <p className="pl-2 text-black text-sm font-medium">Registros Por Página</p>
                     </div>
 
                 </header>

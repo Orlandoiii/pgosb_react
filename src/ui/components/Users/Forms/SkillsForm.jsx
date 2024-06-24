@@ -74,7 +74,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                         label={"Habilidades"}
                         inputName={"skills"}
                         useDotLabel={true}
-                        placeHolder="Habilidad Ejem:Paramedico"
+                        placeHolder="Habilidad Ejem: Paramédico"
                         useStrongErrColor={isSubmitted}
                         items={skills}
                         setItems={setSkills}
@@ -91,7 +91,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                             label={"Alergias"}
                             inputName={"allergies"}
                             useDotLabel={true}
-                            placeHolder="Alergia Ejem:Nuez"
+                            placeHolder="Alergia Ejem: Nuez"
                             useStrongErrColor={isSubmitted}
                             items={allergies}
                             setItems={setAllergies}
@@ -109,7 +109,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                         <div className="w-[50%] space-y-2">
 
-                            <h2>Datos fisicos</h2>
+                            <h2>Datos físicos</h2>
 
 
                             <div className="flex space-x-2 ">
@@ -186,7 +186,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
 
                                 <div className=" md:w-[33%]">
-                                    <Select label={"Pantalon"}
+                                    <Select label={"Pantalón"}
                                         inputName={"pants_size"}
                                         register={register}
                                         setValue={setValue}

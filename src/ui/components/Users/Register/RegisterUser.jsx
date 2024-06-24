@@ -11,7 +11,7 @@ import LocationForm from "../../Locations/Forms/LocationForm";
 
 const stepsObjects = [
     {
-        title: "Datos Basicos",
+        title: "Datos Básicos",
         content: <InfoPersonalForm />,
 
     },
@@ -20,7 +20,7 @@ const stepsObjects = [
         content: <LocationForm />
     },
     {
-        title: "Caracteristicas",
+        title: "Características",
         content: <SkillForm />,
 
     },

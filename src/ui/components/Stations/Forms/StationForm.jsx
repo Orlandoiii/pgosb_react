@@ -92,7 +92,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
             className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
-            {/* <FormTitle title={"Datos basicos del Vehiculo"} /> */}
+            {/* <FormTitle title={"Datos básicos del Vehículo"} /> */}
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
@@ -133,7 +133,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="">
 
-                        <SelectWithSearch label={"Estacion"}
+                        <SelectWithSearch label={"Estación"}
                             useDotLabel={true}
                             options={stations}
                             value={station}
