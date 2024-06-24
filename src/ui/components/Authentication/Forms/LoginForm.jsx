@@ -75,7 +75,7 @@ export default function LoginForm({ }) {
 
                         <Input register={register}
                             label={"Usuario o correo"} useDotLabel={true}
-                            inputName={"username"} placeHolder="jondoe"
+                            inputName={"username"} placeHolder="Jondoe"
                             errMessage={errors.username?.message}
                             icons={<MessageIcon />}
                         />

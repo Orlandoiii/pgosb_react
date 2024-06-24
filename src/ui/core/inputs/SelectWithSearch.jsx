@@ -45,7 +45,7 @@ export default function SelectWithSearch({
 
     useEffect(() => {
         if (isTouch.current && options.indexOf(value) === -1) {
-            setErrMessage("Debe eligir una opcion valida");
+            setErrMessage("Debe eligir una opción válida");
             if (onError)
                 onError(true);
             return;

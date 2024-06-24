@@ -9,7 +9,7 @@ import StationForm from "../Forms/StationForm";
 
 const stepsObjects = [
     {
-        title: "Datos Basicos",
+        title: "Datos Básicos",
         content: <StationForm />,
 
     },
@@ -33,7 +33,7 @@ export function RegisterStation({ showModal, onClose }) {
     return (
         <>
             <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
-                title='Registro de Estacion (Centro de Trabajo)'>
+                title='Registro de Estación (Centro de Trabajo)'>
 
                 {!showAccordion && <Stepper initialStep={initialStep.current} data={userData} steps={stepsObjects} onFinish={(d) => {
                     setUserData(d);

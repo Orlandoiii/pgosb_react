@@ -33,7 +33,7 @@ function ErrorIcon({ }) {
     )
 }
 
-const InfoData = { icon: <InfoIcon />, bgColor: "bg-blue-500", textColor: "text-blue-500", title: "Informacion" };
+const InfoData = { icon: <InfoIcon />, bgColor: "bg-blue-500", textColor: "text-blue-500", title: "Información" };
 const SuccessData = { icon: <SuccessIcon />, bgColor: "bg-emerald-500", textColor: "text-emerald-500", title: "Exitoso" }
 const WarningData = { icon: <WarningIcon />, bgColor: "bg-[#FACC15]", textColor: "text-[#FACC15]", title: "Advertencia" }
 const ErrorData = { icon: <ErrorIcon />, bgColor: "bg-rose-500", textColor: "text-rose-500", title: "Error" }
