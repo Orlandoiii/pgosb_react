@@ -7,7 +7,9 @@ import SkillForm from "../Forms/SkillsForm";
 import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import LocationForm from "../../Locations/Forms/LocationForm";
-import { UserFieldNameDictonary } from "./UserFieldDictonary";
+import { UserFieldNameDictonary } from "./UserFieldDictonary";import PDF from "./PDF"
+import {PDFDownloadLink, PDFViewer} from '@react-pdf/renderer'
+
 
 const stepsObjects = [
     {
@@ -61,6 +63,20 @@ export function RegisterUser({ showModal, onClose }) {
                                 initialStep.current = stepsObjects.length - 1
                                 setShowAccordion(false);
                             }}>Regresar</Button>
+
+                            <PDFDownloadLink document={<PDF />} fileName="registeruser.pdf">
+                                {({ loading, url, error, blob }) =>
+                                    loading ? (
+                                        <button  >Cargando documento...</button>
+                                    ) : (
+                                        <button>Descargar PDF</button>
+                                    )
+                                }
+                            </PDFDownloadLink>
+                            <PDFViewer>
+                                <PDF/>
+                            </PDFViewer>
+
                             <Button>Confirmar</Button>
                         </div>
 
