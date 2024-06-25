@@ -6,7 +6,7 @@ import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import BasicInfoForm from "../Forms/BasicInfoForm";
 import DataForm from "../Forms/DataForm";
-
+import { UnitsFieldNameDictonary } from "./UnitsFieldDictonary";
 
 const stepsObjects = [
     {
@@ -42,7 +42,7 @@ export function RegisterUnit({ showModal, onClose }) {
                 {showAccordion && unitData &&
                     <div className="flex flex-col space-y-4">
                         {unitData.map((v) => {
-                            return <Accordion title={v.title} value={v.data} key={v.title} />
+                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={UnitsFieldNameDictonary}/>
                         })}
 
                         <div className="flex justify-between">
@@ -50,9 +50,9 @@ export function RegisterUnit({ showModal, onClose }) {
                             <Button colorType="bg-rose-700" hoverColor="hover:bg-rose-900" onClick={() => {
                                 initialStep.current = stepsObjects.length - 1
                                 setShowAccordion(false);
-                            }}>Cancelar</Button>
+                            }}>Regresar</Button>
 
-                            <Button>Aceptar</Button>
+                            <Button>Confirmar</Button>
                         </div>
 
                     </div>

@@ -31,7 +31,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
     const [institution, setInstution] = useState(institutions[1]);
 
-    const [institutionErr, setInstutionErr] = useState("");
+    const [institutionErr, setInstutionErr] = useState(false);
 
 
 
@@ -58,7 +58,13 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
             onSubmit={
                 handleSubmit((data) => {
-                    handleSubmitInternal(data)
+
+                    if (institutionErr)
+                        return;
+
+                    const newData = { ...data, "institution": institution, "regions": regions, "phones": phones }
+
+                    handleSubmitInternal(newData)
                 })}
 
             className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
@@ -120,7 +126,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                             <AddInput
 
                                 label={"Teléfonos"}
-                                inputName={"regions"}
+                                inputName={"phones"}
                                 useDotLabel={true}
                                 placeHolder="0212-9855489"
                                 useStrongErrColor={isSubmitted}

@@ -3,7 +3,8 @@ import TableDataGrid from "../../core/datagrid/TableDataGrid"
 import { RegisterUser } from "./Register/RegisterUser"
 
 import AlertController from "../../core/alerts/AlertController";
-import mockData from "../../../assets/Mock_Data_SIMF.json"
+import mockData from "../../../assets/users_data.json"
+import { UserFieldNameDictonary } from "./Register/UserFieldDictonary";
 
 export default function UserPage({ }) {
 
@@ -24,7 +25,7 @@ export default function UserPage({ }) {
    return (
       <>
          <div className="">
-            <TableDataGrid rawData={mockData} onAdd={() => { setOpenAddForm(true) }} onUpdate={onUpdate} />
+            <TableDataGrid configHeader={UserFieldNameDictonary} rawData={mockData} onAdd={() => { setOpenAddForm(true) }} onUpdate={onUpdate} />
             <RegisterUser showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={() => { setOpenAddForm(false) }} />
          </div>

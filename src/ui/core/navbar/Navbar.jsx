@@ -23,10 +23,10 @@ export default function Navbar({ onBellIconClik }) {
 
                 <div className="pr-6">
                     <div className='flex items-center space-x-3'>
-
+{/* 
                         <div>
                             <ToggleColorTheme />
-                        </div>
+                        </div> */}
 
                         <div onClick={onBellIconClik} className="p-2 w-[34px] h-[34px] rounded-full bg-slate-200 flex justify-center items-center">
                             <BellIcon />

@@ -49,7 +49,7 @@ export default function ModalContainer({ show, onClose, showX = true, children =
 
             <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px] bg-slate-100'>
 
-                {show && children}
+                {children}
 
             </div>
 

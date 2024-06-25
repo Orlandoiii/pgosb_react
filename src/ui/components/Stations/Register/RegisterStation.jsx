@@ -5,7 +5,7 @@ import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import LocationForm from "../../Locations/Forms/LocationForm";
 import StationForm from "../Forms/StationForm";
-
+import { StationFieldNameDictonary } from "./StationFieldDictonary";
 
 const stepsObjects = [
     {
@@ -42,14 +42,14 @@ export function RegisterStation({ showModal, onClose }) {
                 {showAccordion && userData &&
                     <div className="flex flex-col space-y-4">
                         {userData.map((v) => {
-                            return <Accordion title={v.title} value={v.data} key={v.title} />
+                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={StationFieldNameDictonary} />
                         })}
                         <div className="flex justify-between">
                             <Button colorType="bg-rose-700" hoverColor="hover:bg-rose-900" onClick={() => {
                                 initialStep.current = stepsObjects.length - 1
                                 setShowAccordion(false);
-                            }}>Cancelar</Button>
-                            <Button>Aceptar</Button>
+                            }}>Regresar</Button>
+                            <Button>Confirmar</Button>
                         </div>
 
                     </div>

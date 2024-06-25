@@ -4,7 +4,7 @@ import Input from "../../../core/inputs/Input";
 import Select from "../../../core/inputs/Selects";
 import SelectWithSearch from "../../../core/inputs/SelectWithSearch";
 
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import FormTitle from "../../../core/titles/FormTitle";
@@ -58,37 +58,62 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     const [estado, setEstado] = useState("");
 
 
-    const [estadoErr, setEstadoErr] = useState("");
+    const [estadoErr, setEstadoErr] = useState(false);
 
 
 
-    const [municipios, setMunicipios] = useState()
+    const [municipios, setMunicipios] = useState([])
 
     const [municipio, setMunicipio] = useState("");
 
 
-    const [municipioErr, setMunicipioErr] = useState("");
+    const [municipioErr, setMunicipioErr] = useState(false);
 
 
     const [parroquias, setParroquias] = useState([])
     const [parroquia, setParroquia] = useState("");
 
-    const [parroquiaErr, setParroquiaErr] = useState("");
-
-
-
-
+    const [parroquiaErr, setParroquiaErr] = useState(false);
 
     function handleSubmitInternal(data) {
-
-
-
         if (onSubmit)
             onSubmit(data);
 
         if (Next)
             Next(data);
     }
+
+
+    useEffect(() => {
+        if (estado == null || estado == "") {
+            setMunicipio("");
+            return;
+
+        }
+
+
+        if (!municipality[estado])
+            return;
+
+
+        setMunicipios(municipality[estado])
+        setMunicipio(municipality[estado][0])
+    }, [estado, setMunicipio, setMunicipios])
+
+    useEffect(() => {
+        if (municipio == null || municipio == "") {
+            setParroquia("");
+            return;
+
+        }
+
+        if (!parish[municipio])
+            return
+
+        setParroquias(parish[municipio])
+        setParroquia(parish[municipio][0])
+    }, [municipio, setParroquia, setParroquias])
+
 
     return (
 
@@ -98,19 +123,14 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
             onSubmit={handleSubmit((
                 data) => {
 
+                if (estadoErr || municipioErr || parroquiaErr)
+                    return;
 
-
-                const newData = {
-                    ...data
-                }
+                const newData = { ...data, "state": estado, "municipality": municipio, "parish": parroquia }
 
                 handleSubmitInternal(newData)
             })}
             className="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
-
-
-            {/* <FormTitle title={"Ubicación"} /> */}
-
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
@@ -128,8 +148,6 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             value={estado}
                             onChange={(v) => { setEstado(v) }}
                             openUp={false}
-
-                            errMessage={estadoErr}
                             onError={(err) => { setEstadoErr(err) }}
                             useStrongErrColor={isSubmitted} />
 
@@ -141,8 +159,6 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             value={municipio}
                             onChange={(v) => { setMunicipio(v) }}
                             openUp={false}
-
-                            errMessage={municipioErr}
                             onError={(err) => { setMunicipioErr(err) }}
                             useStrongErrColor={isSubmitted} />
 
@@ -153,9 +169,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             options={parroquias}
                             value={parroquia}
                             onChange={(v) => { setParroquia(v) }}
-                            openUp={true}
-
-                            errMessage={parroquiaErr}
+                            openUp={false}
                             onError={(err) => { setParroquiaErr(err) }}
                             useStrongErrColor={isSubmitted} />
 
@@ -189,7 +203,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             // validationRules={requiredRule}
 
                             useStrongErrColor={isSubmitted}
-                            errMessage={errors.sector?.message}
+                            errMessage={errors.urbanization?.message}
 
                             inputName={"urbanization"}
                             useDotLabel={true}
@@ -209,11 +223,11 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             // validationRules={requiredRule}
 
                             useStrongErrColor={isSubmitted}
-                            errMessage={errors.sector?.message}
+                            errMessage={errors.street?.message}
 
-                            inputName={"urbanization"}
+                            inputName={"street"}
                             useDotLabel={true}
-                            placeHolder="Autopista..."
+                            placeHolder="Calle..."
 
                         />
 
@@ -222,35 +236,26 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             // validationRules={requiredRule}
 
                             useStrongErrColor={isSubmitted}
-                            errMessage={errors.sector?.message}
+                            errMessage={errors.beach?.message}
 
-                            inputName={"urbanization"}
+                            inputName={"beach"}
                             useDotLabel={true}
-                            placeHolder="Urbanización/Comunidad/Barrio"
+                            placeHolder="Playa/Río/Quebrada"
 
                         />
 
                     </div>
-
-
-
-
-
-
-
-
-
 
                     <Input label={"Dirección"}
                         register={register}
                         // validationRules={requiredRule}
 
                         useStrongErrColor={isSubmitted}
-                        errMessage={errors.sector?.message}
+                        errMessage={errors.address?.message}
 
-                        inputName={"urbanization"}
+                        inputName={"address"}
                         useDotLabel={true}
-                        placeHolder="Urbanización/Comunidad/Barrio"
+                        placeHolder="Dirección..."
 
                     />
 

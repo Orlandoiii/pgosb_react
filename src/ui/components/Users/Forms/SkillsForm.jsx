@@ -35,9 +35,6 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
     const [allergies, setAllergies] = useState(currentData?.allergies ?? []);
 
 
-
-
-
     function handleSubmitInternal(data) {
 
 

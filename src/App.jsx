@@ -13,6 +13,7 @@ import LoginPage from "./ui/components/Authentication/LoginPage";
 import UnitPage from "./ui/components/Units/UnitPage";
 import logger from "./logic/Logger/logger.js";
 import StationPage from "./ui/components/Stations/StationPage.jsx";
+import LocationPage from "./ui/components/Locations/LocationPage.jsx";
 
 
 
@@ -45,7 +46,7 @@ const router = createBrowserRouter([
          },
          {
             path: "locations/",
-            element: <ComingSoonPage />
+            element: <LocationPage />
          },
          {
             path: "assist/",
@@ -72,7 +73,7 @@ const router = createBrowserRouter([
 
 function App() {
    logger.log("Renderizo App");
-   
+
    return (
       <>
          <RouterProvider router={router} />

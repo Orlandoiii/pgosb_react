@@ -8,7 +8,6 @@ import { useContext, useState } from "react";
 import Toggle from "../../../core/buttons/Toggle";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
-import FormTitle from "../../../core/titles/FormTitle";
 
 
 
@@ -47,16 +46,16 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [rol, setRol] = useState(currentData?.rol ?? rolList[0]);
 
-    const [rolErr, setRolErr] = useState("");
+    const [rolErr, setRolErr] = useState(false);
 
     const [division, setDivision] = useState(currentData?.division ?? divisions[0]);
 
-    const [divisionErr, setDivisionErr] = useState("");
+    const [divisionErr, setDivisionErr] = useState(false);
 
 
     const [profesion, setProfesion] = useState(currentData?.profesion ?? profesions[0]);
 
-    const [profesionErr, setProfesionErr] = useState("");
+    const [profesionErr, setProfesionErr] = useState(false);
 
 
     const [isSystemUser, setIsSystemUser] = useState(currentData?.is_system_user ?? false);
