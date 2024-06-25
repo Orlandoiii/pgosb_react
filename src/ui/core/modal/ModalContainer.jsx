@@ -45,7 +45,7 @@ export default function ModalContainer({ show, onClose, showX = true, children =
             {showX && <CloseXSimbol onClose={onClose} />}
 
             {title && title.length > 0 && <h2 className='relative w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center
-            text-[whitesmoke] text-md h-11 p-2 shadow-lg'>{title}</h2>}
+            text-[whitesmoke] text-lg h-11 p-2 shadow-lg'>{title}</h2>}
 
             <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px] bg-slate-100'>
 

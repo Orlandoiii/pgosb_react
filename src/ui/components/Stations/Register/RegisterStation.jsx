@@ -33,7 +33,7 @@ export function RegisterStation({ showModal, onClose }) {
     return (
         <>
             <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
-                title='Registro de Estación (Centro de Trabajo)'>
+                title='Registro de Estación'>
 
                 {!showAccordion && <Stepper initialStep={initialStep.current} data={userData} steps={stepsObjects} onFinish={(d) => {
                     setUserData(d);

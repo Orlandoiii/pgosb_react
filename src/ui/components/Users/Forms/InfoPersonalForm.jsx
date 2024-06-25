@@ -6,6 +6,7 @@ import { useContext } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import FormTitle from "../../../core/titles/FormTitle";
+import logger from "../../../../logic/Logger/logger";
 
 const genders = ["M", "F"];
 
@@ -48,6 +49,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
             onSubmit={
                 handleSubmit((data) => {
+                    logger.log("AQUI",data);
                     handleSubmitInternal(data)
                 })}
 
@@ -166,7 +168,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <div className="w-[50%] flex space-x-2"> 
+                        <div className="w-[50%] flex space-x-2">
                             <div className="md:w-[35%]">
                                 <Input
 
