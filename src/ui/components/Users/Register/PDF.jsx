@@ -71,8 +71,8 @@ const data = [
 
 function PDF() {
     return (
-        <Document>
-          <Page style={styles.page}>
+        <Document >
+          <Page  style={styles.page}>
             <Text style={styles.title}>Usuario registrado exitosamente!</Text>
             <Image style={styles.image} src={userLogo} />
             <View style={styles.tablesContainer}>

@@ -30,8 +30,9 @@ function XIcon({ }) {
 export default function Toggle({ active, setActive }) {
     return (
         <button type="button"
-            className={`relative  w-[48px]  h-[25px]  ring-2   ${active ? "bg-[#0A2F4E] ring-offset-2 ring-[#0A2F4E]" : "bg-[#E5E7EB] ring-offset-1 ring-gray-400"}  flex px-1 py-1 rounded-full
-        shadow-sm border-1 border-slate-400   transition-all ease-in-out duration-300`}
+            className={`relative  w-[48px]  h-[25px]  ring-2   ${active ? "bg-[#0A2F4E] ring-offset-2 ring-[#0A2F4E]" :
+                "bg-[#E5E7EB] ring-offset-1 ring-gray-400"}  flex px-1 py-1 rounded-full shadow-sm border-1 border-slate-400 
+                transition-all ease-in-out duration-300`}
             onClick={() => { setActive(a => !a) }}
         >
             <span className={`absolute transition-position ease-in-out duration-300 

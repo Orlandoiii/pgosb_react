@@ -7,8 +7,8 @@ import SkillForm from "../Forms/SkillsForm";
 import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import LocationForm from "../../Locations/Forms/LocationForm";
-import { UserFieldNameDictonary } from "./UserFieldDictonary";import PDF from "./PDF"
-import {PDFDownloadLink, PDFViewer} from '@react-pdf/renderer'
+import { UserFieldNameDictonary } from "./UserFieldDictonary"; import PDF from "./PDF"
+import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
 
 
 const stepsObjects = [
@@ -43,6 +43,8 @@ export function RegisterUser({ showModal, onClose }) {
 
     const initialStep = useRef(0);
 
+    const [showPdf, setShowPdf] = useState(false)
+
     return (
         <>
             <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
@@ -69,13 +71,22 @@ export function RegisterUser({ showModal, onClose }) {
                                     loading ? (
                                         <button  >Cargando documento...</button>
                                     ) : (
-                                        <button>Descargar PDF</button>
+                                        <div className="">
+                                            <button>Descargar PDF</button>
+
+                                            <button onClick={(e) => { setShowPdf(true) }}>Ver Previo</button>
+                                        </div>
+
                                     )
                                 }
                             </PDFDownloadLink>
-                            <PDFViewer>
-                                <PDF/>
-                            </PDFViewer>
+
+                            <ModalContainer show={showPdf} onClose={() => { setShowPdf(false) }} title="PDF">
+                                <PDFViewer width={600} height={600}>
+                                    <PDF />
+                                </PDFViewer>
+                            </ModalContainer>
+
 
                             <Button>Confirmar</Button>
                         </div>

@@ -40,7 +40,7 @@ export default function Sidebar({ }) {
                             <SideBarLink link="/stations" icon={<StationIcon />} name='Estaciones' />
                             <SideBarLink link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' />
                             <SideBarLink link="/locations" icon={<LocationIcon />} name='Ubicaciones' />
-                            {/* <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' /> */}
+                            <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' />
 
                         </div>
                     </div>

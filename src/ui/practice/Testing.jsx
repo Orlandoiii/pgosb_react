@@ -12,6 +12,8 @@ import LocationForm from "../components/Locations/Forms/LocationForm";
 
 import MockData from "../../assets/MOCK_DATA.json"
 import RegionForm from "../components/Locations/Forms/RegionForm";
+import ModalConfirmation, { useConfirmationModal } from "../core/modal/ModalConfirmation";
+import AlertController from "../core/alerts/AlertController";
 
 
 
@@ -267,8 +269,29 @@ function FormTest({ }) {
     )
 }
 
+const alertController = new AlertController();
 
 export default function Testing({ }) {
+
+    const {showModal} = useConfirmationModal();
+
+
+
+    function handleClick() {
+
+        let resultPromise = showModal("Un Titulote Para Probar", "Esta Seguro que desea continuar con la operacion");
+
+        resultPromise.then(r => {
+            if (!r) {
+                alertController.notifyError("El usuario rechazo");
+                return;
+            }
+
+            alertController.notifyInfo("El usuario confirmo");
+
+        })
+    }
+
     return (
 
         <>
@@ -278,8 +301,10 @@ export default function Testing({ }) {
 
 
             <div className="max-w-[520px] mx-auto">
-                <RegionForm />
+                <Button onClick={handleClick}>Open Modal</Button>
             </div>
+
+
 
         </>
     )
