@@ -1,5 +1,4 @@
 import SideBarLink from "./SidebarLink"
-import TailAdminLogo from "../logo/TailAdminLogo"
 import ServiceIcon from "../icons/ServiceIcon"
 import UsersIcon from "../icons/UsersIcon"
 import RolsIncon from "../icons/RolsIcon"
@@ -7,14 +6,13 @@ import StationIcon from "../icons/StationIcon"
 import UnitIcon from "../icons/UnitIcon"
 import LocationIcon from "../icons/LocationIcon"
 import AmbulanceIcon from "../icons/AmbulanceIcon"
-import TestIcon from "../icons/TestIcon"
 import FireLogo from "../logo/FireLogo"
 
 export default function Sidebar({ }) {
     return (
 
         <aside className='absolute top-0 z-10 h-screen min-w-[300px]  rounded-ms 
-        bg-[#0A2F4E] shadow-lg  overflow-y-hidden  flex flex-col
+        bg-[#1C2434] shadow-lg  overflow-y-hidden  flex flex-col
          trasition-position ease-in-out duration-700 
          md:static md:translate-x-0 -translate-x-full'>
 
@@ -40,7 +38,7 @@ export default function Sidebar({ }) {
                             <SideBarLink link="/stations" icon={<StationIcon />} name='Estaciones' />
                             <SideBarLink link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' />
                             <SideBarLink link="/locations" icon={<LocationIcon />} name='Ubicaciones' />
-                            <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' />
+                            {/* <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' /> */}
 
                         </div>
                     </div>

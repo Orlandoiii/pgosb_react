@@ -39,15 +39,17 @@ function LockIcon() {
 }
 
 
-export default function LoginForm({ }) {
+export default function LoginForm({ onSubmit }) {
 
     const { register, handleSubmit, formState } = useForm({ mode: "onChange" });
 
     const { errors, isSubmitted } = formState;
 
 
-    function onSubmit(data) {
-
+    function handleSubmitInternal(data) {
+        console.log(data);
+        if (onSubmit)
+            onSubmit(data);
     }
 
     logger.log("Renderizando LoginForm");
@@ -69,7 +71,7 @@ export default function LoginForm({ }) {
                 </h2>
 
                 <form noValidate className="flex flex-col justify-center bg-inherit"
-                    onSubmit={handleSubmit((data) => { onSubmit(data) })}>
+                    onSubmit={handleSubmit((data) => { handleSubmitInternal(data) })}>
 
                     <div className="space-y-6">
 
@@ -83,6 +85,7 @@ export default function LoginForm({ }) {
                         <Input label={"Contraseña"} inputName={"password"}
                             useDotLabel={true} placeHolder="********"
                             errMessage={errors.password?.message}
+                            type="password"
                             icons={<LockIcon />}
                         />
                     </div>

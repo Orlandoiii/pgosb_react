@@ -16,7 +16,7 @@ const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
 const requiredRule = {
     required: {
-        value: true,
+        value: false,
         message: "El campo es requerido",
     }
 }

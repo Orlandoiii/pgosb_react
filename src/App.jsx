@@ -14,6 +14,10 @@ import UnitPage from "./ui/components/Units/UnitPage";
 import logger from "./logic/Logger/logger.js";
 import StationPage from "./ui/components/Stations/StationPage.jsx";
 import LocationPage from "./ui/components/Locations/LocationPage.jsx";
+import { useState } from "react";
+import LoadingModal from "./ui/core/modal/LoadingModal.jsx";
+import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCenterPage.jsx";
+import DragBoxComponent from "./ui/practice/DragBox.jsx";
 
 
 
@@ -50,7 +54,7 @@ const router = createBrowserRouter([
          },
          {
             path: "assist/",
-            element: <ComingSoonPage />
+            element: <HealthcareCenterPage />
          },
          {
             path: "test/",
@@ -60,11 +64,16 @@ const router = createBrowserRouter([
       ]
 
    },
+
    {
-      path: "/login",
-      element: <LoginPage />,
-      errorElement: <ErrorPage />,
+      path: "dragbox",
+      element: <DragBoxComponent />
    },
+   // {
+   //    path: "/login",
+   //    element: <LoginPage />,
+   //    errorElement: <ErrorPage />,
+   // },
    {
       path: "*",
       element: <NotFound />
@@ -72,11 +81,26 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-   logger.log("Renderizo App");
+
+   const [isAuthenticated, setIsAuthenticated] = useState(false);
+   const [openLoadModal, setOpenLoadModal] = useState(false);
+
+
 
    return (
       <>
-         <RouterProvider router={router} />
+
+         {!isAuthenticated && <LoginPage openLoadModal={openLoadModal} onAuthenticated={() => {
+            setOpenLoadModal(true);
+            setTimeout(() => {
+               setOpenLoadModal(false);
+               setIsAuthenticated(true)
+            }, 2000)
+
+         }} />}
+         {isAuthenticated && <RouterProvider router={router} />}
+
+         <LoadingModal open={openLoadModal}></LoadingModal>
       </>
    )
 

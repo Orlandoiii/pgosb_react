@@ -7,10 +7,10 @@ import {
     getFilteredRowModel,
 
 
+
 } from "@tanstack/react-table"
 
-import moock_data from "../../../assets/MOCK_DATA.json"
-import logger from "../../../logic/Logger/logger";
+
 import { useEffect, useMemo, useRef, useState } from "react";
 import AddIcon from "../icons/AddIcon";
 import ModifyIcon from "../icons/ModifyIcon";
@@ -80,9 +80,9 @@ function NumberButton({ number = 1, active = false, onClick }) {
 
 function ColumnFilter({ column, table }) {
 
-    const firstValue = table
-        .getPreFilteredRowModel()
-        .flatRows[0]?.getValue(column.id)
+    // const firstValue = table
+    //     .getPreFilteredRowModel()
+    //     .flatRows[0]?.getValue(column.id)
 
     const columnFilterValue = column.getFilterValue()
 
@@ -116,7 +116,7 @@ function Checkbox({
     }, [ref, indeterminate])
 
     return (
-        <input 
+        <input
             type="checkbox"
             ref={ref}
             className={className + ' cursor-pointer'}
@@ -163,7 +163,7 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
         .forEach(([key, _]) => {
             COLUMNS.push(
                 {
-                    
+
                     header: configHeader && configHeader[key] ? configHeader[key] : key,
                     accessorKey: key,
                     //footer: key,
@@ -177,6 +177,7 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
 
 
 
+    const [rowSelection, setRowSelection] = useState({})
 
     const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
 
@@ -201,10 +202,13 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
         state: {
             pagination: pagination,
             sorting: sorting,
-            globalFilter: globalFilter
+            globalFilter: globalFilter,
+            rowSelection: rowSelection
         },
         onGlobalFilterChange: setGlobalFilter,
-        onSortingChange: setSorting
+        onSortingChange: setSorting,
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection
 
 
     })
@@ -222,6 +226,7 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
 
                 <header className="w-full mx-auto flex justify-between  py-4 px-8">
 
+                    {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
                     <div className="flex space-x-4">
                         <button onClick={(e) => { if (onAdd) onAdd() }}
                             className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">

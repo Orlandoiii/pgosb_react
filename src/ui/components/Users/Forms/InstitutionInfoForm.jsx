@@ -25,7 +25,7 @@ const instituions = ["Institución 1", "Institución 2", "Institución 3"]
 
 const requiredRule = {
     required: {
-        value: true,
+        value: false,
         message: "El campo es requerido",
     }
 }

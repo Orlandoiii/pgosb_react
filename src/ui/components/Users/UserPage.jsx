@@ -28,7 +28,9 @@ export default function UserPage({ }) {
             <TableDataGrid configHeader={UserFieldNameDictonary} rawData={mockData} onAdd={() => { setOpenAddForm(true) }} onUpdate={onUpdate} />
             <RegisterUser showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={() => { setOpenAddForm(false) }} />
+        
          </div>
+
       </>
 
    )

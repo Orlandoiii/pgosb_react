@@ -4,7 +4,7 @@ import { CloseXSimbol } from "./ModalContainer";
 
 
 const ConfirmationModalContext = createContext({
-    showModal: () => Promise.resolve(false),
+    showConfirmationModal: () => Promise.resolve(false),
 });
 
 
@@ -40,10 +40,7 @@ function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }
                 </div>
 
 
-                <p className="text-center text-lg">{message}</p>
-
-
-
+                <p className="text-center text-lg md:text-xl">{message}</p>
 
 
                 <div className="flex justify-center space-x-6 w-full  px-6 absolute bottom-4 right-1/2 translate-x-1/2">
@@ -78,7 +75,7 @@ export default function ConfirmationModalProvider({ children }) {
 
     const resolvePromise = useRef({});
 
-    const showModal = (t, m) => {
+    const showConfirmationModal = (t, m) => {
         setMessage(m);
         setTitle(t);
         setShowModalState(true);
@@ -99,7 +96,7 @@ export default function ConfirmationModalProvider({ children }) {
     };
 
     return (
-        <ConfirmationModalContext.Provider value={{ showModal }}>
+        <ConfirmationModalContext.Provider value={{ showConfirmationModal }}>
             {children}
             <ModalConfirmation
                 title={title}

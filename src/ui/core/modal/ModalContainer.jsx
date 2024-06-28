@@ -23,7 +23,7 @@ export function CloseXSimbol({ onClose }) {
 }
 
 
-export default function ModalContainer({ show, onClose, showX = true, children = null,  title = "" }) {
+export default function ModalContainer({ show, onClose, showX = true, children = null, title = "" }) {
 
     const parentNode = useRef(null);
 
@@ -33,6 +33,7 @@ export default function ModalContainer({ show, onClose, showX = true, children =
         parentNode.current = doc;
 
     }, [])
+
 
 
     return parentNode?.current != null ? (createPortal(<div className={`fixed left-0 top-0 w-screen h-screen overflow-auto  

@@ -8,8 +8,12 @@ import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import LocationForm from "../../Locations/Forms/LocationForm";
 import { UserFieldNameDictonary } from "./UserFieldDictonary"; import PDF from "./PDF"
-import { PDFDownloadLink, PDFViewer } from '@react-pdf/renderer'
+import { useConfirmationModal } from "../../../core/modal/ModalConfirmation";
+import AlertController from "../../../core/alerts/AlertController";
+import LoadingModal from "../../../core/modal/LoadingModal";
 
+
+const alertController = new AlertController();
 
 const stepsObjects = [
     {
@@ -37,13 +41,39 @@ export function RegisterUser({ showModal, onClose }) {
 
     const [userData, setUserData] = useState([]);
 
-
+   
     const [showAccordion, setShowAccordion] = useState(false)
 
 
     const initialStep = useRef(0);
 
-    const [showPdf, setShowPdf] = useState(false)
+
+
+    const { showConfirmationModal } = useConfirmationModal();
+
+    const [openLoadingModal, setOpenLoadingModal] = useState(false);
+
+    function handleAccept() {
+        let result = showConfirmationModal("Registro de Usuario", "Esta seguro que desea registrar el usuario con los datos antes mostrados ?");
+        result.then(r => {
+            if (!r)
+                return;
+
+            setShowAccordion(false);
+            onClose();
+            initialStep.current = 0;
+
+            setOpenLoadingModal(true);
+            setTimeout(() => {
+
+                setOpenLoadingModal(false);
+                alertController.notifySuccess("Usuario guardado exitosamente");
+
+            }, 1000)
+
+
+        })
+    }
 
     return (
         <>
@@ -66,35 +96,15 @@ export function RegisterUser({ showModal, onClose }) {
                                 setShowAccordion(false);
                             }}>Regresar</Button>
 
-                            <PDFDownloadLink document={<PDF />} fileName="registeruser.pdf">
-                                {({ loading, url, error, blob }) =>
-                                    loading ? (
-                                        <button  >Cargando documento...</button>
-                                    ) : (
-                                        <div className="">
-                                            <button>Descargar PDF</button>
-
-                                            <button onClick={(e) => { setShowPdf(true) }}>Ver Previo</button>
-                                        </div>
-
-                                    )
-                                }
-                            </PDFDownloadLink>
-
-                            <ModalContainer show={showPdf} onClose={() => { setShowPdf(false) }} title="PDF">
-                                <PDFViewer width={600} height={600}>
-                                    <PDF />
-                                </PDFViewer>
-                            </ModalContainer>
-
-
-                            <Button>Confirmar</Button>
+                            <Button onClick={handleAccept}>Confirmar</Button>
                         </div>
 
                     </div>
                 }
 
             </ModalContainer>
+
+            <LoadingModal open={openLoadingModal} />
 
         </>
     )

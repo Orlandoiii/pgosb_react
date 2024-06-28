@@ -14,6 +14,7 @@ import MockData from "../../assets/MOCK_DATA.json"
 import RegionForm from "../components/Locations/Forms/RegionForm";
 import ModalConfirmation, { useConfirmationModal } from "../core/modal/ModalConfirmation";
 import AlertController from "../core/alerts/AlertController";
+import LoadingModal from "../core/modal/LoadingModal";
 
 
 
@@ -273,13 +274,13 @@ const alertController = new AlertController();
 
 export default function Testing({ }) {
 
-    const {showModal} = useConfirmationModal();
+    const {showConfirmationModal} = useConfirmationModal();
 
 
 
     function handleClick() {
 
-        let resultPromise = showModal("Un Titulote Para Probar", "Esta Seguro que desea continuar con la operacion");
+        let resultPromise = showConfirmationModal("Un Titulote Para Probar", "Esta Seguro que desea continuar con la operacion");
 
         resultPromise.then(r => {
             if (!r) {
@@ -297,8 +298,8 @@ export default function Testing({ }) {
         <>
 
 
-
-
+           <LoadingModal open={true}></LoadingModal>
+ 
 
             <div className="max-w-[520px] mx-auto">
                 <Button onClick={handleClick}>Open Modal</Button>
