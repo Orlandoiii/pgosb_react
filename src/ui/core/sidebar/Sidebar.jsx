@@ -7,8 +7,12 @@ import UnitIcon from "../icons/UnitIcon"
 import LocationIcon from "../icons/LocationIcon"
 import AmbulanceIcon from "../icons/AmbulanceIcon"
 import FireLogo from "../logo/FireLogo"
+import logger from "../../../logic/Logger/logger"
 
 export default function Sidebar({ }) {
+
+    logger.log("Renderizo SideBar");
+    
     return (
 
         <aside className='absolute top-0 z-10 h-screen min-w-[300px]  rounded-ms 

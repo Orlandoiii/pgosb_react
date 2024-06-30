@@ -86,7 +86,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                 const newData = {
                     ...data,
-                    "is_system_user": isSystemUser,
+                    "system_user": isSystemUser,
                     "profesion": profesion,
                     "rol": rol,
                     "division": division,

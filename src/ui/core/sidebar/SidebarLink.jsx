@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 export default function SideBarLink({ icon = null, name = "", link = "" }) {
 
     return (
-        <div className="">
+        <div>
             <NavLink to={link}>
                 {({ isActive }) => (
                     <div className={`relative outline-none flex justify-between items-center px-3  py-2.5  
@@ -14,7 +14,6 @@ export default function SideBarLink({ icon = null, name = "", link = "" }) {
                             {icon}
                             <h3 className="text-[whitesmoke] ">{name}</h3>
                         </div>
-                        {/* {isSectionLink && <ArrowButton />} */}
                     </div>
                 )}
             </NavLink>

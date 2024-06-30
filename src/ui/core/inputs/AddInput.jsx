@@ -4,6 +4,7 @@ import PlusIcon from "../icons/PlusIcon";
 import { CommonLogic } from "./ShareLogic";
 import MiniXIcon from "../icons/MiniXIcon";
 import ModalContainer from "../modal/ModalContainer";
+import logger from "../../../logic/Logger/logger";
 
 const common = new CommonLogic();
 
@@ -112,7 +113,7 @@ export default function AddInput({
             return;
         }
 
-        console.log("Anadiendo valor", value);
+        logger.log("Anadiendo valor", value);
 
         if (items?.includes(value))
             return;

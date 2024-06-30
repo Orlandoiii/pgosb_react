@@ -9,15 +9,14 @@ import ErrorPage from "./ui/core/errors/ErrorPage";
 import Testing from "./ui/practice/Testing";
 import UserPage from "./ui/components/Users/UserPage";
 import ComingSoonPage from "./ui/core/errors/ComingSoonPage";
-import LoginPage from "./ui/components/Authentication/LoginPage";
 import UnitPage from "./ui/components/Units/UnitPage";
 import logger from "./logic/Logger/logger.js";
 import StationPage from "./ui/components/Stations/StationPage.jsx";
 import LocationPage from "./ui/components/Locations/LocationPage.jsx";
-import { useState } from "react";
-import LoadingModal from "./ui/core/modal/LoadingModal.jsx";
 import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCenterPage.jsx";
 import DragBoxComponent from "./ui/practice/DragBox.jsx";
+import LoadModalContextProvider from "./ui/core/modal/LoadingModal.jsx";
+import ConfigContextProvider from "./logic/Config/ConfigContext.jsx";
 
 
 
@@ -82,25 +81,16 @@ const router = createBrowserRouter([
 
 function App() {
 
-   const [isAuthenticated, setIsAuthenticated] = useState(false);
-   const [openLoadModal, setOpenLoadModal] = useState(false);
-
-
+   logger.log("Renderizo App")
 
    return (
       <>
+         <LoadModalContextProvider>
+            <ConfigContextProvider>
+               <RouterProvider router={router} />
+            </ConfigContextProvider>
+         </LoadModalContextProvider>
 
-         {!isAuthenticated && <LoginPage openLoadModal={openLoadModal} onAuthenticated={() => {
-            setOpenLoadModal(true);
-            setTimeout(() => {
-               setOpenLoadModal(false);
-               setIsAuthenticated(true)
-            }, 2000)
-
-         }} />}
-         {isAuthenticated && <RouterProvider router={router} />}
-
-         <LoadingModal open={openLoadModal}></LoadingModal>
       </>
    )
 

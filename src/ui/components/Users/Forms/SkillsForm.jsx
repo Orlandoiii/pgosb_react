@@ -6,7 +6,6 @@ import { useContext, useState } from "react";
 import AddInput from "../../../core/inputs/AddInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import { StepContext } from "../../Stepper/Stepper";
-import FormTitle from "../../../core/titles/FormTitle";
 
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];

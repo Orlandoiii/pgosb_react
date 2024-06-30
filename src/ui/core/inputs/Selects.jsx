@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
 import Input from './Input'
-import InputFloatLabel from './InputFloatLabel';
 import logger from '../../../logic/Logger/logger';
 
 
@@ -56,6 +55,13 @@ export function Options({
     autoCompleted = false,
 }) {
 
+
+    if (!options)
+        return <></>
+
+    if (!value)
+        value = ""
+
     const justOneMacht = useRef("");
 
     useEffect(() => {
@@ -78,7 +84,7 @@ export function Options({
                     o
                         .toString()
                         .toLowerCase()
-                        .indexOf(value.toString().toLowerCase()) !== -1
+                        .indexOf(value?.toString().toLowerCase()) !== -1
             )
             : options;
 
@@ -208,7 +214,7 @@ export default function Select({
                 controlled={false}
 
                 {...(register ? { register: register } : {})}
-
+                turnOffAutoCompleted={true}
                 type={type}
                 onClick={handleOnClick}
                 onMouseDown={onMouseDown}

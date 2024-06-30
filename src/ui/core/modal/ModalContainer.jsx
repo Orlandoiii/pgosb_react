@@ -1,6 +1,27 @@
-import { createPortal } from 'react-dom';
-import { useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion"
+import logger from "../../../logic/Logger/logger";
 
+const dropInEffect = {
+    hidden: {
+        y: "-100vh",
+        opacity: 0
+    },
+    visible: {
+        y: "0",
+        opacity: 1,
+        transition: {
+            duration: 0.2,
+            type: "spring",
+            damping: 100,
+            stiffness: 500
+
+        }
+    },
+    exit: {
+        y: "100vh",
+        opacity: 0
+    }
+}
 export function CloseXSimbol({ onClose }) {
     return (
         <button className='w-7 bg-rose-700 rounded-full p-2 
@@ -25,39 +46,56 @@ export function CloseXSimbol({ onClose }) {
 
 export default function ModalContainer({ show, onClose, showX = true, children = null, title = "" }) {
 
-    const parentNode = useRef(null);
+    logger.log("Renderizo Modal Container")
 
-    useEffect(() => {
-        let doc = document.querySelector("#modal-root");
+    return (
+        <AnimatePresence
+            initial={false}
+            mode='wait'
+            onExitComplete={() => null}
 
-        parentNode.current = doc;
+        >
+            {show && <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{
+                    ease: "easeInOut",
+                    duration: 0.2
+                }}
+                exit={{ opacity: 0 }}
+                className={`fixed left-0 top-0 w-full h-full overflow-auto  
+        flex items-center justify-center 
+           bg-black bg-opacity-20 duration-300 ease-in-out z-10 `}>
 
-    }, [])
+                <motion.div
+                    initial={{ opacity: 0, scale: 1.5 }}
+                    animate={{ opacity: 1, scale: 1 }}
 
+                    transition={{
+                        ease: "easeInOut",
+                        duration: 0.2
+                    }}
+                    exit={{ opacity: 0, scale: 1.2 }}
 
-
-    return parentNode?.current != null ? (createPortal(<div className={`fixed left-0 top-0 w-screen h-screen overflow-auto  
-        md:h-screen md:w-screen flex items-center justify-center 
-           bg-black bg-opacity-20 duration-300 ease-in-out z-10 ${!show ? "opacity-0 pointer-events-none" : ""}`}>
-
-        <div className="relative w-full md:w-auto h-full md:h-auto overflow-auto rounded-xl  
+                    className="relative w-full md:w-auto h-full md:h-auto overflow-auto rounded-xl  
         bg-slate-100 shadow-lg shadow-gray-400 ">
 
-            {showX && <CloseXSimbol onClose={onClose} />}
+                    {showX && <CloseXSimbol onClose={onClose} />}
 
-            {title && title.length > 0 && <h2 className='relative w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center
+                    {title && title.length > 0 && <h2 className='relative w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center
             text-[whitesmoke] text-lg h-11 p-2 shadow-lg'>{title}</h2>}
 
-            <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px] bg-slate-100'>
+                    <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px] bg-slate-100'>
 
-                {children}
+                        {children}
 
-            </div>
+                    </div>
 
-            <span className='h-0 md:block md:bg-[#0A2F4E] md:h-[7px] md:w-full md:shadow-md '></span>
+                    <span className='h-0 md:block md:bg-[#0A2F4E] md:h-[7px] md:w-full md:shadow-md '></span>
 
-        </div>
+                </motion.div>
+            </motion.div >}
+        </AnimatePresence>
+    )
 
-    </div >, parentNode.current)
-    ) : <></>;
 }

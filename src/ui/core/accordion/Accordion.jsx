@@ -37,7 +37,8 @@ function KeyValue({ keyName, value }) {
 
             {valueIsArray ?
                 <ArrayElement title={keyName} values={value} /> :
-                <p className="text-[#0A2F4E] text-sm font-semibold">{isBoolean(value) ? value.toString() : value}</p>}
+                <p className="text-[#0A2F4E] text-xs font-semibold 
+                text-ellipsis whitespace-nowrap overflow-x-hidden">{isBoolean(value) ? value.toString() : value}</p>}
 
         </div>
 
@@ -71,14 +72,12 @@ export default function Accordion({ title, value, configNames }) {
 
     const [open, setOpen] = useState(true);
 
-
-
     const [firstHalf, secondHalf] = splitArrayInHalf(Object.entries(value));
 
     logger.log("Renderizando Accordion Data:", value);
 
-    logger.log("first:", firstHalf);
-    logger.log("second:", secondHalf);
+    logger.log("first half data:", firstHalf);
+    logger.log("second half data:", secondHalf);
 
 
 

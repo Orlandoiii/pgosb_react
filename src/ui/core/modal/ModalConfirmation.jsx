@@ -1,6 +1,8 @@
 import { createContext, useContext, useRef, useState } from "react";
 import Button from "../buttons/Button";
 import { CloseXSimbol } from "./ModalContainer";
+import logger from "../../../logic/Logger/logger";
+import { motion, AnimatePresence } from "framer-motion"
 
 
 const ConfirmationModalContext = createContext({
@@ -9,8 +11,13 @@ const ConfirmationModalContext = createContext({
 
 
 function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }) {
-    return <div
+    logger.log("Renderizo Confirmation Modal")
 
+    return <motion.div
+
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
         className={`fixed  w-full h-full z-10 inset-0 flex justify-center items-center transition-colors
             ${open ? "visible bg-black/20" : "invisible"}
           `}
@@ -58,7 +65,7 @@ function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }
             </div>
         </div>
 
-    </div>
+    </motion.div>
 
 }
 

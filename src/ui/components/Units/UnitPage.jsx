@@ -24,14 +24,12 @@ export default function UnitPage({ }) {
    return (
       <>
          <div className="">
-            <TableDataGrid rawData={mockData} onAdd={() => { setOpenAddForm(true) }} onUpdate={onUpdate} configHeader={UnitsFieldNameDictonary} />
+            <TableDataGrid rawData={mockData} onAdd={() => { setOpenAddForm(true) }}
+               onUpdate={onUpdate}
+               configHeader={UnitsFieldNameDictonary} />
             <RegisterUnit showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={() => { setOpenAddForm(false) }} />
          </div>
-
-
-
-
       </>
 
    )

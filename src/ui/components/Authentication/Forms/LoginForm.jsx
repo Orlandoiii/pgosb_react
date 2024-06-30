@@ -1,6 +1,4 @@
 import { useForm } from "react-hook-form";
-
-import ShieldLogo from "../../../core/logo/ShieldLogo"
 import Input from "../../../core/inputs/Input"
 import Button from "../../../core/buttons/Button";
 import logger from "../../../../logic/Logger/logger";
@@ -47,7 +45,7 @@ export default function LoginForm({ onSubmit }) {
 
 
     function handleSubmitInternal(data) {
-        console.log(data);
+        lo.log(data);
         if (onSubmit)
             onSubmit(data);
     }

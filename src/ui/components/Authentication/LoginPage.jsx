@@ -1,25 +1,14 @@
-import { useState } from "react";
 import logger from "../../../logic/Logger/logger"
-import LoadingModal from "../../core/modal/LoadingModal";
 import LoginForm from "./Forms/LoginForm"
 
-export default function LoginPage({ onAuthenticated, openLoadModal }) {
+export default function LoginPage({ onAuthenticated }) {
 
-    // const [openLoadModal, setOpenLoadModal] = useState(false)
 
     logger.log("Renderizando LoginPage");
     function handleSubmit() {
-
-        //setOpenLoadModal(true);
-
-
         if (onAuthenticated) {
             onAuthenticated();
         }
-
-
-
-
     }
     return (
         <>
@@ -32,13 +21,7 @@ export default function LoginPage({ onAuthenticated, openLoadModal }) {
                     <LoginForm onSubmit={handleSubmit} />
                 </div>
             </div>
-
-
-         
-
         </>
-
-
     )
 
 }

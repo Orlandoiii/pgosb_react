@@ -12,13 +12,16 @@
     "dependencies": {
         "@react-pdf/renderer": "^3.4.4",
         "@tanstack/react-table": "^8.17.3",
+        "axios": "^1.7.2",
+        "framer-motion": "^11.2.12",
         "react": "^18.2.0",
         "react-accessible-treeview": "^2.9.1",
         "react-dom": "^18.2.0",
         "react-hook-form": "^7.51.5",
         "react-icons": "^5.2.1",
         "react-router-dom": "^6.23.1",
-        "react-toastify": "^10.0.5"
+        "react-toastify": "^10.0.5",
+        "react-use-measure": "^2.1.1"
     },
     "devDependencies": {
         "@hookform/devtools": "^4.3.1",

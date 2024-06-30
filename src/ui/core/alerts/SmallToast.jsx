@@ -1,3 +1,5 @@
+import logger from "../../../logic/Logger/logger";
+
 function SuccessIcon({ }) {
     return (
         <svg className="w-6 h-6 text-white fill-current" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
@@ -56,6 +58,8 @@ function GetData(type) {
 
 export default function SmallToast({ type = "info", message = "" }) {
 
+    logger.log("Renderizo SmallToast")
+    
     const { icon, bgColor, textColor, title } = GetData(type);
 
 

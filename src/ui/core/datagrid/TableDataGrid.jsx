@@ -4,10 +4,7 @@ import {
     flexRender,
     getPaginationRowModel,
     getSortedRowModel,
-    getFilteredRowModel,
-
-
-
+    getFilteredRowModel
 } from "@tanstack/react-table"
 
 
@@ -15,6 +12,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import AddIcon from "../icons/AddIcon";
 import ModifyIcon from "../icons/ModifyIcon";
 import DeleteIcon from "../icons/DeleteIcon";
+import logger from "../../../logic/Logger/logger";
 
 
 function SortIcon({ isSorted }) {
@@ -23,13 +21,15 @@ function SortIcon({ isSorted }) {
         <>
             <span className="inline-flex flex-col space-y-[3px]">
                 <span className="inline-block">
-                    <svg className={`${isSorted && isSorted == "asc" ? "fill-[#3c50e0]" : "fill-gray-200"}`} width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg className={`${isSorted && isSorted == "asc" ? "fill-[#3c50e0]" : "fill-gray-200"}`}
+                        width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 0L0 5H10L5 0Z" fill="">
                         </path>
                     </svg>
                 </span>
                 <span className="inline-block">
-                    <svg className={`${isSorted && isSorted == "desc" ? "fill-[#3c50e0]" : "fill-gray-200"}`} width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg className={`${isSorted && isSorted == "desc" ? "fill-[#3c50e0]" : "fill-gray-200"}`}
+                        width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 5L10 0L-4.37114e-07 8.74228e-07L5 5Z" fill="">
                         </path>
                     </svg>
@@ -78,11 +78,7 @@ function NumberButton({ number = 1, active = false, onClick }) {
 }
 
 
-function ColumnFilter({ column, table }) {
-
-    // const firstValue = table
-    //     .getPreFilteredRowModel()
-    //     .flatRows[0]?.getValue(column.id)
+function ColumnFilter({ column }) {
 
     const columnFilterValue = column.getFilterValue()
 
@@ -125,50 +121,74 @@ function Checkbox({
     )
 }
 
-export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, configHeader = null }) {
+const checkBoxHeader = {
+    id: 'select',
+    header: ({ table }) => (
+        <Checkbox
+            {...{
+                checked: table.getIsAllRowsSelected(),
+                indeterminate: table.getIsSomeRowsSelected(),
+                onChange: table.getToggleAllRowsSelectedHandler(),
+            }}
+        />
+    ),
+    cell: ({ row }) => (
+        <div className="px-1">
+            <Checkbox
+                {...{
+                    checked: row.getIsSelected(),
+                    disabled: !row.getCanSelect(),
+                    indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                }}
+            />
+        </div>
+    ),
+}
+
+export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpdate, onDelete, configLayout = null }) {
 
 
+    logger.log("Renderizo TableDataGrid");
 
+    if (!rawData)
+        return <></>
+
+
+    logger.log("DATA GRID CONFIG:", configLayout);
+    logger.log("DATA GRID DATA:", rawData)
     const COLUMNS = [];
 
 
     COLUMNS.push(
-        {
-            id: 'select',
-            header: ({ table }) => (
-                <Checkbox
-                    {...{
-                        checked: table.getIsAllRowsSelected(),
-                        indeterminate: table.getIsSomeRowsSelected(),
-                        onChange: table.getToggleAllRowsSelectedHandler(),
-                    }}
-                />
-            ),
-            cell: ({ row }) => (
-                <div className="px-1">
-                    <Checkbox
-                        {...{
-                            checked: row.getIsSelected(),
-                            disabled: !row.getCanSelect(),
-                            indeterminate: row.getIsSomeSelected(),
-                            onChange: row.getToggleSelectedHandler(),
-                        }}
-                    />
-                </div>
-            ),
-        },
+        checkBoxHeader
     )
 
     Object.entries(rawData[0])
-        .forEach(([key, _]) => {
-            COLUMNS.push(
-                {
+        .forEach(([value, _]) => {
 
-                    header: configHeader && configHeader[key] ? configHeader[key] : key,
-                    accessorKey: key,
-                    //footer: key,
-                }
-            )
+            const config = configLayout.find(v => v.column_name == value)
+            if (config) {
+
+
+                logger.log("Table Grid Config:", config);
+                logger.log("Table Grid value:", value);
+                logger.log("Visibilidad:", config.visibility);
+                if (config.visibility)
+                    COLUMNS.push(
+                        {
+
+                            header: config.display_name,
+                            accessorKey: value,
+                            //footer: key,
+                        }
+                    )
+
+            } else {
+                logger.log("DATO FALTANTE:", value);
+            }
+
+
         })
 
 
@@ -213,11 +233,16 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
 
     })
 
+    function getTotalSelectedRows() {
+        const rowModel = table.getSelectedRowModel();
 
-    // const [rowSelection, setRowSelection] = React.useState({})
+        if (!rowModel || !rowModel.rows)
+            return 0;
+
+        return rowModel.rows.length
 
 
-
+    }
 
     return (
         <>
@@ -232,14 +257,31 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
                             className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
                             <AddIcon />
                         </button>
-                        <button onClick={(e) => { if (onUpdate) onUpdate() }}
-                            className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <ModifyIcon />
+                        <button onClick={(e) => { if (onUpdate) onUpdate() }} disabled={!(getTotalSelectedRows() === 1)}
+                            className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 ? "bg-slate-200" : "bg-slate-50"} bg-slate-200 rounded-full flex justify-center items-center shadow-md`} >
+                            <ModifyIcon active={getTotalSelectedRows() === 1} />
                         </button>
 
-                        <button onClick={(e) => { if (onDelete) onDelete() }}
+                        <button onClick={() => {
+
+                            const rowModel = table.getSelectedRowModel();
+
+                            if (!rowModel || getTotalSelectedRows() < 1)
+                                return;
+
+                            const selectedRows = rowModel.rows.map(r => r.original);
+
+
+                            if (onDelete)
+                                onDelete(selectedRows);
+
+
+                        }}
+
+                            disabled={getTotalSelectedRows() < 1}
                             className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <DeleteIcon />
+
+                            <DeleteIcon active={getTotalSelectedRows() >= 1} />
                         </button>
                     </div>
 
@@ -249,8 +291,6 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
                             value={globalFilter} onChange={(e) => { setGlobalFilter(e.target.value) }}
                         />
                     </div>
-
-
 
 
                     <div className=" flex items-center justify-end font-medium">
@@ -311,9 +351,22 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete, conf
                         </thead>
                         <tbody className=" ">
                             {table.getRowModel().rows.map(row =>
-                                <tr key={row.id} className="even:bg-[rgba(214,234,248,0.31)]  text-[#0A2F4E] overflow-auto [&>*:nth-child(2)]:text-[#1D74C1]">
+                                <tr key={row.id} className="even:bg-[rgba(214,234,248,0.31)]  text-[#0A2F4E] 
+                                overflow-auto [&>*:nth-child(2)]:text-[#1D74C1] hover:bg-slate-200" >
                                     {row.getVisibleCells().map(cell =>
-                                        <td key={cell.id} className="whitespace-nowrap max-w-[220px] text-ellipsis overflow-x-hidden  h-20 p-2 text-sm text-center font-medium border-b border-gray-200">
+                                        <td
+                                            onDoubleClick={() => {
+
+                                                if (cell.id.includes("_select"))
+                                                    return;
+
+                                                if (onDoubleClickRow)
+                                                    onDoubleClickRow(row.original);
+
+                                            }}
+                                            key={cell.id} className="whitespace-nowrap max-w-[220px] 
+                                        text-ellipsis overflow-x-hidden  h-20 p-2 text-sm text-center 
+                                        font-medium border-b border-gray-200 hover:bg-slate-300">
                                             {flexRender(cell.column.columnDef.cell, cell.getContext())}
                                         </td>
                                     )}

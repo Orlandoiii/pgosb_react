@@ -7,10 +7,14 @@ import SkillForm from "../Forms/SkillsForm";
 import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import LocationForm from "../../Locations/Forms/LocationForm";
-import { UserFieldNameDictonary } from "./UserFieldDictonary"; import PDF from "./PDF"
+import { UserFieldNameDictonary } from "./UserFieldDictonary";
+import PDF from "./PDF"
 import { useConfirmationModal } from "../../../core/modal/ModalConfirmation";
 import AlertController from "../../../core/alerts/AlertController";
-import LoadingModal from "../../../core/modal/LoadingModal";
+import LoadingModal, { useLoadModal } from "../../../core/modal/LoadingModal";
+import logger from "../../../../logic/Logger/logger";
+import { useConfig } from "../../../../logic/Config/ConfigContext";
+import axios from "axios";
 
 
 const alertController = new AlertController();
@@ -37,11 +41,11 @@ const stepsObjects = [
 ]
 
 
-export function RegisterUser({ showModal, onClose }) {
+export function RegisterUser({ showModal, onClose, onSubmit }) {
 
     const [userData, setUserData] = useState([]);
 
-   
+
     const [showAccordion, setShowAccordion] = useState(false)
 
 
@@ -51,38 +55,76 @@ export function RegisterUser({ showModal, onClose }) {
 
     const { showConfirmationModal } = useConfirmationModal();
 
-    const [openLoadingModal, setOpenLoadingModal] = useState(false);
+    const { openLoadModal, closeLoadModal } = useLoadModal();
+
+
+    const { config } = useConfig();
+
+
+    function resetData() {
+        setUserData([]);
+        setShowAccordion(false);
+        initialStep.current = 0;
+    }
+
+    function close() {
+        if (onClose) {
+            onClose();
+            resetData();
+        }
+    }
 
     function handleAccept() {
-        let result = showConfirmationModal("Registro de Usuario", "Esta seguro que desea registrar el usuario con los datos antes mostrados ?");
+
+        logger.log("Handle Accept");
+
+        let result = showConfirmationModal("Registro de Usuario",
+            "Esta seguro que desea registrar el usuario con los datos antes mostrados ?");
+
+
         result.then(r => {
             if (!r)
                 return;
 
-            setShowAccordion(false);
-            onClose();
-            initialStep.current = 0;
 
-            setOpenLoadingModal(true);
-            setTimeout(() => {
+            openLoadModal();
+            close();
+            const mergedData = userData.reduce((acc, obj) => {
+                return { ...acc, ...obj.data };
+            }, {});
 
-                setOpenLoadingModal(false);
-                alertController.notifySuccess("Usuario guardado exitosamente");
-
-            }, 1000)
-
+            axios.post(`${config.back_url}/api/v1/user/create`, mergedData).then(r => {
+                closeLoadModal()
+                logger.info("USER CREATE:", r)
+                if (r.status >= 200 && r.status <= 299) {
+                    alertController.notifySuccess("Usuario guardado Exitosamente")
+                }
+            }).catch(err => {
+                closeLoadModal();
+                logger.error("USER CREATE ERROR", err);
+                alertController.notifyError("No se pudo guardar el usuario");
+            });
 
         })
     }
 
     return (
         <>
-            <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
+            <ModalContainer show={showModal} onClose={() => {
+                if (onClose) {
+                    onClose();
+                    resetData();
+                }
+            }}
                 title='Registro de Usuario'>
 
                 {!showAccordion && <Stepper initialStep={initialStep.current} data={userData}
-                    steps={stepsObjects} onFinish={(d) => {
+
+                    onClose={close}
+                    steps={stepsObjects}
+                    onFinish={(d) => {
                         setUserData(d);
+                        logger.log("Data al final del Stepper", d);
                         setShowAccordion(true);
                     }} />}
                 {showAccordion && userData &&
@@ -104,7 +146,6 @@ export function RegisterUser({ showModal, onClose }) {
 
             </ModalContainer>
 
-            <LoadingModal open={openLoadingModal} />
 
         </>
     )

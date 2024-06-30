@@ -28,7 +28,9 @@ export default function SelectWithSearch({
     const [errMessage, setErrMessage] = useState("");
 
 
-    
+    if (!value)
+        value = "";
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -96,6 +98,7 @@ export default function SelectWithSearch({
                 onFocus={handleOnFocus}
                 useDotLabel={useDotLabel}
                 errMessage={errMessage}
+                turnOffAutoCompleted={true}
                 useStrongErrColor={useStrongErrColor}
                 inputRef={inputRef}
                 icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}

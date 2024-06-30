@@ -1,21 +1,6 @@
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom"
 
-// const ModalSidePageContext = createContext();
-
-// function ModalSideContextProvider({ children, close }) {
-//     return (
-//         <ModalSidePageContext.Provider value={close}>
-//             {children}
-//         </ModalSidePageContext.Provider>
-//     )
-// }
-
-// export function useModalSidePage() {
-//     return useContext(ModalSidePageContext);
-// }
-
-
 function CloseArrowIcon({ onClick }) {
     return <button className="w-[40px] h-[44px]" onClick={onClick}>
         <svg className="fill-[#0A2F4E]" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
