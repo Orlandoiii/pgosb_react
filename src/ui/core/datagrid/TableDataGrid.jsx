@@ -192,8 +192,10 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
         })
 
 
-    const columns = useMemo(() => COLUMNS, [])
-    const data = useMemo(() => rawData, [])
+    const columns = useMemo(() => COLUMNS,
+        [rawData])
+    const data = useMemo(() => rawData,
+        [rawData])
 
 
 
@@ -209,6 +211,8 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
 
 
     const [globalFilter, setGlobalFilter] = useState("");
+
+
 
     const table = useReactTable({
         data,
@@ -244,6 +248,7 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
 
     }
 
+
     return (
         <>
 
@@ -253,11 +258,23 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
 
                     {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
                     <div className="flex space-x-4">
-                        <button onClick={(e) => { if (onAdd) onAdd() }}
+                        <button onClick={(e) => {
+                            if (onAdd) onAdd();
+                        }}
                             className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
                             <AddIcon />
                         </button>
-                        <button onClick={(e) => { if (onUpdate) onUpdate() }} disabled={!(getTotalSelectedRows() === 1)}
+                        <button onClick={(e) => {
+                            const rowModel = table.getSelectedRowModel();
+
+                            if (!rowModel || getTotalSelectedRows() != 1)
+                                return;
+
+                            const selectedRows = rowModel.rows.map(r => r.original);
+
+                            if (onUpdate)
+                                onUpdate(selectedRows[0])
+                        }} disabled={!(getTotalSelectedRows() === 1)}
                             className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 ? "bg-slate-200" : "bg-slate-50"} bg-slate-200 rounded-full flex justify-center items-center shadow-md`} >
                             <ModifyIcon active={getTotalSelectedRows() === 1} />
                         </button>
@@ -272,15 +289,20 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
                             const selectedRows = rowModel.rows.map(r => r.original);
 
 
-                            if (onDelete)
-                                onDelete(selectedRows);
-
+                            if (onDelete) {
+                                let r = onDelete(selectedRows);
+                                if (r) {
+                                    r.then((yes) => {
+                                        if (yes)
+                                            table.resetRowSelection();
+                                    })
+                                }
+                            }
 
                         }}
 
                             disabled={getTotalSelectedRows() < 1}
                             className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-
                             <DeleteIcon active={getTotalSelectedRows() >= 1} />
                         </button>
                     </div>

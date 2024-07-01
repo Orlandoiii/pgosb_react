@@ -17,6 +17,7 @@ import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCen
 import DragBoxComponent from "./ui/practice/DragBox.jsx";
 import LoadModalContextProvider from "./ui/core/modal/LoadingModal.jsx";
 import ConfigContextProvider from "./logic/Config/ConfigContext.jsx";
+import NotificationModalContextProvider from "./ui/core/alerts/NotificationModal.jsx";
 
 
 
@@ -68,11 +69,8 @@ const router = createBrowserRouter([
       path: "dragbox",
       element: <DragBoxComponent />
    },
-   // {
-   //    path: "/login",
-   //    element: <LoginPage />,
-   //    errorElement: <ErrorPage />,
-   // },
+  
+   
    {
       path: "*",
       element: <NotFound />
@@ -86,11 +84,12 @@ function App() {
    return (
       <>
          <LoadModalContextProvider>
-            <ConfigContextProvider>
-               <RouterProvider router={router} />
-            </ConfigContextProvider>
+            <NotificationModalContextProvider>
+               <ConfigContextProvider>
+                  <RouterProvider router={router} />
+               </ConfigContextProvider>
+            </NotificationModalContextProvider>
          </LoadModalContextProvider>
-
       </>
    )
 

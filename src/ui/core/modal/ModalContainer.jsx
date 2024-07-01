@@ -1,27 +1,20 @@
 import { motion, AnimatePresence } from "framer-motion"
 import logger from "../../../logic/Logger/logger";
 
-const dropInEffect = {
-    hidden: {
-        y: "-100vh",
-        opacity: 0
-    },
-    visible: {
-        y: "0",
-        opacity: 1,
-        transition: {
-            duration: 0.2,
-            type: "spring",
-            damping: 100,
-            stiffness: 500
+const scaleAnimationBackDrop = {
+    initial: { opacity: 0, rotation: 0.02 },
+    animate: { opacity: 1, rotation: 0.02 },
+    exit: { opacity: 0, rotation: 0.02 },
 
-        }
-    },
-    exit: {
-        y: "100vh",
-        opacity: 0
-    }
 }
+
+const scaleAnimation = {
+    initial: { opacity: 0, rotation: 0.02, scale: 1.5 },
+    animate: { opacity: 1, rotation: 0.02, scale: 1.0 },
+    exit: { opacity: 0, rotation: 0.02, scale: 1.2 },
+    transition: { ease: "easeInOut" }
+}
+
 export function CloseXSimbol({ onClose }) {
     return (
         <button className='w-7 bg-rose-700 rounded-full p-2 
@@ -44,7 +37,7 @@ export function CloseXSimbol({ onClose }) {
 }
 
 
-export default function ModalContainer({ show, onClose, showX = true, children = null, title = "" }) {
+export default function ModalContainer({ show, onClose, showX = true, children = null, title = "", downStikyChildren }) {
 
     logger.log("Renderizo Modal Container")
 
@@ -56,28 +49,22 @@ export default function ModalContainer({ show, onClose, showX = true, children =
 
         >
             {show && <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{
-                    ease: "easeInOut",
-                    duration: 0.2
-                }}
-                exit={{ opacity: 0 }}
-                className={`fixed left-0 top-0 w-full h-full overflow-auto  
+                variants={scaleAnimationBackDrop}
+                initial={"initial"}
+                animate={"animate"}
+                exit={"exit"}
+                className={`fixed left-0 top-0 w-full h-full 
         flex items-center justify-center 
-           bg-black bg-opacity-20 duration-300 ease-in-out z-10 `}>
+           bg-black/20 z-10 overflow-hidden`}>
 
                 <motion.div
-                    initial={{ opacity: 0, scale: 1.5 }}
-                    animate={{ opacity: 1, scale: 1 }}
+                    variants={scaleAnimation}
+                    initial={"initial"}
+                    animate={"animate"}
+                    exit={"exit"}
+                    transition={"transition"}
 
-                    transition={{
-                        ease: "easeInOut",
-                        duration: 0.2
-                    }}
-                    exit={{ opacity: 0, scale: 1.2 }}
-
-                    className="relative w-full md:w-auto h-full md:h-auto overflow-auto rounded-xl  
+                    className="relative w-full h-full md:w-auto  md:h-auto  rounded-xl  
         bg-slate-100 shadow-lg shadow-gray-400 ">
 
                     {showX && <CloseXSimbol onClose={onClose} />}
@@ -85,10 +72,12 @@ export default function ModalContainer({ show, onClose, showX = true, children =
                     {title && title.length > 0 && <h2 className='relative w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center
             text-[whitesmoke] text-lg h-11 p-2 shadow-lg'>{title}</h2>}
 
-                    <div className='w-full h-auto  p-5 min-w-[360px]  min-h-[220px] bg-slate-100'>
-
+                    <div className='w-full h-full  p-5 min-w-[360px]  min-h-[220px] bg-slate-100 max-h-[820px] overflow-y-auto'>
                         {children}
+                    </div>
 
+                    <div className="absolute">
+                        {downStikyChildren}
                     </div>
 
                     <span className='h-0 md:block md:bg-[#0A2F4E] md:h-[7px] md:w-full md:shadow-md '></span>
