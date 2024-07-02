@@ -9,6 +9,8 @@ import Button from "../core/buttons/Button";
 import SycomComponent from "./SycomComponent";
 import TableDataGridV2 from "../core/datagrid/TableDataGridV2";
 import LocationForm from "../components/Locations/Forms/LocationForm";
+import PDFtest from "./PDFtest";
+import {PDFDownloadLink, PDFViewer} from '@react-pdf/renderer'
 
 
 
@@ -1122,10 +1124,23 @@ export default function Testing({ }) {
 
         <>
 
-
             <div className="w-full flex flex-col justify-center items-center"></div>
             <div className="max-w-[520px] mx-auto">
                 <LocationForm />
+            </div>
+
+
+            <div>
+                <h1>PDF TEST</h1>      
+                  <PDFDownloadLink document={<PDFtest />} fileName="registeruser.pdf">
+                     {({ loading, url, error, blob }) =>
+                         loading ? (
+                             <button  >Cargando documento...</button>
+                         ) : (
+                              <Button>Descargar PDF</Button>
+                           )
+                     }
+                 </PDFDownloadLink> 
             </div>
 
         </>
