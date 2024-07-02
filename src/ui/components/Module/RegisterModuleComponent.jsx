@@ -1,40 +1,14 @@
 import { useRef } from "react";
 import ModalContainer from "../../../core/modal/ModalContainer";
 import Stepper from "../../Stepper/Stepper";
-import InfoPersonalForm from "../Forms/InfoPersonalForm";
-import InstitutionInfoForm from "../Forms/InstitutionInfoForm";
-import SkillForm from "../Forms/SkillsForm";
 import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
-import LocationForm from "../../Locations/Forms/LocationForm";
 import logger from "../../../../logic/Logger/logger";
 
 
 
-const stepsObjects = [
-    {
-        title: "Datos Básicos",
-        content: <InfoPersonalForm />,
-
-    },
-    {
-        title: "Ubicación",
-        content: <LocationForm />
-    },
-    {
-        title: "Características",
-        content: <SkillForm />,
-
-    },
-    {
-        title: "Datos Institucionales",
-        content: <InstitutionInfoForm />
-    }
-]
-
-
-export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordion,
-    userData, onSetUserData, title, configNames, onSubmit }) {
+export function RegisterModuleComponent({ showModal, onClose, showAccordion, setShowAccordion,
+    data, onSetData, title, configNames, onSubmit, stepsObjects }) {
 
 
     const initialStep = useRef(0);
@@ -43,7 +17,7 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
     function resetData() {
 
         initialStep.current = 0;
-        onSetUserData([]);
+        onSetData([]);
         setShowAccordion(false);
     }
 
@@ -55,7 +29,7 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
     }
 
     function onFinish(d) {
-        onSetUserData(d);
+        onSetData(d);
         logger.log("Data al final del Stepper", d);
         setShowAccordion(true);
     }
@@ -73,15 +47,15 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
             <ModalContainer show={showModal} onClose={close}
                 title={title}>
 
-                {!showAccordion && <Stepper initialStep={initialStep.current} data={userData}
+                {!showAccordion && <Stepper initialStep={initialStep.current} data={data}
                     onClose={close}
                     steps={stepsObjects}
                     onFinish={onFinish} />}
 
-                {showAccordion && userData &&
+                {showAccordion && data &&
                     <div className="flex flex-col space-y-1">
 
-                        {userData.map((v) => {
+                        {data.map((v) => {
                             return <Accordion title={v.title} value={v.data} key={v.title} configNames={configNames} />
                         })}
 
@@ -100,8 +74,6 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
                 }
 
             </ModalContainer>
-
-
         </>
     )
 }
