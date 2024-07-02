@@ -8,6 +8,7 @@ import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import LocationForm from "../../Locations/Forms/LocationForm";
 import logger from "../../../../logic/Logger/logger";
+>>>>>>> ebeab3247a2d56418f4aa2ce3bcee3f2606f850e
 
 
 
@@ -93,7 +94,22 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
                                 setShowAccordion(false);
                             }}>Regresar</Button>
 
+<<<<<<< HEAD
+                            {/*   PDF
+                             <PDFDownloadLink document={<PDF />} fileName="registeruser.pdf">
+                                {({ loading, url, error, blob }) =>
+                                    loading ? (
+                                        <button  >Cargando documento...</button>
+                                    ) : (
+                                        <Button>Descargar PDF</Button>
+                                    )
+                                }
+                            </PDFDownloadLink> */}
+
+                            <Button>Confirmar</Button>
+=======
                             <Button onClick={handleAccept}>Confirmar</Button>
+>>>>>>> ebeab3247a2d56418f4aa2ce3bcee3f2606f850e
                         </div>
 
                     </div>
