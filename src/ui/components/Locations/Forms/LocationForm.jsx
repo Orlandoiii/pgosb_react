@@ -40,6 +40,9 @@ function SetPerish(data) {
 }
 
 
+
+
+
 function getMunicipios(stateName) {
     if (!stateName || stateName == "" ||
         !LocationRawData.StatesIsLoad || !LocationRawData.MunicipalitysIsLoad)
@@ -108,15 +111,6 @@ function getParroquias(estado, municipio) {
 
 
 }
-
-
-const requiredRule = {
-    required: {
-        value: true,
-        message: "El campo es requerido",
-    }
-}
-
 
 async function makeRequest(endpoint, token, setData) {
     axios.get(endpoint, {
@@ -375,9 +369,9 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             // validationRules={requiredRule}
 
                             useStrongErrColor={isSubmitted}
-                            errMessage={errors.urbanization?.message}
+                            errMessage={errors.community?.message}
 
-                            inputName={"urbanization"}
+                            inputName={"community"}
                             useDotLabel={true}
                             placeHolder="Urbanización..."
 

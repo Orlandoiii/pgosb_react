@@ -16,7 +16,7 @@ function StateCreateActionData(config) {
       message: "Esta seguro que desea registrar la estacion con los datos antes mostrados ?",
       successMessage: "Estacion guardada Exitosamente",
       errMessage: "No se pudo guardar la estacion",
-      endpoint: `${config.back_url}/api/v1/station/create`,
+      endpoint: `${config.back_url}/api/v1/location/station/create`,
       method: "post"
    }
 }
@@ -36,7 +36,7 @@ async function deleteStations(stations, config, getStations) {
    try {
       // Create an array of promises, one for each Axios request
       const deletePromises = stations.map((station) => {
-         const endpoint = `${config.back_url}/api/v1/station/${station.id}`;
+         const endpoint = `${config.back_url}/api/v1/location/station/${station.id}`;
          return axios.delete(endpoint); // Return the promise from axios.delete
       });
 
@@ -48,7 +48,7 @@ async function deleteStations(stations, config, getStations) {
          if (response.status >= 200 && response.status <= 299) {
             logger.info("STATION DELETE:", response);
             alertController.notifySuccess(
-               `Estacion eliminado exitosamente ${stations[index].user_name}`
+               `Estacion eliminado exitosamente ${stations[index].id}`
             );
          }
       });
@@ -74,7 +74,7 @@ export default function StationPage({ }) {
 
    const [stationData, setStationData] = useState(null);
 
-   const [singleUserData, setSingleStationData] = useState([])
+   const [singleStationData, setSingleStationData] = useState([])
 
    const [openDetailModal, setOpenDetailModal] = useState(false);
 
@@ -133,7 +133,7 @@ export default function StationPage({ }) {
 
 
    function getStations(token) {
-      axios.get(`${config.back_url}/api/v1/station/all`, {
+      axios.get(`${config.back_url}/api/v1/location/station/all`, {
          cancelToken: token
       }).then(response => {
 
@@ -178,7 +178,7 @@ export default function StationPage({ }) {
          openLoadModal();
          close();
 
-         const mergedData = singleUserData.reduce((acc, obj) => {
+         const mergedData = singleStationData.reduce((acc, obj) => {
             return { ...acc, ...obj.data };
          }, {});
          axios({
@@ -292,7 +292,7 @@ export default function StationPage({ }) {
 
          openLoadModal();
          resolve(true)
-         deleteUsers(stations, config, getStations)
+         deleteStations(stations, config, getStations)
 
       })
 
@@ -316,7 +316,7 @@ export default function StationPage({ }) {
                   setOpenDetailModal(true);
                }} />}
 
-            <RegisterStation stationData={singleUserData}
+            <RegisterStation stationData={singleStationData}
                showAccordion={showAccordion} setShowAccordion={setShowAccordion}
                onSetStationData={setSingleStationData} showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={resetFormData} onSubmit={handleSubmit} title={formTitle} configNames={configNames} />

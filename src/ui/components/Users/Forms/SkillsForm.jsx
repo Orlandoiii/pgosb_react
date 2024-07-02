@@ -183,7 +183,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                                 <div className=" md:w-[33%]">
                                     <Select label={"Pantalón"}
-                                        inputName={"pants_size"}
+                                        inputName={"pant_size"}
                                         register={register}
                                         setValue={setValue}
                                         useDotLabel={true}
@@ -201,12 +201,12 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                                         register={register}
                                         validationRules={requiredRule}
 
-                                        errMessage={errors.shoes_size?.message}
+                                        errMessage={errors.shoe_size?.message}
                                         useStrongErrColor={isSubmitted}
 
 
                                         label={"Zapatos"}
-                                        inputName={"shoes_size"} useDotLabel={true}
+                                        inputName={"shoe_size"} useDotLabel={true}
                                         placeHolder="37"
 
                                     />

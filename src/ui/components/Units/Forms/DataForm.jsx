@@ -84,11 +84,11 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                                 register={register}
                                 validationRules={requiredRule}
 
-                                errMessage={errors.person_capacity?.message}
+                                errMessage={errors.capacity?.message}
                                 useStrongErrColor={isSubmitted}
 
                                 label={"Cap. Personas"}
-                                inputName={"person_capacity"}
+                                inputName={"capacity"}
                                 useDotLabel={true}
                                 placeHolder="8"
 
@@ -177,11 +177,11 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                             register={register}
                             validationRules={requiredRule}
 
-                            errMessage={errors.liters_capacity?.message}
+                            errMessage={errors.water_capacity?.message}
                             useStrongErrColor={isSubmitted}
 
                             label={"Cap. Litros"}
-                            inputName={"liters_capacity"}
+                            inputName={"water_capacity"}
                             useDotLabel={true}
                             placeHolder="10.000 L"
 

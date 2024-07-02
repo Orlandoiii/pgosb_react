@@ -74,17 +74,13 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
             onSubmit={
                 handleSubmit((data) => {
 
-
-
                     if (modelErr || brandErr || stationErr || colorErr || typeErr)
                         return;
 
-
                     const newData = {
-                        ...data,"type": type, "brand": brand, "model": model,
+                        ...data, "unit_type": type, "make": brand, "model": model,
                         "station": station, "color": color
                     }
-
 
                     handleSubmitInternal(newData)
                 })}
@@ -185,11 +181,11 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                                 register={register}
                                 validationRules={requiredRule}
 
-                                errMessage={errors.badge?.message}
+                                errMessage={errors.plate?.message}
                                 useStrongErrColor={isSubmitted}
 
                                 label={"Placa"}
-                                inputName={"badge"}
+                                inputName={"plate"}
                                 useDotLabel={true}
                                 placeHolder="7HW33A"
 

@@ -16,7 +16,7 @@ function UnitCreateActionData(config) {
       message: "Esta seguro que desea registrar el vehiculo con los datos antes mostrados ?",
       successMessage: "Vehiculo guardado Exitosamente",
       errMessage: "No se pudo guardar el vehiculo",
-      endpoint: `${config.back_url}/api/v1/unity/create`,
+      endpoint: `${config.back_url}/api/v1/unit/create`,
       method: "post"
    }
 }
@@ -28,7 +28,7 @@ function UnitUpdateActionData(config) {
       message: "Esta seguro que desea actualizar el vehiculo con los datos antes mostrados ?",
       successMessage: "Vehiculo actualizado Exitosamente",
       errMessage: "No se pudo actualizar el Vehiculo",
-      endpoint: `${config.back_url}/api/v1/unity/update`,
+      endpoint: `${config.back_url}/api/v1/unit/update`,
       method: "put"
    }
 }
@@ -36,7 +36,7 @@ async function deleteUnits(units, config, getUnits) {
    try {
       // Create an array of promises, one for each Axios request
       const deletePromises = units.map((unit) => {
-         const endpoint = `${config.back_url}/api/v1/unity/${unit.id}`;
+         const endpoint = `${config.back_url}/api/v1/unit/${unit.id}`;
          return axios.delete(endpoint); // Return the promise from axios.delete
       });
 

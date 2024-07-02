@@ -60,6 +60,15 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
         setShowAccordion(true);
     }
 
+    
+    function handleAccept() {
+
+        logger.log("Handle Accept");
+        initialStep.current = 0;
+        if (onSubmit)
+            onSubmit()
+    }
+
    
 
     return (
@@ -89,7 +98,7 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
 
                     
 
-                            <Button>Confirmar</Button>
+                            <Button onClick={handleAccept}>Confirmar</Button>
                         </div>
 
                     </div>
