@@ -5,7 +5,7 @@ export default class AlertController {
     notifyInfo(message = "") {
         toast.info(<SmallToast type="info" message={message} />, {
             position: "top-center",
-            autoClose: 25000,
+            autoClose: 3500,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -18,7 +18,7 @@ export default class AlertController {
     notifySuccess(message = "") {
         toast.success(<SmallToast type="success" message={message} />, {
             position: "top-center",
-            autoClose: 25000,
+            autoClose: 3500,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -32,7 +32,7 @@ export default class AlertController {
     notifyWarning(message = "") {
         toast.warning(<SmallToast type="warning" message={message} />, {
             position: "top-center",
-            autoClose: 25000,
+            autoClose: 3500,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
@@ -45,7 +45,7 @@ export default class AlertController {
     notifyError(message = "") {
         toast.error(<SmallToast type="error" message={message} />, {
             position: "top-center",
-            autoClose: 25000,
+            autoClose: 3500,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,

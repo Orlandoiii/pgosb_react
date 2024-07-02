@@ -25,7 +25,8 @@ export default function Input({
     validationRules,
 
     inputRef = null,
-    controlled = false
+    controlled = false,
+    turnOffAutoCompleted = false
 
 
 }) {
@@ -43,7 +44,7 @@ export default function Input({
 
     function handleOnChange(e) {
         if (register) {
-          
+
             onChange(e);
             return;
         }
@@ -89,7 +90,8 @@ export default function Input({
                     id={inputName}
                     type={type}
                     {...(controlled ? { value: value } : { defaultValue: value })}
-
+                    
+                    {...(turnOffAutoCompleted ? { autoComplete: "off" } : {})}
 
                     name={inputName}
                     placeholder={placeHolder}

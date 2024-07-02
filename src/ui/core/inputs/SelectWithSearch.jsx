@@ -28,7 +28,9 @@ export default function SelectWithSearch({
     const [errMessage, setErrMessage] = useState("");
 
 
-    
+    if (!value)
+        value = "";
+
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -74,11 +76,25 @@ export default function SelectWithSearch({
         if (onChange) onChange('')
     }
 
+    let readonly = false;
+
+    if (options && options.length == 1) {
+        disabled = true;
+        readonly = true;
+        value = options[0];
+    }
+
     function handleOnClick(e) {
 
-        e.stopPropagation()
+      
+        e.stopPropagation();
+        if (disabled && readonly)
+            return;
+    
         setOpen((o) => !o)
     }
+
+
 
     return (
         <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
@@ -89,16 +105,23 @@ export default function SelectWithSearch({
                 value={value}
                 type={type}
                 onClick={handleOnClick}
+                onMouseDown={handleOnClick}
                 onChangeEvent={handleOnChange}
                 disabled={disabled}
-                readOnly={false}
+                readOnly={readonly}
                 controlled={true}
                 onFocus={handleOnFocus}
                 useDotLabel={useDotLabel}
                 errMessage={errMessage}
+                turnOffAutoCompleted={true}
                 useStrongErrColor={useStrongErrColor}
                 inputRef={inputRef}
-                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />}
+                icons={<OptionSelectorButton open={open} setOpen={(o) => {
+
+                    if (disabled && readonly)
+                        return;
+                    setOpen(o);
+                }} openUp={openUp} />}
             />
 
             <OptionsContainer open={open} openUp={openUp} bottomSeparation='bottom-20'>

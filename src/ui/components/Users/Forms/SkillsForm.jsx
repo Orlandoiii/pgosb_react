@@ -6,7 +6,6 @@ import { useContext, useState } from "react";
 import AddInput from "../../../core/inputs/AddInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import { StepContext } from "../../Stepper/Stepper";
-import FormTitle from "../../../core/titles/FormTitle";
 
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -16,7 +15,7 @@ const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
 const requiredRule = {
     required: {
-        value: true,
+        value: false,
         message: "El campo es requerido",
     }
 }
@@ -33,9 +32,6 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
     const [skills, setSkills] = useState(currentData?.skills ?? []);
 
     const [allergies, setAllergies] = useState(currentData?.allergies ?? []);
-
-
-
 
 
     function handleSubmitInternal(data) {

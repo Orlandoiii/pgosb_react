@@ -6,6 +6,12 @@ import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import BasicInfoForm from "../Forms/BasicInfoForm";
 import DataForm from "../Forms/DataForm";
+import { UnitsFieldNameDictonary } from "./UnitsFieldDictonary";
+import { useConfirmationModal } from "../../../core/modal/ModalConfirmation";
+import LoadingModal from "../../../core/modal/LoadingModal";
+import AlertController from "../../../core/alerts/AlertController";
+
+const alertController = new AlertController();
 
 
 const stepsObjects = [
@@ -31,6 +37,33 @@ export function RegisterUnit({ showModal, onClose }) {
 
     const initialStep = useRef(0);
 
+
+    const { showConfirmationModal } = useConfirmationModal();
+
+    const [openLoadingModal, setOpenLoadingModal] = useState(false);
+
+    function handleAccept() {
+        let result = showConfirmationModal("Registro de Unidad", "Esta seguro que desea registrar esta unidad con los datos antes mostrados ?");
+        result.then(r => {
+            if (!r)
+                return;
+
+            setShowAccordion(false);
+            onClose();
+            initialStep.current = 0;
+
+            setOpenLoadingModal(true);
+            setTimeout(() => {
+
+                setOpenLoadingModal(false);
+                alertController.notifySuccess("Usuario guardada exitosamente");
+
+            }, 1000)
+
+
+        })
+    }
+
     return (
         <>
             <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
@@ -42,7 +75,7 @@ export function RegisterUnit({ showModal, onClose }) {
                 {showAccordion && unitData &&
                     <div className="flex flex-col space-y-4">
                         {unitData.map((v) => {
-                            return <Accordion title={v.title} value={v.data} key={v.title} />
+                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={UnitsFieldNameDictonary} />
                         })}
 
                         <div className="flex justify-between">
@@ -50,14 +83,17 @@ export function RegisterUnit({ showModal, onClose }) {
                             <Button colorType="bg-rose-700" hoverColor="hover:bg-rose-900" onClick={() => {
                                 initialStep.current = stepsObjects.length - 1
                                 setShowAccordion(false);
-                            }}>Cancelar</Button>
+                            }}>Regresar</Button>
 
-                            <Button>Aceptar</Button>
+                            <Button onClick={handleAccept}>Confirmar</Button>
                         </div>
 
                     </div>
                 }
             </ModalContainer>
+
+            <LoadingModal open={openLoadingModal} />
+
 
         </>
     )

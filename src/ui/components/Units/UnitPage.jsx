@@ -3,8 +3,8 @@ import TableDataGrid from "../../core/datagrid/TableDataGrid"
 
 import AlertController from "../../core/alerts/AlertController";
 import { RegisterUnit } from "./Register/RegisterUnit";
-import mockData from "../../../assets/Mock_Data_SIMF.json"
-
+import mockData from "../../../assets/MOCK_DATA_UNIDADES.json"
+import { UnitsFieldNameDictonary } from "./Register/UnitsFieldDictonary";
 
 export default function UnitPage({ }) {
 
@@ -24,14 +24,12 @@ export default function UnitPage({ }) {
    return (
       <>
          <div className="">
-            <TableDataGrid rawData={mockData} onAdd={() => { setOpenAddForm(true) }} onUpdate={onUpdate} />
+            <TableDataGrid rawData={mockData} onAdd={() => { setOpenAddForm(true) }}
+               onUpdate={onUpdate}
+               configHeader={UnitsFieldNameDictonary} />
             <RegisterUnit showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
                onFinish={() => { setOpenAddForm(false) }} />
          </div>
-
-
-
-
       </>
 
    )

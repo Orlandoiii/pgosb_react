@@ -35,28 +35,28 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [brand, setBrand] = useState(currentData?.brand ?? brands[1]);
 
-    const [brandErr, setBrandErr] = useState("");
+    const [brandErr, setBrandErr] = useState(false);
 
 
     const [model, setModel] = useState(currentData?.model ?? models[1]);
 
-    const [modelErr, setModelErr] = useState("");
+    const [modelErr, setModelErr] = useState(false);
 
 
     const [station, setStation] = useState(currentData?.station ?? stations[1]);
 
-    const [stationErr, setStationErr] = useState("");
+    const [stationErr, setStationErr] = useState(false);
 
 
 
     const [color, setColor] = useState(currentData?.color ?? colors[1]);
 
-    const [colorErr, setColorErr] = useState("");
+    const [colorErr, setColorErr] = useState(false);
 
 
     const [type, setType] = useState(currentData?.type ?? types[1]);
 
-    const [typeErr, setTypeErr] = useState("");
+    const [typeErr, setTypeErr] = useState(false);
 
     function handleSubmitInternal(data) {
 
@@ -76,14 +76,13 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
 
-                    if (modelErr.length > 0 || brandErr.length > 0 ||
-                        stationErr.length > 0 || colorErr.length > 0 || typeErr.length > 0)
+                    if (modelErr || brandErr || stationErr || colorErr || typeErr)
                         return;
 
 
                     const newData = {
-                        ...data, "brand": brand, "model": model,
-                        "station": station, "color": color, "type": type
+                        ...data,"type": type, "brand": brand, "model": model,
+                        "station": station, "color": color
                     }
 
 
@@ -92,7 +91,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
             className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
-            {/* <FormTitle title={"Datos básicos del Vehículo"} /> */}
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
@@ -106,7 +104,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             options={types}
                             value={type}
                             onChange={(v) => { setType(v) }}
-                            openUp={true}
+                            openUp={false}
                             onError={(err) => { setTypeErr(err) }}
                             useStrongErrColor={isSubmitted} />
 
@@ -115,7 +113,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             options={brands}
                             value={brand}
                             onChange={(v) => { setBrand(v) }}
-                            openUp={true}
+                            openUp={false}
                             onError={(err) => { setBrandErr(err) }}
                             useStrongErrColor={isSubmitted} />
 
@@ -125,7 +123,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             options={models}
                             value={model}
                             onChange={(v) => { setModel(v) }}
-                            openUp={true}
+                            openUp={false}
                             onError={(err) => { setModelErr(err) }}
                             useStrongErrColor={isSubmitted} />
 
@@ -138,7 +136,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             options={stations}
                             value={station}
                             onChange={(v) => { setStation(v) }}
-                            openUp={true}
+                            openUp={false}
                             onError={(err) => { setStationErr(err) }}
                             useStrongErrColor={isSubmitted} />
 

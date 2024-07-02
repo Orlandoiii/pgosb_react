@@ -9,10 +9,15 @@ import ErrorPage from "./ui/core/errors/ErrorPage";
 import Testing from "./ui/practice/Testing";
 import UserPage from "./ui/components/Users/UserPage";
 import ComingSoonPage from "./ui/core/errors/ComingSoonPage";
-import LoginPage from "./ui/components/Authentication/LoginPage";
 import UnitPage from "./ui/components/Units/UnitPage";
 import logger from "./logic/Logger/logger.js";
 import StationPage from "./ui/components/Stations/StationPage.jsx";
+import LocationPage from "./ui/components/Locations/LocationPage.jsx";
+import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCenterPage.jsx";
+import DragBoxComponent from "./ui/practice/DragBox.jsx";
+import LoadModalContextProvider from "./ui/core/modal/LoadingModal.jsx";
+import ConfigContextProvider from "./logic/Config/ConfigContext.jsx";
+import NotificationModalContextProvider from "./ui/core/alerts/NotificationModal.jsx";
 
 
 
@@ -45,11 +50,11 @@ const router = createBrowserRouter([
          },
          {
             path: "locations/",
-            element: <ComingSoonPage />
+            element: <LocationPage />
          },
          {
             path: "assist/",
-            element: <ComingSoonPage />
+            element: <HealthcareCenterPage />
          },
          {
             path: "test/",
@@ -59,11 +64,13 @@ const router = createBrowserRouter([
       ]
 
    },
+
    {
-      path: "/login",
-      element: <LoginPage />,
-      errorElement: <ErrorPage />,
+      path: "dragbox",
+      element: <DragBoxComponent />
    },
+  
+   
    {
       path: "*",
       element: <NotFound />
@@ -71,11 +78,18 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-   logger.log("Renderizo App");
-   
+
+   logger.log("Renderizo App")
+
    return (
       <>
-         <RouterProvider router={router} />
+         <LoadModalContextProvider>
+            <NotificationModalContextProvider>
+               <ConfigContextProvider>
+                  <RouterProvider router={router} />
+               </ConfigContextProvider>
+            </NotificationModalContextProvider>
+         </LoadModalContextProvider>
       </>
    )
 

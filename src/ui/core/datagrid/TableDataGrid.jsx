@@ -1,44 +1,41 @@
-import { useMemo } from "react";
-import { useTable, useSortBy, useGlobalFilter, useFilters, usePagination } from "react-table";
+import {
+    useReactTable,
+    getCoreRowModel,
+    flexRender,
+    getPaginationRowModel,
+    getSortedRowModel,
+    getFilteredRowModel
+} from "@tanstack/react-table"
+
+
+import { useEffect, useMemo, useRef, useState } from "react";
 import AddIcon from "../icons/AddIcon";
 import ModifyIcon from "../icons/ModifyIcon";
 import DeleteIcon from "../icons/DeleteIcon";
+import logger from "../../../logic/Logger/logger";
 
 
+function SortIcon({ isSorted }) {
 
-function SortIcon({ isSorted, isSortedDesc = false }) {
     return (
         <>
             <span className="inline-flex flex-col space-y-[3px]">
                 <span className="inline-block">
-                    <svg className={`${isSorted & !isSortedDesc ? "fill-[#3c50e0]" : "fill-gray-200"}`} width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg className={`${isSorted && isSorted == "asc" ? "fill-[#3c50e0]" : "fill-gray-200"}`}
+                        width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 0L0 5H10L5 0Z" fill="">
                         </path>
                     </svg>
                 </span>
                 <span className="inline-block">
-                    <svg className={`${isSorted & isSortedDesc ? "fill-[#3c50e0]" : "fill-gray-200"}`} width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <svg className={`${isSorted && isSorted == "desc" ? "fill-[#3c50e0]" : "fill-gray-200"}`}
+                        width="10" height="5" viewBox="0 0 10 5" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M5 5L10 0L-4.37114e-07 8.74228e-07L5 5Z" fill="">
                         </path>
                     </svg>
                 </span>
             </span>
         </>
-    )
-}
-
-function ColumnFilter({ column }) {
-    const { filterValue, setFilter } = column;
-    return (
-        <span className="block w-[180px] " onClickCapture={(e) => { e.stopPropagation() }}>
-            <input
-                type="text"
-                value={filterValue || ''}
-                onChange={(e) => { setFilter(e.target.value) }}
-                className="font-light text-sm w-full  focus:border-[#3c50e0]
-                                                    h-[12] rounded-sm border border-stroke px-3 py-1 
-                                                    outline-none border-gray-300 focus:border-primary"/>
-        </span>
     )
 }
 
@@ -81,84 +78,247 @@ function NumberButton({ number = 1, active = false, onClick }) {
 }
 
 
-export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
+function ColumnFilter({ column }) {
 
+    const columnFilterValue = column.getFilterValue()
+
+
+    return (
+        <span className="block w-[180px] text-center" onClickCapture={(e) => { e.stopPropagation() }}>
+            <input
+                onChange={e => column.setFilterValue(e.target.value)}
+                onClick={e => e.stopPropagation()}
+                placeholder={`Search...`}
+                type="text"
+                value={(columnFilterValue ?? '')}
+                className="font-light text-sm w-full  focus:border-[#3c50e0]
+                                                    h-[12] rounded-sm border border-stroke px-3 py-1 
+                                                    outline-none border-gray-300 focus:border-primary"/>
+        </span>
+    )
+}
+
+
+function Checkbox({
+    indeterminate,
+    className = '',
+    ...rest }) {
+    const ref = useRef(null)
+
+    useEffect(() => {
+        if (typeof indeterminate === 'boolean') {
+            ref.current.indeterminate = !rest.checked && indeterminate
+        }
+    }, [ref, indeterminate])
+
+    return (
+        <input
+            type="checkbox"
+            ref={ref}
+            className={className + ' cursor-pointer'}
+            {...rest}
+        />
+    )
+}
+
+const checkBoxHeader = {
+    id: 'select',
+    header: ({ table }) => (
+        <Checkbox
+            {...{
+                checked: table.getIsAllRowsSelected(),
+                indeterminate: table.getIsSomeRowsSelected(),
+                onChange: table.getToggleAllRowsSelectedHandler(),
+            }}
+        />
+    ),
+    cell: ({ row }) => (
+        <div className="px-1">
+            <Checkbox
+                {...{
+                    checked: row.getIsSelected(),
+                    disabled: !row.getCanSelect(),
+                    indeterminate: row.getIsSomeSelected(),
+                    onChange: row.getToggleSelectedHandler(),
+                }}
+            />
+        </div>
+    ),
+}
+
+export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpdate, onDelete, configLayout = null }) {
+
+
+    logger.log("Renderizo TableDataGrid");
+
+    if (!rawData)
+        return <></>
+
+
+    logger.log("DATA GRID CONFIG:", configLayout);
+    logger.log("DATA GRID DATA:", rawData)
     const COLUMNS = [];
 
-    Object.entries(rawData[0])
-        .forEach(([key, _]) => {
-            COLUMNS.push(
-                {
-                    Header: key,
-                    //Footer: key,
-                    accessor: key,
-                    Filter: ColumnFilter
 
-                }
-            )
+    COLUMNS.push(
+        checkBoxHeader
+    )
+
+    Object.entries(rawData[0])
+        .forEach(([value, _]) => {
+
+            const config = configLayout.find(v => v.column_name == value)
+            if (config) {
+
+
+                logger.log("Table Grid Config:", config);
+                logger.log("Table Grid value:", value);
+                logger.log("Visibilidad:", config.visibility);
+                if (config.visibility)
+                    COLUMNS.push(
+                        {
+
+                            header: config.display_name,
+                            accessorKey: value,
+                            //footer: key,
+                        }
+                    )
+
+            } else {
+                logger.log("DATO FALTANTE:", value);
+            }
+
+
         })
 
 
-    const columns = useMemo(() => COLUMNS, [])
-    const data = useMemo(() => rawData, [])
+    const columns = useMemo(() => COLUMNS,
+        [rawData])
+    const data = useMemo(() => rawData,
+        [rawData])
 
-    const {
-        getTableProps,
-        getTableBodyProps,
-        headerGroups,
-        page,
-        nextPage,
-        previousPage,
-        canNextPage,
-        canPreviousPage,
-        pageOptions,
-        prepareRow,
-        gotoPage,
-        pageCount,
-        setPageSize,
-        state,
-        setGlobalFilter
-    } = useTable({
+
+
+    const [rowSelection, setRowSelection] = useState({})
+
+    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 10 })
+
+
+    const inputSetPageRef = useRef(null);
+
+
+    const [sorting, setSorting] = useState([]);
+
+
+    const [globalFilter, setGlobalFilter] = useState("");
+
+
+
+    const table = useReactTable({
+        data,
         columns,
-        data
-    }, useFilters, useGlobalFilter, useSortBy, usePagination)
+        getCoreRowModel: getCoreRowModel(),
+        getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        onPaginationChange: setPagination,
+
+        state: {
+            pagination: pagination,
+            sorting: sorting,
+            globalFilter: globalFilter,
+            rowSelection: rowSelection
+        },
+        onGlobalFilterChange: setGlobalFilter,
+        onSortingChange: setSorting,
+        enableRowSelection: true,
+        onRowSelectionChange: setRowSelection
 
 
-    const { globalFilter, pageIndex, pageSize } = state
+    })
 
-    const actualIndex = pageIndex + 1
+    function getTotalSelectedRows() {
+        const rowModel = table.getSelectedRowModel();
+
+        if (!rowModel || !rowModel.rows)
+            return 0;
+
+        return rowModel.rows.length
+
+
+    }
+
 
     return (
         <>
+
             <div className="bg-[white] flex flex-col overflow-hidden ">
 
-                <header className=" w-full mx-auto flex justify-between  py-4 px-8 ">
+                <header className="w-full mx-auto flex justify-between  py-4 px-8">
 
+                    {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
                     <div className="flex space-x-4">
-                        <button onClick={(e) => { if (onAdd) onAdd() }}
+                        <button onClick={(e) => {
+                            if (onAdd) onAdd();
+                        }}
                             className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
                             <AddIcon />
                         </button>
-                        <button onClick={(e) => { if (onUpdate) onUpdate() }}
-                            className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <ModifyIcon />
+                        <button onClick={(e) => {
+                            const rowModel = table.getSelectedRowModel();
+
+                            if (!rowModel || getTotalSelectedRows() != 1)
+                                return;
+
+                            const selectedRows = rowModel.rows.map(r => r.original);
+
+                            if (onUpdate)
+                                onUpdate(selectedRows[0])
+                        }} disabled={!(getTotalSelectedRows() === 1)}
+                            className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 ? "bg-slate-200" : "bg-slate-50"} bg-slate-200 rounded-full flex justify-center items-center shadow-md`} >
+                            <ModifyIcon active={getTotalSelectedRows() === 1} />
                         </button>
 
-                        <button onClick={(e) => { if (onDelete) onDelete() }}
+                        <button onClick={() => {
+
+                            const rowModel = table.getSelectedRowModel();
+
+                            if (!rowModel || getTotalSelectedRows() < 1)
+                                return;
+
+                            const selectedRows = rowModel.rows.map(r => r.original);
+
+
+                            if (onDelete) {
+                                let r = onDelete(selectedRows);
+                                if (r) {
+                                    r.then((yes) => {
+                                        if (yes)
+                                            table.resetRowSelection();
+                                    })
+                                }
+                            }
+
+                        }}
+
+                            disabled={getTotalSelectedRows() < 1}
                             className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <DeleteIcon />
+                            <DeleteIcon active={getTotalSelectedRows() >= 1} />
                         </button>
                     </div>
+
 
                     <div className="w-1/2 pr-2">
-                        <input type="text" className="outline-none p-3 h-12 w-full 
-          border border-gray-300 rounded-md" placeholder="Buscar..." value={globalFilter}
-                            onChange={(e) => { setGlobalFilter(e.target.value) }} />
+                        <input type="text" className="outline-none p-3 h-12 w-full border border-gray-300 rounded-md" placeholder="Buscar..."
+                            value={globalFilter} onChange={(e) => { setGlobalFilter(e.target.value) }}
+                        />
                     </div>
 
+
                     <div className=" flex items-center justify-end font-medium">
-                        <select className="bg-transparent pl-2" value={pageSize} onChange={(e) => {
-                            if (e.target.value) setPageSize(e.target.value);
+                        <select className="bg-transparent pl-2" value={table.getState().pagination.pageSize} onChange={(e) => {
+                            const value = e.target.value;
+                            table.setPageSize(value);
                         }}>
                             <option>5</option>
                             <option>10</option>
@@ -176,43 +336,64 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
 
 
                 <div className="max-h-[600px] overflow-auto">
+                    <table className="border-collapse w-full mt-2" >
+                        <thead>
+                            {table.getHeaderGroups().map(headerGroup =>
+                                <tr className="sticky top-0" key={headerGroup.id}>
+                                    {headerGroup.headers.map(header =>
+                                        <th key={header.column?.id} className={`border-y bg-white 
+                                            border-gray-200 h-20 px-1 cursor-pointer 
+                                             ${header.column.getCanSort() ? "cursor-pointer" : "cursor-none"}
+                                            `}
+                                            {...{
 
-                    <table className="border-collapse w-full mt-2" {...getTableProps()} >
-                        <thead className="">
-                            {headerGroups.map(headerGroup => (
-                                <tr className="sticky top-0" {...headerGroup.getHeaderGroupProps()}>
-                                    {headerGroup.headers.map(column => (
-                                        <th className="border-y bg-white border-gray-200 h-20 px-1"
-                                            {...column.getHeaderProps(column.getSortByToggleProps())}>
-
+                                                onClick: header.column.getToggleSortingHandler(),
+                                            }}
+                                        >
                                             <div className="flex flex-col justify-center items-center">
                                                 <div className="w-full h-full whitespace-nowrap p-2 text-md  text-center font-medium 
                                         text-[#64748b] flex justify-center items-center">
-                                                    <p className="px-2"> {column.render('Header')}</p>
-                                                    <SortIcon isSorted={column.isSorted} isSortedDesc={column.isSortedDesc} />
+                                                    <p className="px-2">
+                                                        {flexRender(header.column.columnDef.header, header.getContext())}
+                                                    </p>
+
+                                                    <SortIcon isSorted={header.column.getIsSorted()}
+                                                    />
                                                 </div>
-                                                {column.canFilter ? column.render('Filter') : null}
+                                                {header.column.getCanFilter() ? <ColumnFilter column={header.column} table={table} /> : null}
+
 
                                             </div>
 
+
                                         </th>
-                                    ))}
+                                    )}
                                 </tr>
-                            ))}
+                            )}
                         </thead>
-                        <tbody className="" {...getTableBodyProps()}>
-                            {page.map(row => {
-                                prepareRow(row)
-                                return (
-                                    <tr className=" text-[#64748b] overflow-auto" {...row.getRowProps()}>
-                                        {row.cells.map(cell => {
-                                            return <td className="whitespace-nowrap first:text-[#3c50e0] h-20 
-                                            p-2 text-sm text-center  font-medium border-b border-gray-200"
-                                                {...cell.getCellProps()}>{cell.render('Cell')}</td>
-                                        })}
-                                    </tr>
-                                )
-                            })}
+                        <tbody className=" ">
+                            {table.getRowModel().rows.map(row =>
+                                <tr key={row.id} className="even:bg-[rgba(214,234,248,0.31)]  text-[#0A2F4E] 
+                                overflow-auto [&>*:nth-child(2)]:text-[#1D74C1] hover:bg-slate-200" >
+                                    {row.getVisibleCells().map(cell =>
+                                        <td
+                                            onDoubleClick={() => {
+
+                                                if (cell.id.includes("_select"))
+                                                    return;
+
+                                                if (onDoubleClickRow)
+                                                    onDoubleClickRow(row.original);
+
+                                            }}
+                                            key={cell.id} className="whitespace-nowrap max-w-[220px] 
+                                        text-ellipsis overflow-x-hidden  h-20 p-2 text-sm text-center 
+                                        font-medium border-b border-gray-200 hover:bg-slate-300">
+                                            {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                                        </td>
+                                    )}
+                                </tr>
+                            )}
                         </tbody>
                     </table>
                 </div>
@@ -223,36 +404,55 @@ export default function TableDataGrid({ rawData, onAdd, onUpdate, onDelete }) {
 
                     <div>
                         <label htmlFor="goToPageInput">Ir a: </label>
-                        <input id="goToPageInput" type='number'
-                            defaultValue={pageIndex + 1}
+                        <input ref={inputSetPageRef} id="goToPageInput" type='number'
+                            defaultValue={table.getState().pagination.pageIndex + 1}
                             onChange={e => {
-                                const pageNumber = e.target.value ? Number(e.target.value) - 1 : 0
-                                gotoPage(pageNumber)
+                                let pageNumber = e.target.value ? Number(e.target.value) : 0
+
+                                if (pageNumber < 0) {
+                                    pageNumber = 0;
+                                } if (pageNumber >= table.getPageCount()) {
+
+                                    pageNumber = table.getPageCount();
+                                    inputSetPageRef.current.value = pageNumber;
+
+                                }
+                                table.setPageIndex(pageNumber - 1);
                             }}
-                            className="border border-gray-400 outline-none
+                            className="border border-gray-400 outline-none 
                             rounded-sm p-1 max-w-[70px] focus:border-[#3c50e0] hover:border-[#3c50e0]" />
                     </div>
 
                     <div className="flex justify-center items-center">
-                        <BackwardButton onClick={() => { previousPage() }} disabled={!canPreviousPage} />
-                        <NumberButton number={"Primera"} active={actualIndex == 1} onClick={() => {
-                            if (previousPage)
-                                gotoPage(0)
+                        <BackwardButton onClick={() => {
+                            if (table.getCanPreviousPage())
+                                table.previousPage()
+
+                        }} disabled={!table.getCanPreviousPage()} />
+                        <NumberButton number={"Primera"} active={table.getState().pagination.pageIndex == 0} onClick={() => {
+                            if (table.getCanPreviousPage())
+                                table.firstPage()
                         }} />
 
 
-                        <NumberButton number={"Ultima"} active={actualIndex == pageCount} onClick={() => {
-                            if (canNextPage)
-                                gotoPage(pageCount - 1)
+                        <NumberButton number={"Ultima"} active={table.getState().pagination.pageIndex + 1 === table.getPageCount()} onClick={() => {
+                            if (table.getCanNextPage())
+                                table.lastPage()
                         }} />
-                        <ForwardButton onClick={() => { nextPage() }} disabled={!canNextPage} />
+                        <ForwardButton onClick={() => { table.nextPage() }} disabled={!table.getCanNextPage()} />
                     </div>
 
-                    <p className="text-gray-500">Mostrando <strong className="text-black">{pageIndex + 1}</strong> de
-                        <strong className="text-black"> {pageOptions.length}</strong></p>
+                    <p className="text-gray-500">Mostrando <strong className="text-black">{table.getState().pagination.pageIndex + 1}</strong> de
+                        <strong className="text-black"> {table.getPageCount().toLocaleString()}</strong></p>
 
                 </footer>
+
+
             </div>
+
+
+
+
         </>
     )
 }

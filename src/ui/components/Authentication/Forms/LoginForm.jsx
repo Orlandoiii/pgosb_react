@@ -1,6 +1,4 @@
 import { useForm } from "react-hook-form";
-
-import ShieldLogo from "../../../core/logo/ShieldLogo"
 import Input from "../../../core/inputs/Input"
 import Button from "../../../core/buttons/Button";
 import logger from "../../../../logic/Logger/logger";
@@ -39,15 +37,17 @@ function LockIcon() {
 }
 
 
-export default function LoginForm({ }) {
+export default function LoginForm({ onSubmit }) {
 
     const { register, handleSubmit, formState } = useForm({ mode: "onChange" });
 
     const { errors, isSubmitted } = formState;
 
 
-    function onSubmit(data) {
-
+    function handleSubmitInternal(data) {
+        lo.log(data);
+        if (onSubmit)
+            onSubmit(data);
     }
 
     logger.log("Renderizando LoginForm");
@@ -69,7 +69,7 @@ export default function LoginForm({ }) {
                 </h2>
 
                 <form noValidate className="flex flex-col justify-center bg-inherit"
-                    onSubmit={handleSubmit((data) => { onSubmit(data) })}>
+                    onSubmit={handleSubmit((data) => { handleSubmitInternal(data) })}>
 
                     <div className="space-y-6">
 
@@ -83,6 +83,7 @@ export default function LoginForm({ }) {
                         <Input label={"Contraseña"} inputName={"password"}
                             useDotLabel={true} placeHolder="********"
                             errMessage={errors.password?.message}
+                            type="password"
                             icons={<LockIcon />}
                         />
                     </div>

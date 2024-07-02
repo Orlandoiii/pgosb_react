@@ -7,6 +7,11 @@ import SkillForm from "../Forms/SkillsForm";
 import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import LocationForm from "../../Locations/Forms/LocationForm";
+<<<<<<< HEAD
+=======
+import { UserFieldNameDictonary } from "./UserFieldDictonary";
+import logger from "../../../../logic/Logger/logger";
+>>>>>>> ebeab3247a2d56418f4aa2ce3bcee3f2606f850e
 
 
 
@@ -32,36 +37,67 @@ const stepsObjects = [
 ]
 
 
-export function RegisterUser({ showModal, onClose }) {
-
-    const [userData, setUserData] = useState([]);
-
-
-    const [showAccordion, setShowAccordion] = useState(false)
+export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordion,
+    userData, onSetUserData, title, configNames, onSubmit }) {
 
 
     const initialStep = useRef(0);
 
+
+    function resetData() {
+
+        initialStep.current = 0;
+        onSetUserData([]);
+        setShowAccordion(false);
+    }
+
+    function close() {
+        if (onClose) {
+            onClose();
+            resetData();
+        }
+    }
+
+    function onFinish(d) {
+        onSetUserData(d);
+        logger.log("Data al final del Stepper", d);
+        setShowAccordion(true);
+    }
+
+    function handleAccept() {
+
+        logger.log("Handle Accept");
+        initialStep.current = 0;
+        if (onSubmit)
+            onSubmit()
+    }
+
     return (
         <>
-            <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
-                title='Registro de Usuario'>
+            <ModalContainer show={showModal} onClose={close}
+                title={title}>
 
-                {!showAccordion && <Stepper initialStep={initialStep.current} data={userData} steps={stepsObjects} onFinish={(d) => {
-                    setUserData(d);
-                    setShowAccordion(true);
-                }} />}
+                {!showAccordion && <Stepper initialStep={initialStep.current} data={userData}
+                    onClose={close}
+                    steps={stepsObjects}
+                    onFinish={onFinish} />}
+
                 {showAccordion && userData &&
-                    <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col space-y-1">
+
                         {userData.map((v) => {
-                            return <Accordion title={v.title} value={v.data} key={v.title} />
+                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={configNames} />
                         })}
+
+
+
                         <div className="flex justify-between">
                             <Button colorType="bg-rose-700" hoverColor="hover:bg-rose-900" onClick={() => {
                                 initialStep.current = stepsObjects.length - 1
                                 setShowAccordion(false);
                             }}>Regresar</Button>
 
+<<<<<<< HEAD
                             {/*   PDF
                              <PDFDownloadLink document={<PDF />} fileName="registeruser.pdf">
                                 {({ loading, url, error, blob }) =>
@@ -74,12 +110,16 @@ export function RegisterUser({ showModal, onClose }) {
                             </PDFDownloadLink> */}
 
                             <Button>Confirmar</Button>
+=======
+                            <Button onClick={handleAccept}>Confirmar</Button>
+>>>>>>> ebeab3247a2d56418f4aa2ce3bcee3f2606f850e
                         </div>
 
                     </div>
                 }
 
             </ModalContainer>
+
 
         </>
     )

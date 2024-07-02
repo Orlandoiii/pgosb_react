@@ -11,7 +11,8 @@ export default function Button({
     colorType = defaultBgColors.Primary,
     onClickRaw,
     onClick,
-    hoverColor = "hover:bg-[#0069D9]"
+    hoverColor = "hover:bg-[#0069D9]",
+    width = ""
 }) {
     function handleOnClick(e) {
         if (onClickRaw) onClickRaw(e)
@@ -21,7 +22,7 @@ export default function Button({
 
     return (
         <button
-            className={`block px-3 py-2 ${colorType} text-white  
+            className={` block px-3 py-2 ${colorType} text-white ${width} 
             text-md rounded-md shadow-md ${hoverColor}`}
             onClick={handleOnClick}
         >
