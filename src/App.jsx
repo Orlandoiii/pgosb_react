@@ -18,6 +18,7 @@ import DragBoxComponent from "./ui/practice/DragBox.jsx";
 import LoadModalContextProvider from "./ui/core/modal/LoadingModal.jsx";
 import ConfigContextProvider from "./logic/Config/ConfigContext.jsx";
 import NotificationModalContextProvider from "./ui/core/alerts/NotificationModal.jsx";
+import LayoutContexProvider from "./ui/core/context/LayoutContext.jsx";
 
 
 
@@ -30,7 +31,10 @@ const router = createBrowserRouter([
       children: [
          {
             path: "users/",
-            element: <UserPage />
+            element: (<LayoutContexProvider layoutName={"user_layout"}>
+               <UserPage />
+            </LayoutContexProvider>)
+
          },
          {
             path: "services/",
@@ -66,11 +70,16 @@ const router = createBrowserRouter([
    },
 
    {
+      path: "error",
+      element: <ErrorPage />
+   },
+
+   {
       path: "dragbox",
       element: <DragBoxComponent />
    },
-  
-   
+
+
    {
       path: "*",
       element: <NotFound />
@@ -83,13 +92,11 @@ function App() {
 
    return (
       <>
-         <LoadModalContextProvider>
-            <NotificationModalContextProvider>
-               <ConfigContextProvider>
-                  <RouterProvider router={router} />
-               </ConfigContextProvider>
-            </NotificationModalContextProvider>
-         </LoadModalContextProvider>
+         <NotificationModalContextProvider>
+            <ConfigContextProvider>
+               <RouterProvider router={router} />
+            </ConfigContextProvider >
+         </NotificationModalContextProvider>
       </>
    )
 

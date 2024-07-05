@@ -3,6 +3,7 @@ import Button from "../buttons/Button";
 import { CloseXSimbol } from "./ModalContainer";
 import logger from "../../../logic/Logger/logger";
 import { motion, AnimatePresence } from "framer-motion"
+import Backdrop from "./Backdrop";
 
 
 const ConfirmationModalContext = createContext({
@@ -36,16 +37,8 @@ function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }
         mode='wait'
         onExitComplete={() => null}
     >
-        {open && <motion.div
+        {open && <Backdrop>
 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{
-
-                duration: 0.2
-            }}
-            className={`fixed  w-full h-full z-10 inset-0 flex justify-center items-center transition-colors`}>
 
             <motion.div
                 onClick={(e) => e.stopPropagation()}
@@ -93,8 +86,9 @@ function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }
 
                 </div>
             </motion.div>
+        </Backdrop>
 
-        </motion.div>}
+        }
     </AnimatePresence>)
 
 

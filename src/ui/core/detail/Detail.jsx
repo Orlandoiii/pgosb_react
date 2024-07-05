@@ -1,13 +1,13 @@
 import { useMemo } from "react";
-import logger from "../../../logic/Logger/logger";
 import Accordion from "../accordion/Accordion";
 import ModalContainer from "../modal/ModalContainer";
+import { useLayout } from "../context/LayoutContext";
+import logger from "../../../logic/Logger/logger";
 
-export function Detail({ data, title, onClose, showDetail, configLayout, groupedData, configNames }) {
+export function Detail({ data, title, onClose, showDetail }) {
 
-    logger.log("Renderizando Detail Config", configLayout);
 
-    logger.log("Renderizando Detail Data", data);
+    const { visibleGroups } = useLayout();
 
     const cleanData = useMemo(() => {
 
@@ -15,10 +15,11 @@ export function Detail({ data, title, onClose, showDetail, configLayout, grouped
             return null;
 
 
-        return Object.entries(groupedData).map(([title, items]) => {
+
+        return Object.entries(visibleGroups).map(([title, items]) => {
             const d = {};
 
-            items.forEach(item => {
+            items.fields.forEach(item => {
                 const columnName = Object.keys(item)[0];
                 d[columnName] = data[columnName] || '';
             });
@@ -29,7 +30,7 @@ export function Detail({ data, title, onClose, showDetail, configLayout, grouped
             };
         });
 
-    }, [data, groupedData]);
+    }, [data, visibleGroups]);
 
 
 
@@ -38,7 +39,7 @@ export function Detail({ data, title, onClose, showDetail, configLayout, grouped
 
             {cleanData && <div className="flex flex-col space-y-1">
                 {cleanData.map((v) => {
-                    return <Accordion title={v.title} value={v.data} key={v.title} configNames={configNames} />
+                    return <Accordion title={v.title} value={v.data} key={v.title} />
                 })}
             </div>}
 

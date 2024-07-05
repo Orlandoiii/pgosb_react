@@ -101,6 +101,8 @@ async function LoadAllLayout(config) {
 
     const back_url = config.back_url;
 
+    
+
     const results = endpoints.map(async (e, _) => {
 
         const endpoint = `${back_url}${e.endpoint}`;
@@ -212,7 +214,7 @@ export default function ConfigContextProvider({ children }) {
     }, [dispatch])
 
     return (
-        <ConfigContext.Provider value={{ config: state.config, dispatch }}>
+        <ConfigContext.Provider value={{ config: state.config }}>
             {!state.isLoading && children}
         </ConfigContext.Provider>
     )

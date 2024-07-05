@@ -1,32 +1,30 @@
 import { createContext, useContext, useState } from "react";
 import LinearDots from "../icons/LinearDots"
 import logger from "../../../logic/Logger/logger";
+import { motion, AnimatePresence } from "framer-motion";
+import Backdrop from "./Backdrop";
 
-function LoadingModalInternal({ open }) {
+export function LoadingModal({ open }) {
 
     logger.log("Renderizo LoadModal", open)
     return (
 
-        <div className={`fixed  w-full h-full z-10 inset-0 flex justify-center items-center transition-colors
-        ${open ? "visible bg-white/50" : "invisible"}`}
-        >
+        <AnimatePresence>
+            {open &&
+                <Backdrop>
+                    <motion.div
+                        onClick={(e) => e.stopPropagation()}
+                        className={`
+               flex justify-center items-center  
+               min-h-[320px] min-w-[320px] md:min-h-[380px]  md:min-w-[460px]`}
+                    >
+                        <LinearDots height={"100"} />
+                    </motion.div>
 
-
-            <div
-                onClick={(e) => e.stopPropagation()}
-                className={`
-               flex justify-center items-center transition-all  min-h-[320px] min-w-[320px] md:min-h-[380px]  md:min-w-[460px]
-              ${open ? "scale-100 opacity-100" : "scale-125 opacity-0"}
-            `}
-            >
-                <LinearDots height={"100"} />
-            </div>
-
-
-
-        </div>
+                </Backdrop>
+            }
+        </AnimatePresence>
     )
-
 }
 const LoadingModalContext = createContext(
     {
@@ -57,7 +55,7 @@ export default function LoadModalContextProvider({ children }) {
             { openLoadModal: openLoadModal, closeLoadModal: closeLoadModal }
         }>
             {children}
-            <LoadingModalInternal open={open} />
+            <LoadingModal open={open} />
         </LoadingModalContext.Provider>
     )
 }

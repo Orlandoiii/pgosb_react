@@ -13,6 +13,7 @@ import AddIcon from "../icons/AddIcon";
 import ModifyIcon from "../icons/ModifyIcon";
 import DeleteIcon from "../icons/DeleteIcon";
 import logger from "../../../logic/Logger/logger";
+import { useLayout } from "../context/LayoutContext";
 
 
 function SortIcon({ isSorted }) {
@@ -146,7 +147,7 @@ const checkBoxHeader = {
     ),
 }
 
-export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpdate, onDelete, configLayout = null }) {
+export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpdate, onDelete }) {
 
 
     logger.log("Renderizo TableDataGrid");
@@ -155,7 +156,10 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
         return <></>
 
 
-    logger.log("DATA GRID CONFIG:", configLayout);
+    const { layout } = useLayout()
+
+
+    logger.log("DATA GRID CONFIG:", layout);
     logger.log("DATA GRID DATA:", rawData)
     const COLUMNS = [];
 
@@ -167,7 +171,7 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
     Object.entries(rawData[0])
         .forEach(([value, _]) => {
 
-            const config = configLayout.find(v => v.column_name == value)
+            const config = layout.find(v => v.column_name == value)
             if (config) {
 
 

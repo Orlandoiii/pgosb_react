@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from "framer-motion"
 import { createContext, useContext, useState } from "react"
+import Backdrop from "../modal/Backdrop"
 
 
 function SuccessIcon({ }) {
     return (
         <div className="relative mt-2 flex justify-center">
-            
+
             <div className="absolute z-10 h-14 w-14 animate-ping rounded-full bg-emerald-400" ></div>
             <div className="z-10 flex h-14 w-14 items-center justify-center rounded-full bg-emerald-500">
                 <svg className="w-6 fill-neutral-100" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512">
@@ -79,11 +80,8 @@ function NotificationModal({ show, onClose, type = "info", title, message }) {
             onExitComplete={() => null}
         >
             {show &&
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    className="fixed w-full h-full inset-0 bg-black/20 flex justify-center items-center">
+
+                <Backdrop>
                     <motion.div
                         initial={{
                             opacity: 0,
@@ -114,7 +112,9 @@ function NotificationModal({ show, onClose, type = "info", title, message }) {
                             <p className="text-lg">{message}</p>
                         </div>
                     </motion.div>
-                </motion.div>
+                </Backdrop>
+
+
             }
         </AnimatePresence>
 

@@ -34,7 +34,7 @@ const stepsObjects = [
 
 
 export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordion,
-    userData, onSetUserData, title, configNames, onSubmit }) {
+    userData, onSetUserData, title, onSubmit }) {
 
 
     const initialStep = useRef(0);
@@ -60,7 +60,7 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
         setShowAccordion(true);
     }
 
-    
+
     function handleAccept() {
 
         logger.log("Handle Accept");
@@ -69,7 +69,7 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
             onSubmit()
     }
 
-   
+
 
     return (
         <>
@@ -85,7 +85,7 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
                     <div className="flex flex-col space-y-1">
 
                         {userData.map((v) => {
-                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={configNames} />
+                            return <Accordion title={v.title} value={v.data} key={v.title} />
                         })}
 
 
@@ -96,7 +96,7 @@ export function RegisterUser({ showModal, onClose, showAccordion, setShowAccordi
                                 setShowAccordion(false);
                             }}>Regresar</Button>
 
-                    
+
 
                             <Button onClick={handleAccept}>Confirmar</Button>
                         </div>

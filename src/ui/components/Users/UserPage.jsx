@@ -4,11 +4,12 @@ import { RegisterUser } from "./Register/RegisterUser"
 import axios from "axios";
 import { useConfig } from "../../../logic/Config/ConfigContext";
 import logger from "../../../logic/Logger/logger";
-import { useLoadModal } from "../../core/modal/LoadingModal";
+import { LoadingModal, useLoadModal } from "../../core/modal/LoadingModal";
 import { Detail } from "../../core/detail/Detail";
 import { useConfirmationModal } from "../../core/modal/ModalConfirmation";
 import AlertController from "../../core/alerts/AlertController";
 import { useNotificationAlert } from "../../core/alerts/NotificationModal";
+import LayoutContexProvider, { useLayout } from "../../core/context/LayoutContext";
 const alertController = new AlertController();
 
 function UserCreateActionData(config) {
@@ -86,7 +87,20 @@ export default function UserPage({ }) {
 
    const [detailUserData, setDetailUserData] = useState(null);
 
-   const { openLoadModal, closeLoadModal } = useLoadModal();
+   const [showLoadModal, setShowLoadModal] = useState(false);
+
+
+   function openLoadModal() {
+      setShowLoadModal(true);
+   }
+
+   function closeLoadModal() {
+      setShowLoadModal(false);
+   }
+
+
+
+
 
    const { showConfirmationModal } = useConfirmationModal();
 
@@ -101,47 +115,10 @@ export default function UserPage({ }) {
    const [currentFormAction, setCurrentFormAction] = useState("");
 
 
-
-   const groupedData = useMemo(() => {
-
-      if (!config.user_layout) {
-         return null;
-      }
-
-      return config.user_layout.reduce((acc, obj) => {
-         const group = obj.group_name;
-         acc[group] ||= []; // Conditional nullish assignment for cleaner initialization
-         acc[group].push({ [obj.column_name]: obj.display_name });
-         return acc;
-      }, {});
-
-   }, [config.user_layout]);
+   const { layout, groupDefinition, fieldDefinition } = useLayout();
 
 
-
-
-   const configNames = useMemo(() => {
-      if (!groupedData)
-         return null;
-
-      let c = {};
-
-      Object.entries(groupedData).forEach((v, _) => {
-
-         logger.log("DETAIL", v[1]);
-
-         const singleObject = Object.assign({}, ...v[1]);
-
-         c = { ...c, ...singleObject };
-
-
-      })
-
-      return c;
-
-   }, [groupedData]);
-
-   logger.log("User Data:", config);
+   logger.log("User Data:", layout, groupDefinition, fieldDefinition);
 
 
    function getUsers(token) {
@@ -205,6 +182,10 @@ export default function UserPage({ }) {
          const mergedData = singleUserData.reduce((acc, obj) => {
             return { ...acc, ...obj.data };
          }, {});
+
+         logger.info("USER CREATE/UPDATE Datos enviados:", JSON.stringify(mergedData))
+
+
          axios({
             url: endpoint,
             data: mergedData,
@@ -249,10 +230,10 @@ export default function UserPage({ }) {
          return null;
 
 
-      const cleanData = Object.entries(groupedData).map(([title, items]) => {
+      const cleanData = Object.entries(groupDefinition).map(([title, items]) => {
          const d = {};
 
-         items.forEach(item => {
+         items.fields.forEach(item => {
             const columnName = Object.keys(item)[0];
             d[columnName] = user[columnName] || '';
          });
@@ -332,8 +313,9 @@ export default function UserPage({ }) {
 
    return (
       <>
+
          <div className={`${dataIsLoad ? "opacity-100" : "opacity-0"}  `}>
-            {userData && <TableDataGrid rawData={userData} configLayout={config.user_layout}
+            {userData && <TableDataGrid rawData={userData} configLayout={layout}
 
                onUpdate={handleUpdateAction}
                onAdd={handleAddAction}
@@ -346,12 +328,14 @@ export default function UserPage({ }) {
             <RegisterUser userData={singleUserData}
                showAccordion={showAccordion} setShowAccordion={setShowAccordion}
                onSetUserData={setSingleUserData} showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
-               onFinish={resetFormData} onSubmit={handleSubmit} title={formTitle} configNames={configNames} />
+               onFinish={resetFormData} onSubmit={handleSubmit} title={formTitle} fieldDefinition={fieldDefinition} />
 
-            <Detail data={detailUserData} showDetail={openDetailModal} title={"Detalle de Usuario"} configNames={configNames}
-               onClose={() => setOpenDetailModal(false)} configLayout={config.user_layout} groupedData={groupedData} />
+            <Detail data={detailUserData} showDetail={openDetailModal} title={"Detalle de Usuario"} fieldDefinition={fieldDefinition}
+               onClose={() => setOpenDetailModal(false)} configLayout={layout} groupDefinition={groupDefinition} />
 
          </div>
+
+         <LoadingModal open={showLoadModal} />
 
       </>
 

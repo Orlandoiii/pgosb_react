@@ -88,7 +88,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                     ...data,
                     "user_system": isSystemUser,
                     "profesion": profesion,
-                    "id_rol": rol,
+                    "rol": rol,
                     "division": division,
                 }
 

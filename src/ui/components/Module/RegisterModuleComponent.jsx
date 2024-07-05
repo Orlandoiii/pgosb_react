@@ -8,7 +8,7 @@ import logger from "../../../../logic/Logger/logger";
 
 
 export function RegisterModuleComponent({ showModal, onClose, showAccordion, setShowAccordion,
-    data, onSetData, title, configNames, onSubmit, stepsObjects }) {
+    data, onSetData, title, onSubmit, steps }) {
 
 
     const initialStep = useRef(0);
@@ -34,6 +34,7 @@ export function RegisterModuleComponent({ showModal, onClose, showAccordion, set
         setShowAccordion(true);
     }
 
+
     function handleAccept() {
 
         logger.log("Handle Accept");
@@ -42,6 +43,8 @@ export function RegisterModuleComponent({ showModal, onClose, showAccordion, set
             onSubmit()
     }
 
+
+
     return (
         <>
             <ModalContainer show={showModal} onClose={close}
@@ -49,23 +52,25 @@ export function RegisterModuleComponent({ showModal, onClose, showAccordion, set
 
                 {!showAccordion && <Stepper initialStep={initialStep.current} data={data}
                     onClose={close}
-                    steps={stepsObjects}
+                    steps={steps}
                     onFinish={onFinish} />}
 
                 {showAccordion && data &&
                     <div className="flex flex-col space-y-1">
 
                         {data.map((v) => {
-                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={configNames} />
+                            return <Accordion title={v.title} value={v.data} key={v.title} />
                         })}
 
 
 
                         <div className="flex justify-between">
                             <Button colorType="bg-rose-700" hoverColor="hover:bg-rose-900" onClick={() => {
-                                initialStep.current = stepsObjects.length - 1
+                                initialStep.current = steps.length - 1
                                 setShowAccordion(false);
                             }}>Regresar</Button>
+
+
 
                             <Button onClick={handleAccept}>Confirmar</Button>
                         </div>
@@ -74,6 +79,8 @@ export function RegisterModuleComponent({ showModal, onClose, showAccordion, set
                 }
 
             </ModalContainer>
+
+
         </>
     )
 }

@@ -2,6 +2,7 @@ import { useState } from "react"
 import { EyeButton, StoreList } from "../inputs/AddInput";
 import ModalContainer from "../modal/ModalContainer";
 import logger from "../../../logic/Logger/logger";
+import { useLayout } from "../context/LayoutContext";
 
 
 function isBoolean(value) {
@@ -37,6 +38,7 @@ function KeyValue({ keyName, value }) {
 
             {valueIsArray ?
                 <ArrayElement title={keyName} values={value} /> :
+
                 <p className="text-[#0A2F4E] text-xs font-semibold 
                 text-ellipsis whitespace-nowrap overflow-x-hidden">{isBoolean(value) ? value.toString() : value}</p>}
 
@@ -68,17 +70,20 @@ function ArrayElement({ title, values }) {
 
 
 
-export default function Accordion({ title, value, configNames }) {
+export default function Accordion({ title, value }) {
+
+
+    const { fieldDefinition } = useLayout();
+
 
     const [open, setOpen] = useState(true);
 
     const [firstHalf, secondHalf] = splitArrayInHalf(Object.entries(value));
 
-    logger.log("Renderizando Accordion Data:", value);
+    logger.log("Renderizando Accordion Data:", value, fieldDefinition);
 
     logger.log("first half data:", firstHalf);
     logger.log("second half data:", secondHalf);
-
 
 
     return (
@@ -103,16 +108,14 @@ export default function Accordion({ title, value, configNames }) {
                 ${open ? "h-auto block md:flex  md:justify-between md:space-x-8  py-1 px-1" : " h-0 hidden"} `}>
 
                 <div className="flex-1 ">
-                    {firstHalf && Object.entries(firstHalf).map(([idx, value]) => {
-                        return <KeyValue keyName={configNames && configNames[value[0]] ? configNames[value[0]] :
-                            value[0]} value={value[1]} key={value[0]} />
+                    {firstHalf && Object.entries(firstHalf).map(([_, value]) => {
+                        return <KeyValue keyName={fieldDefinition.get(value[0])?.display_name ? fieldDefinition.get(value[0])?.display_name : value[0]} value={value[1]} key={value[0]} />
                     })}
                 </div>
 
                 <div className="flex-1">
-                    {secondHalf && Object.entries(secondHalf).map(([idx, value]) => {
-                        return <KeyValue keyName={configNames && configNames[value[0]] ? configNames[value[0]] :
-                            value[0]} value={value[1]} key={value[0]} />
+                    {secondHalf && Object.entries(secondHalf).map(([_, value]) => {
+                        return <KeyValue keyName={fieldDefinition.get(value[0])?.display_name ? fieldDefinition.get(value[0])?.display_name : value[0]} value={value[1]} key={value[0]} />
                     })}
                 </div>
             </div>

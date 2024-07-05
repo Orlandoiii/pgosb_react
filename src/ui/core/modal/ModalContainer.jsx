@@ -1,12 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion"
 import logger from "../../../logic/Logger/logger";
+import Backdrop from "./Backdrop";
 
-const scaleAnimationBackDrop = {
-    initial: { opacity: 0, rotation: 0.02 },
-    animate: { opacity: 1, rotation: 0.02 },
-    exit: { opacity: 0, rotation: 0.02 },
-
-}
 
 const scaleAnimation = {
     initial: { opacity: 0, rotation: 0.02, scale: 1.5 },
@@ -48,43 +43,34 @@ export default function ModalContainer({ show, onClose, showX = true, children =
             onExitComplete={() => null}
 
         >
-            {show &&
+            {show && <Backdrop>
                 <motion.div
-                    variants={scaleAnimationBackDrop}
+                    variants={scaleAnimation}
                     initial={"initial"}
                     animate={"animate"}
                     exit={"exit"}
-                    className={`fixed left-0 top-0 w-full h-full 
-        flex items-center justify-center 
-           bg-black/20 z-10 overflow-hidden`}>
+                    transition={"transition"}
 
-                    <motion.div
-                        variants={scaleAnimation}
-                        initial={"initial"}
-                        animate={"animate"}
-                        exit={"exit"}
-                        transition={"transition"}
-
-                        className="relative w-full h-full md:w-auto  md:h-auto  rounded-xl  
+                    className="relative w-full h-full md:w-auto  md:h-auto  rounded-xl  
         bg-slate-100 shadow-lg shadow-gray-400 ">
 
-                        {showX && <CloseXSimbol onClose={onClose} />}
+                    {showX && <CloseXSimbol onClose={onClose} />}
 
-                        {title && title.length > 0 && <h2 className='relative w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center
+                    {title && title.length > 0 && <h2 className='relative w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center
             text-[whitesmoke] text-lg h-11 p-2 shadow-lg'>{title}</h2>}
 
-                        <div className='w-full h-full  p-5 min-w-[360px]  min-h-[220px] bg-slate-100 max-h-[820px] overflow-y-auto'>
-                            {children}
-                        </div>
+                    <div className='w-full h-full  p-5 min-w-[360px]  min-h-[220px] bg-slate-100 max-h-[820px] overflow-y-auto'>
+                        {children}
+                    </div>
 
-                        <div className="absolute">
-                            {downStikyChildren}
-                        </div>
+                    <div className="absolute">
+                        {downStikyChildren}
+                    </div>
 
-                        <span className='h-0 md:block md:bg-[#0A2F4E] md:h-[7px] md:w-full md:shadow-md '></span>
+                    <span className='h-0 md:block md:bg-[#0A2F4E] md:h-[7px] md:w-full md:shadow-md '></span>
 
-                    </motion.div>
-                </motion.div >}
+                </motion.div>
+            </Backdrop>}
         </AnimatePresence>
     )
 

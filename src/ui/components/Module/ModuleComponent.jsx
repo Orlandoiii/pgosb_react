@@ -1,22 +1,24 @@
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
 import { RegisterUser } from "./Register/RegisterUser"
 import axios from "axios";
 import { useConfig } from "../../../logic/Config/ConfigContext";
 import logger from "../../../logic/Logger/logger";
-import { useLoadModal } from "../../core/modal/LoadingModal";
+import { LoadingModal } from "../../core/modal/LoadingModal";
 import { Detail } from "../../core/detail/Detail";
 import { useConfirmationModal } from "../../core/modal/ModalConfirmation";
 import AlertController from "../../core/alerts/AlertController";
-import { RegisterModuleComponent } from "./RegisterModuleComponent";
+import { useNotificationAlert } from "../../core/alerts/NotificationModal";
 const alertController = new AlertController();
 
 
-async function deleteData(registers, config, deleteActionData, getAll) {
+
+
+async function deleteRegisters(registers, detailTitle, deleteConfig, config, getRegisters) {
     try {
-        const deletePromises = registers.map((reg) => {
-            const endpoint = `${config.back_url}${deleteActionData.endpoint}${reg.id}`;
-            return axios.delete(endpoint); // Return the promise from axios.delete
+        const deletePromises = registers.map((register) => {
+            const endpoint = `${config.back_url}${deleteConfig.endpoint}${register.id}`;
+            return axios.delete(endpoint);
         });
 
         const responses = await Promise.all(deletePromises);
@@ -25,44 +27,53 @@ async function deleteData(registers, config, deleteActionData, getAll) {
             if (response.status >= 200 && response.status <= 299) {
                 logger.info("REGISTER DELETE:", response);
                 alertController.notifySuccess(
-                    `${deleteActionData.success_message} ${registers[index][deleteActionData.show_prop]}`
+                    `${deleteConfig.successMessage} ${registers[index][deleteConfig.showPropertyName]}`
                 );
             }
         });
 
-
     } catch (err) {
-        // Handle any errors that occurred during deletions
         logger.error("REGISTER ACTION ERROR", err);
-        alertController.notifyError(`${deleteActionData.error_message}`); // General error message
+        alertController.notifyError(`${deleteConfig.failMessage}`);
 
     } finally {
-        getAll();
+        getRegisters();
     }
 }
 
-export default function ModuleComponent({ createActionData, updateActionData,
-    deleteActionData, allDataEndpoint, layoutName, detailTitle }) {
-
-
-
+export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addConfig, updateConfig }) {
 
     const [openAddForm, setOpenAddForm] = useState(false);
+
+    const [dataIsLoad, setDataIsLoad] = useState(false);
 
 
     const [showAccordion, setShowAccordion] = useState(false)
 
-    const [allData, setAllData] = useState(null);
+    const [data, setData] = useState(null);
 
-    const [singleData, setSingleData] = useState([])
+    const [singleRegisterData, setSingleRegisterData] = useState([])
 
     const [openDetailModal, setOpenDetailModal] = useState(false);
 
-    const [detailData, setDetailData] = useState(null);
+    const [detail, setDetail] = useState(null);
 
-    const { openLoadModal, closeLoadModal } = useLoadModal();
+    const [showLoadModal, setShowLoadModal] = useState(false);
+
+
+    function openLoadModal() {
+        setShowLoadModal(true);
+    }
+
+    function closeLoadModal() {
+        setShowLoadModal(false);
+    }
+
 
     const { showConfirmationModal } = useConfirmationModal();
+
+
+    const { showNotification } = useNotificationAlert();
 
     const { config } = useConfig();
 
@@ -72,78 +83,43 @@ export default function ModuleComponent({ createActionData, updateActionData,
     const [currentFormAction, setCurrentFormAction] = useState("");
 
 
-
-    const CreateActionData = createActionData(config)
-
-    const UpdateActionData = updateActionData(config)
-
-    const DeleteActionData = deleteActionData(config)
+    const { layout, groupDefinition, fieldDefinition } = useLayout();
 
 
-    const groupedData = useMemo(() => {
-
-        if (!config[layoutName]) {
-            return null;
-        }
-
-        return config[layoutName].reduce((acc, obj) => {
-            const group = obj.group_name;
-            acc[group] ||= [];
-            acc[group].push({ [obj.column_name]: obj.display_name });
-            return acc;
-        }, {});
-
-    }, [config[layoutName]]);
+    logger.log("Register Layout Data:", layout, groupDefinition, fieldDefinition);
 
 
-
-
-
-    const configNames = useMemo(() => {
-        if (!groupedData)
-            return null;
-
-        let c = {};
-
-        Object.entries(groupedData).forEach((v, _) => {
-
-            logger.log("DETAIL", v[1]);
-
-            const singleObject = Object.assign({}, ...v[1]);
-
-            c = { ...c, ...singleObject };
-
-
-        })
-
-        return c;
-
-    }, [groupedData]);
-
-
-
-    function getAll(token) {
-        axios.get(`${config.back_url}${allDataEndpoint}`, {
+    function getRegisters(token) {
+        axios.get(`${config.back_url}${getAllDataEndpoint}`, {
             cancelToken: token
         }).then(response => {
 
-            logger.log("Data All Response", response)
+            logger.log("Register Response", response)
             if (response.status >= 200 && response.status <= 299) {
-                logger.log("All Data:", response.data)
-                setAllData(response.data);
+                logger.log("Register Data:", response.data)
+                setData(response.data);
+                setDataIsLoad(true);
+                closeLoadModal();
             }
         }).catch(err => {
             logger.error(err);
+
+            if (err.message === "unmount")
+                return;
+
+            setDataIsLoad(false);
+            showNotification("error", "Oohh!!! ", `${err}`);
         }).finally(() => {
             closeLoadModal();
         })
     }
 
 
+
     useEffect(() => {
         openLoadModal();
         const cancelTokenSource = axios.CancelToken.source();
-        getAll(cancelTokenSource.token);
+        getRegisters(cancelTokenSource.token);
         return () => {
             cancelTokenSource.cancel("unmount");
         }
@@ -153,7 +129,7 @@ export default function ModuleComponent({ createActionData, updateActionData,
 
     function resetFormData() {
         setShowAccordion(false)
-        setSingleData([]);
+        setSingleRegisterData([]);
         setOpenAddForm(false)
     }
 
@@ -168,55 +144,65 @@ export default function ModuleComponent({ createActionData, updateActionData,
             openLoadModal();
             close();
 
-            const mergedData = singleData.reduce((acc, obj) => {
+            let succes = false;
+
+
+            const mergedData = singleRegisterData.reduce((acc, obj) => {
                 return { ...acc, ...obj.data };
             }, {});
+
+            logger.info("REGISTER CREATE/UPDATE Datos enviados:", JSON.stringify(mergedData))
+
+
             axios({
                 url: endpoint,
                 data: mergedData,
                 method: method
             }).then(r => {
                 closeLoadModal()
-                logger.info("DATA ACTION:", r)
+                logger.info("REGISTER ACTION:", r)
                 if (r.status >= 200 && r.status <= 299) {
-                    getUsers()
+                    getRegisters()
                     alertController.notifySuccess(successMessage);
+                    succes = true;
                 }
+
             }).catch(err => {
                 closeLoadModal();
-                logger.error("DATA ACTION ERROR", err);
+                logger.error("REGISTER ACTION ERROR", err);
                 alertController.notifyError(errMessage);
             }).finally(() => {
-                resetFormData();
+                if (succes)
+                    resetFormData();
             })
 
         })
     }
 
     function handleAddAction() {
-        setFormTilte(CreateActionData.title);
+        setFormTilte(addConfig.title);
         setCurrentFormAction("add");
         setOpenAddForm(true);
 
     }
     function handleAddSubmition() {
-        handleSubmitAction(CreateActionData);
+        const action = addConfig.AddActionData(config);
+        handleSubmitAction(action);
     }
 
 
-    function handleUpdateAction(reg) {
+    function handleUpdateAction(register) {
 
 
-        if (!reg)
+        if (!register)
             return null;
 
-
-        const cleanData = Object.entries(groupedData).map(([title, items]) => {
+        const cleanData = Object.entries(groupDefinition).map(([title, items]) => {
             const d = {};
 
-            items.forEach(item => {
+            items.fields.forEach(item => {
                 const columnName = Object.keys(item)[0];
-                d[columnName] = reg[columnName] || '';
+                d[columnName] = register[columnName] || '';
             });
 
             return {
@@ -225,17 +211,17 @@ export default function ModuleComponent({ createActionData, updateActionData,
             };
         });
 
-        setFormTilte(UpdateActionData.title);
+        setFormTilte(updateConfig.title);
         setCurrentFormAction("update");
-        setSingleData(cleanData);
+        setSingleRegisterData(cleanData);
         setOpenAddForm(true);
 
 
     }
 
     function handleUpdateSubmition() {
-
-        handleSubmitAction(UpdateActionData);
+        const action = updateConfig.UpdateActionData(config);
+        handleSubmitAction(action);
     }
 
 
@@ -255,11 +241,11 @@ export default function ModuleComponent({ createActionData, updateActionData,
             return null;
 
 
-        let title = "Eliminar Registro";
+        let title = deleteConfig.singleDeleteTitle;
         let message = `Esta seguro que desea eliminar el registro:${registers[0].id}`
 
         if (registers.length > 1) {
-            title = "Eliminar Registros";
+            title = deleteConfig.multipleDeleteTitles;
             message = `Esta seguro que desea eliminar un total de registros:${registers.length}`
         }
 
@@ -281,37 +267,42 @@ export default function ModuleComponent({ createActionData, updateActionData,
 
             openLoadModal();
             resolve(true)
-            deleteUsers(registers, config, getUsers)
+            deleteRegisters(registers, config, getRegisters)
 
         })
 
         return p;
+
+
 
     }
 
 
     return (
         <>
-            <div className="">
-                {allData && <TableDataGrid rawData={allData} configLayout={config[layoutName]}
+
+            <div className={`${dataIsLoad ? "opacity-100" : "opacity-0"}  `}>
+                {data && <TableDataGrid rawData={data}
 
                     onUpdate={handleUpdateAction}
                     onAdd={handleAddAction}
                     onDelete={handleDelete}
                     onDoubleClickRow={(u) => {
-                        setDetailData(u);
+                        setDetail(u);
                         setOpenDetailModal(true);
                     }} />}
 
-                <RegisterModuleComponent data={singleData}
+                <RegisterUser data={singleRegisterData}
                     showAccordion={showAccordion} setShowAccordion={setShowAccordion}
-                    onSetData={setSingleData} showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
-                    onFinish={resetFormData} onSubmit={handleSubmit} title={formTitle} configNames={configNames} />
+                    onSetUserData={setSingleRegisterData} showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
+                    onFinish={resetFormData} onSubmit={handleSubmit} title={formTitle} fieldDefinition={fieldDefinition} />
 
-                <Detail data={detailData} showDetail={openDetailModal} title={detailTitle} configNames={configNames}
-                    onClose={() => setOpenDetailModal(false)} configLayout={config[layoutName]} groupedData={groupedData} />
+                <Detail data={detail} showDetail={openDetailModal} title={detailTitle} fieldDefinition={fieldDefinition}
+                    onClose={() => setOpenDetailModal(false)} configLayout={layout} groupDefinition={groupDefinition} />
 
             </div>
+
+            <LoadingModal open={showLoadModal} />
 
         </>
 
