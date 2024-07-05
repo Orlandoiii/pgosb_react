@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import ModalContainer from "../../../core/modal/ModalContainer";
 import Stepper from "../../Stepper/Stepper";
 
@@ -6,12 +6,8 @@ import Accordion from "../../../core/accordion/Accordion";
 import Button from "../../../core/buttons/Button";
 import BasicInfoForm from "../Forms/BasicInfoForm";
 import DataForm from "../Forms/DataForm";
-import { UnitsFieldNameDictonary } from "./UnitsFieldDictonary";
-import { useConfirmationModal } from "../../../core/modal/ModalConfirmation";
-import LoadingModal from "../../../core/modal/LoadingModal";
-import AlertController from "../../../core/alerts/AlertController";
+import logger from "../../../../logic/Logger/logger";
 
-const alertController = new AlertController();
 
 
 const stepsObjects = [
@@ -27,59 +23,61 @@ const stepsObjects = [
 ]
 
 
-export function RegisterUnit({ showModal, onClose }) {
-
-    const [unitData, setUnitData] = useState([]);
-
-
-    const [showAccordion, setShowAccordion] = useState(false)
+export default function RegisterUnit({ showModal, onClose, showAccordion, setShowAccordion,
+    unitData, onSetUnitData, title, configNames, onSubmit }) {
 
 
     const initialStep = useRef(0);
 
 
-    const { showConfirmationModal } = useConfirmationModal();
+    function resetData() {
 
-    const [openLoadingModal, setOpenLoadingModal] = useState(false);
+        initialStep.current = 0;
+        onSetUnitData([]);
+        setShowAccordion(false);
+    }
+
+    function close() {
+        if (onClose) {
+            onClose();
+            resetData();
+        }
+    }
+
+    function onFinish(d) {
+        onSetUnitData(d);
+        logger.log("Data al final del Stepper", d);
+        setShowAccordion(true);
+    }
 
     function handleAccept() {
-        let result = showConfirmationModal("Registro de Unidad", "Esta seguro que desea registrar esta unidad con los datos antes mostrados ?");
-        result.then(r => {
-            if (!r)
-                return;
 
-            setShowAccordion(false);
-            onClose();
-            initialStep.current = 0;
-
-            setOpenLoadingModal(true);
-            setTimeout(() => {
-
-                setOpenLoadingModal(false);
-                alertController.notifySuccess("Usuario guardada exitosamente");
-
-            }, 1000)
-
-
-        })
+        logger.log("Handle Accept");
+        initialStep.current = 0;
+        if (onSubmit)
+            onSubmit()
     }
 
     return (
         <>
-            <ModalContainer show={showModal} onClose={() => { if (onClose) onClose() }}
-                title='Registro de Unidad'>
-                {!showAccordion && <Stepper initialStep={initialStep.current} data={unitData} steps={stepsObjects} onFinish={(d) => {
-                    setUnitData(d);
-                    setShowAccordion(true);
-                }} />}
+            <ModalContainer show={showModal} onClose={close}
+                title={title}>
+
+                {!showAccordion && <Stepper initialStep={initialStep.current} data={unitData}
+                    onClose={close}
+                    steps={stepsObjects}
+                    onFinish={onFinish} />}
+
                 {showAccordion && unitData &&
-                    <div className="flex flex-col space-y-4">
+                    <div className="flex flex-col space-y-1">
+
                         {unitData.map((v) => {
-                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={UnitsFieldNameDictonary} />
+                            return <Accordion title={v.title} value={v.data} key={v.title} configNames={configNames} />
                         })}
 
-                        <div className="flex justify-between">
 
+
+                        <div className="flex justify-between">
                             <Button colorType="bg-rose-700" hoverColor="hover:bg-rose-900" onClick={() => {
                                 initialStep.current = stepsObjects.length - 1
                                 setShowAccordion(false);
@@ -90,11 +88,11 @@ export function RegisterUnit({ showModal, onClose }) {
 
                     </div>
                 }
-            </ModalContainer>
 
-            <LoadingModal open={openLoadingModal} />
+            </ModalContainer>
 
 
         </>
     )
 }
+

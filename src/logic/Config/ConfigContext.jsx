@@ -95,7 +95,7 @@ async function LoadLayout(endpoint) {
 const endpoints = [
     { endpoint: "/api/v1/layout/user", layout: "user_layout" },
     { endpoint: "/api/v1/layout/unit", layout: "unit_layout" },
-    { endpoint: "/api/v1/layout/station", layout: "station_layout" }]
+    { endpoint: "/api/v1/layout/stations", layout: "station_layout" }]
 
 async function LoadAllLayout(config) {
 
@@ -151,7 +151,7 @@ async function LoadConfig() {
             return layouts_result;
         }
 
-        logger.log("Config: Final", config)
+        logger.log("Config Final", config)
 
         return { config: config, success: true }
 

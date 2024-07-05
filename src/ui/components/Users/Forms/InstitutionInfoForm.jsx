@@ -58,7 +58,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
     const [profesionErr, setProfesionErr] = useState(false);
 
 
-    const [isSystemUser, setIsSystemUser] = useState(currentData?.is_system_user ?? false);
+    const [isSystemUser, setIsSystemUser] = useState(currentData?.user_system ?? false);
 
 
 
@@ -86,9 +86,9 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                 const newData = {
                     ...data,
-                    "system_user": isSystemUser,
+                    "user_system": isSystemUser,
                     "profesion": profesion,
-                    "rol": rol,
+                    "id_rol": rol,
                     "division": division,
                 }
 

@@ -90,11 +90,11 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                         register={register}
                         validationRules={requiredRule}
 
-                        errMessage={errors.station_name?.message}
+                        errMessage={errors.name?.message}
                         useStrongErrColor={isSubmitted}
 
                         label={"Nombre de la Estación"}
-                        inputName={"station_name"}
+                        inputName={"name"}
                         useDotLabel={true}
                         placeHolder="Nombre de la Estación..."
 
@@ -166,11 +166,11 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                                 register={register}
                                 validationRules={requiredRule}
 
-                                errMessage={errors.initials?.message}
+                                errMessage={errors.abbreviation?.message}
                                 useStrongErrColor={isSubmitted}
 
                                 label={"Siglas"}
-                                inputName={"initials"}
+                                inputName={"abbreviation"}
                                 useDotLabel={true}
                                 placeHolder="M01"
 

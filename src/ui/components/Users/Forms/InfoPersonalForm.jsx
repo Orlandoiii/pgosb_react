@@ -187,7 +187,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             <div className="w-[65%]">
                                 <Select
 
-                                    inputName={"civil_state"}
+                                    inputName={"marital_status"}
                                     label={"Estado Civil"}
                                     useDotLabel={true}
                                     options={civilStatusList}

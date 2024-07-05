@@ -8,6 +8,7 @@ import { useLoadModal } from "../../core/modal/LoadingModal";
 import { Detail } from "../../core/detail/Detail";
 import { useConfirmationModal } from "../../core/modal/ModalConfirmation";
 import AlertController from "../../core/alerts/AlertController";
+import { useNotificationAlert } from "../../core/alerts/NotificationModal";
 const alertController = new AlertController();
 
 function UserCreateActionData(config) {
@@ -69,6 +70,11 @@ export default function UserPage({ }) {
 
    const [openAddForm, setOpenAddForm] = useState(false);
 
+   const [dataIsLoad, setDataIsLoad] = useState(false);
+
+
+
+   const [err, setErr] = useState("");
 
    const [showAccordion, setShowAccordion] = useState(false)
 
@@ -84,12 +90,16 @@ export default function UserPage({ }) {
 
    const { showConfirmationModal } = useConfirmationModal();
 
+
+   const { showNotification } = useNotificationAlert();
+
    const { config } = useConfig();
 
 
    const [formTitle, setFormTilte] = useState("");
 
    const [currentFormAction, setCurrentFormAction] = useState("");
+
 
 
    const groupedData = useMemo(() => {
@@ -106,6 +116,7 @@ export default function UserPage({ }) {
       }, {});
 
    }, [config.user_layout]);
+
 
 
 
@@ -142,13 +153,22 @@ export default function UserPage({ }) {
          if (response.status >= 200 && response.status <= 299) {
             logger.log("User Data:", response.data)
             setUserData(response.data);
+            setDataIsLoad(true);
+            closeLoadModal();
          }
       }).catch(err => {
          logger.error(err);
+
+         if (err.message === "unmount")
+            return;
+
+         setDataIsLoad(false);
+         showNotification("error", "Oohh!!! ", `${err}`);
       }).finally(() => {
          closeLoadModal();
       })
    }
+
 
 
    useEffect(() => {
@@ -179,6 +199,9 @@ export default function UserPage({ }) {
          openLoadModal();
          close();
 
+         let succes = false;
+
+
          const mergedData = singleUserData.reduce((acc, obj) => {
             return { ...acc, ...obj.data };
          }, {});
@@ -192,13 +215,16 @@ export default function UserPage({ }) {
             if (r.status >= 200 && r.status <= 299) {
                getUsers()
                alertController.notifySuccess(successMessage);
+               succes = true;
             }
+
          }).catch(err => {
             closeLoadModal();
             logger.error("USER ACTION ERROR", err);
             alertController.notifyError(errMessage);
          }).finally(() => {
-            resetFormData();
+            if (succes)
+               resetFormData();
          })
 
       })
@@ -306,7 +332,7 @@ export default function UserPage({ }) {
 
    return (
       <>
-         <div className="">
+         <div className={`${dataIsLoad ? "opacity-100" : "opacity-0"}  `}>
             {userData && <TableDataGrid rawData={userData} configLayout={config.user_layout}
 
                onUpdate={handleUpdateAction}
