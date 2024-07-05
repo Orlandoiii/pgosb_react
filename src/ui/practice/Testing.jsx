@@ -299,16 +299,24 @@ export default function Testing({ }) {
 
         <>
 
-
-           <LoadingModal open={true}></LoadingModal>
- 
-
+            <div className="w-full flex flex-col justify-center items-center"></div>
             <div className="max-w-[520px] mx-auto">
                 <Button onClick={handleClick}>Open Modal</Button>
             </div>
 
 
-
+            <div>
+                <h1>PDF TEST</h1>      
+                  <PDFDownloadLink document={<PDFtest />} fileName="registeruser.pdf">
+                     {({ loading, url, error, blob }) =>
+                         loading ? (
+                             <button  >Cargando documento...</button>
+                         ) : (
+                              <Button>Descargar PDF</Button>
+                           )
+                     }
+                 </PDFDownloadLink> 
+            </div>
         </>
     )
 }
