@@ -32,7 +32,7 @@ function RegisterRole({ open, onClose,
                     <div className='flex justify-center items-center w-full space-x-3'>
                         <p className='text-lg font-medium'>Nombre del Rol:</p>
                         <div className='w-[60%]'>
-                            <Input readOnly={readonly} inputName={"role_name"} label={""} controlled={true} value={roleName}
+                            <Input readOnly={readonly} inputName={"role_name"} label={""} controlled={readonly} value={roleName}
                                 onChangeEvent={(e) => {
                                     if (readonly)
                                         return;

@@ -58,17 +58,41 @@ export function translateAndConvertPermissions(
         }
     }
 
-    // Convert to ModuleAccess array
     const moduleAccessList: ModuleAccess[] = [];
     for (const moduleName in translated) {
         const defaultPermissions = new DefaultPermissions();
         for (const perm in translated[moduleName]) {
             defaultPermissions[perm as keyof DefaultPermissions] =
-                translated[moduleName][perm] ? ButtonStates.true : ButtonStates.false; // Convert to ButtonStates
+                translated[moduleName][perm] ? ButtonStates.true : ButtonStates.false;
         }
+
+        // Infer "ver" property
+        defaultPermissions.ver = ButtonStates.true; // Since the module exists
 
         moduleAccessList.push(new ModuleAccess(moduleName, defaultPermissions));
     }
 
     return moduleAccessList;
+}
+
+
+export function moduleAccessToBackendFormat(
+    modules: ModuleAccess[],
+    reversedModuleNameDictionary: { [key: string]: string },
+    reversedPropDictionary: { [key: string]: string }
+): any {
+    const result: any = {};
+
+    for (const module of modules) {
+        const moduleKey = reversedModuleNameDictionary[module.Name] || module.Name;
+        result[moduleKey] = {};
+        for (const perm in module.Permissions) {
+            if (perm !== "ver") {
+                const permKey = reversedPropDictionary[perm] || perm;
+                result[moduleKey][permKey] = module.Permissions[perm as keyof DefaultPermissions] === ButtonStates.true;
+            }
+        }
+    }
+
+    return result;
 }

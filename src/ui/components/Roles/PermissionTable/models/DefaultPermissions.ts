@@ -6,4 +6,6 @@ export class DefaultPermissions {
     editar: ButtonStates = ButtonStates.false;
     borrar: ButtonStates = ButtonStates.false;
     imprimir: ButtonStates = ButtonStates.false;
+    exportar: ButtonStates = ButtonStates.false;
+
 }

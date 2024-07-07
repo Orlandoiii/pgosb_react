@@ -52,6 +52,14 @@ const propDictonary = {
     "print": "imprimir"
 }
 
+const reversedPropDictonary = {
+    "agregar": "add",
+    "borrar": "delete",
+    "editar": "update",
+    "exportar": "export",
+    "imprimir": "print"
+}
+
 
 
 async function deleteRols(rols, config, getRols) {
@@ -241,14 +249,26 @@ function RolesPageInternal({ }) {
 
 
 
-        setFormTilte("Actualización de Rol");
-        setCurrentFormAction("update");
-        setButtonTitle("Actualizar")
+        setFormTilte("Actualizar Rol");
+        setCurrentFormAction("read");
+        setButtonTitle("Editar")
 
         setReadOnlyForm(false)
 
+        setRoleId(role.id);
+        setRoleName(role.role_name)
+
+        let stateRole = true;
+        if (role.st_role == "0")
+            stateRole = false;
+
+        setRoleStatus(stateRole);
+
+        const permissions = translateAndConvertPermissions(
+            JSON.parse(role.access_schema), moduleNameDictonary, propDictonary)
 
         setOpenAddForm(true);
+        setStatePermission(permissions);
 
 
     }
@@ -268,7 +288,7 @@ function RolesPageInternal({ }) {
         setReadOnlyForm(true)
 
         setRoleId(role.id);
-        setRoleName(role.name)
+        setRoleName(role.role_name)
 
         let stateRole = true;
         if (role.st_role == "0")
