@@ -1,20 +1,37 @@
 import { ToastContainer } from "react-toastify";
 import Navbar from "../../core/navbar/Navbar";
 import Sidebar from "../../core/sidebar/Sidebar";
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 import logger from "../../../logic/Logger/logger";
 import ConfirmationModalProvider from "../../core/modal/ModalConfirmation";
+import { useEffect } from "react";
+import { useAuth } from "../Authentication/AuthProvider";
+import axios from "axios";
+
 
 export default function MainLayout({ }) {
 
    logger.log("Renderizo MainLayout")
 
+   axios.defaults.withCredentials = true;
+
+   const { state } = useAuth();
+
+   const navigate = useNavigate();
+
+
+   useEffect(() => {
+      if (!state.isAuthenticated)
+         navigate("/login");
+   }, [state.isAuthenticated])
+
+
    return (
       <>
 
          <ConfirmationModalProvider>
-            <div className='flex h-screen overflow-hidden transition-all'>
+            {state.isAuthenticated && <div className='flex h-screen overflow-hidden transition-all'>
                <Sidebar />
                <div className='w-full h-full overflow-hidden'>
                   <Navbar />
@@ -28,7 +45,7 @@ export default function MainLayout({ }) {
                   </div>
                </div>
             </div>
-            <div id="modal-root"></div>
+            }
          </ConfirmationModalProvider>
          <ToastContainer
             style={{ width: "420px" }}

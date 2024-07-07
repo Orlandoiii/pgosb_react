@@ -1,9 +1,10 @@
 import { useRef } from "react";
-import ModalContainer from "../../../core/modal/ModalContainer";
-import Stepper from "../../Stepper/Stepper";
-import Accordion from "../../../core/accordion/Accordion";
-import Button from "../../../core/buttons/Button";
-import logger from "../../../../logic/Logger/logger";
+import ModalContainer from "../../core/modal/ModalContainer";
+import Stepper from "../Stepper/Stepper";
+import Accordion from "../../core/accordion/Accordion";
+import logger from "../../../logic/Logger/logger";
+import Button from "../../core/buttons/Button";
+
 
 
 

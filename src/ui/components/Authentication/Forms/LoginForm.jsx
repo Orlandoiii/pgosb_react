@@ -36,6 +36,23 @@ function LockIcon() {
     )
 }
 
+const ruleUsername = {
+    required: {
+        value: true,
+        message: "El nombre de usuario es requerido",
+    }
+}
+
+const rulePassword = {
+    required: {
+        value: true,
+        message: "La contraseña es requerida",
+    }
+}
+
+
+
+
 
 export default function LoginForm({ onSubmit }) {
 
@@ -45,7 +62,7 @@ export default function LoginForm({ onSubmit }) {
 
 
     function handleSubmitInternal(data) {
-        lo.log(data);
+        logger.log("LOGIN DATA:", data);
         if (onSubmit)
             onSubmit(data);
     }
@@ -55,17 +72,18 @@ export default function LoginForm({ onSubmit }) {
     return (
 
         <section className="relative h-screen w-full  py-6 px-2 shadow-md rounded-xl 
-            border border-slate-150 flex flex-col justify-between items-center sm:h-auto sm:max-w-[30rem]  bg-[whitesmoke] bg-opacity-[0.98] sm:z-10">
+            border border-slate-150 flex flex-col justify-between items-center sm:h-auto sm:max-w-[30rem]  
+            bg-[whitesmoke] bg-opacity-[0.98] sm:z-10">
 
-            <div className="py-6 px-6  md:min-w-[500px] md:min-h-[600px]">
+            <div className="py-6 px-6 min-w-[360px] sm:min-w-[440px]  md:min-w-[500px] md:min-h-[560px]">
 
                 <div className="mb-8 flex justify-center items-center space-x-2">
                     <FireLogo width="w-[70px]" height="h-[70px]" bgColor="" />
                     <h1 className="uppercase text-5xl ">pgsob</h1>
                 </div>
 
-                <h2 className="text-center mb-8 text-lg">
-                    Coloca usuario o correo y contraseña para ingresar
+                <h2 className="text-center mb-8  text-lg md:text-xl">
+                    Coloca usuario y contraseña para ingresar
                 </h2>
 
                 <form noValidate className="flex flex-col justify-center bg-inherit"
@@ -73,30 +91,43 @@ export default function LoginForm({ onSubmit }) {
 
                     <div className="space-y-6">
 
-                        <Input register={register}
-                            label={"Usuario o correo"} useDotLabel={true}
-                            inputName={"username"} placeHolder="Jondoe"
-                            errMessage={errors.username?.message}
+                        <Input
+                            register={register}
+                            label={"Usuario"}
+                            useDotLabel={true}
+                            useStrongErrColor={isSubmitted}
+                            inputName={"user_name"}
+                            placeHolder="jondoe"
+                            validationRules={ruleUsername}
+                            errMessage={errors.user_name?.message}
                             icons={<MessageIcon />}
                         />
 
-                        <Input label={"Contraseña"} inputName={"password"}
-                            useDotLabel={true} placeHolder="********"
+                        <Input
+                            register={register}
+                            label={"Contraseña"}
+                            inputName={"password"}
+                            useStrongErrColor={isSubmitted}
+                            useDotLabel={true}
+                            placeHolder="********"
                             errMessage={errors.password?.message}
                             type="password"
+                            validationRules={rulePassword}
                             icons={<LockIcon />}
                         />
                     </div>
 
-                    <a className="mt-5 text-sm cursor-pointer  text-[#0088ce] 
-                        self-end hover:underline">¿Has olvidado tu contraseña?</a>
+                    {/* <a className="mt-5 text-sm cursor-pointer  text-[#0088ce] 
+                        self-end hover:underline">¿Has olvidado tu contraseña?</a> */}
 
 
-                    <div className="w-full flex flex-col space-y-3 mt-4">
+                    <div className="w-full   mt-8">
 
-                        <Button>Ingresar</Button>
 
-                        <Button>Registrarse</Button>
+                        <Button width="w-full" height="h-[60px]">Ingresar</Button>
+
+
+
 
                     </div>
                 </form>

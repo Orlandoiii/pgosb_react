@@ -1,18 +1,32 @@
+import { useNavigate } from "react-router-dom";
 import logger from "../../../logic/Logger/logger"
+import { useAuth } from "./AuthProvider";
 import LoginForm from "./Forms/LoginForm"
+import { useEffect } from "react";
 
-export default function LoginPage({ onAuthenticated }) {
+
+export default function LoginPage({ }) {
 
 
     logger.log("Renderizando LoginPage");
-    function handleSubmit() {
-        if (onAuthenticated) {
-            onAuthenticated();
-        }
+
+
+    const { state, login } = useAuth();
+
+    const navigate = useNavigate();
+    function handleSubmit(data) {
+        login(data)
     }
+
+    useEffect(() => {
+
+        if (state.isAuthenticated) {
+            navigate("/");
+        }
+    }, [state.isAuthenticated])
     return (
         <>
-            <div className="h-screen w-full bg-gray-200 flex flex-col justify-center login-bg">
+            {!state.isAuthenticated && <div className="h-screen w-full bg-gray-200 flex flex-col justify-center login-bg">
                 <div className="relative py-3 sm:max-w-xl sm:mx-auto">
                     <div
                         className=" sm:absolute inset-0 bg-gradient-to-r from-[#0A2F4E] to-[#3C50E0]
@@ -20,7 +34,7 @@ export default function LoginPage({ onAuthenticated }) {
                     </div>
                     <LoginForm onSubmit={handleSubmit} />
                 </div>
-            </div>
+            </div>}
         </>
     )
 

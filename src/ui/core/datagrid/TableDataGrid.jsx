@@ -150,11 +150,7 @@ const checkBoxHeader = {
 export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpdate, onDelete }) {
 
 
-    logger.log("Renderizo TableDataGrid");
-
-    if (!rawData)
-        return <></>
-
+    logger.log("LOAD MODAL Renderizo TableDataGrid");
 
     const { layout } = useLayout()
 

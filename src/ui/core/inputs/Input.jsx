@@ -67,7 +67,7 @@ export default function Input({
     return (
         <div className={`group w-full relative flex flex-col justify-center`}>
 
-            <label className={`block text-sm mb-2`} htmlFor={inputName}>
+            <label className={`block text-[0.9rem] mb-2`} htmlFor={inputName}>
                 {`${useDotLabel ? label + ":" : label}`}
             </label>
 
@@ -90,7 +90,7 @@ export default function Input({
                     id={inputName}
                     type={type}
                     {...(controlled ? { value: value } : { defaultValue: value })}
-                    
+
                     {...(turnOffAutoCompleted ? { autoComplete: "off" } : {})}
 
                     name={inputName}
@@ -103,16 +103,16 @@ export default function Input({
                     onMouseDown={onMouseDown}
                     onBlur={handleOnBlur}
 
-
-
                 />
                 {icons}
 
             </div>
-            {errMessage && errMessage?.length > 0 ?
-                <span className={`text-xs font-light p-1 bg-transparent  
-                ${useStrongErrColor ? "text-rose-500" : "text-slate-500"} `}>{errMessage}</span>
-                : null}
+
+            <span className={`absolute left-0 top-full w-full overflow-x-hidden 
+                text-ellipsis whitespace-nowrap text-[0.8rem]  px-2 bg-transparent transition-all ease-in-out duration-500
+                ${useStrongErrColor ? "text-rose-500" : "text-slate-500"} 
+                ${errMessage && errMessage?.length > 0 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"}`}>{errMessage}</span>
+
 
 
         </div>

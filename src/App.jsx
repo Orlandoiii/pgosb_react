@@ -14,11 +14,10 @@ import logger from "./logic/Logger/logger.js";
 import StationPage from "./ui/components/Stations/StationPage.jsx";
 import LocationPage from "./ui/components/Locations/LocationPage.jsx";
 import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCenterPage.jsx";
-import DragBoxComponent from "./ui/practice/DragBox.jsx";
-import LoadModalContextProvider from "./ui/core/modal/LoadingModal.jsx";
 import ConfigContextProvider from "./logic/Config/ConfigContext.jsx";
-import NotificationModalContextProvider from "./ui/core/alerts/NotificationModal.jsx";
-import LayoutContexProvider from "./ui/core/context/LayoutContext.jsx";
+import LoginPage from "./ui/components/Authentication/LoginPage.jsx";
+import AuthProvider from "./ui/components/Authentication/AuthProvider.jsx";
+import RolesPages from "./ui/components/Roles/RolesPages.jsx";
 
 
 
@@ -31,9 +30,7 @@ const router = createBrowserRouter([
       children: [
          {
             path: "users/",
-            element: (<LayoutContexProvider layoutName={"user_layout"}>
-               <UserPage />
-            </LayoutContexProvider>)
+            element: <UserPage />
 
          },
          {
@@ -42,7 +39,7 @@ const router = createBrowserRouter([
          },
          {
             path: "roles/",
-            element: <ComingSoonPage />
+            element: <RolesPages />
          },
          {
             path: "stations/",
@@ -66,23 +63,21 @@ const router = createBrowserRouter([
          }
 
       ]
-
    },
 
    {
       path: "error",
       element: <ErrorPage />
    },
-
    {
-      path: "dragbox",
-      element: <DragBoxComponent />
+      path: "login",
+      element: <LoginPage />,
+      errorElement: <ErrorPage />
    },
-
-
    {
       path: "*",
-      element: <NotFound />
+      element: <NotFound />,
+      errorElement: <ErrorPage />
    }
 ]);
 
@@ -92,11 +87,13 @@ function App() {
 
    return (
       <>
-         <NotificationModalContextProvider>
-            <ConfigContextProvider>
+
+         <ConfigContextProvider>
+            <AuthProvider>
                <RouterProvider router={router} />
-            </ConfigContextProvider >
-         </NotificationModalContextProvider>
+            </AuthProvider>
+         </ConfigContextProvider >
+
       </>
    )
 

@@ -3,7 +3,6 @@ import LetterIcon from "../icons/LetterIcon";
 import ThinArrowIcon from "../icons/ThinArrowIcon";
 import FiremanImg from '../../../assets/fireman.png'
 import logger from "../../../logic/Logger/logger";
-import { useNotificationAlert } from "../alerts/NotificationModal";
 
 
 
@@ -11,7 +10,6 @@ import { useNotificationAlert } from "../alerts/NotificationModal";
 export default function Navbar({ onBellIconClik }) {
     logger.log("Renderizo Navbar")
 
-    const { showNotification } = useNotificationAlert();
     return (
 
         <nav className='sticky top-0 flex w-full h-[80px] 
@@ -25,9 +23,7 @@ export default function Navbar({ onBellIconClik }) {
                     <div className='flex items-center space-x-3'>
 
 
-                        <div onClick={() => {
-                            showNotification("success", "Ohhh! Error", "No pudimos cargar datos")
-                        }} className="p-2 w-[34px] h-[34px] rounded-full bg-slate-200 flex justify-center items-center">
+                        <div className="p-2 w-[34px] h-[34px] rounded-full bg-slate-200 flex justify-center items-center">
                             <BellIcon />
                         </div>
 

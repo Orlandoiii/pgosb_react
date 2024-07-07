@@ -9,7 +9,11 @@ export function LoadingModal({ open }) {
     logger.log("Renderizo LoadModal", open)
     return (
 
-        <AnimatePresence>
+        <AnimatePresence
+            initial={false}
+            onExitComplete={() => null}
+
+        >
             {open &&
                 <Backdrop>
                     <motion.div

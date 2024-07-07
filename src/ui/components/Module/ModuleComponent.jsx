@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
-import { RegisterUser } from "./Register/RegisterUser"
 import axios from "axios";
 import { useConfig } from "../../../logic/Config/ConfigContext";
 import logger from "../../../logic/Logger/logger";
@@ -8,13 +7,14 @@ import { LoadingModal } from "../../core/modal/LoadingModal";
 import { Detail } from "../../core/detail/Detail";
 import { useConfirmationModal } from "../../core/modal/ModalConfirmation";
 import AlertController from "../../core/alerts/AlertController";
-import { useNotificationAlert } from "../../core/alerts/NotificationModal";
+import { RegisterModuleComponent } from "./RegisterModuleComponent";
+import { useLayout } from "../../core/context/LayoutContext";
 const alertController = new AlertController();
 
 
 
 
-async function deleteRegisters(registers, detailTitle, deleteConfig, config, getRegisters) {
+async function deleteRegisters(registers, deleteConfig, config, getRegisters) {
     try {
         const deletePromises = registers.map((register) => {
             const endpoint = `${config.back_url}${deleteConfig.endpoint}${register.id}`;
@@ -41,7 +41,7 @@ async function deleteRegisters(registers, detailTitle, deleteConfig, config, get
     }
 }
 
-export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addConfig, updateConfig }) {
+export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addConfig, updateConfig, steps, detailTitle }) {
 
     const [openAddForm, setOpenAddForm] = useState(false);
 
@@ -62,10 +62,12 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
 
 
     function openLoadModal() {
+        logger.info("LOAD MODAL OPEN");
         setShowLoadModal(true);
     }
 
     function closeLoadModal() {
+        logger.info("LOAD MODAL CLOSE");
         setShowLoadModal(false);
     }
 
@@ -73,7 +75,7 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
     const { showConfirmationModal } = useConfirmationModal();
 
 
-    const { showNotification } = useNotificationAlert();
+    // const { showNotification } = useNotificationAlert();
 
     const { config } = useConfig();
 
@@ -100,6 +102,7 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
                 setData(response.data);
                 setDataIsLoad(true);
                 closeLoadModal();
+                logger.info("LOAD MODAL DATA REGISTER")
             }
         }).catch(err => {
             logger.error(err);
@@ -108,9 +111,9 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
                 return;
 
             setDataIsLoad(false);
-            showNotification("error", "Oohh!!! ", `${err}`);
+            //showNotification("error", "Oohh!!! ", `${err}`);
         }).finally(() => {
-            closeLoadModal();
+
         })
     }
 
@@ -267,7 +270,7 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
 
             openLoadModal();
             resolve(true)
-            deleteRegisters(registers, config, getRegisters)
+            deleteRegisters(registers, deleteConfig, config, getRegisters)
 
         })
 
@@ -292,13 +295,19 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
                         setOpenDetailModal(true);
                     }} />}
 
-                <RegisterUser data={singleRegisterData}
-                    showAccordion={showAccordion} setShowAccordion={setShowAccordion}
-                    onSetUserData={setSingleRegisterData} showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
-                    onFinish={resetFormData} onSubmit={handleSubmit} title={formTitle} fieldDefinition={fieldDefinition} />
+                <RegisterModuleComponent
+                    showModal={openAddForm}
+                    onClose={() => { setOpenAddForm(false) }}
+                    data={singleRegisterData}
+                    showAccordion={showAccordion}
+                    setShowAccordion={setShowAccordion}
+                    onSetData={setSingleRegisterData}
+                    onFinish={resetFormData} onSubmit={handleSubmit} title={formTitle}
+                    steps={steps}
+                />
 
-                <Detail data={detail} showDetail={openDetailModal} title={detailTitle} fieldDefinition={fieldDefinition}
-                    onClose={() => setOpenDetailModal(false)} configLayout={layout} groupDefinition={groupDefinition} />
+                <Detail data={detail} showDetail={openDetailModal} title={detailTitle}
+                    onClose={() => setOpenDetailModal(false)} />
 
             </div>
 

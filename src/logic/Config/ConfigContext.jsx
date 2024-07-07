@@ -1,9 +1,8 @@
-import React, { createContext, useContext, useReducer } from 'react';
+import React, { createContext, useContext, useReducer, useState } from 'react';
 import { useEffect } from 'react';
-import { useLoadModal } from '../../ui/core/modal/LoadingModal';
+import { LoadingModal, useLoadModal } from '../../ui/core/modal/LoadingModal';
 import logger from '../Logger/logger';
 import axios from 'axios';
-import { useNotificationAlert } from '../../ui/core/alerts/NotificationModal';
 
 
 export async function Wait(miliseconds = 1000) {
@@ -95,13 +94,15 @@ async function LoadLayout(endpoint) {
 const endpoints = [
     { endpoint: "/api/v1/layout/user", layout: "user_layout" },
     { endpoint: "/api/v1/layout/unit", layout: "unit_layout" },
-    { endpoint: "/api/v1/layout/stations", layout: "station_layout" }]
+    { endpoint: "/api/v1/layout/stations", layout: "station_layout" },
+    { endpoint: "/api/v1/layout/rol", layout: "rol_layout" }
+]
 
 async function LoadAllLayout(config) {
 
     const back_url = config.back_url;
 
-    
+
 
     const results = endpoints.map(async (e, _) => {
 
@@ -168,7 +169,8 @@ async function LoadConfig() {
 const configInitialState = {
     config: {},
     isLoading: true,
-    error: null
+    error: null,
+    reload: false
 }
 
 const ConfigContext = createContext();
@@ -185,6 +187,16 @@ function reducer(state, action) {
         case "config/error":
             return { ...state, error: action.err, isLoading: false }
 
+        case "config/reload":
+            {
+                return { ...state, reload: true }
+            }
+        case "config/loading":
+            {
+                return { ...state, isLoading: !state.isLoading }
+            }
+
+
         default:
             return state
     }
@@ -194,28 +206,42 @@ function reducer(state, action) {
 export default function ConfigContextProvider({ children }) {
     const [state, dispatch] = useReducer(reducer, configInitialState);
 
-    const { openLoadModal, closeLoadModal } = useLoadModal();
 
-    const { showNotification } = useNotificationAlert();
 
     useEffect(() => {
-        openLoadModal();
         const fetchConfig = async () => {
+            logger.log("LOAD MODAL OPEN")
+            // setOpenLoadModal(true);
             let c = await LoadConfig()
-            closeLoadModal();
+
+            // setOpenLoadModal(false);
+            logger.log("LOAD MODAL CLOSE")
             if (c.success) {
                 dispatch({ type: "config/update", config: c.config });
             } else {
                 dispatch({ type: "config/error", err: c.err });
-                showNotification("error", "Ohhh! Error iniciando app", "No se pudo cargar config inicial")
             }
+
+
         };
         fetchConfig();
-    }, [dispatch])
+    }, [])
+
+
+    useEffect(() => {
+        if (state.reload) {
+            dispatch({ type: "config/loading" })
+            setTimeout(() => {
+                dispatch({ type: "config/loading" })
+            }, 50)
+        }
+    }, [state.reload])
 
     return (
-        <ConfigContext.Provider value={{ config: state.config }}>
+        <ConfigContext.Provider value={{ config: state.config, dispatch }}>
+
             {!state.isLoading && children}
+            <LoadingModal open={state.isLoading} />
         </ConfigContext.Provider>
     )
 }
