@@ -8,11 +8,16 @@ import LocationIcon from "../icons/LocationIcon"
 import AmbulanceIcon from "../icons/AmbulanceIcon"
 import FireLogo from "../logo/FireLogo"
 import logger from "../../../logic/Logger/logger"
+import { LogOutIcon } from "../icons/LogOutIcon"
+import { useAuth } from "../../components/Authentication/AuthProvider"
 
 export default function Sidebar({ }) {
 
     logger.log("Renderizo SideBar");
-    
+
+
+    const { logout } = useAuth();
+
     return (
 
         <aside className='absolute top-0 z-10 h-screen min-w-[300px]  rounded-ms 
@@ -28,7 +33,7 @@ export default function Sidebar({ }) {
             </div>
             <div className='flex flex-col overflow-y-auto no-scrollbar'>
 
-                <nav className='w-full  mt-8 px-4'>
+                <nav className='w-full mt-8 px-4'>
 
                     <div className='space-y-3'>
 
@@ -40,16 +45,31 @@ export default function Sidebar({ }) {
                             <SideBarLink link="/roles" icon={<RolsIncon />} name='Roles' />
                             <SideBarLink link="/units" icon={<UnitIcon />} name='Unidades' />
                             <SideBarLink link="/stations" icon={<StationIcon />} name='Estaciones' />
-                            <SideBarLink link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' />
+                            {/* <SideBarLink link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' /> */}
                             <SideBarLink link="/locations" icon={<LocationIcon />} name='Ubicaciones' />
                             {/* <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' /> */}
 
                         </div>
+
+
+
                     </div>
+
+
 
 
                 </nav>
             </div>
+            <button className="absolute  w-full px-6 top-[90%]" onClick={() => { logout() }}>
+
+                <div className=" py-3 flex  items-center space-x-4 hover:bg-[#1C6DB4] 
+                hover:text-white rounded-md  px-2">
+                    <LogOutIcon />
+                    <p className="text-white text-xl">Cerrar Sesion</p>
+                </div>
+
+            </button>
+
         </aside>
 
     )

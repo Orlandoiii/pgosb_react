@@ -58,7 +58,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-3 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[720px]">
 
                     <div className="md:flex md:space-x-2">
                         <Input
@@ -225,7 +225,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                                     useDotLabel={true}
                                     options={genders}
                                     value={genders[0]}
-                                    openUp={false} />
+                                    openUp={true} />
                             </div>
                         </div>
 

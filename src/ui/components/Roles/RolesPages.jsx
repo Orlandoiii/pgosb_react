@@ -39,7 +39,7 @@ const reversedModuleNameDictionary = {
     users: "Usuarios",
     roles: "Roles",
     units: "Unidades",
-    stations: "Stations",
+    stations: "Estaciones",
     assistential_centers: "Centros Asistenciales",
     locations: "Ubicaciones",
 };
@@ -265,7 +265,7 @@ function RolesPageInternal({ }) {
         setRoleStatus(stateRole);
 
         const permissions = translateAndConvertPermissions(
-            JSON.parse(role.access_schema), moduleNameDictonary, propDictonary)
+            JSON.parse(role.access_schema), reversedModuleNameDictionary, propDictonary)
 
         setOpenAddForm(true);
         setStatePermission(permissions);
@@ -297,7 +297,7 @@ function RolesPageInternal({ }) {
         setRoleStatus(stateRole);
 
         const permissions = translateAndConvertPermissions(
-            JSON.parse(role.access_schema), moduleNameDictonary, propDictonary)
+            JSON.parse(role.access_schema), reversedModuleNameDictionary, propDictonary)
 
         setOpenAddForm(true);
         setStatePermission(permissions);

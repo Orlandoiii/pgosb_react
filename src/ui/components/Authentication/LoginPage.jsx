@@ -2,7 +2,40 @@ import { useNavigate } from "react-router-dom";
 import logger from "../../../logic/Logger/logger"
 import { useAuth } from "./AuthProvider";
 import LoginForm from "./Forms/LoginForm"
-import { useEffect } from "react";
+import { useEffect, useReducer, useState } from "react";
+import { LoadingModal } from "../../core/modal/LoadingModal";
+import { NotificationModal, useNotificationAlert } from "../../core/alerts/NotificationModal";
+
+
+const notificationInitialState = {
+    open: false,
+    message: "",
+    type: "info",
+    title: "",
+}
+
+function notificationReducer(state, action) {
+
+    switch (action.type) {
+        case "notification/open":
+            return {
+                ...state,
+                open: true,
+                title: action.payload.title,
+                message: action.payload.message,
+                type: action.payload.type
+
+            }
+        case "notification/close":
+            return {
+                ...state,
+                open: false,
+            }
+    }
+
+
+    return state;
+}
 
 
 export default function LoginPage({ }) {
@@ -14,8 +47,28 @@ export default function LoginPage({ }) {
     const { state, login } = useAuth();
 
     const navigate = useNavigate();
+
+    const [loading, setLoading] = useState(false);
+
+    const [notificationState, dispatch] = useReducer(notificationReducer, notificationInitialState);
+
     function handleSubmit(data) {
+        setLoading(true);
         login(data)
+            .catch(err => {
+                logger.error(err);
+                dispatch({
+                    type: "notification/open",
+                    payload: {
+                        type: "error",
+                        title: "Oohh Error!!!",
+                        message: "Lo sentimos tenemos problemas para realizar el login"
+                    }
+                })
+
+            }).finally(() => {
+                setLoading(false);
+            })
     }
 
     useEffect(() => {
@@ -35,6 +88,15 @@ export default function LoginPage({ }) {
                     <LoginForm onSubmit={handleSubmit} />
                 </div>
             </div>}
+            <LoadingModal open={loading} />
+            <NotificationModal
+                show={notificationState.open}
+                onClose={() => dispatch({ type: "notification/close" })}
+                type={notificationState.type}
+                title={notificationState.title}
+                message={notificationState.message}
+            />
+
         </>
     )
 

@@ -1,13 +1,13 @@
 import { useContext, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import { useForm } from "react-hook-form";
-import FormTitle from "../../../core/titles/FormTitle";
 import Input from "../../../core/inputs/Input";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
+import AddInput from "../../../core/inputs/AddInput";
 
 const requiredRule = {
     required: {
-        value: false,
+        value: true,
         message: "El campo es requerido",
     }
 }
@@ -22,7 +22,9 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
     const { errors, isSubmitted } = formState;
 
+    const [details, setDetails] = useState([]);
 
+    const [condtions, setConditions] = useState([]);
 
 
     function handleSubmitInternal(data) {
@@ -53,7 +55,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-3 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[720px]">
 
                     <div className="md:flex md:space-x-2">
 
@@ -211,6 +213,45 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
 
 
+                    <div className="md:flex md:space-x-2">
+
+                        <AddInput
+
+                            label={"Detalles"}
+                            inputName={"details"}
+                            useDotLabel={true}
+                            placeHolder="Ejem: Tiene una ventana rota"
+                            useStrongErrColor={isSubmitted}
+                            items={details}
+                            setItems={setDetails}
+                        />
+
+
+
+                        <Input
+
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.unit_condition?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Condicion de la Unidad"}
+                            inputName={"unit_condition"}
+                            useDotLabel={true}
+                            placeHolder="En Perfecto Estado"
+
+                        />
+
+
+
+
+
+
+
+
+
+                    </div>
 
                 </div>
 

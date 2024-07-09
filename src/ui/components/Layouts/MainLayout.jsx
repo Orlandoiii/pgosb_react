@@ -7,14 +7,12 @@ import logger from "../../../logic/Logger/logger";
 import ConfirmationModalProvider from "../../core/modal/ModalConfirmation";
 import { useEffect } from "react";
 import { useAuth } from "../Authentication/AuthProvider";
-import axios from "axios";
 
 
 export default function MainLayout({ }) {
 
    logger.log("Renderizo MainLayout")
 
-   axios.defaults.withCredentials = true;
 
    const { state } = useAuth();
 

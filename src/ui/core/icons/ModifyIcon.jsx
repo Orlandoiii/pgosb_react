@@ -1,5 +1,5 @@
 export default function ModifyIcon({ active = false }) {
-    const color = active ? "#000000" : "#A3AAB6"
+    const color = active ? "#0A2F4E" : "#A3AAB6"
 
     return (
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

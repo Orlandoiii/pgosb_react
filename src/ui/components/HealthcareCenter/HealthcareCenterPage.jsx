@@ -1,33 +1,80 @@
-import { useState } from "react"
-import TableDataGrid from "../../core/datagrid/TableDataGrid"
-import AlertController from "../../core/alerts/AlertController";
-import mockData from "../../../assets/MOCK_DATA_ESTACIONES.json"
-import { RegisterHealthcareCenter } from "./Register/RegisterHealthcareCenter";
-import { HealthcareFieldDictonary } from "./Register/HealthcareFieldDictonary";
+import LayoutContexProvider from "../../core/context/LayoutContext";
+import ModuleComponent from "../Module/ModuleComponent";
+import LocationForm from "../Locations/Forms/LocationForm"
+import HealthcareCenterForm from "./Forms/HealthcareCenterForm"
 
-export default function HealthcareCenterPage({ }) {
-
-   const [openAddForm, setOpenAddForm] = useState(false);
-
-   const notifyController = new AlertController();
-
-   function onUpdate() {
-      notifyController.notifySuccess("Un mensaje exitoso")
-      notifyController.notifyInfo("Un mensaje exitoso")
-
-      notifyController.notifyWarning("Un mensaje exitoso")
-      notifyController.notifyError("Un mensaje exitoso")
-
+function HealthCreateActionData(config) {
+   return {
+      title: "Registro de Centro Asistencial",
+      message: "Esta seguro que desea registrar el Centro Asistencial con los datos antes mostrados ?",
+      successMessage: "Centro Asistencial guardado exitosamente",
+      errMessage: "No se pudo guardar el Centro Asistencial",
+      endpoint: `${config.back_url}/api/v1/location/station/create`,
+      method: "post"
    }
+}
 
+function HealthUpdateActionData(config) {
+   return {
+      title: "Actualizacion de Centro Asistencial",
+      message: "Esta seguro que desea actualizar el Centro Asistencial con los datos antes mostrados ?",
+      successMessage: "Centro Asistencial actualizado Exitosamente",
+      errMessage: "No se pudo actualizar el Centro Asistencial",
+      endpoint: `${config.back_url}/api/v1/location/station/update`,
+      method: "put"
+   }
+}
+
+const getAllDataEndpoint = '/api/v1/location/station/all';
+
+const deleteConfig = {
+   singleDeleteTitle: 'Eliminar Centro Asistencial',
+   multipleDeleteTitles: 'Eliminar Centros Asistenciales',
+   successMessage: 'Centro Asistencial eliminado exitosamente:',
+   failMessage: 'Error al eliminar el Centro Asistencial.',
+   endpoint: '/api/v1/station/',
+   showPropertyName: 'id',
+};
+const addConfig = {
+   title: 'Agregar Nuevo Centro Asistencial',
+   AddActionData: HealthCreateActionData
+};
+const updateConfig = {
+   title: 'Actualizar Centro Asistencial',
+   UpdateActionData: HealthUpdateActionData
+};
+
+
+const detailTitle = "Detalles del Centro Asistencial";
+
+const stepsObjects = [
+   {
+      title: "Datos Básicos",
+      content: <HealthcareCenterForm />,
+
+   },
+   {
+      title: "Ubicación",
+      content: <LocationForm />
+   }
+]
+
+
+
+
+export default function StationPage({ }) {
    return (
       <>
-         <div className="">
-            <TableDataGrid rawData={mockData} onAdd={() => { setOpenAddForm(true) }}
-               onUpdate={onUpdate} configHeader={HealthcareFieldDictonary} />
-            <RegisterHealthcareCenter showModal={openAddForm} onClose={() => { setOpenAddForm(false) }}
-               onFinish={() => { setOpenAddForm(false) }} />
-         </div>
+         <LayoutContexProvider layoutName={"station_layout"}>
+            <ModuleComponent
+               getAllDataEndpoint={getAllDataEndpoint}
+               deleteConfig={deleteConfig}
+               updateConfig={updateConfig}
+               addConfig={addConfig}
+               steps={stepsObjects}
+               detailTitle={detailTitle}
+            />
+         </LayoutContexProvider>
       </>
 
    )

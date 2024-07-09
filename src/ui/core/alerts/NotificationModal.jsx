@@ -54,7 +54,7 @@ function InfoIcon({ }) {
 }
 
 
-function NotificationModal({ show, onClose, type = "info", title, message }) {
+export function NotificationModal({ show, onClose, type = "info", title, message }) {
 
     let icon = <></>;
 
@@ -107,7 +107,7 @@ function NotificationModal({ show, onClose, type = "info", title, message }) {
                             </svg>
                         </button>
                         {icon}
-                        <div className="text-center space-y-2">
+                        <div className="text-center space-y-2 max-w-[370px] min-h-[120px] p-2">
                             <h3 className="text-3xl font-semibold">{title}</h3>
                             <p className="text-lg">{message}</p>
                         </div>

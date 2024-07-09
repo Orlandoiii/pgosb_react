@@ -11,13 +11,13 @@ import UserPage from "./ui/components/Users/UserPage";
 import ComingSoonPage from "./ui/core/errors/ComingSoonPage";
 import UnitPage from "./ui/components/Units/UnitPage";
 import logger from "./logic/Logger/logger.js";
-import StationPage from "./ui/components/Stations/StationPage.jsx";
-import LocationPage from "./ui/components/Locations/LocationPage.jsx";
-import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCenterPage.jsx";
-import ConfigContextProvider from "./logic/Config/ConfigContext.jsx";
-import LoginPage from "./ui/components/Authentication/LoginPage.jsx";
-import AuthProvider from "./ui/components/Authentication/AuthProvider.jsx";
+import StationPage from "./ui/components/Stations/StationPage";
+import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCenterPage";
+import ConfigContextProvider from "./logic/Config/ConfigContext";
+import LoginPage from "./ui/components/Authentication/LoginPage";
+import AuthProvider from "./ui/components/Authentication/AuthProvider";
 import RolesPages from "./ui/components/Roles/RolesPages.jsx";
+import UserDataProvider from "./ui/core/context/UserDataContext";
 
 
 
@@ -51,7 +51,7 @@ const router = createBrowserRouter([
          },
          {
             path: "locations/",
-            element: <LocationPage />
+            element: <ComingSoonPage />
          },
          {
             path: "assist/",
@@ -90,7 +90,9 @@ function App() {
 
          <ConfigContextProvider>
             <AuthProvider>
-               <RouterProvider router={router} />
+               <UserDataProvider>
+                  <RouterProvider router={router} />
+               </UserDataProvider>
             </AuthProvider>
          </ConfigContextProvider >
 

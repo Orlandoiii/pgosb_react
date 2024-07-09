@@ -90,7 +90,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-3 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[720px]">
 
                     <div className="md:flex md:space-x-2">
 
@@ -137,6 +137,57 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             useStrongErrColor={isSubmitted} />
 
                     </div>
+
+                    <div className="md:flex md:space-x-2">
+
+
+                        <Input
+
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.motor_serial?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Serial del Motor"}
+                            inputName={"motor_serial"}
+                            useDotLabel={true}
+                            placeHolder="25FG80996645"
+
+                        />
+
+                        <Input
+
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.vehicle_serial?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Serial del Vehiculo"}
+                            inputName={"vehicle_serial"}
+                            useDotLabel={true}
+                            placeHolder="80FG80996645"
+
+                        />
+
+                        <Input
+
+                            register={register}
+                            validationRules={requiredRule}
+
+                            errMessage={errors.fuel_type?.message}
+                            useStrongErrColor={isSubmitted}
+
+                            label={"Tipo de Combustible"}
+                            inputName={"fuel_type"}
+                            useDotLabel={true}
+                            placeHolder="Diesel"
+
+                        />
+
+                    </div>
+
 
                     <div className="md:flex  md:space-x-2">
 
@@ -208,7 +259,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
                             />
                         </div>
-
                     </div>
 
 

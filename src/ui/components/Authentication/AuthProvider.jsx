@@ -8,7 +8,6 @@ import Cookies from 'js-cookie';
 import { jwtDecode } from "jwt-decode";
 
 
-axios.defaults.withCredentials = true;
 
 const PGOSB_ACCESS_TOKEN_COOKIE = "PGOSB_ACCESS_TOKEN"
 const PGOSB_REFRESH_TOKEN_COOKIE = "PGOSB_REFRESH_TOKEN"
@@ -17,14 +16,15 @@ const PGOSB_EXPIRES_IN_COOKIE = "PGOSB_EXPIRES_IN"
 
 const authInitialState = {
     isAuthenticated: false,
-
+    userId: "",
     error: null,
 };
 
 function authReducer(state, action) {
     switch (action.type) {
         case 'LOGIN_SUCCESS':
-            return { ...state, isAuthenticated: true };
+            return { ...state, isAuthenticated: true, userId: action.payload?.userId };
+
         case 'LOGIN_FAILURE':
 
         case 'LOGIN_NOT_AUTHENTICATED':
@@ -32,7 +32,7 @@ function authReducer(state, action) {
 
 
         case 'LOGIN_AUTHENTICATED':
-            return { ...state, isAuthenticated: true }
+            return { ...state, isAuthenticated: true, userId: action.payload?.userId }
 
 
         case 'LOGOUT':
@@ -151,18 +151,23 @@ async function logIn(data, config, signal, dispatch) {
 
         const response = await axios.post(url, data, { signal });
         if (response.status === 200) { // Assuming 200 is success
+           
+            const userJwt = jwtDecode(response.data.access_token);
+            dispatch({ type: 'LOGIN_SUCCESS', payload: { userId: userJwt?.pgosb_id } });
             setCookies(response);
-            dispatch({ type: 'LOGIN_SUCCESS', payload: { expiresIn: response.data.expires_in } });
         } else {
             clearCookies();
             dispatch({ type: 'LOGIN_FAILURE', payload: "Invalid credentials" });
             throw new Error("no se logro login")
         }
-    } catch (error) {
-        logger.error(error);
+    } catch (err) {
+        logger.error(err);
+        if (axios.isCancel(err)) {
+            return;
+        }
         clearCookies();
         dispatch({ type: 'LOGIN_FAILURE', payload: error.message });
-        throw error
+        throw err
     }
 };
 
@@ -202,6 +207,8 @@ export function useAuth() {
 // Provider Component
 export default function AuthProvider({ children }) {
 
+    axios.defaults.withCredentials = true;
+
     const [state, dispatch] = useReducer(authReducer, authInitialState);
 
     const [firstRender, setFirstRender] = useState(true);
@@ -233,6 +240,9 @@ export default function AuthProvider({ children }) {
             return;
         }
 
+
+
+
         const expiresIn = Cookies.get(PGOSB_EXPIRES_IN_COOKIE)
 
         if (isTokenExpired(accesToken, expiresIn) ||
@@ -245,7 +255,9 @@ export default function AuthProvider({ children }) {
             refreshToken(config, signal)
                 .then((r) => {
                     setCookies(r);
-                    dispatch({ type: "LOGIN_AUTHENTICATED" })
+                    const jwtUser = jwtDecode(r.data.access_token);
+
+                    dispatch({ type: "LOGIN_AUTHENTICATED", payload: { userId: jwtUser.pgosb_id } })
                 }).catch(err => {
                     if (err.code != "CANCELLED_REQUEST") {
                         clearCookies()
@@ -262,7 +274,8 @@ export default function AuthProvider({ children }) {
 
             }
         } else {
-            dispatch({ type: "LOGIN_AUTHENTICATED" })
+            const jwtUser = jwtDecode(accesToken);
+            dispatch({ type: "LOGIN_AUTHENTICATED", payload: { userId: jwtUser.pgosb_id } })
             setFirstRender(false);
         }
 
@@ -270,6 +283,8 @@ export default function AuthProvider({ children }) {
 
     useEffect(() => {
         if (state.isAuthenticated) {
+
+
 
             const signal = new AbortController();
 
@@ -287,7 +302,7 @@ export default function AuthProvider({ children }) {
                             dispatch({ type: "LOGIN_NOT_AUTHENTICATED" })
                         }
                     });
-            }, 60000)
+            }, 120000)
 
             return () => {
 

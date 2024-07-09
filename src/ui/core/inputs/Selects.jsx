@@ -218,7 +218,6 @@ export default function Select({
                 type={type}
                 onClick={handleOnClick}
                 onMouseDown={onMouseDown}
-
                 inputRef={inputRef}
 
                 readOnly={true}

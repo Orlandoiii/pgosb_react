@@ -74,7 +74,7 @@ export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-3 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[720px]">
 
                     <SelectWithSearch label={"Institución"}
                         useDotLabel={true}
