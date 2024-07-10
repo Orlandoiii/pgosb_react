@@ -53,9 +53,14 @@ function isTokenExpired(token, expiresIn) {
         const currentTime = Date.now() / 1000; // Current time in seconds
 
         // Calculate expiration time based on 'iat' (issued at) claim and expiresIn
-        const expirationTime = decodedToken.iat + expiresIn;
+        const expirationTime = decodedToken.iat + parseInt(expiresIn);
 
-        return expirationTime < currentTime;
+       
+        const isExpired = expirationTime < currentTime;
+
+        logger.log("EXPIRED:", isExpired);
+
+        return isExpired
     } catch (error) {
         console.error('Error decoding JWT:', error);
         return true; // Treat decoding errors as expired for safety
@@ -151,7 +156,7 @@ async function logIn(data, config, signal, dispatch) {
 
         const response = await axios.post(url, data, { signal });
         if (response.status === 200) { // Assuming 200 is success
-           
+
             const userJwt = jwtDecode(response.data.access_token);
             dispatch({ type: 'LOGIN_SUCCESS', payload: { userId: userJwt?.pgosb_id } });
             setCookies(response);
@@ -239,9 +244,6 @@ export default function AuthProvider({ children }) {
             setFirstRender(false);
             return;
         }
-
-
-
 
         const expiresIn = Cookies.get(PGOSB_EXPIRES_IN_COOKIE)
 

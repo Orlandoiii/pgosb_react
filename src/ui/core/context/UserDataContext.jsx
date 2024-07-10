@@ -72,7 +72,7 @@ export default function UserDataProvider({ children }) {
             }
 
 
-            setModulePermisions(JSON.parse(reponseRol.data.access_schema))
+            setModulePermisions(reponseRol.data.access_schema)
             setUserRolData(reponseRol.data);
             setUserData(response.data);
             setUserDataIsLoad(true);
@@ -121,7 +121,7 @@ export default function UserDataProvider({ children }) {
 
         }}>
 
-            {children}
+            {userDataIsLoad && children}
             <LoadingModal open={loading} />
         </UserDataContext.Provider>
     )

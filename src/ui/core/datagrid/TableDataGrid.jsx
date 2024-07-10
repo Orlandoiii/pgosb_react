@@ -14,7 +14,10 @@ import ModifyIcon from "../icons/ModifyIcon";
 import DeleteIcon from "../icons/DeleteIcon";
 import logger from "../../../logic/Logger/logger";
 import { useLayout } from "../context/LayoutContext";
+import AlertController from "../alerts/AlertController";
 
+
+const alert = new AlertController();
 
 function SortIcon({ isSorted }) {
 
@@ -147,7 +150,8 @@ const checkBoxHeader = {
     ),
 }
 
-export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpdate, onDelete }) {
+export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpdate, onDelete,
+    permissions }) {
 
 
     logger.log("LOAD MODAL Renderizo TableDataGrid");
@@ -157,6 +161,8 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
 
     logger.log("DATA GRID CONFIG:", layout);
     logger.log("DATA GRID DATA:", rawData)
+
+    logger.log("DATA GRID PERMISSION:", permissions)
     const COLUMNS = [];
 
 
@@ -259,12 +265,27 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
                     {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
                     <div className="flex space-x-4">
                         <button onClick={(e) => {
+                            if (!permissions["add"]) {
+                                alert.notifyInfo("Usted no tiene permiso para agregar")
+                                return;
+                            }
+
                             if (onAdd) onAdd();
                         }}
-                            className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <AddIcon />
+                            className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full 
+                            flex justify-center items-center shadow-md">
+                            <AddIcon color={permissions["add"] ? "fill-[#0A2F4E]" : "fill-gray-300"} />
                         </button>
                         <button onClick={(e) => {
+
+                            if (!(getTotalSelectedRows() === 1)) {
+                                return;
+                            }
+
+                            if (!permissions["update"]) {
+                                alert.notifyInfo("Usted no tiene permiso para editar")
+                                return;
+                            }
                             const rowModel = table.getSelectedRowModel();
 
                             if (!rowModel || getTotalSelectedRows() != 1)
@@ -274,12 +295,25 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
 
                             if (onUpdate)
                                 onUpdate(selectedRows[0])
-                        }} disabled={!(getTotalSelectedRows() === 1)}
-                            className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 ? "bg-slate-200" : "bg-slate-50"} bg-slate-200 rounded-full flex justify-center items-center shadow-md`} >
-                            <ModifyIcon active={getTotalSelectedRows() === 1} />
+
+                            table.toggleAllRowsSelected(false);
+
+                        }}
+                            className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 && permissions["update"]
+                                ? "bg-slate-200" : "bg-slate-50"} bg-slate-200 rounded-full flex 
+                                justify-center items-center shadow-md`} >
+                            <ModifyIcon active={getTotalSelectedRows() === 1 && permissions["update"]} />
                         </button>
 
                         <button onClick={() => {
+
+                            if (getTotalSelectedRows() < 1)
+                                return;
+
+                            if (!permissions["delete"]) {
+                                alert.notifyInfo("Usted no tiene permiso para eliminar")
+                                return;
+                            }
 
                             const rowModel = table.getSelectedRowModel();
 
@@ -298,12 +332,12 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
                                     })
                                 }
                             }
+                            table.toggleAllRowsSelected(false);
 
                         }}
 
-                            disabled={getTotalSelectedRows() < 1}
                             className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md">
-                            <DeleteIcon active={getTotalSelectedRows() >= 1} />
+                            <DeleteIcon active={getTotalSelectedRows() >= 1 && permissions["delete"]} />
                         </button>
                     </div>
 

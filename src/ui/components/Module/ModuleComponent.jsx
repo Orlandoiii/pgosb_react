@@ -9,6 +9,8 @@ import { useConfirmationModal } from "../../core/modal/ModalConfirmation";
 import AlertController from "../../core/alerts/AlertController";
 import { RegisterModuleComponent } from "./RegisterModuleComponent";
 import { useLayout } from "../../core/context/LayoutContext";
+import { useUser } from "../../core/context/UserDataContext";
+import { useNavigate } from "react-router-dom";
 const alertController = new AlertController();
 
 
@@ -41,7 +43,24 @@ async function deleteRegisters(registers, deleteConfig, config, getRegisters) {
     }
 }
 
-export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addConfig, updateConfig, steps, detailTitle }) {
+export default function ModuleComponent({
+    moduleName = "",
+    getAllDataEndpoint,
+    deleteConfig,
+    addConfig,
+    updateConfig,
+    steps,
+    detailTitle }) {
+
+
+
+    const navigate = useNavigate();
+
+    const { modulesPermissions, userDataIsLoad } = useUser();
+
+    const permissions = userDataIsLoad &&
+        modulesPermissions.hasOwnProperty(moduleName) ?
+        modulesPermissions[moduleName] : []
 
     const [openAddForm, setOpenAddForm] = useState(false);
 
@@ -129,6 +148,13 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
 
     }, [])
 
+    useEffect(() => {
+
+        if (!userDataIsLoad || !modulesPermissions.hasOwnProperty(moduleName)) {
+            alertController.notifyInfo(`Usted no tiene permiso para ${moduleName}`);
+            navigate("/");
+        }
+    }, [modulesPermissions, userDataIsLoad])
 
     function resetFormData() {
         setShowAccordion(false)
@@ -293,7 +319,11 @@ export default function ModuleComponent({ getAllDataEndpoint, deleteConfig, addC
                     onDoubleClickRow={(u) => {
                         setDetail(u);
                         setOpenDetailModal(true);
-                    }} />}
+                    }}
+                    permissions={permissions}
+                />
+
+                }
 
                 <RegisterModuleComponent
                     showModal={openAddForm}

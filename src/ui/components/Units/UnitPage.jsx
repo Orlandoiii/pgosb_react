@@ -50,13 +50,13 @@ const detailTitle = "Detalles de la Unidad";
 
 const stepsObjects = [
    {
-       title: "Datos Básicos",
-       content: <BasicInfoForm />,
+      title: "Datos Básicos",
+      content: <BasicInfoForm />,
 
    },
    {
-       title: "Características",
-       content: <DataForm />,
+      title: "Características",
+      content: <DataForm />,
    }
 ]
 
@@ -73,6 +73,7 @@ export default function UnitPage({ }) {
                addConfig={addConfig}
                steps={stepsObjects}
                detailTitle={detailTitle}
+               moduleName={"units"}
             />
          </LayoutContexProvider>
       </>

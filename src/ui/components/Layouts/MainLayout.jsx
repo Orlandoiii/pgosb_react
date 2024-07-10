@@ -7,6 +7,7 @@ import logger from "../../../logic/Logger/logger";
 import ConfirmationModalProvider from "../../core/modal/ModalConfirmation";
 import { useEffect } from "react";
 import { useAuth } from "../Authentication/AuthProvider";
+import UserDataProvider from "../../core/context/UserDataContext";
 
 
 export default function MainLayout({ }) {
@@ -28,22 +29,25 @@ export default function MainLayout({ }) {
    return (
       <>
 
-         <ConfirmationModalProvider>
-            {state.isAuthenticated && <div className='flex h-screen overflow-hidden transition-all'>
-               <Sidebar />
-               <div className='w-full h-full overflow-hidden'>
-                  <Navbar />
-                  <div id="step-page-modal" className="relative w-full h-screen overflow-hidden">
-                     <main className='w-full h-full overflow-hidden'>
-                        <div className="h-full mx-auto p-4 mt-4  overflow-y-auto">
-                           <Outlet />
 
-                        </div>
-                     </main>
+         <ConfirmationModalProvider>
+            <UserDataProvider>
+               {state.isAuthenticated && <div className='flex h-screen overflow-hidden transition-all'>
+                  <Sidebar />
+                  <div className='w-full h-full overflow-hidden'>
+                     <Navbar />
+                     <div id="step-page-modal" className="relative w-full h-screen overflow-hidden">
+                        <main className='w-full h-full overflow-hidden'>
+                           <div className="h-full mx-auto p-4 mt-4  overflow-y-auto">
+                              <Outlet />
+
+                           </div>
+                        </main>
+                     </div>
                   </div>
                </div>
-            </div>
-            }
+               }
+            </UserDataProvider>
          </ConfirmationModalProvider>
          <ToastContainer
             style={{ width: "420px" }}

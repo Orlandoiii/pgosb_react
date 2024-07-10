@@ -1,11 +1,11 @@
 import { NavLink } from 'react-router-dom';
 
 
-export default function SideBarLink({ icon = null, name = "", link = "" }) {
+export default function SideBarLink({ icon = null, name = "", link = "", onClick }) {
 
     return (
         <div>
-            <NavLink to={link}>
+            <NavLink to={link} onClick={onClick}>
                 {({ isActive }) => (
                     <div className={`relative outline-none flex justify-between items-center px-3  py-2.5  
                     ${isActive ? "bg-[#2286DD]" : ""}   bg-opacity-80 rounded-sm shadow-sm cursor-pointer hover:bg-[#2286DD]`}>

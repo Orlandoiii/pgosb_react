@@ -17,7 +17,8 @@ function RegisterRole({ open, onClose,
     buttonTitle = "Agregar",
     readonly = false,
     statePermission,
-    setStatePermission
+    setStatePermission,
+    onSubmit
 }) {
 
 
@@ -59,10 +60,12 @@ function RegisterRole({ open, onClose,
                 <PermissionTable
                     readonly={readonly}
                     ModulesAccess={statePermission}
-                    onModulesAccessChanged={(newModulesAccess) => setStatePermission(newModulesAccess)} />
+                    onModulesAccessChanged={(newModulesAccess) => setStatePermission(newModulesAccess)}
+                    viewPermissionName='ver'
+                />
 
                 {!readonly && <div className='w-full mt-4 p-2'>
-                    <Button width='w-full'>{buttonTitle}</Button>
+                    <Button width='w-full' onClick={onSubmit}>{buttonTitle}</Button>
                 </div>}
 
 

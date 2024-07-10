@@ -85,6 +85,7 @@ export default function UserPage({ }) {
                addConfig={addConfig}
                steps={stepsObjects}
                detailTitle={detailTitle}
+               moduleName="users"
             />
          </LayoutContexProvider>
       </>

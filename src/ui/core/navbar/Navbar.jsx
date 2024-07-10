@@ -46,7 +46,7 @@ export default function Navbar({ }) {
 
 
 
-                            <div className={`hidden lg:flex flex-col justify-center items-end transition-all ease-in-out duration-500 
+                            <div className={`flex flex-col justify-center items-end transition-all ease-in-out duration-500 
                                 ${userDataIsLoad ? " opacity-100 translate-x-0" : " opacity-0 -translate-x-10"}`}>
                                 <h3 className='text-lg font-semibold self-start text-rose-700'>{name}</h3>
                                 <p className='text-md text-slate-500'>{roleName}</p>

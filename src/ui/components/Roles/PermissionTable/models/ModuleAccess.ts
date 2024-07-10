@@ -1,5 +1,6 @@
 import { DefaultPermissions } from './DefaultPermissions';
 import { ButtonStates } from './ButtonStates'
+import logger from '../../../../../logic/Logger/logger';
 
 export class ModuleAccess {
     Name: string;
@@ -60,10 +61,23 @@ export function translateAndConvertPermissions(
 
     const moduleAccessList: ModuleAccess[] = [];
     for (const moduleName in translated) {
+        logger.log("PERMISOS MODULO:", moduleName)
         const defaultPermissions = new DefaultPermissions();
+
         for (const perm in translated[moduleName]) {
-            defaultPermissions[perm as keyof DefaultPermissions] =
-                translated[moduleName][perm] ? ButtonStates.true : ButtonStates.false;
+            const p = perm as keyof DefaultPermissions;
+            logger.log("PERMISOS ", perm, translated[moduleName][perm], p)
+
+            logger.log("PERMISOS TIPO Y VALOR", typeof (translated[moduleName][perm]), translated[moduleName][perm])
+
+            const valueString = translated[moduleName][perm];
+
+            let value = ButtonStates.false;
+
+            if (valueString.toString() === 'true')
+                value = ButtonStates.true;
+
+            defaultPermissions[p] = value;
         }
 
         // Infer "ver" property
@@ -85,7 +99,11 @@ export function moduleAccessToBackendFormat(
 
     for (const module of modules) {
         const moduleKey = reversedModuleNameDictionary[module.Name] || module.Name;
+        if (module.Permissions.ver != ButtonStates.true)
+            continue;
+
         result[moduleKey] = {};
+
         for (const perm in module.Permissions) {
             if (perm !== "ver") {
                 const permKey = reversedPropDictionary[perm] || perm;

@@ -3,13 +3,15 @@ import TableDataGrid from "../../core/datagrid/TableDataGrid"
 import axios from "axios";
 import { useConfig } from "../../../logic/Config/ConfigContext";
 import logger from "../../../logic/Logger/logger";
-import { useLoadModal } from "../../core/modal/LoadingModal";
+import { LoadingModal, useLoadModal } from "../../core/modal/LoadingModal";
 import { useConfirmationModal } from "../../core/modal/ModalConfirmation";
 import AlertController from "../../core/alerts/AlertController";
 import LayoutContexProvider from "../../core/context/LayoutContext";
 import RegisterRole from "./RegisterRole";
-import { ModuleAccess, translateAndConvertPermissions } from "./PermissionTable/models/ModuleAccess";
+import { ModuleAccess, moduleAccessToBackendFormat, translateAndConvertPermissions } from "./PermissionTable/models/ModuleAccess";
 import { DefaultPermissions } from "./PermissionTable/models/DefaultPermissions";
+import { useUser } from "../../core/context/UserDataContext";
+import { useNavigate } from "react-router-dom";
 const alertController = new AlertController();
 
 
@@ -24,27 +26,42 @@ const defaultModulesList = [
     new ModuleAccess("Ubicaciones", new DefaultPermissions()),
 ]
 
-const moduleNameDictonary = {
+function mergePermissionList(actualModules) {
+    // Create a set of names from the first list for efficient lookup
+    const activeModules = new Set(actualModules.map(item => item.Name));
+
+    // Iterate through the second list
+    for (const item of defaultModulesList) {
+        // If the name is not found in the first list, add it
+        if (!activeModules.has(item.Name)) {
+            actualModules.push(item);
+        }
+    }
+
+    return actualModules; // Return the modified list1
+}
+
+export const moduleNameDictonary = {
     "Servicios": "services",
     "Usuarios": "users",
     "Roles": "roles",
     "Unidades": "units",
-    "Stations": "stations",
+    "Estaciones": "stations",
     "Centros Asistenciales": "assistential_centers",
     "Ubicaciones": "locations"
 }
 
-const reversedModuleNameDictionary = {
-    services: "Servicios",
-    users: "Usuarios",
-    roles: "Roles",
-    units: "Unidades",
-    stations: "Estaciones",
-    assistential_centers: "Centros Asistenciales",
-    locations: "Ubicaciones",
+export const reversedModuleNameDictionary = {
+    "services": "Servicios",
+    "users": "Usuarios",
+    "roles": "Roles",
+    "units": "Unidades",
+    "stations": "Estaciones",
+    "assistential_centers": "Centros Asistenciales",
+    "locations": "Ubicaciones",
 };
 
-const propDictonary = {
+export const propDictonary = {
     "add": "agregar",
     "delete": "borrar",
     "update": "editar",
@@ -52,7 +69,7 @@ const propDictonary = {
     "print": "imprimir"
 }
 
-const reversedPropDictonary = {
+export const reversedPropDictonary = {
     "agregar": "add",
     "borrar": "delete",
     "editar": "update",
@@ -61,8 +78,32 @@ const reversedPropDictonary = {
 }
 
 
+function RoleCreateActionData(config) {
+    return {
+        title: "Registro de Rol",
+        message: "Esta seguro que desea registrar el rol con los datos antes mostrados ?",
+        successMessage: "Rol creado Exitosamente",
+        errMessage: "No se pudo crear el rol",
+        endpoint: `${config.back_url}/api/v1/role/create`,
+        method: "post"
+    }
+}
 
-async function deleteRols(rols, config, getRols) {
+function RoleUpdateActionData(config) {
+    return {
+        title: "Actualizacion de Rol",
+        message: "Esta seguro que desea actualizar el rol con los datos antes mostrados ?",
+        successMessage: "Rol actualizado Exitosamente",
+        errMessage: "No se pudo actualizar el rol",
+        endpoint: `${config.back_url}/api/v1/role/update`,
+        method: "put"
+    }
+}
+
+
+
+
+async function deleteRols(rols, config, getAllRols) {
     try {
         // Create an array of promises, one for each Axios request
         const deletePromises = rols.map((rol) => {
@@ -91,7 +132,7 @@ async function deleteRols(rols, config, getRols) {
         alertController.notifyError(`Error Eliminado Rols`); // General error message
 
     } finally {
-        getRols();
+        getAllRols();
     }
 }
 
@@ -101,6 +142,9 @@ async function deleteRols(rols, config, getRols) {
 
 function RolesPageInternal({ }) {
 
+    const { modulesPermissions, userDataIsLoad } = useUser();
+
+    const navigate = useNavigate();
 
     const [rolData, setRolData] = useState(null);
 
@@ -112,6 +156,8 @@ function RolesPageInternal({ }) {
 
 
     const [roleId, setRoleId] = useState("");
+
+
     const [roleName, setRoleName] = useState("");
 
     const [roleStatus, setRoleStatus] = useState(false);
@@ -122,15 +168,24 @@ function RolesPageInternal({ }) {
     const [readonlyForm, setReadOnlyForm] = useState(false)
 
 
+    const [loading, setLoading] = useState(false);
 
 
-    const { openLoadModal, closeLoadModal } = useLoadModal();
+    function openLoadModal() {
+        setLoading(true);
+    }
+
+    function closeLoadModal() {
+        setLoading(false);
+    }
+
+
 
     const { showConfirmationModal } = useConfirmationModal();
 
 
 
-    const [singleRolData, setSingleRolData] = useState([])
+    // const [singleRolData, setSingleRolData] = useState([])
 
 
     const [currentFormAction, setCurrentFormAction] = useState("");
@@ -139,10 +194,16 @@ function RolesPageInternal({ }) {
 
     const { config } = useConfig();
 
+
+
+    const permissions = userDataIsLoad &&
+        modulesPermissions.hasOwnProperty("roles") ?
+        modulesPermissions["roles"] : []
+
     logger.log("rol Data:", config);
 
 
-    function getRols(token) {
+    function getAllRols(token) {
         axios.get(`${config.back_url}/api/v1/role/all`, {
             cancelToken: token
         }).then(response => {
@@ -160,120 +221,8 @@ function RolesPageInternal({ }) {
     }
 
 
-    useEffect(() => {
-        openLoadModal();
-        const cancelTokenSource = axios.CancelToken.source();
-        getRols(cancelTokenSource.token);
-        return () => {
-            cancelTokenSource.cancel("unmount");
-        }
 
-    }, [])
-
-
-    function resetFormData() {
-        setSingleRolData([]);
-
-        setStatePermission(defaultModulesList)
-        setRoleName("")
-        setRoleStatus(false)
-        setFormTilte("")
-        setButtonTitle("")
-        setReadOnlyForm(false)
-        setOpenAddForm(false);
-    }
-
-    function handleSubmitAction({ title, message, successMessage, errMessage, endpoint, method }) {
-        let result = showConfirmationModal(title,
-            message);
-
-        result.then(r => {
-            if (!r)
-                return;
-
-            openLoadModal();
-            resetFormData();
-
-            // const mergedData = singleRolData.reduce((acc, obj) => {
-            //     return { ...acc, ...obj.data };
-            // }, {});
-
-            axios({
-                url: endpoint,
-                data: "",
-                method: method
-            }).then(r => {
-                closeLoadModal()
-                logger.info("rol ACTION:", r)
-                if (r.status >= 200 && r.status <= 299) {
-                    getRols()
-                    alertController.notifySuccess(successMessage);
-                }
-            }).catch(err => {
-                closeLoadModal();
-                logger.error("rol ACTION ERROR", err);
-                alertController.notifyError(errMessage);
-            }).finally(() => {
-                resetFormData();
-            })
-
-        })
-    }
-
-    function handleAddAction() {
-        setFormTilte("Agregar Rol");
-        setButtonTitle("Agregar")
-        setCurrentFormAction("add");
-
-
-        setRoleName("")
-        setRoleStatus(false)
-        setReadOnlyForm(false)
-        setStatePermission(defaultModulesList)
-
-
-        setOpenAddForm(true);
-
-    }
-    function handleAddSubmition() {
-        const action = rolCreateActionData(config);
-        handleSubmitAction(action);
-    }
-
-
-    function handleUpdateAction(role) {
-
-
-        if (!role)
-            return null;
-
-
-
-        setFormTilte("Actualizar Rol");
-        setCurrentFormAction("read");
-        setButtonTitle("Editar")
-
-        setReadOnlyForm(false)
-
-        setRoleId(role.id);
-        setRoleName(role.role_name)
-
-        let stateRole = true;
-        if (role.st_role == "0")
-            stateRole = false;
-
-        setRoleStatus(stateRole);
-
-        const permissions = translateAndConvertPermissions(
-            JSON.parse(role.access_schema), reversedModuleNameDictionary, propDictonary)
-
-        setOpenAddForm(true);
-        setStatePermission(permissions);
-
-
-    }
-
-    function handleReadAction(role) {
+    function readSingleRol(role) {
 
 
         if (!role)
@@ -297,32 +246,139 @@ function RolesPageInternal({ }) {
         setRoleStatus(stateRole);
 
         const permissions = translateAndConvertPermissions(
-            JSON.parse(role.access_schema), reversedModuleNameDictionary, propDictonary)
+            role.access_schema, reversedModuleNameDictionary, propDictonary)
 
+        logger.log("PERMISOS -1:", permissions);
+
+        mergePermissionList(permissions);
+
+
+        logger.log("PERMISOS -2:", permissions);
         setOpenAddForm(true);
         setStatePermission(permissions);
 
     }
 
+    function resetFormData() {
+        // setSingleRolData([]);
 
-    function handleUpdateSubmition() {
-        const action = rolUpdateActionData(config);
-        handleSubmitAction(action);
+        setStatePermission(defaultModulesList)
+        setRoleName("")
+        setRoleStatus(false)
+        setFormTilte("")
+        setButtonTitle("")
+        setReadOnlyForm(false)
+        setOpenAddForm(false);
     }
 
 
 
-    function handleSubmit() {
-        if (currentFormAction == "add") {
-            handleAddSubmition();
+
+    useEffect(() => {
+        openLoadModal();
+        const cancelTokenSource = axios.CancelToken.source();
+        getAllRols(cancelTokenSource.token);
+        return () => {
+            cancelTokenSource.cancel("unmount");
         }
-        if (currentFormAction == "update") {
-            handleUpdateSubmition();
-        }
+
+    }, [])
+
+
+
+
+
+
+    function submitFunction({ title, message, successMessage, errMessage, endpoint, method, data }) {
+        let result = showConfirmationModal(title,
+            message);
+
+        result.then(r => {
+            if (!r)
+                return;
+
+            openLoadModal();
+            resetFormData();
+
+            axios({
+                url: endpoint,
+                data: data,
+                method: method
+            }).then(r => {
+                closeLoadModal()
+                logger.info("rol ACTION:", r)
+                if (r.status >= 200 && r.status <= 299) {
+                    getAllRols()
+                    alertController.notifySuccess(successMessage);
+                }
+            }).catch(err => {
+                closeLoadModal();
+                logger.error("rol ACTION ERROR", err);
+                alertController.notifyError(errMessage);
+            }).finally(() => {
+                resetFormData();
+            })
+
+        })
     }
 
 
-    function handleDelete(rols) {
+
+
+
+
+    function onAdd() {
+        setFormTilte("Agregar Rol");
+        setButtonTitle("Agregar")
+        setCurrentFormAction("add");
+
+
+        setRoleName("")
+        setRoleStatus(false)
+        setReadOnlyForm(false)
+        setStatePermission(defaultModulesList)
+
+
+        setOpenAddForm(true);
+
+    }
+
+    function onUpdate(role) {
+
+
+        if (!role)
+            return null;
+
+
+
+        setFormTilte("Actualizar Rol");
+        setCurrentFormAction("update");
+        setButtonTitle("Editar")
+
+        setReadOnlyForm(false)
+
+        setRoleId(role.id);
+        setRoleName(role.role_name)
+
+        let stateRole = true;
+        if (role.st_role == "0")
+            stateRole = false;
+
+        setRoleStatus(stateRole);
+
+        const permissions = translateAndConvertPermissions(
+            role.access_schema, reversedModuleNameDictionary, propDictonary)
+
+
+        mergePermissionList(permissions);
+
+        setOpenAddForm(true);
+        setStatePermission(permissions);
+
+
+    }
+
+    function onDelete(rols) {
         if (!rols)
             return null;
 
@@ -353,7 +409,7 @@ function RolesPageInternal({ }) {
 
             openLoadModal();
             resolve(true)
-            deleterols(rols, config, getRols)
+            deleteRols(rols, config, getAllRols)
 
         })
 
@@ -364,15 +420,71 @@ function RolesPageInternal({ }) {
     }
 
 
+
+
+    function addRole(data) {
+        const action = RoleCreateActionData(config);
+        action.data = data;
+        submitFunction(action);
+    }
+
+
+
+    function updateRol(data) {
+        const action = RoleUpdateActionData(config);
+        action.data = data;
+        submitFunction(action);
+    }
+
+
+
+    function onSubmit() {
+
+        const access_schema =
+            moduleAccessToBackendFormat(statePermission, moduleNameDictonary, reversedPropDictonary);
+
+        const data = {
+            role_name: roleName,
+            st_role: roleStatus ? 1 : 0,
+            access_schema: access_schema
+        }
+
+        if (currentFormAction == "add") {
+            addRole(data);
+            return;
+        }
+
+        if (currentFormAction == "update") {
+            data.id = parseInt(roleId);
+            updateRol(data);
+            return;
+        }
+    }
+
+
+
+    useEffect(() => {
+
+        if (!userDataIsLoad || !modulesPermissions.hasOwnProperty("roles")) {
+            alertController.notifyInfo("Usted no tiene permiso para el modulo Roles");
+            navigate("/");
+        }
+    }, [modulesPermissions, userDataIsLoad])
+
+
+
     return (
         <>
             <div className="">
                 {rolData && <TableDataGrid rawData={rolData}
 
-                    onUpdate={handleUpdateAction}
-                    onAdd={handleAddAction}
-                    onDelete={handleDelete}
-                    onDoubleClickRow={handleReadAction} />}
+                    onUpdate={onUpdate}
+                    onAdd={onAdd}
+                    onDelete={onDelete}
+                    onDoubleClickRow={readSingleRol}
+                    permissions={permissions}
+
+                />}
 
                 <RegisterRole
                     title={formTitle}
@@ -390,10 +502,13 @@ function RolesPageInternal({ }) {
 
                     buttonTitle={buttonTitle}
                     readonly={readonlyForm}
-                    onClose={() => { resetFormData() }} />
+                    onClose={() => { resetFormData() }}
+                    onSubmit={onSubmit}
+                />
 
             </div>
 
+            <LoadingModal open={loading} />
         </>
 
     )

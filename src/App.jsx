@@ -90,9 +90,7 @@ function App() {
 
          <ConfigContextProvider>
             <AuthProvider>
-               <UserDataProvider>
-                  <RouterProvider router={router} />
-               </UserDataProvider>
+               <RouterProvider router={router} />
             </AuthProvider>
          </ConfigContextProvider >
 

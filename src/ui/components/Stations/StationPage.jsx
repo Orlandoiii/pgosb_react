@@ -73,6 +73,7 @@ export default function StationPage({ }) {
                addConfig={addConfig}
                steps={stepsObjects}
                detailTitle={detailTitle}
+               moduleName={"stations"}
             />
          </LayoutContexProvider>
       </>

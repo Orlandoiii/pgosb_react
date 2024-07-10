@@ -10,6 +10,10 @@ interface PermissionTableProps {
   onModulesAccessChanged: (newModules: ModuleAccess[]) => void;
 }
 
+
+
+
+
 const PermissionTable = ({
   ModulesAccess,
   viewPermissionName = "",
