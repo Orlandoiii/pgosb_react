@@ -144,7 +144,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
 
 
-    const [estado, setEstado] = useState(states[0]);
+    const [estado, setEstado] = useState(currentData?.state ? currentData.state : states[0]);
 
 
     const [estadoErr, setEstadoErr] = useState(false);
@@ -159,7 +159,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     const [municipios, setMunicipios] = useState(canLoadMunicipios ?
         getMunicipios(estado) : [])
 
-    const [municipio, setMunicipio] = useState("");
+    const [municipio, setMunicipio] = useState(currentData?.municipality);
 
 
     const [municipioErr, setMunicipioErr] = useState(false);
@@ -170,7 +170,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     const [parroquias, setParroquias] = useState(canLoadParroquias ?
         getParroquias(estado, municipio) : []
     )
-    const [parroquia, setParroquia] = useState("");
+    const [parroquia, setParroquia] = useState(currentData?.parish);
 
     const [parroquiaErr, setParroquiaErr] = useState(false);
 

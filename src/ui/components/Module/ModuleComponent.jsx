@@ -11,6 +11,7 @@ import { RegisterModuleComponent } from "./RegisterModuleComponent";
 import { useLayout } from "../../core/context/LayoutContext";
 import { useUser } from "../../core/context/UserDataContext";
 import { useNavigate } from "react-router-dom";
+import { ConvertValue } from "../../../logic/Formatters/Formatters";
 const alertController = new AlertController();
 
 
@@ -180,12 +181,38 @@ export default function ModuleComponent({
                 return { ...acc, ...obj.data };
             }, {});
 
-            logger.info("REGISTER CREATE/UPDATE Datos enviados:", JSON.stringify(mergedData))
 
+            const transformedData = {}
+
+            for (const key in mergedData) {
+
+
+                const value = fieldDefinition.get(key)
+
+                if (!value) {
+                    transformedData[key] = mergedData[key];
+                    continue;
+                }
+
+                const type = value?.type;
+
+                if (!type) {
+                    transformedData[key] = mergedData[key];
+                    continue;
+                }
+
+                transformedData[key] = ConvertValue(mergedData[key], type);
+
+            }
+
+
+            logger.info("REGISTER CREATE/UPDATE Datos enviados:", JSON.stringify(transformedData))
+
+            logger.info("DATA ENVIADA AL BACK:", transformedData);
 
             axios({
                 url: endpoint,
-                data: mergedData,
+                data: transformedData,
                 method: method
             }).then(r => {
                 closeLoadModal()

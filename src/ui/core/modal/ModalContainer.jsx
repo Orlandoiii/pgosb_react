@@ -14,6 +14,7 @@ export function CloseXSimbol({ onClose }) {
     return (
         <button className='w-7 bg-rose-700 rounded-full p-2 
         absolute z-10 top-2 right-4 shadow-md swadow-slate-500 focus:outline-none '
+            type="button"
             onClick={(e) => {
                 e.stopPropagation();
                 if (onClose) onClose(e);

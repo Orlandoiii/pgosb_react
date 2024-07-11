@@ -48,6 +48,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [rolErr, setRolErr] = useState(false);
 
+    
     const [division, setDivision] = useState(currentData?.division ?? divisions[0]);
 
     const [divisionErr, setDivisionErr] = useState(false);

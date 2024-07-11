@@ -55,7 +55,7 @@ function isTokenExpired(token, expiresIn) {
         // Calculate expiration time based on 'iat' (issued at) claim and expiresIn
         const expirationTime = decodedToken.iat + parseInt(expiresIn);
 
-       
+
         const isExpired = expirationTime < currentTime;
 
         logger.log("EXPIRED:", isExpired);
@@ -291,20 +291,20 @@ export default function AuthProvider({ children }) {
             const signal = new AbortController();
 
 
-            refreshRef.current = setInterval(() => {
-                logger.info("Is Refreshing");
-                refreshToken(config, signal)
-                    .then((r) => {
-                        logger.info("Refres Success");
+            // refreshRef.current = setInterval(() => {
+            //     logger.info("Is Refreshing");
+            //     refreshToken(config, signal)
+            //         .then((r) => {
+            //             logger.info("Refres Success");
 
-                        setCookies(r);
-                    }).catch(err => {
-                        if (err.code != "CANCELLED_REQUEST") {
-                            clearCookies()
-                            dispatch({ type: "LOGIN_NOT_AUTHENTICATED" })
-                        }
-                    });
-            }, 120000)
+            //             setCookies(r);
+            //         }).catch(err => {
+            //             if (err.code != "CANCELLED_REQUEST") {
+            //                 clearCookies()
+            //                 dispatch({ type: "LOGIN_NOT_AUTHENTICATED" })
+            //             }
+            //         });
+            // }, 1200000000000000)
 
             return () => {
 

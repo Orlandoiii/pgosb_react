@@ -49,7 +49,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
             onSubmit={
                 handleSubmit((data) => {
-                    logger.log("AQUI",data);
+                    logger.log("AQUI", data);
                     handleSubmitInternal(data)
                 })}
 
@@ -143,10 +143,10 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             errMessage={errors.phone?.message}
                             useStrongErrColor={isSubmitted}
 
-                            label={"Teléfono"}
-                            inputName={"phone"}
+                            label={"Cedula"}
+                            inputName={"legal_id"}
                             useDotLabel={true}
-                            placeHolder="02129998877" />
+                            placeHolder="V2190681" />
 
                         <Input
                             register={register}
@@ -155,8 +155,8 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             errMessage={errors.secondary_phone?.message}
                             useStrongErrColor={isSubmitted}
 
-                            label={"Teléfono 2"}
-                            inputName={"secondary_phone"}
+                            label={"Teléfono"}
+                            inputName={"phone"}
                             useDotLabel={true}
                             placeHolder="02129998877" />
 
