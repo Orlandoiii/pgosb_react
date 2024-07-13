@@ -1,6 +1,4 @@
 import { motion } from "framer-motion"
-import { useEffect, useState } from "react";
-import { createPortal } from "react-dom";
 import logger from "../../../logic/Logger/logger";
 
 const backDropAnimation = {
@@ -20,12 +18,6 @@ export default function Backdrop({ children, outRef, backGround = "bg-white/60" 
 
     logger.log("Renderizo Backdrop ");
 
-    // const [parenNode, setParentNode] = useState(null);
-
-    // useEffect(() => {
-    //     const node = document.querySelector("#backdrop-root");
-    //     setParentNode(node)
-    // }, [])
 
 
     return (
