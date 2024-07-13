@@ -97,6 +97,10 @@ export default function Sidebar({ }) {
                                 <SideBarLink link="/locations" icon={<LocationIcon />} name='Ubicaciones' onClick={(e) => {
                                     handleClick(e, "Ubicaciones")
                                 }} />
+
+                                    <SideBarLink link="/missions" icon={<LocationIcon />} name='Misiones' onClick={(e) => {
+                                    handleClick(e, "Misiones")
+                                }} />
                                 {/* <SideBarLink link="/test" icon={<TestIcon />} name='Pruebas De Vistas' /> */}
 
                             </div>

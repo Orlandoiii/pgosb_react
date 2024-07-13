@@ -19,7 +19,7 @@ import AuthProvider from "./ui/components/Authentication/AuthProvider";
 import RolesPages from "./ui/components/Roles/RolesPages.jsx";
 import UserDataProvider from "./ui/core/context/UserDataContext";
 
-
+import MissionPage from './ui/components/Mission/MissionPage.tsx'
 
 
 const router = createBrowserRouter([
@@ -56,6 +56,10 @@ const router = createBrowserRouter([
          {
             path: "assist/",
             element: <HealthcareCenterPage />
+         },
+         {
+            path: "missions/",
+            element: <MissionPage />
          },
          {
             path: "test/",

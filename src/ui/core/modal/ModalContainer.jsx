@@ -33,7 +33,7 @@ export function CloseXSimbol({ onClose }) {
 }
 
 
-export default function ModalContainer({ show, onClose, showX = true, children = null, title = "", downStikyChildren }) {
+export default function ModalContainer({ show, onClose, showX = true, children = any, title = "", downStikyChildren }) {
 
     logger.log("Renderizo Modal Container")
 
