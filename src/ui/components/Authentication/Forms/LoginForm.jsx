@@ -1,5 +1,5 @@
 import { useForm } from "react-hook-form";
-import Input from "../../../core/inputs/Input"
+import Input, { dateMask } from "../../../core/inputs/Input"
 import Button from "../../../core/buttons/Button";
 import logger from "../../../../logic/Logger/logger";
 import FireLogo from "../../../core/logo/FireLogo";
@@ -101,6 +101,8 @@ export default function LoginForm({ onSubmit }) {
                             validationRules={ruleUsername}
                             errMessage={errors.user_name?.message}
                             icons={<MessageIcon />}
+                            mask={dateMask}
+                            activeMask={true}
                         />
 
                         <Input
