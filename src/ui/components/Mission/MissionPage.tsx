@@ -14,7 +14,7 @@ const MissionPage = () => {
         <>
             <div className="">
                 <TableDataGrid
-                    rawData={JSON.stringify(testJson)}
+                    rawData={testJson}
                     onAdd={() => {
                         setOpenAddForm(true)
                     }}
