@@ -1,4 +1,4 @@
-enum FloorTypes {
+export enum FloorTypes {
     Concrete = 'Concreto',
     Earth = 'Tierra',
     Slab = 'Loza',

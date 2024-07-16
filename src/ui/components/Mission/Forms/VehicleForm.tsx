@@ -1,10 +1,9 @@
 import { FieldValues, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import React, { useState } from 'react'
+import React from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
 import ModalContainer from '../../../core/modal/ModalContainer'
-import { Genders } from '../../../../domain/abstractions/enums/genders'
 import Button from '../../../core/buttons/Button'
 
 import {
@@ -14,14 +13,7 @@ import {
 import Input2 from '../../../../ui/components/Temp/Input2'
 import Select2 from '../../../../ui/components/Temp/Select2'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
-import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types'
-
-const requiredRule = {
-    required: {
-        value: false,
-        message: 'El campo es requerido',
-    },
-}
+import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes.ts'
 
 interface AuthorityFormProps {
     showModal: boolean
@@ -46,6 +38,8 @@ const AuthorityForm = ({
         resolver: zodResolver(VehicleInvolvedSchema),
         defaultValues: initValue != null ? initValue : {},
     })
+
+    var a = errors['color']
 
     async function handleSubmitInternal(data: FieldValues) {
         await new Promise((resolve) => setTimeout(() => {}, 1000))
@@ -77,7 +71,6 @@ const AuthorityForm = ({
                                 description={'Placa'}
                                 key={'licensePlate'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.licensePlate?.message}
                             />
@@ -106,7 +99,6 @@ const AuthorityForm = ({
                                 description={'Serial del Motor'}
                                 key={'motorSerial'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.motorSerial?.message}
                             />
@@ -124,7 +116,6 @@ const AuthorityForm = ({
                                 description={'Año'}
                                 key={'year'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.year?.message}
                             />
@@ -133,7 +124,6 @@ const AuthorityForm = ({
                                 description={'Color'}
                                 key={'color'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.color?.message}
                             />
@@ -144,7 +134,6 @@ const AuthorityForm = ({
                                 description={'Condición'}
                                 key={'condition'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.condition?.message}
                             />

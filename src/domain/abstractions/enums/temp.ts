@@ -1,4 +1,4 @@
-enum Temp{
+export enum Temp{
     Companion = 'Acompañante ',
     Driver = 'Conductor',
     PublicServant = 'Funcionario ',

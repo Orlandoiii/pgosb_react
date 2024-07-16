@@ -1,4 +1,4 @@
-enum WallTypes {
+export enum WallTypes {
     ConcreteBlock = 'Bloque de concreto',
     Adobe = 'Adobe',
     ClayBrick = 'Bloque de arcilla',
