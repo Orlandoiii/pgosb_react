@@ -288,7 +288,7 @@ export default function AuthProvider({ children }) {
 
 
 
-            const signal = new AbortController();
+            // const signal = new AbortController();
 
 
             // refreshRef.current = setInterval(() => {
@@ -306,11 +306,11 @@ export default function AuthProvider({ children }) {
             //         });
             // }, 1200000000000000)
 
-            return () => {
+            // return () => {
 
-                signal.abort();
-                clearInterval(refreshRef.current);
-            }
+            //     signal.abort();
+            //     clearInterval(refreshRef.current);
+            // }
         }
 
     }, [state.isAuthenticated])

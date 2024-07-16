@@ -101,6 +101,7 @@ export default function LoginForm({ onSubmit }) {
                             validationRules={ruleUsername}
                             errMessage={errors.user_name?.message}
                             icons={<MessageIcon />}
+                          
                         />
 
                         <Input
