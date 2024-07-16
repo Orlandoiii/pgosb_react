@@ -16,13 +16,6 @@ import Select2 from '../../../../ui/components/Temp/Select2'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types'
 
-const requiredRule = {
-    required: {
-        value: false,
-        message: 'El campo es requerido',
-    },
-}
-
 interface PersonFormProps {
     showModal: boolean
     initValue?: TPersonInvolved | null
@@ -72,7 +65,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                             description={'Condición'}
                             key={'condition'}
                             register={register}
-                            rules={requiredRule}
                             isSubmitted={isSubmitted}
                             errors={errors.condition?.message}
                         />
@@ -97,7 +89,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Nombre'}
                                 key={'firstName'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.firstName?.message}
                             />
@@ -106,7 +97,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Apellido'}
                                 key={'lastName'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.lastName?.message}
                             />
@@ -126,7 +116,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Edad'}
                                 key={'age'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.age?.message}
                             />
@@ -149,7 +138,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                     description={'Documento de Identidad'}
                                     key={'idDocument'}
                                     register={register}
-                                    rules={requiredRule}
                                     isSubmitted={isSubmitted}
                                     errors={errors.idDocument?.message}
                                 />
@@ -173,7 +161,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Número de Teléfono'}
                                 key={'phoneNumber'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.phoneNumber?.message}
                             />
@@ -184,7 +171,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Estado'}
                                 key={'employmentStatus'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.employmentStatus?.message}
                             />
@@ -193,7 +179,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Patología'}
                                 key={'pathology'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.pathology?.message}
                             />
@@ -206,7 +191,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Observaciones'}
                                 key={'observations'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.observations?.message}
                             />
@@ -223,7 +207,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Estado'}
                                 key={'state'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.state?.message}
                             />
@@ -232,7 +215,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Municipio'}
                                 key={'municipality'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.municipality?.message}
                             />
@@ -241,7 +223,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                                 description={'Parroquia'}
                                 key={'parish'}
                                 register={register}
-                                rules={requiredRule}
                                 isSubmitted={isSubmitted}
                                 errors={errors.parish?.message}
                             />
@@ -251,7 +232,6 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                             description={'Dirección'}
                             key={'description'}
                             register={register}
-                            rules={requiredRule}
                             isSubmitted={isSubmitted}
                             errors={errors.description?.message}
                         />

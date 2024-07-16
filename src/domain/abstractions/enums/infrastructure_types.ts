@@ -1,4 +1,4 @@
-enum InfrastructureType {
+export enum InfrastructureType {
     RecreationalPlaces = 'sitios de reunión / recreacionales',
     Educational = 'Educacionales',
     MedicalAssistance = 'medico asistencial / asistenciales',
