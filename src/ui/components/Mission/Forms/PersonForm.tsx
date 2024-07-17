@@ -15,6 +15,7 @@ import Input2 from '../../../../ui/components/Temp/Input2'
 import Select2 from '../../../../ui/components/Temp/Select2'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types'
+import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes'
 
 interface PersonFormProps {
     showModal: boolean
@@ -35,6 +36,7 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
         formState: { errors, isSubmitted },
         reset,
     } = useForm<TPersonInvolved>({
+        
         resolver: zodResolver(PersonInvolvedSchema),
         defaultValues: initValue != null ? initValue : {},
     })

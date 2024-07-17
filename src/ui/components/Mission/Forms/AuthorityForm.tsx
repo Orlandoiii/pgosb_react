@@ -10,7 +10,6 @@ import FormTitle from '../../../core/titles/FormTitle'
 import ModalContainer from '../../../core/modal/ModalContainer'
 import Input from '../../../core/inputs/Input'
 import { Genders } from '../../../../domain/abstractions/enums/genders'
-import { Select } from '../../../core/inputs/Selects'
 import Button from '../../../core/buttons/Button'
 
 import Input2 from '../../../../ui/components/Temp/Input2'
@@ -185,6 +184,7 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
                                 onChangeEvent={() => {}}
                                 onFocus={() => {}}
                                 placeHolder=""
+                                
                             />
 
                             <Input

@@ -36,8 +36,8 @@ export const dateMask = {
             to: new Date().getFullYear() + 1,
         },
     },
-    parser: parseDate,
-    formatter: formatDate
+    parse: parseDate,
+    format: formatDate
     // lazy: false,
     // overwrite: true,
 };

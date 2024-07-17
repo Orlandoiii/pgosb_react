@@ -134,7 +134,6 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-
     const { register, handleSubmit, formState, setValue } = useForm({
         mode: "onChange",
         defaultValues: currentData

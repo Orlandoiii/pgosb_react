@@ -3,6 +3,8 @@ import Input from "../../../core/inputs/Input"
 import Button from "../../../core/buttons/Button";
 import logger from "../../../../logic/Logger/logger";
 import FireLogo from "../../../core/logo/FireLogo";
+// import { useRef, useState } from "react";
+// import { dateMask } from "../../../core/inputs/Common/Mask";
 
 function MessageIcon() {
     return (
@@ -51,12 +53,32 @@ const rulePassword = {
 }
 
 
+const usernameMask = {
+    blocks: {
+        s: {
+          mask: String,
+         
+         
+        }
+      },
+    
+    mask: 's$', 
+    
+   
+  }
 
-
-
+let counter = 0;
 export default function LoginForm({ onSubmit }) {
 
-    const { register, handleSubmit, formState } = useForm({ mode: "onChange" });
+
+    // const defaultData = useRef({
+    //     user_name: '10',
+    //     password: '12345',
+    // })
+
+    const { register, handleSubmit, formState } = useForm({
+        mode: "onChange"
+    });
 
     const { errors, isSubmitted } = formState;
 
@@ -67,7 +89,9 @@ export default function LoginForm({ onSubmit }) {
             onSubmit(data);
     }
 
-    logger.log("Renderizando LoginForm");
+    counter++;
+
+    logger.log("Renderizando LoginForm:", counter);
 
     return (
 
@@ -101,7 +125,9 @@ export default function LoginForm({ onSubmit }) {
                             validationRules={ruleUsername}
                             errMessage={errors.user_name?.message}
                             icons={<MessageIcon />}
-                          
+                            maskDefinition={usernameMask}
+                         
+
                         />
 
                         <Input
@@ -127,6 +153,13 @@ export default function LoginForm({ onSubmit }) {
 
                         <Button width="w-full" height="h-[60px]">Ingresar</Button>
 
+                        {/* <button type="button" onClick={() => {
+                            defaultData.current = {
+                                user_name: '',
+                                password: ''
+                            }
+                            reset(defaultData.current)
+                        }}> Clear</button> */}
 
 
 

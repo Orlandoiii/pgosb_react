@@ -8,7 +8,7 @@ import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import FormTitle from "../../../core/titles/FormTitle";
 import logger from "../../../../logic/Logger/logger";
 
-const genders = ["M", "F"];
+const genders = ["Masculino", "Femenino"];
 
 const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
 
@@ -199,7 +199,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                         </div>
 
                         <div className="w-[50%] flex space-x-2">
-                            <div className="w-[80%]">
+                            <div className="w-[60%]">
                                 <Input
 
                                     register={register}
@@ -216,7 +216,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             </div>
 
 
-                            <div className="md:w-[20%]">
+                            <div className="md:w-[50%]">
                                 <Select
                                     inputName={"gender"}
                                     register={register}

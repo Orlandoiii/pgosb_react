@@ -52,6 +52,7 @@ function Input2<T extends FieldValues>({
             onChangeEvent={() => {}}
             onFocus={() => {}}
             placeHolder={placeHolder}
+            maskDefinition
         />
     )
 }
