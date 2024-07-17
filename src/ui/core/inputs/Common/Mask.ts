@@ -14,7 +14,7 @@ function parseDate(str) {
 };
 
 
-const dateMask = {
+export const dateMask = {
 
     mask: "d-m-Y",
     blocks: {

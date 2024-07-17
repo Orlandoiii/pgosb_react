@@ -1,4 +1,6 @@
+import { parse } from "path";
 import logger from "../../../logic/Logger/logger";
+import { useMask, useNoMask } from "./Common/Common";
 import { CommonLogic } from "./ShareLogic";
 
 const common = new CommonLogic();
@@ -26,7 +28,8 @@ export default function Input({
 
     inputRef = null,
     controlled = false,
-    turnOffAutoCompleted = true
+    turnOffAutoCompleted = true,
+    maskDefinition,
 
 
 }) {
@@ -41,6 +44,13 @@ export default function Input({
     const { onChange, onBlur, ref } = register != null && !controlled ?
         register(inputName, validationRules ?? {}) : CommonLogic.emptyRegister;
 
+
+    const { maskMainRef } = maskDefinition ? useMask({
+        mask: maskDefinition.mask, 
+        blocks: maskDefinition.blocks, 
+        format: maskDefinition.format, 
+        parse:maskDefinition.parse
+    }) : useNoMask()
 
     function handleOnChange(e) {
         if (register) {
@@ -85,6 +95,9 @@ export default function Input({
                             ref(e);
                         if (inputRef)
                             inputRef.current = e;
+                        if (maskDefinition && maskMainRef) {
+                            maskMainRef.current = e;
+                        }
                     }}
 
                     id={inputName}

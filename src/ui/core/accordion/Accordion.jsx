@@ -23,9 +23,8 @@ function splitArrayInHalf(arr) {
 function KeyValue({ keyName, value }) {
     const valueIsArray = Array.isArray(value);
 
-    // const originalValue = value;
 
-    if (!valueIsArray && !isBoolean(value) && value.length > 25) {
+    if (!valueIsArray && value && !isBoolean(value) && value.length > 25) {
         value = "..." + value.slice(0, 23);
     }
 

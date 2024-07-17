@@ -17,7 +17,6 @@ import ConfigContextProvider from "./logic/Config/ConfigContext";
 import LoginPage from "./ui/components/Authentication/LoginPage";
 import AuthProvider from "./ui/components/Authentication/AuthProvider";
 import RolesPages from "./ui/components/Roles/RolesPages.jsx";
-import UserDataProvider from "./ui/core/context/UserDataContext";
 
 import MissionPage from './ui/components/Mission/MissionPage.tsx'
 

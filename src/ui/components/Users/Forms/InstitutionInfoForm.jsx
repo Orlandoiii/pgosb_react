@@ -48,7 +48,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [rolErr, setRolErr] = useState(false);
 
-    
+
     const [division, setDivision] = useState(currentData?.division ?? divisions[0]);
 
     const [divisionErr, setDivisionErr] = useState(false);
@@ -108,6 +108,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
 
                     <div className="md:flex md:space-x-2">
+
                         <Input label={"Código de Funcionario/a"}
 
                             register={register}
@@ -122,8 +123,22 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                         />
 
+                        <SelectWithSearch
 
-                        <Input label={"Fecha de Ingreo"}
+                            label={"Rol"}
+                            useDotLabel={true}
+                            options={rolList}
+                            value={rol}
+                            onChange={(v) => { setRol(v) }}
+                            openUp={true}
+
+                            errMessage={rolErr}
+                            onError={(err) => { setRolErr(err) }}
+                            useStrongErrColor={isSubmitted} />
+
+
+
+                        {/* <Input label={"Fecha de Ingreo"}
                             register={register}
                             validationRules={requiredRule}
 
@@ -147,7 +162,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                             useDotLabel={true}
                             placeHolder="01-01-0001"
 
-                        />
+                        /> */}
 
                     </div>
 
@@ -155,18 +170,6 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <SelectWithSearch
-
-                            label={"Rol"}
-                            useDotLabel={true}
-                            options={rolList}
-                            value={rol}
-                            onChange={(v) => { setRol(v) }}
-                            openUp={true}
-
-                            errMessage={rolErr}
-                            onError={(err) => { setRolErr(err) }}
-                            useStrongErrColor={isSubmitted} />
 
                         <Select
                             label={"Jerarquia"}
