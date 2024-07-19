@@ -1,3 +1,5 @@
+import React from "react"
+
 
 const defaultBgColors = {
     Primary: 'bg-[#0A2F4E]',

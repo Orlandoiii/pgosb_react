@@ -3,6 +3,8 @@ import {
     DeepPartial,
     FieldErrors,
     FieldValues,
+    FieldError,
+    FieldPath,
     UseFormRegister,
     UseFormSetValue,
     DefaultValues,
@@ -11,6 +13,48 @@ import {
 import React, { createContext, useContext, useState, PropsWithChildren } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
+import logger from '../../../logic/Logger/logger';
+
+
+
+
+export function getFieldError<T extends FieldValues, TFieldName extends FieldPath<T> = FieldPath<T>>(
+    errors: FieldErrors<T>,
+    fieldpath: TFieldName
+): FieldError | undefined {
+    var keys = (fieldpath as string).split(".");
+    var keyscount = keys.length;
+    var error: FieldError | undefined;
+
+    keys.forEach((key, index) => {
+        if (errors == undefined) return undefined;
+
+        if (index == keyscount - 1) error = errors[key] as FieldError | undefined;
+        else errors = errors[key] as FieldErrors<T>;
+    });
+
+    return error;
+}
+
+export function getFieldValue<T extends FieldValues, TFieldName extends FieldPath<T> = FieldPath<T>>(
+    values: Readonly<DeepPartial<T>> | undefined,
+    fieldpath: TFieldName
+): any {
+    var keys = (fieldpath as string).split(".");
+    var keyscount = keys.length;
+    var value: any;
+
+    keys.forEach((key, index) => {
+        if (values == undefined) return undefined;
+
+        if (index == keyscount - 1) value = values[key];
+        else values = values[key];
+    });
+
+    return value;
+}
+
+
 
 interface FormContextProps<T extends FieldValues> {
     register: UseFormRegister<T>
@@ -31,7 +75,8 @@ export const CustomFormContext = createContext<FormContextProps<any> | undefined
 interface CustomFormProps<T extends FieldValues> {
     schema: z.ZodSchema<T>
     initValue?: T | null
-    onSubmit: (data: z.infer<z.ZodSchema<T>>) => void
+    onSubmit: (data: z.infer<z.ZodSchema<T>>) => void,
+    classStyle?: string | undefined;
 }
 
 function getDefaults<T extends FieldValues>(
@@ -51,11 +96,12 @@ function getDefaults<T extends FieldValues>(
     return {} as DefaultValues<T>
 }
 
-export default function CustomFormProvider<T extends FieldValues>({
+export default function CustomForm<T extends FieldValues>({
     schema,
     initValue = null,
     onSubmit,
-    children
+    children,
+    classStyle
 }: PropsWithChildren<CustomFormProps<T>>) {
     const [resetCount, setResetCount] = useState(0)
 
@@ -80,29 +126,27 @@ export default function CustomFormProvider<T extends FieldValues>({
                 resetCount: resetCount,
                 defaultValues: methods.formState.defaultValues,
                 isSubmitted: methods.formState.isSubmitted,
-                errors: methods.formState.errors,
+                errors: methods.formState.errors
             }}
         >
-            <form
-                onSubmit={methods.handleSubmit((data) =>
-                    onSubmit(schema.parse(data))
-                )}
+            <form noValidate className={classStyle}
+                onSubmit={
+                    methods.handleSubmit((data) => {
+                        logger.log("On Submit de la forma")
+                        onSubmit(schema.parse(data))
+                    })}
             >
                 {children}
+
             </form>
         </CustomFormContext.Provider>
     )
 }
 
 
-
-
-
-
-
-export function useCustomFormContext() {
+export function useCustomFormContext<T extends FieldValues>() {
     const context = useContext(CustomFormContext)
-    return context;
+    return context as FormContextProps<T>
 }
 
 

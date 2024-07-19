@@ -6,6 +6,7 @@ export function useMask(options) {
     const { ref, maskRef, value, setValue,
         unmaskedValue, setUnmaskedValue, typedValue, setTypedValue } = useIMask(options);
 
+
     const maskMainRef = ref;
     const maskMainValue = value;
 
@@ -14,7 +15,7 @@ export function useMask(options) {
 
 export function useNoMask() {
     return {
-        maskMainRef: {}, maskRef: {}, maskMainValue: {}, setValue: {},
+        maskMainRef: undefined, maskRef: {}, maskMainValue: {}, setValue: {},
         unmaskedValue: {}, setUnmaskedValue: {}, typedValue: {}, setTypedValue: {}
     };
 }

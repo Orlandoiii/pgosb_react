@@ -1,10 +1,18 @@
 import { useForm } from "react-hook-form";
 import Input from "../../../core/inputs/Input"
+import React, { useState } from "react";
 import Button from "../../../core/buttons/Button";
 import logger from "../../../../logic/Logger/logger";
 import FireLogo from "../../../core/logo/FireLogo";
 // import { useRef, useState } from "react";
-// import { dateMask } from "../../../core/inputs/Common/Mask";
+import { dateMask } from "../../../core/inputs/Common/Mask";
+import { z } from "zod";
+import CustomForm from "../../../core/context/CustomFormContext";
+import FormInput from "../../../core/inputs/FormInput";
+import Select from "../../../core/inputs/Select.tsx";
+import FormSelect from "../../../core/inputs/FormSelect.tsx";
+import SelectSearch from "../../../core/inputs/SelectSearch.tsx";
+import FormSelectSearch from "../../../core/inputs/FormSelectSearch.tsx";
 
 function MessageIcon() {
     return (
@@ -21,6 +29,9 @@ function MessageIcon() {
 
 
 }
+
+
+
 
 
 function LockIcon() {
@@ -56,32 +67,49 @@ const rulePassword = {
 const usernameMask = {
     blocks: {
         s: {
-          mask: String,
-         
-         
+            mask: String,
+
+
         }
-      },
-    
-    mask: 's$', 
-    
-   
-  }
+    },
+
+    mask: 's$',
+
+
+}
+
+
+const testOptions = ["Option-1", "Option-2"]
+
+
+
+const loginModel = z.object({
+    user_name: z
+        .string({
+            required_error: "El nombre de usuario es obligatorio",
+        })
+        .min(1, "El nombre de usuario no puede estar vacío"),
+    password: z
+        .string({
+            required_error: "La contraseña es requerida",
+        })
+        .min(1, "La contraseña no puede estar vacía"),
+    test: z
+        .string({
+            required_error: "El select es requerido",
+        }),
+    search: z
+        .enum(testOptions)
+})
+
+
+// type LoginModelType = z.infer<typeof loginModel>
 
 let counter = 0;
 export default function LoginForm({ onSubmit }) {
 
 
-    // const defaultData = useRef({
-    //     user_name: '10',
-    //     password: '12345',
-    // })
-
-    const { register, handleSubmit, formState } = useForm({
-        mode: "onChange"
-    });
-
-    const { errors, isSubmitted } = formState;
-
+    const [option, setOption] = useState(testOptions[0])
 
     function handleSubmitInternal(data) {
         logger.log("LOGIN DATA:", data);
@@ -109,43 +137,41 @@ export default function LoginForm({ onSubmit }) {
                 <h2 className="text-center mb-8  text-lg md:text-xl">
                     Coloca usuario y contraseña para ingresar
                 </h2>
-
-                <form noValidate className="flex flex-col justify-center bg-inherit"
-                    onSubmit={handleSubmit((data) => { handleSubmitInternal(data) })}>
+                <CustomForm schema={loginModel} classStyle="flex flex-col justify-center bg-inherit"
+                    onSubmit={(data) => { handleSubmitInternal(data) }}>
 
                     <div className="space-y-6">
 
-                        <Input
-                            register={register}
-                            label={"Usuario"}
-                            useDotLabel={true}
-                            useStrongErrColor={isSubmitted}
-                            inputName={"user_name"}
-                            placeHolder="jondoe"
-                            validationRules={ruleUsername}
-                            errMessage={errors.user_name?.message}
-                            icons={<MessageIcon />}
-                            maskDefinition={usernameMask}
-                         
+                        <FormInput
+                            fieldName="user_name"
+                            description="Usuario:"
+                            // mask={dateMask}
+                            placeholder="jondoe"
 
                         />
 
-                        <Input
-                            register={register}
-                            label={"Contraseña"}
-                            inputName={"password"}
-                            useStrongErrColor={isSubmitted}
-                            useDotLabel={true}
-                            placeHolder="********"
-                            errMessage={errors.password?.message}
+                        <FormInput
+                            fieldName="password"
+                            description="Contraseña:"
+                            // mask={dateMask}
+                            placeholder="*****"
                             type="password"
-                            validationRules={rulePassword}
-                            icons={<LockIcon />}
+
                         />
+
+                        <FormSelect
+                            openUp={true}
+                            fieldName={"test"}
+                            label={"Label:"}
+                            options={testOptions} />
+
+                        <FormSelectSearch label="Select-Search" fieldName="search" options={testOptions} />
+
                     </div>
 
                     {/* <a className="mt-5 text-sm cursor-pointer  text-[#0088ce] 
                         self-end hover:underline">¿Has olvidado tu contraseña?</a> */}
+
 
 
                     <div className="w-full   mt-8">
@@ -161,10 +187,11 @@ export default function LoginForm({ onSubmit }) {
                             reset(defaultData.current)
                         }}> Clear</button> */}
 
-
-
                     </div>
-                </form>
+
+
+                </CustomForm>
+
             </div>
 
             <div className="text-center">
