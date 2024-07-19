@@ -1,8 +1,5 @@
 import { z } from 'zod'
 
-import { DocumentTypes } from '../../abstractions/enums/document_types'
-import { Genders } from '../../abstractions/enums/genders'
-
 export type TPersonInvolved = z.infer<typeof PersonInvolvedSchema>
 
 export const PersonInvolvedSchema = z.object({
@@ -18,14 +15,6 @@ export const PersonInvolvedSchema = z.object({
     lastName: z.string(),
     age: z.number().positive(),
     gender: z.string(),
-
-    // idDocumentType: z.enum([
-    //     DocumentTypes.V,
-    //     DocumentTypes.E,
-    //     DocumentTypes.J,
-    //     DocumentTypes.P,
-    //     DocumentTypes.G,
-    // ]),
 
     idDocumentType: z.string(),
     idDocument: z.string(),

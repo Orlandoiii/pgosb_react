@@ -2,9 +2,7 @@ import React, { useState } from 'react'
 
 import TableDataGrid from '../../core/datagrid/TableDataGrid'
 import testJson from '../../../mocks/operations.json'
-import PersonForm from './Forms/PersonForm'
-import AuthorityForm from './Forms/AuthorityForm'
-import VehicleForm from './Forms/VehicleForm'
+import ServiceForm from './Forms/ServiceForm'
 
 const MissionPage = () => {
     const [openAddForm, setOpenAddForm] = useState(false)
@@ -24,18 +22,12 @@ const MissionPage = () => {
                     onUpdate={onUpdate}
                 />
 
-                <PersonForm
-                    showModal={false}
-                    onClose={() => setOpenAddForm(false)}
-                ></PersonForm>
-                <AuthorityForm
-                    showModal={false}
-                    onClose={() => setOpenAddForm(false)}
-                ></AuthorityForm>
-                <VehicleForm
-                    showModal={openAddForm}
-                    onClose={() => setOpenAddForm(false)}
-                ></VehicleForm>
+                {openAddForm && (
+                    <ServiceForm
+                        showModal={false}
+                        onClose={() => setOpenAddForm(false)}
+                    ></ServiceForm>
+                )}
             </div>
         </>
     )

@@ -2,11 +2,6 @@ import { z } from 'zod'
 
 export type TVehicleInvolved = z.infer<typeof VehicleInvolvedSchema>
 
-// agregar verificar!!!!!!!
-// agregar verificar!!!!!!!
-// agregar verificar!!!!!!!
-// agregar verificar!!!!!!!
-
 export const VehicleInvolvedSchema = z.object({
     id: z.string(),
     serviceId: z.string(),

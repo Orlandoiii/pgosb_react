@@ -7,7 +7,7 @@ export const ServiceSchema = z.object({
 	mission_id: z.string(),
 	antares_id: z.number(),
 	units: z.number(),
-	bombers: z.number(),
+	firefighter: z.number(),
 	summary: z.string(),
 	description: z.string(),
 })

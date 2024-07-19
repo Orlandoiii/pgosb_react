@@ -1,5 +1,4 @@
-import { FieldValues, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { FieldValues } from 'react-hook-form'
 import React from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
@@ -10,10 +9,12 @@ import {
     TVehicleInvolved,
     VehicleInvolvedSchema,
 } from '../../../../domain/models/vehicle/vehicle_involved'
-import Input2 from '../../../../ui/components/Temp/Input2'
-import Select2 from '../../../../ui/components/Temp/Select2'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes.ts'
+
+import CustomForm from '../../../core/context/CustomFormContext.tsx'
+import FormInput from '../../../core/inputs/FormInput.tsx'
+import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
 interface AuthorityFormProps {
     showModal: boolean
@@ -28,27 +29,10 @@ const AuthorityForm = ({
 }: AuthorityFormProps) => {
     const areaCodes = EnumToStringArray(AreaCodes)
 
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: { errors, isSubmitted },
-        reset,
-    } = useForm<TVehicleInvolved>({
-        resolver: zodResolver(VehicleInvolvedSchema),
-        defaultValues: initValue != null ? initValue : {},
-    })
-
-    var a = errors['color']
-
     async function handleSubmitInternal(data: FieldValues) {
         await new Promise((resolve) => setTimeout(() => {}, 1000))
-        if (true) {
-            reset()
-        }
     }
 
-    type Keys<T extends object> = keyof T
     return (
         <>
             <ModalContainer
@@ -58,84 +42,60 @@ const AuthorityForm = ({
                 onClose={() => onClose()}
                 title="Registro de Autoridade u Organismo Presente"
             >
-                <form
-                    className="mx-auto mb-5 w-full max-w-[500px] md:max-w-[100%]"
-                    onSubmit={handleSubmit(handleSubmitInternal)}
-                    noValidate
+                <CustomForm
+                    schema={VehicleInvolvedSchema}
+                    initValue={initValue}
+                    onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos del Vehiculo" />
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input2
-                                description={'Placa'}
-                                key={'licensePlate'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.licensePlate?.message}
+                            <FormInput<TVehicleInvolved>
+                                fieldName={'licensePlate'}
+                                description="Placa"
                             />
 
-                            <Select2
-                                description={'Marca'}
+                            <FormSelect<TVehicleInvolved>
+                                fieldName={'brand'}
+                                description={'Label:'}
                                 options={areaCodes}
-                                isSubmitted={isSubmitted}
-                                onChange={(newValue) =>
-                                    setValue('brand', newValue)
-                                }
                             />
 
-                            <Select2
-                                description={'Modelo'}
+                            <FormSelect<TVehicleInvolved>
+                                fieldName={'model'}
+                                description={'Modelo:'}
                                 options={areaCodes}
-                                isSubmitted={isSubmitted}
-                                onChange={(newValue) =>
-                                    setValue('model', newValue)
-                                }
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input2
-                                description={'Serial del Motor'}
-                                key={'motorSerial'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.motorSerial?.message}
+                            <FormInput<TVehicleInvolved>
+                                fieldName={'motorSerial'}
+                                description="Serial del Motor"
                             />
 
-                            <Select2
-                                description={'Tipo'}
+                            <FormSelect<TVehicleInvolved>
+                                fieldName={'type'}
+                                description={'Tipo:'}
                                 options={areaCodes}
-                                isSubmitted={isSubmitted}
-                                onChange={(newValue) =>
-                                    setValue('type', newValue)
-                                }
                             />
 
-                            <Input2
-                                description={'Año'}
-                                key={'year'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.year?.message}
+                            <FormInput<TVehicleInvolved>
+                                fieldName={'year'}
+                                description="Año"
                             />
 
-                            <Input2
-                                description={'Color'}
-                                key={'color'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.color?.message}
+                            <FormInput<TVehicleInvolved>
+                                fieldName={'color'}
+                                description="Color"
                             />
                         </div>
                         <div className="h-4"></div>
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input2
-                                description={'Condición'}
-                                key={'condition'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.condition?.message}
+                            <FormInput<TVehicleInvolved>
+                                fieldName={'condition'}
+                                description="Condición"
                             />
                         </div>
                     </div>
@@ -151,7 +111,7 @@ const AuthorityForm = ({
                             ></Button>
                         </div>
                     </div>
-                </form>
+                </CustomForm>
             </ModalContainer>
         </>
     )

@@ -1,6 +1,5 @@
-import { FieldValues, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import React, { useState } from 'react'
+import { FieldValues } from 'react-hook-form'
+import React from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
 import ModalContainer from '../../../core/modal/ModalContainer'
@@ -11,11 +10,15 @@ import {
     TPersonInvolved,
     PersonInvolvedSchema,
 } from '../../../../domain/models/person/person_involved'
-import Input2 from '../../../../ui/components/Temp/Input2'
-import Select2 from '../../../../ui/components/Temp/Select2'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types'
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes'
+
+import CustomForm from '../../../core/context/CustomFormContext.tsx'
+import FormInput from '../../../core/inputs/FormInput.tsx'
+import FormSelect from '../../../core/inputs/FormSelect.tsx'
+import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
+import FormToggle from '../../../core/inputs/FormToggle.tsx'
 
 interface PersonFormProps {
     showModal: boolean
@@ -29,23 +32,8 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
     const genders = EnumToStringArray(Genders)
     const units = []
 
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: { errors, isSubmitted },
-        reset,
-    } = useForm<TPersonInvolved>({
-        
-        resolver: zodResolver(PersonInvolvedSchema),
-        defaultValues: initValue != null ? initValue : {},
-    })
-
     async function handleSubmitInternal(data: FieldValues) {
         await new Promise((resolve) => setTimeout(() => {}, 1000))
-        if (true) {
-            reset()
-        }
     }
 
     return (
@@ -57,28 +45,22 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                 onClose={() => onClose()}
                 title="Registro de Persona Involucrada"
             >
-                <form
-                    className="mx-auto my-5 w-full max-w-[500px] md:max-w-[100%]"
-                    onSubmit={handleSubmit(handleSubmitInternal)}
-                    noValidate
+                <CustomForm
+                    schema={PersonInvolvedSchema}
+                    initValue={initValue}
+                    onSubmit={handleSubmitInternal}
                 >
                     <div className="md:flex md:md:items-start md:space-x-2">
-                        <Input2
-                            description={'Condición'}
-                            key={'condition'}
-                            register={register}
-                            isSubmitted={isSubmitted}
-                            errors={errors.condition?.message}
+                        <FormInput<TPersonInvolved>
+                            fieldName={'condition'}
+                            description="Condición:"
                         />
 
                         <div className="w-44">
-                            <Select2
-                                description={'Vehiculo de Traslado'}
-                                options={units}
-                                isSubmitted={isSubmitted}
-                                onChange={(newValue) =>
-                                    setValue('unitId', newValue)
-                                }
+                            <FormSelect<TPersonInvolved>
+                                fieldName={'unitId'}
+                                description={'Vehiculo de Traslado:'}
+                                options={areaCodes}
                             />
                         </div>
                     </div>
@@ -87,114 +69,78 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input2
-                                description={'Nombre'}
-                                key={'firstName'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.firstName?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'firstName'}
+                                description="Nombre:"
                             />
 
-                            <Input2
-                                description={'Apellido'}
-                                key={'lastName'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.lastName?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'lastName'}
+                                description="Apellido:"
                             />
 
                             <div className=" w-96">
-                                <Select2
-                                    description={'Genero'}
-                                    options={genders}
-                                    isSubmitted={isSubmitted}
-                                    onChange={(newValue) =>
-                                        setValue('gender', newValue)
-                                    }
+                                <FormSelect<TPersonInvolved>
+                                    fieldName={'gender'}
+                                    description={'Genero:'}
+                                    options={areaCodes}
                                 />
                             </div>
 
-                            <Input2
-                                description={'Edad'}
-                                key={'age'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.age?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'age'}
+                                description="Edad:"
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <div className="w-full">
                                 <div className="w-44">
-                                    <Select2
-                                        description={'Tipo de Documento'}
-                                        options={documentTypes}
-                                        isSubmitted={isSubmitted}
-                                        onChange={(newValue) =>
-                                            setValue('idDocumentType', newValue)
-                                        }
+                                    <FormSelect<TPersonInvolved>
+                                        fieldName={'idDocumentType'}
+                                        description={'Tipo de Documento:'}
+                                        options={areaCodes}
                                     />
                                 </div>
 
-                                <Input2
-                                    description={'Documento de Identidad'}
-                                    key={'idDocument'}
-                                    register={register}
-                                    isSubmitted={isSubmitted}
-                                    errors={errors.idDocument?.message}
+                                <FormInput<TPersonInvolved>
+                                    fieldName={'idDocument'}
+                                    description="Documento de Identidad:"
                                 />
                             </div>
 
                             <div className="w-44">
-                                <Select2
-                                    description={'Código'}
+                                <FormSelect<TPersonInvolved>
+                                    fieldName={'phoneNumberAreaCode'}
+                                    description={'Código:'}
                                     options={areaCodes}
-                                    isSubmitted={isSubmitted}
-                                    onChange={(newValue) =>
-                                        setValue(
-                                            'phoneNumberAreaCode',
-                                            newValue
-                                        )
-                                    }
                                 />
                             </div>
 
-                            <Input2
-                                description={'Número de Teléfono'}
-                                key={'phoneNumber'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.phoneNumber?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'phoneNumber'}
+                                description="Número de Teléfono:"
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input2
-                                description={'Estado'}
-                                key={'employmentStatus'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.employmentStatus?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'employmentStatus'}
+                                description="Estado:"
                             />
 
-                            <Input2
-                                description={'Patología'}
-                                key={'pathology'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.pathology?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'pathology'}
+                                description="Patología:"
                             />
                         </div>
 
                         <div className="h-4"></div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input2
-                                description={'Observaciones'}
-                                key={'observations'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.observations?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'observations'}
+                                description="Observaciones:"
                             />
                         </div>
                     </div>
@@ -205,37 +151,25 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input2
-                                description={'Estado'}
-                                key={'state'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.state?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'state'}
+                                description="Estado:"
                             />
 
-                            <Input2
-                                description={'Municipio'}
-                                key={'municipality'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.municipality?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'municipality'}
+                                description="Municipio:"
                             />
 
-                            <Input2
-                                description={'Parroquia'}
-                                key={'parish'}
-                                register={register}
-                                isSubmitted={isSubmitted}
-                                errors={errors.parish?.message}
+                            <FormInput<TPersonInvolved>
+                                fieldName={'parish'}
+                                description="Parroquia:"
                             />
                         </div>
 
-                        <Input2
-                            description={'Dirección'}
-                            key={'description'}
-                            register={register}
-                            isSubmitted={isSubmitted}
-                            errors={errors.description?.message}
+                        <FormInput<TPersonInvolved>
+                            fieldName={'description'}
+                            description="Dirección:"
                         />
                     </div>
 
@@ -251,7 +185,7 @@ const PersonForm = ({ showModal, initValue, onClose }: PersonFormProps) => {
                             ></Button>
                         </div>
                     </div>
-                </form>
+                </CustomForm>
             </ModalContainer>
         </>
     )
