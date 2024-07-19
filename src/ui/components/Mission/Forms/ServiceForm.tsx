@@ -1,29 +1,11 @@
-import { FieldValues, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import React, { useState } from 'react'
 
-import {
-    Authority,
-    AuthorityValidator,
-} from '../../../../domain/models/authority/authority'
-import FormTitle from '../../../core/titles/FormTitle'
 import ModalContainer from '../../../core/modal/ModalContainer'
-import { Genders } from '../../../../domain/abstractions/enums/genders'
-import Button from '../../../core/buttons/Button'
-
-import Input2 from '../../../../ui/components/Temp/Input2'
-import Select2 from '../../../../ui/components/Temp/Select2'
 import { AddableTable } from '../../Temp/AddableTable '
 
 import PersonForm from '../Forms/PersonForm'
 import VehicleForm from '../Forms/VehicleForm'
-
-const requiredRule = {
-    required: {
-        value: false,
-        message: 'El campo es requerido',
-    },
-}
+import InfrastructureForm from './InfrastructureForm'
 
 interface AuthorityFormProps {
     showModal: boolean
@@ -44,21 +26,9 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
     var [modalType, setModalType] = useState(ServiceModals.None)
     var [openModal, setOpenModal] = useState(false)
 
-    const {
-        register,
-        handleSubmit,
-        setValue,
-        formState: { errors, isSubmitting, isSubmitted },
-        reset,
-    } = useForm<Authority>({
-        resolver: zodResolver(AuthorityValidator),
-    })
-
-    async function handleSubmitInternal(data: FieldValues) {
-        await new Promise((resolve) => setTimeout(() => {}, 1000))
-        if (true) {
-            reset()
-        }
+    function setModal(type: ServiceModals) {
+        setOpenModal(true)
+        setModalType(type)
     }
 
     return (
@@ -74,25 +44,37 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
                     <AddableTable
                         title="Unidades"
                         addButtonText="Agregar una unidad"
-                        onAddButtonClick={() => {}}
+                        onAddButtonClick={() => setModal(ServiceModals.Unit)}
                     ></AddableTable>
 
                     <AddableTable
                         title="Bomberos"
                         addButtonText="Agregar un bombero"
-                        onAddButtonClick={() => {}}
+                        onAddButtonClick={() =>
+                            setModal(ServiceModals.Firefighter)
+                        }
                     ></AddableTable>
 
                     <AddableTable
                         title="Infraestructuras"
                         addButtonText="Agregar una infraestructura"
-                        onAddButtonClick={() => {}}
+                        onAddButtonClick={() =>
+                            setModal(ServiceModals.Infrastructure)
+                        }
                     ></AddableTable>
 
                     <AddableTable
                         title="Vehiculos"
                         addButtonText="Agregar un vehiculo"
-                        onAddButtonClick={() => {}}
+                        onAddButtonClick={() => setModal(ServiceModals.Vehicle)}
+                    ></AddableTable>
+
+                    <AddableTable
+                        title="Autoridades"
+                        addButtonText="Agregar una autoridad"
+                        onAddButtonClick={() =>
+                            setModal(ServiceModals.Authority)
+                        }
                     ></AddableTable>
                 </div>
             </ModalContainer>
@@ -103,11 +85,14 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
 
 {openModal && modalType == ServiceModals.Firefighter &&
             
-        }
-
-{openModal && modalType == ServiceModals.Infrastructure &&
-            
         } */}
+
+            {openModal && modalType == ServiceModals.Infrastructure && (
+                <InfrastructureForm
+                    showModal={openModal}
+                    onClose={() => setOpenModal(false)}
+                ></InfrastructureForm>
+            )}
 
             {openModal && modalType == ServiceModals.Vehicle && (
                 <VehicleForm

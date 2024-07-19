@@ -1,52 +1,33 @@
-import { FieldValues, useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import React, { useState } from 'react'
+import { FieldValues } from 'react-hook-form'
+import React from 'react'
 
 import {
-    Infrastructure,
+    TInfrastructure,
     InfrastructureValidator,
 } from '../../../../domain/models/infrastructure/infrastructure'
 import FormTitle from '../../../core/titles/FormTitle'
 import ModalContainer from '../../../core/modal/ModalContainer'
-import Input from '../../../core/inputs/Input'
-import { Genders } from '../../../../domain/abstractions/enums/genders'
-import { Select } from '../../../core/inputs/Selects'
 import Button from '../../../core/buttons/Button'
 
-const requiredRule = {
-    required: {
-        value: false,
-        message: 'El campo es requerido',
-    },
-}
+import CustomForm from '../../../core/context/CustomFormContext.tsx'
+import FormInput from '../../../core/inputs/FormInput.tsx'
+import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
 interface AuthorityFormProps {
     showModal: boolean
+    initValue?: TInfrastructure | null
     onClose: () => void
 }
 
-const genders = [Genders.Male, Genders.Female]
 const areaCodes = ['0212', '0412', '0414', '0424']
 
-const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
-    const [areaCode, setAreaCode] = useState(areaCodes[0])
-    const [type, setType] = useState(genders[0])
-
-    const {
-        register,
-        handleSubmit,
-        formState: { errors, isSubmitting, isSubmitted },
-        reset,
-    } = useForm<Infrastructure>({
-        resolver: zodResolver(InfrastructureValidator),
-    })
-
+const AuthorityForm = ({
+    showModal,
+    initValue,
+    onClose,
+}: AuthorityFormProps) => {
     async function handleSubmitInternal(data: FieldValues) {
         await new Promise((resolve) => setTimeout(() => {}, 1000))
-        if (true) {
-            reset()
-            setType(genders[1])
-        }
     }
 
     return (
@@ -58,157 +39,73 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
                 onClose={() => onClose()}
                 title="Registro de Autoridade u Organismo Presente"
             >
-                <form
-                    className="mx-auto mb-5 w-full max-w-[500px] md:max-w-[100%]"
-                    onSubmit={handleSubmit(handleSubmitInternal)}
-                    noValidate
+                <CustomForm
+                    schema={InfrastructureValidator}
+                    initValue={initValue}
+                    onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos del Vehiculo" />
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Select
-                                label={'Tipo de Infrastructura'}
-                                useDotLabel={true}
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_type'}
+                                description={'Tipo de infrastructura:'}
                                 options={areaCodes}
-                                value={type}
-                                onChange={(v) => {
-                                    setType(v)
-                                }}
-                                type={''}
-                                onChangeRaw={() => {}}
-                                openUp={false}
                             />
-
-                            <Select
-                                label={'Ocupación'}
-                                useDotLabel={true}
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_occupation'}
+                                description={'Ocupación:'}
                                 options={areaCodes}
-                                value={type}
-                                onChange={(v) => {
-                                    setType(v)
-                                }}
-                                type={''}
-                                onChangeRaw={() => {}}
-                                openUp={false}
                             />
-
-                            <Select
-                                label={'Ubicación'}
-                                useDotLabel={true}
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_area'}
+                                description={'Area de ubicación:'}
                                 options={areaCodes}
-                                value={type}
-                                onChange={(v) => {
-                                    setType(v)
-                                }}
-                                type={''}
-                                onChangeRaw={() => {}}
-                                openUp={false}
                             />
-
-                            <Select
-                                label={'Acceso'}
-                                useDotLabel={true}
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_access'}
+                                description={'Acceso:'}
                                 options={areaCodes}
-                                value={type}
-                                onChange={(v) => {
-                                    setType(v)
-                                }}
-                                type={''}
-                                onChangeRaw={() => {}}
-                                openUp={false}
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Input
-                                register={register as any}
-                                validationRules={requiredRule as any}
-                                errMessage={errors.bano?.message}
-                                useStrongErrColor={isSubmitted}
-                                label={'N° Niveles'}
-                                inputName={'vehicle.year'}
-                                useDotLabel={true}
-                                value={''}
-                                type={''}
-                                onChangeEvent={() => {}}
-                                onFocus={() => {}}
-                                placeHolder="doe"
+                            <FormSelect<TInfrastructure>
+                                fieldName={'goods_type'}
+                                description={'Tipo de bienes:'}
+                                options={areaCodes}
                             />
-
-                            <Input
-                                register={register as any}
-                                validationRules={requiredRule as any}
-                                errMessage={errors.bano?.message}
-                                useStrongErrColor={isSubmitted}
-                                label={'N° Habitaciones'}
-                                inputName={'vehicle.color'}
-                                useDotLabel={true}
-                                value={''}
-                                type={''}
-                                onChangeEvent={() => {}}
-                                onFocus={() => {}}
-                                placeHolder="0000000"
+                            <FormInput<TInfrastructure>
+                                fieldName={'levels'}
+                                description="N° Niveles:"
                             />
-
-                            <Input
-                                register={register as any}
-                                validationRules={requiredRule as any}
-                                errMessage={errors.bano?.message}
-                                useStrongErrColor={isSubmitted}
-                                label={'N° Adultos'}
-                                inputName={'vehicle.color'}
-                                useDotLabel={true}
-                                value={''}
-                                type={''}
-                                onChangeEvent={() => {}}
-                                onFocus={() => {}}
-                                placeHolder="0000000"
+                            <FormInput<TInfrastructure>
+                                fieldName={'people'}
+                                description="N° personas:"
                             />
+                        </div>
 
-                            <Input
-                                register={register as any}
-                                validationRules={requiredRule as any}
-                                errMessage={errors.bano?.message}
-                                useStrongErrColor={isSubmitted}
-                                label={'N° Menores'}
-                                inputName={'vehicle.color'}
-                                useDotLabel={true}
-                                value={''}
-                                type={''}
-                                onChangeEvent={() => {}}
-                                onFocus={() => {}}
-                                placeHolder="0000000"
+                        <div className="md:flex md:md:items-start md:space-x-2">
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_room_type'}
+                                description={'Tipo de habitación:'}
+                                options={areaCodes}
                             />
-
-                            <Input
-                                register={register as any}
-                                validationRules={requiredRule as any}
-                                errMessage={errors.bano?.message}
-                                useStrongErrColor={isSubmitted}
-                                label={'N° Trabajadores'}
-                                inputName={'vehicle.color'}
-                                useDotLabel={true}
-                                value={''}
-                                type={''}
-                                onChangeEvent={() => {}}
-                                onFocus={() => {}}
-                                placeHolder="0000000"
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_floor'}
+                                description={'Pisos:'}
+                                options={areaCodes}
                             />
-
-                            <Input
-                                register={register as any}
-                                validationRules={requiredRule as any}
-                                errMessage={errors.bano?.message}
-                                useStrongErrColor={isSubmitted}
-                                label={'N° Edificación'}
-                                inputName={'vehicle.color'}
-                                useDotLabel={true}
-                                value={''}
-                                type={''}
-                                onChangeEvent={() => {}}
-                                onFocus={() => {}}
-                                placeHolder="0000000"
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_wall'}
+                                description={'Paredes:'}
+                                options={areaCodes}
+                            />
+                            <FormSelect<TInfrastructure>
+                                fieldName={'build_roof'}
+                                description={'Techos:'}
+                                options={areaCodes}
                             />
                         </div>
 
@@ -217,41 +114,9 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
                         <FormTitle title="Dirección de Domicilio" />
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <Select
-                                label={'Paredes'}
-                                useDotLabel={true}
-                                options={areaCodes}
-                                value={type}
-                                onChange={(v) => {
-                                    setType(v)
-                                }}
-                                type={''}
-                                onChangeRaw={() => {}}
-                                openUp={false}
-                            />
-                            <Select
-                                label={'Pisos'}
-                                useDotLabel={true}
-                                options={areaCodes}
-                                value={type}
-                                onChange={(v) => {
-                                    setType(v)
-                                }}
-                                type={''}
-                                onChangeRaw={() => {}}
-                                openUp={false}
-                            />
-                            <Select
-                                label={'Techos'}
-                                useDotLabel={true}
-                                options={areaCodes}
-                                value={type}
-                                onChange={(v) => {
-                                    setType(v)
-                                }}
-                                type={''}
-                                onChangeRaw={() => {}}
-                                openUp={false}
+                            <FormInput<TInfrastructure>
+                                fieldName={'observations'}
+                                description="Observaciones:"
                             />
                         </div>
                     </div>
@@ -267,7 +132,7 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
                             ></Button>
                         </div>
                     </div>
-                </form>
+                </CustomForm>
             </ModalContainer>
         </>
     )
