@@ -1,47 +1,23 @@
 import { useContext, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
-import { useForm } from "react-hook-form";
-import SelectWithSearch from "../../../core/inputs/SelectWithSearch";
-import Input from "../../../core/inputs/Input";
+import FormInput from "../../../core/inputs/FormInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
+import CustomForm from "../../../core/context/CustomFormContext";
+import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
+import React from "react";
 import AddInput from "../../../core/inputs/AddInput";
-
 
 
 const institutions = ["Institución Nombre Largo Para Probar Como se Ve", "Plataforma de Gestion de Operaciones y Servicios Para Bomberos"]
 
-const requiredRule = {
-    required: {
-        value: false,
-        message: "El campo es requerido",
-    }
-}
+
 
 export default function StationForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const { register, handleSubmit, formState } = useForm({
-        mode: "onChange",
-        defaultValues: currentData,
-    });
-
-    const { errors, isSubmitted } = formState;
-
-
-
-    const [institution, setInstution] = useState(institutions[1]);
-
-    const [institutionErr, setInstutionErr] = useState(false);
-
-
-
-
-
     const [regions, setRegions] = useState([]);
 
     const [phones, setPhones] = useState([]);
-
-
 
     function handleSubmitInternal(data) {
 
@@ -53,21 +29,21 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
     }
     return (
 
-        <form
-            noValidate
+        <CustomForm
+
+            initValue={currentData}
 
             onSubmit={
-                handleSubmit((data) => {
+                (data) => {
 
-                    if (institutionErr)
-                        return;
 
-                    const newData = { ...data, "institution": institution, "regions": regions, "phones": phones }
+
+                    const newData = { ...data, "regions": regions, "phones": phones }
 
                     handleSubmitInternal(newData)
-                })}
+                }}
 
-            className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
+            classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
             {/* <FormTitle title={"Datos básicos del Vehículo"} /> */}
 
@@ -75,28 +51,18 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                 <div className="w-full space-y-4 px-2 max-w-[720px]">
 
-                    <SelectWithSearch label={"Institución"}
-                        useDotLabel={true}
+                    <FormSelectSearch
+                        fieldName="institution"
+                        description={"Institución"}
                         options={institutions}
-                        value={institution}
-                        onChange={(v) => { setInstution(v) }}
-                        errMessage={institutionErr}
+
                         openUp={false}
-                        onError={(err) => { setInstutionErr(err) }}
-                        useStrongErrColor={isSubmitted} />
+                    />
 
-                    <Input
-
-                        register={register}
-                        validationRules={requiredRule}
-
-                        errMessage={errors.name?.message}
-                        useStrongErrColor={isSubmitted}
-
-                        label={"Nombre de la Estación"}
-                        inputName={"name"}
-                        useDotLabel={true}
-                        placeHolder="Nombre de la Estación..."
+                    <FormInput
+                        description={"Nombre de la Estación"}
+                        fieldName={"name"}
+                        placeholder="Nombre de la Estación..."
 
                     />
 
@@ -105,17 +71,12 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <Input
+                        <FormInput
 
-                            register={register}
-                            validationRules={requiredRule}
 
-                            errMessage={errors.description?.message}
-                            useStrongErrColor={isSubmitted}
-                            label={"Descripción"}
-                            inputName={"description"}
-                            useDotLabel={true}
-                            placeHolder="Descripción...."
+                            description={"Descripción"}
+                            fieldName={"description"}
+                            placeholder="Descripción...."
 
                         />
 
@@ -129,7 +90,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                                 inputName={"phones"}
                                 useDotLabel={true}
                                 placeHolder="0212-9855489"
-                                useStrongErrColor={isSubmitted}
+                                //useStrongErrColor={isSubmitted}
                                 items={phones}
                                 setItems={setPhones}
                             />
@@ -143,36 +104,25 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
 
                         <div className="md:w-[30%]">
-                            <Input
+                            <FormInput
 
-                                register={register}
-                                validationRules={requiredRule}
 
-                                errMessage={errors.code?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Código"}
-                                inputName={"code"}
-                                useDotLabel={true}
-                                placeHolder="01"
+                                description={"Código"}
+                                fieldName={"code"}
+                                placeholder="01"
 
                             />
                         </div>
 
                         <div className="md:w-[30%]">
 
-                            <Input
+                            <FormInput
 
-                                register={register}
-                                validationRules={requiredRule}
 
-                                errMessage={errors.abbreviation?.message}
-                                useStrongErrColor={isSubmitted}
 
-                                label={"Siglas"}
-                                inputName={"abbreviation"}
-                                useDotLabel={true}
-                                placeHolder="M01"
+                                description={"Siglas"}
+                                fieldName={"abbreviation"}
+                                placeholder="M01"
 
                             />
                         </div>
@@ -183,7 +133,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                             inputName={"regions"}
                             useDotLabel={true}
                             placeHolder="Region Operativa Ejem:01M"
-                            useStrongErrColor={isSubmitted}
+
                             items={regions}
                             setItems={setRegions}
                         />
@@ -200,6 +150,6 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
             <FormHiddenButton clickNextRef={clickNextRef} clickSubmitRef={clickSubmitRef} />
 
-        </form>
+        </CustomForm>
     )
 }

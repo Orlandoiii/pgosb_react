@@ -1,9 +1,8 @@
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
 import AlertController from "../../core/alerts/AlertController";
 import mockData from "../../../assets/MOCK_DATA.json"
 import { ModalStepPage } from "../../core/modal/ModalStepPage";
-import RegionForm from "./Forms/RegionForm";
 import FormTitle from "../../core/titles/FormTitle";
 import TreeViewCustom from "../../core/treeview/TreeViewCustom";
 export default function LocationPage({ }) {
@@ -46,7 +45,7 @@ export default function LocationPage({ }) {
                   <div className="mb-2 px-2">
                      <FormTitle title={"Registro de Región"} />
                   </div>
-                  <RegionForm />
+                  {/* <RegionForm /> */}
 
                </div>
                <div className="md:w-[45%] mx-auto">

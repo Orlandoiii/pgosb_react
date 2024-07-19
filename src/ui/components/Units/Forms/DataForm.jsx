@@ -1,26 +1,16 @@
 import { useContext, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
-import { useForm } from "react-hook-form";
-import Input from "../../../core/inputs/Input";
+import FormInput from "../../../core/inputs/FormInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
+import React from "react";
 import AddInput from "../../../core/inputs/AddInput";
 
-const requiredRule = {
-    required: {
-        value: true,
-        message: "El campo es requerido",
-    }
-}
+
 
 export default function DataForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const { register, handleSubmit, formState } = useForm({
-        mode: "onChange",
-        defaultValues: currentData,
-    });
-
-    const { errors, isSubmitted } = formState;
+ 
 
     const [details, setDetails] = useState([]);
 
@@ -60,18 +50,13 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <Input
+                        <FormInput
 
-                            register={register}
-                            validationRules={requiredRule}
 
-                            errMessage={errors.use?.message}
-                            useStrongErrColor={isSubmitted}
 
-                            label={"Uso/Proposito"}
-                            inputName={"use"}
-                            useDotLabel={true}
-                            placeHolder="Para transporte de personal"
+                            description={"Uso/Proposito"}
+                            fieldName={"use"}
+                            placeholder="Para transporte de personal"
 
                         />
 
@@ -81,35 +66,23 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
                         <div className="md:w-[20%]">
-                            <Input
+                            <FormInput
 
-                                register={register}
-                                validationRules={requiredRule}
 
-                                errMessage={errors.capacity?.message}
-                                useStrongErrColor={isSubmitted}
 
-                                label={"Cap. Personas"}
-                                inputName={"capacity"}
-                                useDotLabel={true}
-                                placeHolder="8"
+                                description={"Cap. Personas"}
+                                fieldName={"capacity"}
+                                placeholder="8"
 
                             />
                         </div>
 
                         <div className="">
-                            <Input
+                            <FormInput
 
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.hurt_capacity?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Cap. Heridos"}
-                                inputName={"hurt_capacity"}
-                                useDotLabel={true}
-                                placeHolder="4"
+                                description={"Cap. Heridos"}
+                                fieldName={"hurt_capacity"}
+                                placeholder="4"
 
                             />
 
@@ -117,36 +90,25 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
 
                         <div className="">
-                            <Input
+                            <FormInput
 
-                                register={register}
-                                validationRules={requiredRule}
 
-                                errMessage={errors.doors?.message}
-                                useStrongErrColor={isSubmitted}
 
-                                label={"Nro. Puertas"}
-                                inputName={"doors"}
-                                useDotLabel={true}
-                                placeHolder="4"
+                                description={"Nro. Puertas"}
+                                fieldName={"doors"}
+                                placeholder="4"
 
                             />
                         </div>
 
 
                         <div className="">
-                            <Input
+                            <FormInput
 
-                                register={register}
-                                validationRules={requiredRule}
 
-                                errMessage={errors.performance?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Rendimiento"}
-                                inputName={"performance"}
-                                useDotLabel={true}
-                                placeHolder="10 Km/L"
+                                description={"Rendimiento"}
+                                fieldName={"performance"}
+                                placeholder="10 Km/L"
 
                             />
                         </div>
@@ -158,56 +120,35 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <Input
+                        <FormInput
 
-                            register={register}
-                            validationRules={requiredRule}
 
-                            errMessage={errors.load_capacity?.message}
-                            useStrongErrColor={isSubmitted}
 
-                            label={"Cap. Carga"}
-                            inputName={"load_capacity"}
-                            useDotLabel={true}
-                            placeHolder="10.000 Kg"
+                            description={"Cap. Carga"}
+                            fieldName={"load_capacity"}
+                            placeholder="10.000 Kg"
 
                         />
 
 
-                        <Input
+                        <FormInput
 
-                            register={register}
-                            validationRules={requiredRule}
 
-                            errMessage={errors.water_capacity?.message}
-                            useStrongErrColor={isSubmitted}
 
-                            label={"Cap. Litros"}
-                            inputName={"water_capacity"}
-                            useDotLabel={true}
-                            placeHolder="10.000 L"
+                            description={"Cap. Litros"}
+                            fieldName={"water_capacity"}
+                            placeholder="10.000 L"
 
                         />
 
-                        <Input
+                        <FormInput
 
-                            register={register}
-                            validationRules={requiredRule}
 
-                            errMessage={errors.init_kilometer?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Kilometraje Inicial"}
-                            inputName={"init_kilometer"}
-                            useDotLabel={true}
-                            placeHolder="10.0000 KM"
+                            description={"Kilometraje Inicial"}
+                            fieldName={"init_kilometer"}
+                            placeholder="10.0000 KM"
 
                         />
-
-
-
-
-
 
                     </div>
 
@@ -221,36 +162,17 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                             inputName={"details"}
                             useDotLabel={true}
                             placeHolder="Ejem: Tiene una ventana rota"
-                            useStrongErrColor={isSubmitted}
                             items={details}
                             setItems={setDetails}
                         />
 
 
 
-                        <Input
-
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.unit_condition?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Condicion de la Unidad"}
-                            inputName={"unit_condition"}
-                            useDotLabel={true}
-                            placeHolder="En Perfecto Estado"
-
+                        <FormInput
+                            description={"Condicion de la Unidad"}
+                            fieldName={"unit_condition"}
+                            placeholder="En Perfecto Estado"
                         />
-
-
-
-
-
-
-
-
-
                     </div>
 
                 </div>

@@ -1,322 +1,322 @@
-import { useReducer, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import Select from "../core/inputs/Selects";
-import SelectWithSearch from '../core/inputs/SelectWithSearch';
-import logger from "../../logic/Logger/logger";
-import Input from "../core/inputs/Input";
-import AddInput from "../core/inputs/AddInput";
-import Button from "../core/buttons/Button";
-import SycomComponent from "./SycomComponent";
-import TableDataGrid from "../core/datagrid/TableDataGrid";
-import LocationForm from "../components/Locations/Forms/LocationForm";
-import PDFtest from "./PDFtest";
-import {PDFDownloadLink, PDFViewer} from '@react-pdf/renderer'
+// import { useReducer, useRef, useState } from "react";
+// import { useForm } from "react-hook-form";
+// import Select from "../core/inputs/Selects";
+// import SelectWithSearch from '../core/inputs/SelectWithSearch';
+// import logger from "../../logic/Logger/logger";
+// import Input from "../core/inputs/Input";
+// import AddInput from "../core/inputs/AddInput";
+// import Button from "../core/buttons/Button";
+// import SycomComponent from "./SycomComponent";
+// import TableDataGrid from "../core/datagrid/TableDataGrid";
+// import LocationForm from "../components/Locations/Forms/LocationForm";
+// import PDFtest from "./PDFtest";
+// import {PDFDownloadLink, PDFViewer} from '@react-pdf/renderer'
 
-import MockData from "../../assets/MOCK_DATA.json"
-import RegionForm from "../components/Locations/Forms/RegionForm";
-import ModalConfirmation, { useConfirmationModal } from "../core/modal/ModalConfirmation";
-import AlertController from "../core/alerts/AlertController";
-import LoadingModal from "../core/modal/LoadingModal";
+// import MockData from "../../assets/MOCK_DATA.json"
+// import RegionForm from "../components/Locations/Forms/RegionForm";
+// import ModalConfirmation, { useConfirmationModal } from "../core/modal/ModalConfirmation";
+// import AlertController from "../core/alerts/AlertController";
+// import LoadingModal from "../core/modal/LoadingModal";
 
 
 
-function UseStateCounter({ }) {
-    const [counter, setCounter] = useState(0);
+// function UseStateCounter({ }) {
+//     const [counter, setCounter] = useState(0);
 
 
 
-    return (
-        <div className="w-full h-full flex flex-col justify-center text-center p-4">
+//     return (
+//         <div className="w-full h-full flex flex-col justify-center text-center p-4">
 
-            <h2>Contador Con useState</h2>
+//             <h2>Contador Con useState</h2>
 
 
-            <h3>Counter: {counter}</h3>
+//             <h3>Counter: {counter}</h3>
 
-            <div className="flex justify-center items-center space-x-4">
-                <button
-                    onClick={() => { setCounter(c => c - 1) }}
-                    className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me -</button>
-                <button
-                    onClick={() => { setCounter(c => c + 1) }}
-                    className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me +</button>
+//             <div className="flex justify-center items-center space-x-4">
+//                 <button
+//                     onClick={() => { setCounter(c => c - 1) }}
+//                     className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me -</button>
+//                 <button
+//                     onClick={() => { setCounter(c => c + 1) }}
+//                     className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me +</button>
 
-            </div>
+//             </div>
 
-        </div>
-    )
-}
+//         </div>
+//     )
+// }
 
 
-const initialState = { count: 0 };
+// const initialState = { count: 0 };
 
-function reducer(state, action) {
+// function reducer(state, action) {
 
 
-    switch (action.type) {
-        case "INC":
-            return { count: state.count + 1 }
-        case "DEC":
-            return { count: state.count - 1 }
-    }
-    // throw new Error("action unknow");
-}
+//     switch (action.type) {
+//         case "INC":
+//             return { count: state.count + 1 }
+//         case "DEC":
+//             return { count: state.count - 1 }
+//     }
+//     // throw new Error("action unknow");
+// }
 
-function UseStateReducer({ }) {
+// function UseStateReducer({ }) {
 
 
-    const [state, dispatch] = useReducer(reducer, initialState);
+//     const [state, dispatch] = useReducer(reducer, initialState);
 
 
 
-    return (
-        <div className="w-full h-full flex flex-col justify-center text-center p-4">
+//     return (
+//         <div className="w-full h-full flex flex-col justify-center text-center p-4">
 
-            <h2>Contador Con useReducer</h2>
+//             <h2>Contador Con useReducer</h2>
 
 
-            <h3>Counter: {state?.count}</h3>
+//             <h3>Counter: {state?.count}</h3>
 
-            <div className="flex justify-center items-center space-x-4">
-                <button
-                    onClick={() => dispatch({ type: "DEC" })}
-                    className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me -</button>
-                <button
-                    onClick={() => dispatch({ type: "INC" })}
-                    className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me +</button>
+//             <div className="flex justify-center items-center space-x-4">
+//                 <button
+//                     onClick={() => dispatch({ type: "DEC" })}
+//                     className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me -</button>
+//                 <button
+//                     onClick={() => dispatch({ type: "INC" })}
+//                     className="p-4 bg-sky-600 outline-none rounded-md text-white shadow-md">Click Me +</button>
 
-            </div>
+//             </div>
 
-        </div>
-    )
-}
+//         </div>
+//     )
+// }
 
 
 
 
 
-function UseStateVsUseReducer({ }) {
+// function UseStateVsUseReducer({ }) {
 
 
 
-    return (
-        <div className="h-full w-full">
+//     return (
+//         <div className="h-full w-full">
 
-            <div className="">
-                <UseStateCounter />
-            </div>
+//             <div className="">
+//                 <UseStateCounter />
+//             </div>
 
-            <div className="">
-                <UseStateReducer />
-            </div>
+//             <div className="">
+//                 <UseStateReducer />
+//             </div>
 
-        </div>
-    )
-}
+//         </div>
+//     )
+// }
 
 
-const requiredRule = {
-    required: {
-        value: true,
-        message: "El campo es requerido",
-    }
-}
+// const requiredRule = {
+//     required: {
+//         value: true,
+//         message: "El campo es requerido",
+//     }
+// }
 
 
 
 
-function FormTest({ }) {
+// function FormTest({ }) {
 
-    const [rol, setRol] = useState(rolList[0]);
+//     const [rol, setRol] = useState(rolList[0]);
 
-    const [rolErr, setRolErr] = useState("");
+//     const [rolErr, setRolErr] = useState("");
 
-    const [allergies, setAllergies] = useState([]);
+//     const [allergies, setAllergies] = useState([]);
 
 
-    const [civilStatus, setCivilStatus] = useState(civilStatusList[0]);
+//     const [civilStatus, setCivilStatus] = useState(civilStatusList[0]);
 
-    const { register, handleSubmit, formState, setValue } = useForm({
-        mode: "onChange",
+//     const { register, handleSubmit, formState, setValue } = useForm({
+//         mode: "onChange",
 
-    });
+//     });
 
-    const [outside, setOutSide] = useState("");
+//     const [outside, setOutSide] = useState("");
 
-    const outSideRef = useRef("");
+//     const outSideRef = useRef("");
 
-    const { errors, isSubmitted } = formState;
+//     const { errors, isSubmitted } = formState;
 
 
-    logger.log("Renderizo Forma Test")
+//     logger.log("Renderizo Forma Test")
 
 
-    return (
-        <div className="flex flex-col justify-center items-center mt-8">
-            <h1>Probando Lista</h1>
-            <form className="w-full max-w-[420px]" noValidate
+//     return (
+//         <div className="flex flex-col justify-center items-center mt-8">
+//             <h1>Probando Lista</h1>
+//             <form className="w-full max-w-[420px]" noValidate
 
-                onSubmit={
-                    handleSubmit((data) => {
+//                 onSubmit={
+//                     handleSubmit((data) => {
 
-                        logger.log("RolErr", rolErr)
+//                         logger.log("RolErr", rolErr)
 
-                        logger.log(data)
+//                         logger.log(data)
 
-                    })}>
+//                     })}>
 
 
 
-                <Input label={"Nombre"}
+//                 <Input label={"Nombre"}
 
-                    register={register}
-                    validationRules={requiredRule}
+//                     register={register}
+//                     validationRules={requiredRule}
 
-                    useStrongErrColor={isSubmitted}
-                    errMessage={errors.name?.message}
+//                     useStrongErrColor={isSubmitted}
+//                     errMessage={errors.name?.message}
 
-                    inputName={"name"}
-                    useDotLabel={true}
-                    placeHolder="Jon"
+//                     inputName={"name"}
+//                     useDotLabel={true}
+//                     placeHolder="Jon"
 
-                />
+//                 />
 
 
-                <Input
+//                 <Input
 
-                    label={"Apellido"}
+//                     label={"Apellido"}
 
-                    readOnly={false}
+//                     readOnly={false}
 
 
-                    register={register}
-                    validationRules={requiredRule}
+//                     register={register}
+//                     validationRules={requiredRule}
 
-                    useStrongErrColor={isSubmitted}
-                    errMessage={errors.last_name?.message}
+//                     useStrongErrColor={isSubmitted}
+//                     errMessage={errors.last_name?.message}
 
-                    inputName={"last_name"}
-                    useDotLabel={true}
-                    placeHolder="Doe"
-                    onChangeEvent={(e) => { logger.log("Cambio Uncontrolled Input") }}
+//                     inputName={"last_name"}
+//                     useDotLabel={true}
+//                     placeHolder="Doe"
+//                     onChangeEvent={(e) => { logger.log("Cambio Uncontrolled Input") }}
 
-                />
+//                 />
 
 
-                <Select register={register}
-                    label={"Estado Civil"}
-                    inputName={"civil_state"}
-                    useDotLabel={true}
-                    options={civilStatusList}
-                    value={civilStatus}
-                    setValue={setValue}
-                    openUp={true} />
+//                 <Select register={register}
+//                     label={"Estado Civil"}
+//                     inputName={"civil_state"}
+//                     useDotLabel={true}
+//                     options={civilStatusList}
+//                     value={civilStatus}
+//                     setValue={setValue}
+//                     openUp={true} />
 
 
-                <SelectWithSearch
+//                 <SelectWithSearch
 
-                    onError={(err) => { setRolErr(err) }}
-                    label={"Rol"}
-                    useDotLabel={true}
-                    options={rolList}
-                    value={rol}
-                    onChange={(v) => { setRol(v) }}
-                    openUp={true}
-                    useStrongErrColor={isSubmitted} />
+//                     onError={(err) => { setRolErr(err) }}
+//                     label={"Rol"}
+//                     useDotLabel={true}
+//                     options={rolList}
+//                     value={rol}
+//                     onChange={(v) => { setRol(v) }}
+//                     openUp={true}
+//                     useStrongErrColor={isSubmitted} />
 
-                <AddInput
+//                 <AddInput
 
-                    label={"Alergias"}
-                    inputName={"allergies"}
-                    useDotLabel={true}
-                    placeHolder="Alergia Ejem:Nuez"
-                    useStrongErrColor={isSubmitted}
-                    items={allergies}
-                    setItems={setAllergies}
-                />
+//                     label={"Alergias"}
+//                     inputName={"allergies"}
+//                     useDotLabel={true}
+//                     placeHolder="Alergia Ejem:Nuez"
+//                     useStrongErrColor={isSubmitted}
+//                     items={allergies}
+//                     setItems={setAllergies}
+//                 />
 
 
 
-                <Button>Submit</Button>
+//                 <Button>Submit</Button>
 
-            </form>
+//             </form>
 
-            <div className="flex flex-col justify-center items-center mt-8">
-                <h2>Outside Form Input</h2>
+//             <div className="flex flex-col justify-center items-center mt-8">
+//                 <h2>Outside Form Input</h2>
 
-                <Input
+//                 <Input
 
-                    label={"Outside"}
+//                     label={"Outside"}
 
-                    readOnly={false}
+//                     readOnly={false}
 
 
-                    controlled={false}
+//                     controlled={false}
 
-                    useStrongErrColor={isSubmitted}
+//                     useStrongErrColor={isSubmitted}
 
-                    value={"Init"}
-                    inputName={"outside"}
-                    useDotLabel={true}
-                    placeHolder="Outside"
-                    inputRef={outSideRef}
-                    onChangeEvent={(e) => {
-                        logger.log("Cambio controlled Input: ", outSideRef.current.value);
+//                     value={"Init"}
+//                     inputName={"outside"}
+//                     useDotLabel={true}
+//                     placeHolder="Outside"
+//                     inputRef={outSideRef}
+//                     onChangeEvent={(e) => {
+//                         logger.log("Cambio controlled Input: ", outSideRef.current.value);
 
-                    }}
+//                     }}
 
-                />
+//                 />
 
-            </div>
-        </div>
-    )
-}
+//             </div>
+//         </div>
+//     )
+// }
 
-const alertController = new AlertController();
+// const alertController = new AlertController();
 
-export default function Testing({ }) {
+// export default function Testing({ }) {
 
-    const {showConfirmationModal} = useConfirmationModal();
+//     const {showConfirmationModal} = useConfirmationModal();
 
 
 
-    function handleClick() {
+//     function handleClick() {
 
-        let resultPromise = showConfirmationModal("Un Titulote Para Probar", "Esta Seguro que desea continuar con la operacion");
+//         let resultPromise = showConfirmationModal("Un Titulote Para Probar", "Esta Seguro que desea continuar con la operacion");
 
-        resultPromise.then(r => {
-            if (!r) {
-                alertController.notifyError("El usuario rechazo");
-                return;
-            }
+//         resultPromise.then(r => {
+//             if (!r) {
+//                 alertController.notifyError("El usuario rechazo");
+//                 return;
+//             }
 
-            alertController.notifyInfo("El usuario confirmo");
+//             alertController.notifyInfo("El usuario confirmo");
 
-        })
-    }
+//         })
+//     }
 
-    return (
+//     return (
 
-        <>
+//         <>
 
-            <div className="w-full flex flex-col justify-center items-center"></div>
-            <div className="max-w-[520px] mx-auto">
-                <Button onClick={handleClick}>Open Modal</Button>
-            </div>
+//             <div className="w-full flex flex-col justify-center items-center"></div>
+//             <div className="max-w-[520px] mx-auto">
+//                 <Button onClick={handleClick}>Open Modal</Button>
+//             </div>
 
 
-            <div>
-                <h1>PDF TEST</h1>      
-                  <PDFDownloadLink document={<PDFtest />} fileName="registeruser.pdf">
-                     {({ loading, url, error, blob }) =>
-                         loading ? (
-                             <button  >Cargando documento...</button>
-                         ) : (
-                              <Button>Descargar PDF</Button>
-                           )
-                     }
-                 </PDFDownloadLink> 
-            </div>
-        </>
-    )
-}
+//             <div>
+//                 <h1>PDF TEST</h1>      
+//                   <PDFDownloadLink document={<PDFtest />} fileName="registeruser.pdf">
+//                      {({ loading, url, error, blob }) =>
+//                          loading ? (
+//                              <button  >Cargando documento...</button>
+//                          ) : (
+//                               <Button>Descargar PDF</Button>
+//                            )
+//                      }
+//                  </PDFDownloadLink> 
+//             </div>
+//         </>
+//     )
+// }

@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 
 import Input from "../../../core/inputs/Input";
-import Select from "../../../core/inputs/Selects";
+import Select from "../../../core/inputs/Select";
 import { useContext, useState } from "react";
 import AddInput from "../../../core/inputs/AddInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";

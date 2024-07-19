@@ -1,7 +1,7 @@
-import { useForm } from "react-hook-form";
+import React from "react";
 
-import Input from "../../../core/inputs/Input";
-import SelectWithSearch from "../../../core/inputs/SelectWithSearch";
+
+import FormInput from "../../../core/inputs/FormInput";
 
 import { useContext, useEffect, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
@@ -9,6 +9,7 @@ import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import axios from "axios";
 import { useConfig } from "../../../../logic/Config/ConfigContext";
 import logger from "../../../../logic/Logger/logger";
+import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 
 
 let LocationRawData = {
@@ -39,10 +40,6 @@ function SetPerish(data) {
     LocationRawData.PerishIsLoad = true;
 }
 
-
-
-
-
 function getMunicipios(stateName) {
     if (!stateName || stateName == "" ||
         !LocationRawData.StatesIsLoad || !LocationRawData.MunicipalitysIsLoad)
@@ -62,9 +59,6 @@ function getMunicipios(stateName) {
     }
 
     return result.map(result => result.name);
-
-
-
 
 }
 
@@ -134,20 +128,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const { register, handleSubmit, formState, setValue } = useForm({
-        mode: "onChange",
-        defaultValues: currentData
-    });
-
-    const { errors, isSubmitted } = formState;
-
-
-
     const [estado, setEstado] = useState(currentData?.state ? currentData.state : states[0]);
-
-
-    const [estadoErr, setEstadoErr] = useState(false);
-
 
 
     const canLoadMunicipios = LocationRawData.MunicipalitysIsLoad &&
@@ -161,7 +142,6 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     const [municipio, setMunicipio] = useState(currentData?.municipality);
 
 
-    const [municipioErr, setMunicipioErr] = useState(false);
 
 
     const canLoadParroquias = canLoadMunicipios && LocationRawData.PerishIsLoad && municipio && municipio != "";
@@ -171,7 +151,6 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     )
     const [parroquia, setParroquia] = useState(currentData?.parish);
 
-    const [parroquiaErr, setParroquiaErr] = useState(false);
 
 
 
@@ -285,16 +264,14 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
         <form
             noValidate
 
-            onSubmit={handleSubmit((
+            onSubmit={(
                 data) => {
 
-                if (estadoErr || municipioErr || parroquiaErr)
-                    return;
 
-                const newData = { ...data, "state": estado, "municipality": municipio, "parish": parroquia }
+                // const newData = { ...data, "state": estado, "municipality": municipio, "parish": parroquia }
 
-                handleSubmitInternal(newData)
-            })}
+                handleSubmitInternal(data)
+            }}
             className="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
@@ -305,40 +282,26 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <SelectWithSearch
-
-                            label={"Estado"}
-                            useDotLabel={true}
+                        <FormSelectSearch
+                            fieldName={"state"}
+                            description={"Estado"}
                             options={states}
-                            value={estado}
-                            onChange={(v) => { setEstado(v) }}
                             openUp={false}
-                            onError={(err) => { setEstadoErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                        />
+                        <FormSelectSearch
 
-                        <SelectWithSearch
-
-                            label={"Municipio"}
-                            useDotLabel={true}
+                            fieldName="municipality"
+                            description={"Municipio"}
                             options={municipios}
-                            value={municipio}
-                            onChange={(v) => { setMunicipio(v) }}
                             openUp={false}
-                            onError={(err) => { setMunicipioErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                        />
+                        <FormSelectSearch
 
-                        <SelectWithSearch
-
-                            label={"Parroquia"}
-                            useDotLabel={true}
+                            fieldName="parish"
+                            description={"Parroquia"}
                             options={parroquias}
-                            value={parroquia}
-                            onChange={(v) => { setParroquia(v) }}
                             openUp={false}
-                            onError={(err) => { setParroquiaErr(err) }}
-                            useStrongErrColor={isSubmitted} />
-
-
+                        />
 
                     </div>
 
@@ -350,29 +313,17 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
 
 
-                        <Input label={"Sector"}
-                            register={register}
-                            // validationRules={requiredRule}
-
-                            useStrongErrColor={isSubmitted}
-                            errMessage={errors.sector?.message}
-
-                            inputName={"sector"}
-                            useDotLabel={true}
-                            placeHolder="Sector..."
+                        <FormInput
+                            description={"Sector"}
+                            fieldName={"sector"}
+                            placeholder="Sector..."
 
                         />
 
-                        <Input label={"Urbanización/Comunidad/Barrio"}
-                            register={register}
-                            // validationRules={requiredRule}
-
-                            useStrongErrColor={isSubmitted}
-                            errMessage={errors.community?.message}
-
-                            inputName={"community"}
-                            useDotLabel={true}
-                            placeHolder="Urbanización..."
+                        <FormInput
+                            description={"Urbanización/Comunidad/Barrio"}
+                            fieldName={"community"}
+                            placeholder="Urbanización..."
 
                         />
 
@@ -383,44 +334,26 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <Input label={"Autopista/Carretera/Avenida/Calle"}
-                            register={register}
-                            // validationRules={requiredRule}
-
-                            useStrongErrColor={isSubmitted}
-                            errMessage={errors.street?.message}
-
-                            inputName={"street"}
-                            useDotLabel={true}
-                            placeHolder="Calle..."
+                        <FormInput
+                            description={"Autopista/Carretera/Avenida/Calle"}
+                            fieldName={"street"}
+                            placeholder="Calle..."
 
                         />
 
-                        <Input label={"Playa/Río/Quebrada"}
-                            register={register}
-                            // validationRules={requiredRule}
-
-                            useStrongErrColor={isSubmitted}
-                            errMessage={errors.beach?.message}
-
-                            inputName={"beach"}
-                            useDotLabel={true}
-                            placeHolder="Playa/Río/Quebrada"
+                        <FormInput
+                            description={"Playa/Río/Quebrada"}
+                            fieldName={"beach"}
+                            placeholder="Playa/Río/Quebrada"
 
                         />
 
                     </div>
 
-                    <Input label={"Dirección"}
-                        register={register}
-                        // validationRules={requiredRule}
-
-                        useStrongErrColor={isSubmitted}
-                        errMessage={errors.address?.message}
-
-                        inputName={"address"}
-                        useDotLabel={true}
-                        placeHolder="Dirección..."
+                    <FormInput
+                        description={"Dirección"}
+                        fieldName={"address"}
+                        placeholder="Dirección..."
 
                     />
 

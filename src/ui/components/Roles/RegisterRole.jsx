@@ -7,7 +7,6 @@ import Button from '../../core/buttons/Button';
 
 
 
-
 function RegisterRole({ open, onClose,
     roleName = "",
     setRolName,
@@ -33,8 +32,8 @@ function RegisterRole({ open, onClose,
                     <div className='flex justify-center items-center w-full space-x-3'>
                         <p className='text-lg font-medium'>Nombre del Rol:</p>
                         <div className='w-[60%]'>
-                            <Input readOnly={readonly} inputName={"role_name"} label={""} controlled={readonly} value={roleName}
-                                onChangeEvent={(e) => {
+                            <Input readOnly={readonly} inputName={"role_name"} label={""}  value={roleName}
+                                onChange={(e) => {
                                     if (readonly)
                                         return;
                                     setRolName(e.target.value)

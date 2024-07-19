@@ -1,5 +1,5 @@
 
-import React, { ChangeEvent, ComponentPropsWithoutRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef } from 'react'
 import { FieldPath, FieldValues } from 'react-hook-form'
 import { getFieldError, useCustomFormContext } from '../context/CustomFormContext'
 import { useValueOrAsyncFunc } from '../hooks/useValueOrAsyncFunc'
@@ -39,11 +39,14 @@ function FormSelectSearch<
 
     const fieldError = getFieldError(errors, fieldName)
 
+    //const [searhValue, setSearhValue] = useState('');
+
     const selectOptions = useValueOrAsyncFunc(options)
+
     const { ref, onChange, ...restRegister } = register(fieldName);
 
 
-    logger.error("ERROR EN SELECT:", fieldError?.message)
+    //logger.error("ERROR EN SELECT:", fieldError?.message)
 
     return (
         <SelectSearch
@@ -61,7 +64,7 @@ function FormSelectSearch<
             onChange={(e) => {
                 onChange(e);
                 setValue(fieldName, e.target.value as any);
-                //setSelectedValue(e.target.value);
+                //setSearhValue(e.target.value);
             }}
             onSelected={(v) => {
                 const result = new Event('change', { bubbles: false });
@@ -71,7 +74,7 @@ function FormSelectSearch<
                 });
                 onChange(result)
                 setValue(fieldName, v as any);
-                //setSelectedValue(v);
+                //setSearhValue(v)
             }}
         />
     )
