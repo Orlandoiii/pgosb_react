@@ -87,9 +87,9 @@ export const CharacteristicsSchema = z.object({
         .string()
         .refine(
             (value) => {
-                return !value || Number(value) >= 30
+                return !value || Number(value) >= 1.70
             },
-            { message: 'Debe ser mayor o igual a 30' }
+            { message: 'Debe ser mayor o igual a 1.70' }
         )
         .refine(
             (value) => {
