@@ -30,7 +30,7 @@ function FormInput<T extends FieldValues>({
     var fieldError = getFieldError(errors, fieldName)
     var { ref, ...registerField } = register(fieldName)
 
-    logger.log("Renderizando FormInput")
+    logger.log("Renderizando FormInput", errors)
 
     return (
 

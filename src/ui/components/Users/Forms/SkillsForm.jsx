@@ -7,6 +7,7 @@ import CustomForm from "../../../core/context/CustomFormContext";
 import { CharacteristicsSchema } from "../../../../domain/models/user/user";
 import FormInput from "../../../core/inputs/FormInput";
 import FormSelect from "../../../core/inputs/FormSelect";
+import logger from "../../../../logic/Logger/logger";
 
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -14,19 +15,9 @@ const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 const shirtSizes = ["XS", "S", "M", "L", "XL", "XXL"];
 
 
-const requiredRule = {
-    required: {
-        value: false,
-        message: "El campo es requerido",
-    }
-}
-
 export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
     const { clickNextRef, currentData, Next } = useContext(StepContext);
-
-
-
 
     const [skills, setSkills] = useState(currentData?.skills ?? []);
 
@@ -49,6 +40,8 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
         pant_size: "M",
     }
 
+    
+
     return (
 
         <CustomForm
@@ -63,8 +56,6 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                 handleSubmitInternal(newData)
             }}
             classStyle="mx-auto my-4 w-full max-w-[380px] md:max-w-[100%] bg-transparent">
-
-            {/* <FormTitle title={"Habilidades y Alergias"} /> */}
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 

@@ -1,9 +1,9 @@
 import { z } from "zod";
 
 export const LocationSchema = z.object({
-    state: z.string().optional(),
-    municipality: z.string().optional(),
-    parish: z.string().optional(),
+    // state: z.string().optional(),
+    // municipality: z.string().optional(),
+    // parish: z.string().optional(),
     sector: z.string().optional(),
     community: z.string().optional(),
     street: z.string().optional(),

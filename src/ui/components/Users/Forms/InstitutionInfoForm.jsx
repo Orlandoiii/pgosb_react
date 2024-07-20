@@ -15,7 +15,7 @@ import logger from "../../../../logic/Logger/logger";
 
 
 
-const rolList = ["Administrador", "Usuario", "Otro"]
+// const rolList = ["Administrador", "Usuario", "Otro"]
 
 const rankList = ["Rango 1", "Rango 2", "Rango 3"]
 
@@ -47,10 +47,21 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
             Next(data);
     }
 
+    const rolNameList = rolList.map(rol => rol.role_name)
+
     useEffect(() => {
-        axios.get(config.back_url + "/api/v1/rol/all").then((r) => {
-            logger.log(r.data);
+
+
+
+        axios.get(config.back_url + "/api/v1/role/all").then((r) => {
+            if (r.status > 199 && r.status < 300) {
+                setRolsList(r.data);
+                return;
+            }
+        }).catch(err => {
+            logger.error(err);
         })
+
     }, [])
 
     return (
@@ -99,8 +110,8 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                             fieldName="rol"
                             description={"Rol"}
-                            options={rolList}
-                            openUp={true} />
+                            options={rolNameList}
+                            openUp={false} />
 
 
 

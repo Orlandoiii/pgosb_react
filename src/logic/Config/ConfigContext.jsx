@@ -95,7 +95,7 @@ const endpoints = [
     { endpoint: "/api/v1/layout/user", layout: "user_layout" },
     { endpoint: "/api/v1/layout/unit", layout: "unit_layout" },
     { endpoint: "/api/v1/layout/stations", layout: "station_layout" },
-    { endpoint: "/api/v1/layout/rol", layout: "rol_layout" }
+    { endpoint: "/api/v1/layout/roles", layout: "rol_layout" }
 ]
 
 async function LoadAllLayout(config) {

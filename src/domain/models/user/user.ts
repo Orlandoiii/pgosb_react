@@ -4,9 +4,9 @@ import { Genders } from "../../abstractions/enums/genders";
 
 
 export const UserSchemaBasicData = z.object({
-    id: z.number().optional(),
+    id: z.string().optional(),
     user_name: z.string().optional(),
-    email: z.string().email().optional(),
+    email: z.string().optional(),
     first_name: z.string().optional(),
     last_name: z.string().optional(),
     legal_id: z.string().optional(),
@@ -23,8 +23,8 @@ export type UserSchemaBasicDataType = z.infer<typeof UserSchemaBasicData>
 
 
 export const CharacteristicsSchema = z.object({
-    skills: z.array(z.string()).optional(),
-    allergies: z.array(z.string()).optional(),
+    // skills: z.array(z.string()).optional(),
+    // allergies: z.array(z.string()).optional(),
     height: z.string().nullable().optional(),
     weight: z.string().nullable().optional(),
     blood_type: z.string().optional(),

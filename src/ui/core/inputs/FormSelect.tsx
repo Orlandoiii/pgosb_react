@@ -4,6 +4,7 @@ import { FieldPath, FieldValues } from 'react-hook-form'
 import { useCustomFormContext } from '../context/CustomFormContext'
 import { useValueOrAsyncFunc } from '../hooks/useValueOrAsyncFunc'
 import Select from './Select'
+import logger from '../../../logic/Logger/logger'
 
 
 
@@ -28,13 +29,14 @@ function FormSelect<
     ...rest
 
 }: FormSelectProps<T>) {
-    const { register, setValue } = useCustomFormContext<T>()
+    const { register, setValue, errors } = useCustomFormContext<T>()
 
     const selectOptions = useValueOrAsyncFunc(options)
     const { ref, ...restRegister } = register(fieldName);
     //Esta aqui para forzar el render del select
     //const [selectedValue, setSelectedValue] = useState(value && value != "" ? value : options[0]);
 
+    logger.error("Form SELECT", errors);
 
     return (
         <Select
