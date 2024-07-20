@@ -63,7 +63,7 @@ export const UserSchemaBasicData = z
     })
     .refine(
         (value) => {
-            return !value.user_system && (value.user_name?.length ?? 0) < 3
+            return value.user_system && value.user_name.length >= 3
         },
         { message: 'Debe ser mayor o igual a 3 caracteres' }
     )

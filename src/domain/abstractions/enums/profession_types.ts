@@ -1,4 +1,4 @@
-enum ProfessionTypes {
+export enum ProfessionTypes {
     Bombero = 'BOMBERO',
     JefeDeBomberos = 'JEFE DE BOMBEROS',
     Paramédico = 'PARAMÉDICO',

@@ -93,17 +93,17 @@ export const UnitSchemaBasicData = z.object({
 
     //PENDIENTE POR MEJORAR, SE DEBE VALIDAR QUE EL VALOR SEA MAYOR A 1950 y MENOR AL AÑO ACTUAL 2025
     year: z
-        .number()
+        .string()
         .optional()
         .refine(
             (value) => {
-                return !value || value > 1950
+                return !value || Number(value) > 1950
             },
             { message: 'Debe ser mayor a 1950' }
         )
         .refine((value) => {
             return (
-                !value || value < new Date().getFullYear(),
+                !value || Number(value) < new Date().getFullYear(),
                 {
                     message: `Debe ser menor o igual a ${new Date().getFullYear()}`,
                 }
@@ -133,49 +133,49 @@ export const UnitCharacteristicsSchema = z.object({
         ),
 
     hurt_capacity: z
-        .number()
+        .string()
         .optional()
         .refine(
             (value) => {
-                return !value || value < 100
+                return !value || Number(value) < 100
             },
             { message: 'Debe ser menor a 100' }
         ),
     doors: z
-        .number()
+        .string()
         .optional()
         .refine(
             (value) => {
-                return !value || value < 100
+                return !value || Number(value) < 100
             },
             { message: 'Debe ser menor a 100' }
         ),
     performance: z.string().optional(),
 
     load_capacity: z
-        .number()
+        .string()
         .optional()
         .refine(
             (value) => {
-                return !value || value < 100
+                return !value || Number(value) < 100
             },
             { message: 'Debe ser menor a 100' }
         ),
     water_capacity: z
-        .number()
+        .string()
         .optional()
         .refine(
             (value) => {
-                return !value || value <= 10000
+                return !value || Number(value) <= 10000
             },
             { message: 'Debe ser menor o igual a 10.000' }
         ),
     init_kilometer: z
-        .number()
+        .string()
         .optional()
         .refine(
             (value) => {
-                return !value || value < 100
+                return !value || Number(value) < 100
             },
             { message: 'Debe ser menor a 100' }
         ),
