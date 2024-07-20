@@ -143,6 +143,9 @@ export default function AddInput({
             return newItems;
         })
 
+        setControlValue("");
+        //inputRef.current.blur();
+
 
     }
 
