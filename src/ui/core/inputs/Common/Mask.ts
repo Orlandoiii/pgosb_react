@@ -42,3 +42,24 @@ export const dateMask = {
     // overwrite: true,
 };
 
+
+
+
+const allowedLetters = ["V", "E", "G", "J"];
+
+export const documentIdMask = {
+    mask: "D000000000000",
+    definitions: {
+        D: {
+            mask: IMask.MaskedEnum,
+            enum: allowedLetters,
+        }
+    },
+    lazy: false,
+    //overwrite: true,
+    prepare: function (str) {
+        return str.toUpperCase();
+    },
+};
+
+

@@ -8,6 +8,8 @@ import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import logger from "../../../../logic/Logger/logger";
 import CustomForm from "../../../core/context/CustomFormContext";
 import { UserSchemaBasicData } from "../../../../domain/models/user/user";
+import { dateMask, documentIdMask } from "../../../core/inputs/Common/Mask";
+import Toggle from "../../../core/buttons/Toggle";
 
 const genders = ["Masculino", "Femenino"];
 
@@ -52,18 +54,10 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             fieldName={"user_name"}
                             placeholder="Jondoe"
                         />
-
-
                         <FormInput
-
-
-
                             description={"Email"}
                             fieldName={"email"}
                             placeholder="jondoe@example.com" />
-
-
-
                     </div>
 
 
@@ -80,10 +74,6 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                             fieldName={"last_name"}
                             placeholder="Doe" />
 
-
-
-
-
                     </div>
 
                     <div className="md:flex md:space-x-2">
@@ -92,13 +82,16 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                         <FormInput
                             description={"Cedula"}
                             fieldName={"legal_id"}
-                            placeholder="V2190681" />
+                            placeholder="V0000000"
+                            mask={documentIdMask}
+                        />
 
                         <FormInput
                             description={"Teléfono"}
                             fieldName={"phone"}
-
-                            placeholder="02129998877" />
+                            placeholder="02129998877"
+                            mask={Number}
+                        />
 
 
                     </div>
@@ -112,7 +105,9 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                                 <FormInput
                                     description={"Cod. Área"}
                                     fieldName={"zip_code"}
-                                    placeholder="0244" />
+                                    placeholder="0244"
+                                    mask={Number}
+                                />
 
                             </div>
 
@@ -130,7 +125,9 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                                 <FormInput
                                     description={"Fe. Nacimiento"}
                                     fieldName={"birth_date"}
-                                    placeholder="01-01-0001" />
+                                    placeholder="dd-mm-aaaa"
+                                    mask={dateMask}
+                                />
                             </div>
 
                             <div className="md:w-[50%]">
@@ -143,6 +140,15 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                         </div>
 
 
+
+                    </div>
+
+
+                    <div className="h-full w-full flex justify-start items-center space-x-2">
+
+                        <p className="text-sm">Usuario Sistema:</p>
+                        <Toggle
+                        />
 
                     </div>
                 </div>
