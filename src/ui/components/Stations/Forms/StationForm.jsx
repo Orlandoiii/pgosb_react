@@ -6,6 +6,7 @@ import CustomForm from "../../../core/context/CustomFormContext";
 import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 import React from "react";
 import AddInput from "../../../core/inputs/AddInput";
+import { StationSchemaBasicData } from "../../../../domain/models/stations/station"; 
 
 
 const institutions = ["Institución Nombre Largo Para Probar Como se Ve", "Plataforma de Gestion de Operaciones y Servicios Para Bomberos"]
@@ -31,17 +32,13 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
         <CustomForm
 
-            initValue={currentData}
-
-            onSubmit={
-                (data) => {
-
-
-
-                    const newData = { ...data, "regions": regions, "phones": phones }
-
-                    handleSubmitInternal(newData)
-                }}
+        schema={StationSchemaBasicData}
+        initValue={currentData}
+        onSubmit={
+            (data) => {
+                logger.info(data);
+                handleSubmitInternal(data)
+            }}
 
             classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
@@ -132,7 +129,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                             label={"Regiones"}
                             inputName={"regions"}
                             useDotLabel={true}
-                            placeHolder="Region Operativa Ejem:01M"
+                            placeHolder="Región Operativa Ejem:01M"
 
                             items={regions}
                             setItems={setRegions}
