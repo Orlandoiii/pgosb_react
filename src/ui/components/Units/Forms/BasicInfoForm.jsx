@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { StepContext } from '../../Stepper/Stepper'
 import FormInput from '../../../core/inputs/FormInput'
 import FormHiddenButton from '../../../core/buttons/FormHiddenButton'
@@ -8,9 +8,11 @@ import React from 'react'
 import { Colors } from '../../../../domain/abstractions/colors/colors'
 import { UnitSchemaBasicData } from '../../../../domain/models/unit/unit'
 import logger from '../../../../logic/Logger/logger'
-import { number } from 'zod'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types'
+import axios from 'axios'
+import { useConfig } from '../../../../logic/Config/ConfigContext'
+import SelectSearch from '../../../core/inputs/SelectSearch'
 
 const make = ['Ford', 'Toyota', 'Chevrolet']
 
@@ -27,6 +29,39 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
         if (Next) Next(data)
     }
+
+    const { config } = useConfig();
+
+    const [marcas, setMarcas] = useState([])
+
+    const [marca, setMarca] = useState(currentData?.make ?? "");
+
+    const [modelos, setModelos] = useState([]);
+
+    const [modelo, setModelo] = useState(currentData?.model ?? "");
+
+
+    logger.log("MARCA MODELO:", marca, modelo, modelos);
+
+    useEffect(() => {
+        axios.get(config.back_url + "/api/v1/vehicles/types").then(r => {
+            setMarcas(r.data)
+        })
+    }, [])
+
+
+
+    useEffect(() => {
+
+        logger.log("MARCA MODELO", marca, modelo);
+        axios.post(config.back_url + "/api/v1/vehicles/types", marca).then(r => {
+            setModelos(r.data?.map(v => v.model));
+            setModelo("");
+        })
+    }, [marca])
+
+
+
     return (
         <CustomForm
             schema={UnitSchemaBasicData}
@@ -47,18 +82,38 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             openUp={false}
                         />
 
-                        <FormSelectSearch
-                            fieldName="make"
-                            description={'Marca'}
-                            options={make}
+                        <SelectSearch
+                            inputName={"make"}
+                            label={"Marca"}
+                            searhValue={marca}
+                            setSearhValue={setMarca}
+                            //value={state}
+                            options={marcas}
                             openUp={false}
-                        />
+                            onSelected={v => {
+                                setMarca(v);
 
-                        <FormSelectSearch
-                            description={'Modelo'}
-                            fieldName="model"
-                            options={models}
+
+
+                            }}
+                        />
+                        <SelectSearch
+
+                            inputName={"model"}
+                            label={"Modelo"}
+                            options={modelos}
+
+                            searhValue={modelo}
+                            setSearhValue={setModelo}
+
                             openUp={false}
+                            onSelected={v => {
+                                setModelo(v)
+
+                            }}
+
+
+
                         />
                     </div>
 
