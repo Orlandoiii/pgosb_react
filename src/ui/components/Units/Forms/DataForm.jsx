@@ -38,7 +38,8 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
             onSubmit={
                 (data) => {
                     logger.info(data);
-                    handleSubmitInternal(data)
+                    const newData = {...data,details:details}
+                    handleSubmitInternal(newData)
                 }}
 
 
@@ -67,6 +68,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                                 description={"Cap. Personas"}
                                 fieldName={"capacity"}
                                 placeholder="8"
+                                mask={Number}
 
                             />
                         </div>
@@ -77,6 +79,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                                 description={"Cap. Heridos"}
                                 fieldName={"hurt_capacity"}
                                 placeholder="4"
+                                mask={Number}
                             />
 
                         </div>
@@ -87,6 +90,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                                 description={"Nro. Puertas"}
                                 fieldName={"doors"}
                                 placeholder="4"
+                                mask={Number}
                             />
                         </div>
 
@@ -96,7 +100,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                                 description={"Rendimiento"}
                                 fieldName={"performance"}
                                 placeholder="10 Km/L"
-
+                                mask={Number}
                             />
                         </div>
 
@@ -110,21 +114,21 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                             description={"Cap. Carga"}
                             fieldName={"load_capacity"}
                             placeholder="10.000 Kg"
-
+                            mask={Number}
                         />
 
                         <FormInput
                             description={"Cap. Litros"}
                             fieldName={"water_capacity"}
                             placeholder="10.000 L"
-
+                            mask={Number}
                         />
 
                         <FormInput
                             description={"Kilometraje Inicial"}
                             fieldName={"init_kilometer"}
                             placeholder="10.0000 KM"
-
+                            mask={Number}
                         />
 
                     </div>
