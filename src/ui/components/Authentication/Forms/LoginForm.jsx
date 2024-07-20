@@ -107,7 +107,7 @@ export default function LoginForm({ onSubmit }) {
                             description="Usuario:"
                             placeholder="jondoe"
                             icons={<MessageIcon />}
-                            mask={Number}
+                           
                         />
 
                         <FormInput
