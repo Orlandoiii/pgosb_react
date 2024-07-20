@@ -4,7 +4,7 @@ import { Genders } from '../../abstractions/enums/genders'
 
 export const UserSchemaBasicData = z
     .object({
-        id: z.number().optional(),
+        id: z.string().optional(),
         user_name: z
             .string()
             .min(3, 'Debe ser mayor o igual a 3 caracteres')
