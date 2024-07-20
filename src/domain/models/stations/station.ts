@@ -16,33 +16,5 @@ export const StationSchemaBasicData = z.object({
 export type StationSchemaBasicDataType = z.infer<typeof StationSchemaBasicData>
 
 
-export const UbicationSchema = z.object({
-
-    state_id: z.string().optional(),
-    municipality_id: z.string().optional(),
-    parish_id: z.string().optional(),
-    coordinates: z.string().optional(),
-    sector: z.string().optional(),
-    community: z.string().optional(),
-    street: z.string().optional(),
-    address: z.string().optional(),
-
-})
-
-export type CharacteristicsSchemaType = z.infer<typeof UbicationSchema>
-
-
-export const UserIntutionalDataSchema = z.object({
-
-    code: z.string().optional(),
-
-});
-
-
-const UserSchema = z.object({
-
-   
-
-});
 
 
