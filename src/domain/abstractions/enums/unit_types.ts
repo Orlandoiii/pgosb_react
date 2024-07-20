@@ -1,4 +1,4 @@
-enum UnitTypes {
+export enum UnitTypes {
     Ambulancia = 'AMBULANCIA',
     Moto = 'MOTO',
     MaterialesPeligrosos = 'MATERIALES PELIGROSOS',

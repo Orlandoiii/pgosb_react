@@ -1,4 +1,4 @@
-enum Hierarchys {
+export enum Hierarchys {
     Civil = 'CIVIL',
     Alumno = 'ALUMNO',
     Bombero = 'BOMBERO',

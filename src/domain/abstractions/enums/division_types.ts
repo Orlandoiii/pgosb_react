@@ -1,4 +1,4 @@
-enum DivisionTypes {
+export enum DivisionTypes {
     Rescatés = 'RESCATÉS',
     Incendio = 'INCENDIO',
     Prehospitalaria = 'PREHOSPITALARIA',
