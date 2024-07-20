@@ -71,12 +71,12 @@ export const UserSchemaBasicData = z
 export type UserSchemaBasicDataType = z.infer<typeof UserSchemaBasicData>
 
 export const CharacteristicsSchema = z.object({
-    skills: z
-        .array(z.string().min(3, 'Debe ser mayor o igual a 3 caracteres'))
-        .optional(),
-    allergies: z
-        .array(z.string().min(3, 'Debe ser mayor o igual a 3 caracteres'))
-        .optional(),
+    // skills: z
+    //     .array(z.string().min(3, 'Debe ser mayor o igual a 3 caracteres'))
+    //     .optional(),
+    // allergies: z
+    //     .array(z.string().min(3, 'Debe ser mayor o igual a 3 caracteres'))
+    //     .optional(),
     height: z
         .string()
         .refine(

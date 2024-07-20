@@ -66,7 +66,6 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                         label={"Habilidades"}
                         inputName={"skills"}
                         placeHolder="Habilidad Ejem: Paramédico"
-                        mask={Number}
                         items={skills}
                         setItems={setSkills}
                     />
