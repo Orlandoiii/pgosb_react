@@ -169,7 +169,7 @@ export default function AddInput({
 
         setControlValue(e.target.value);
 
-        if (!value.match(allowPattern)) {
+        if (!controlValue.match(allowPattern)) {
             setErrMessage("El formato no es correcto")
             return;
         }
