@@ -70,12 +70,10 @@ export const UnitSchemaBasicData = z.object({
 
     //PENDIENTE POR MEJORAR, SE DEBE VALIDAR QUE EL VALOR SEA MAYOR A 1950 y MENOR AL AÑO ACTUAL 2025
     year: 
-    z.string()
+    z.number()
     .optional().refine((value) => {
-        return !value || value.length == 4
-      }, { message: 'Debe ser igual a 4 caracteres' })     
-
-
+        return !value || value > 1950
+      }, { message: 'Debe ser mayor a 1950' }).refine((value) => {return !value || value < new Date().getFullYear() , {}})
 })
 export type UnitSchemaBasicDataType = z.infer<typeof UnitSchemaBasicData>
 
