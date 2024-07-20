@@ -26,15 +26,19 @@ export type UnitSchemaBasicDataType = z.infer<typeof UnitSchemaBasicData>
 export const UnitCharacteristicsSchema = z.object({
     
     purpose: z.string().optional(),
-    
+
     capacity: z.string().optional(),
+    hurt_capacity: z.string().optional(),
+    doors: z.string().optional(),
+    performance: z.string().optional(),
 
+    load_capacity: z.string().optional(),
+    water_capacity: z.string().optional(),
+    init_kilometer: z.string().optional(),
 
+    details: z.array(z.string()).optional(),
     unity_condition: z.string().optional(),
 
-    details: z.string().optional(),
-
-    water_capacity: z.string().optional(),
     observations: z.string().optional(),
 
 })

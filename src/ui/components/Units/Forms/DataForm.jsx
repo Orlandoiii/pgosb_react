@@ -52,7 +52,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
                         <FormInput
-                            description={"Uso/Proposito"}
+                            description={"Uso/Propósito"}
                             fieldName={"purpose"}
                             placeholder="Para transporte de personal"
                         />
@@ -143,7 +143,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                         />
 
                         <FormInput
-                            description={"Condicion de la Unidad"}
+                            description={"Condición de la Unidad"}
                             fieldName={"unit_condition"}
                             placeholder="En Perfecto Estado"
                         />
