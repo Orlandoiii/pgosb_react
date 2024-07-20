@@ -8,7 +8,7 @@ import { CharacteristicsSchema } from "../../../../domain/models/user/user";
 import FormInput from "../../../core/inputs/FormInput";
 import FormSelect from "../../../core/inputs/FormSelect";
 import logger from "../../../../logic/Logger/logger";
-
+import { heightMask  } from "../../../core/inputs/Common/Mask";
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -107,6 +107,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
                                         description={"Altura"}
                                         fieldName={"height"}
                                         placeholder="1.70"
+                                        mask={heightMask}
                                     />
                                 </div>
 
