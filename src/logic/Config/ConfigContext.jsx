@@ -20,7 +20,7 @@ export async function Wait(miliseconds = 1000) {
     return p;
 }
 
-async function LoadConfigFile() {
+export async function LoadConfigFile() {
     try {
 
         logger.info("Iniciando Carga de Config File");

@@ -79,7 +79,7 @@ interface CustomFormProps<T extends FieldValues> {
     classStyle?: string | undefined;
 }
 
-function getDefaults<T extends FieldValues>(
+export function getDefaults<T extends FieldValues>(
     schema: z.ZodType<T, z.ZodTypeDef, T>
 ): DefaultValues<T> {
     if (schema instanceof z.ZodObject) {

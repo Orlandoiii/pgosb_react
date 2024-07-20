@@ -7,7 +7,12 @@ import PersonForm from '../Forms/PersonForm'
 import VehicleForm from '../Forms/VehicleForm'
 import InfrastructureForm from './InfrastructureForm'
 
+import { infrastructureService } from '../../../../domain/models/infrastructure/infrastructure'
+import { personService } from '../../../../domain/models/person/person_involved'
+import { vehicleService } from '../../../../domain/models/vehicle/vehicle_involved'
+
 interface AuthorityFormProps {
+    serviceId: number
     showModal: boolean
     onClose: () => void
 }
@@ -22,7 +27,11 @@ enum ServiceModals {
     Authority,
 }
 
-const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
+const AuthorityForm = ({
+    serviceId,
+    showModal,
+    onClose,
+}: AuthorityFormProps) => {
     var [modalType, setModalType] = useState(ServiceModals.None)
     var [openModal, setOpenModal] = useState(false)
 
@@ -38,7 +47,7 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
                 downStikyChildren={''}
                 show={showModal}
                 onClose={() => onClose()}
-                title="Registro de Autoridade u Organismo Presente"
+                title="Registro de Datos del Servicio"
             >
                 <div className="space-y-10">
                     <AddableTable
@@ -69,13 +78,13 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
                         onAddButtonClick={() => setModal(ServiceModals.Vehicle)}
                     ></AddableTable>
 
-                    <AddableTable
+                    {/* <AddableTable
                         title="Autoridades"
                         addButtonText="Agregar una autoridad"
                         onAddButtonClick={() =>
                             setModal(ServiceModals.Authority)
                         }
-                    ></AddableTable>
+                    ></AddableTable> */}
                 </div>
             </ModalContainer>
 
@@ -89,6 +98,7 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
 
             {openModal && modalType == ServiceModals.Infrastructure && (
                 <InfrastructureForm
+                    serviceId={serviceId}
                     showModal={openModal}
                     onClose={() => setOpenModal(false)}
                 ></InfrastructureForm>
@@ -96,6 +106,7 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
 
             {openModal && modalType == ServiceModals.Vehicle && (
                 <VehicleForm
+                    serviceId={serviceId}
                     showModal={openModal}
                     onClose={() => setOpenModal(false)}
                 ></VehicleForm>
@@ -103,17 +114,18 @@ const AuthorityForm = ({ showModal, onClose }: AuthorityFormProps) => {
 
             {openModal && modalType == ServiceModals.Person && (
                 <PersonForm
+                    serviceId={serviceId}
                     showModal={openModal}
                     onClose={() => setOpenModal(false)}
                 ></PersonForm>
             )}
 
-            {openModal && modalType == ServiceModals.Authority && (
+            {/* {openModal && modalType == ServiceModals.Authority && (
                 <AuthorityForm
                     showModal={openModal}
                     onClose={() => setOpenModal(false)}
                 ></AuthorityForm>
-            )}
+            )} */}
         </>
     )
 }
