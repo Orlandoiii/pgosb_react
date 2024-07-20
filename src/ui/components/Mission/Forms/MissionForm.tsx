@@ -15,7 +15,6 @@ import NotificationModal from '../../../core/alerts/NotificationModal'
 
 import { getDefaults } from '../../../core/context/CustomFormContext'
 
-
 const notificationInitialState = {
     open: false,
     message: '',
@@ -66,11 +65,14 @@ const AuthorityForm = ({
         setLoading(true)
         try {
             const defaultValue = getDefaults<TService>(
-                ServiceSchema
+                ServiceSchema as any
             ) as TService
             defaultValue.missionId = missionId
 
+            console.log(`request servicio: ${JSON.stringify(defaultValue)}`)
             const result = await serviceService.insert(defaultValue)
+
+            console.error(`response service: ${result}`)
 
             if (result.success) {
                 if (result.data?.id) {
@@ -119,7 +121,7 @@ const AuthorityForm = ({
     return (
         <>
             <ModalContainer
-                showX={false}
+                showX={true}
                 downStikyChildren={''}
                 show={showModal}
                 onClose={() => onClose()}
@@ -137,19 +139,19 @@ const AuthorityForm = ({
             {openModal && (
                 <ServiceForm
                     serviceId={serviceId}
-                    showModal={false}
+                    showModal={true}
                     onClose={() => setOpenModal(false)}
                 ></ServiceForm>
             )}
 
-            <LoadingModal initOpen={loading} children={null} />
+            {/* <LoadingModal initOpen={loading} children={null} />
             <NotificationModal
                 show={notificationState.open}
                 children={null}
                 // initType={notificationState.type as any}
                 // title={notificationState.title}
                 initMessage={notificationState.message}
-            />
+            /> */}
         </>
     )
 }

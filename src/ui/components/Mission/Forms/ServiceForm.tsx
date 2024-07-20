@@ -96,13 +96,13 @@ const AuthorityForm = ({
             
         } */}
 
-            {openModal && modalType == ServiceModals.Infrastructure && (
+            {/* {openModal && modalType == ServiceModals.Infrastructure && (
                 <InfrastructureForm
                     serviceId={serviceId}
                     showModal={openModal}
                     onClose={() => setOpenModal(false)}
                 ></InfrastructureForm>
-            )}
+            )} */}
 
             {openModal && modalType == ServiceModals.Vehicle && (
                 <VehicleForm

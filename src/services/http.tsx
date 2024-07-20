@@ -17,8 +17,8 @@ export type FromJsonResult<T> = { success: boolean; data?: T; error?: string }
 export type ApiResponse<T> = { success: boolean; data?: T; error?: string }
 
 async function getBaseClient(): Promise<AxiosInstance> {
-    await LoadConfigFile()
-    return axios.create({ baseURL: '' })
+    const config = await LoadConfigFile()
+    return axios.create({ baseURL: config.config['back_url'] + '/api/v1/' })
 }
 
 export async function getAll<T>(
@@ -71,6 +71,7 @@ export async function insert<T>(
     endpoint: string,
     data: any
 ): Promise<ApiResponse<T>> {
+    console.log(`esta es mi ${JSON.stringify(data)}`)
     const client = await getBaseClient()
     const response = await client.post(`${endpoint}/create`, data)
 

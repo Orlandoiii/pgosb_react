@@ -4,23 +4,23 @@ import { mapEntity } from '../../../services/mapper'
 import { CreateCRUD } from '../../../services/http'
 
 export const ServiceSchema = z.object({
-    id: z.number(),
-    missionId: z.number(),
-    antaresId: z.number(),
-    units: z.array(z.number()),
-    firefighter: z.array(z.number()),
-    summary: z.string(),
-    description: z.string(),
+    id: z.number().default(0),
+    missionId: z.number().default(0),
+    antaresId: z.number().default(0),
+    units: z.array(z.number().default(0)).default([]),
+    firefighter: z.array(z.number().default(0)).default([]),
+    summary: z.string().default(''),
+    description: z.string().default(''),
 })
 
 export const ApiServiceSchema = z.object({
-    id: z.number(),
-    mission_id: z.number(),
-    antares_id: z.number(),
-    units: z.array(z.number()),
-    bombers: z.array(z.number()),
-    summary: z.string(),
-    description: z.string(),
+    id: z.number().default(0),
+    mission_id: z.number().default(0),
+    antares_id: z.number().default(0),
+    units: z.array(z.number().default(0)).default([]),
+    bombers: z.array(z.number().default(0)).default([]),
+    summary: z.string().default(''),
+    description: z.string().default(''),
 })
 
 export type TService = z.infer<typeof ServiceSchema>
@@ -53,16 +53,16 @@ function toApiInternal(data: TService): TApiService {
 export const FromApi = (data: TApiService) =>
     mapEntity<TApiService, TService>(
         data,
-        ApiServiceSchema,
-        ServiceSchema,
+        ApiServiceSchema as any,
+        ServiceSchema as any,
         fromApiInternal
     )
 
 export const ToApi = (data: TService) =>
     mapEntity<TService, TApiService>(
         data,
-        ServiceSchema,
-        ApiServiceSchema,
+        ServiceSchema as any,
+        ApiServiceSchema as any,
         toApiInternal
     )
 

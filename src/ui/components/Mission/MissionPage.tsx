@@ -52,18 +52,18 @@ const MissionPage = () => {
     const [missionId, setMissionId] = useState(0)
 
     async function addNewMission() {
+        console.log('Iniciando add de mision')
         setLoading(true)
         try {
             const result = await missionService.insert(
-                getDefaults<TMission>(MissionSchema) as TMission
+                getDefaults<TMission>(MissionSchema as any) as TMission
             )
 
             if (result.success) {
-                if (result.data?.id){
-                    setMissionId(result.data?.id)
+                if (result.data?.id) {
+                    setMissionId(result.data.id)
                     setOpenAddForm(true)
-                }
-                else {
+                } else {
                     dispatch({
                         type: 'notification/open',
                         payload: {
@@ -73,9 +73,10 @@ const MissionPage = () => {
                                 'Lo sentimos tenemos problemas para agregar la misión',
                         },
                     })
-                    console.error('El Id no fue retornado en el insert de la mision')
+                    console.error(
+                        'El Id no fue retornado en el insert de la mision'
+                    )
                 }
-                
             } else {
                 dispatch({
                     type: 'notification/open',
@@ -98,6 +99,7 @@ const MissionPage = () => {
                         'Lo sentimos tenemos problemas para agregar la misión',
                 },
             })
+            console.log(`Catch de error`)
             console.error(error)
         } finally {
             setLoading(false)
@@ -116,24 +118,26 @@ const MissionPage = () => {
                 permissions={''}
                 onDelete={() => {}}
                 onUpdate={onUpdate}
-            />
+            /> */}
+
+            <button onClick={addNewMission}>Agregar</button>
 
             {openAddForm && (
                 <MissionForm
                     missionId={missionId}
-                    showModal={false}
+                    showModal={openAddForm}
                     onClose={() => setOpenAddForm(false)}
                 ></MissionForm>
-            )} */}
+            )}
 
-            <LoadingModal initOpen={loading} children={null} />
-            <NotificationModal
+            {/* <LoadingModal initOpen={loading} children={null} /> */}
+            {/* <NotificationModal
                 show={notificationState.open}
                 children={null}
                 // initType={notificationState.type as any}
                 // title={notificationState.title}
                 initMessage={notificationState.message}
-            />
+            /> */}
         </>
     )
 }
