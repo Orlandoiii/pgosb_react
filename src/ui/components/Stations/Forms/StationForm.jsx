@@ -65,13 +65,9 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                     />
 
 
-
-
                     <div className="md:flex md:space-x-2">
 
                         <FormInput
-
-
                             description={"Descripción"}
                             fieldName={"description"}
                             placeholder="Descripción...."
@@ -91,6 +87,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                                 //useStrongErrColor={isSubmitted}
                                 items={phones}
                                 setItems={setPhones}
+                                mask={Number}
                                 
                             />
 
@@ -104,8 +101,6 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                         <div className="md:w-[30%]">
                             <FormInput
-
-
                                 description={"Código"}
                                 fieldName={"code"}
                                 placeholder="01"
@@ -116,9 +111,6 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                         <div className="md:w-[30%]">
 
                             <FormInput
-
-
-
                                 description={"Siglas"}
                                 fieldName={"abbreviation"}
                                 placeholder="M01"
