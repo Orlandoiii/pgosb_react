@@ -107,7 +107,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                         />
 
                         <FormSelectSearch
-
+                            initialValue={currentData?.rol}
                             fieldName={"rol"}
                             description={"Rol"}
                             options={rolNameList}
@@ -171,6 +171,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                             fieldName={"division"}
                             options={divisions}
                             openUp={true}
+                            initialValue={currentData?.division}
                         />
 
                         <FormSelectSearch
@@ -178,6 +179,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                             fieldName={"profesion"}
                             options={profesions}
                             openUp={true}
+                            initialValue={currentData?.profesion}
                         />
 
 

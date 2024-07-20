@@ -118,27 +118,27 @@ export type CharacteristicsSchemaType = z.infer<typeof CharacteristicsSchema>
 export const UserIntutionalDataSchema = z.object({
     code: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     rol: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     rank: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     institution: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     division: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     profesion: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
 })
 
