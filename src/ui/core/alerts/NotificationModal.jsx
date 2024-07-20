@@ -129,15 +129,15 @@ export function useNotificationAlert() {
 }
 
 
-export default function NotificationModalContextProvider({ children }) {
+export default function NotificationModalContextProvider({ show: boolean, children: undefined,   initMessage:string }) {
 
-    const [open, setOpen] = useState(false);
+    const [open, setOpen] = useState(show);
 
-    const [type, setType] = useState("info");
+    const [type, setType] = useState(initType ?? "info");
 
     const [title, setTitle] = useState("");
 
-    const [message, setMessage] = useState("");
+    const [message, setMessage] = useState(initMessage ??"");
 
     function showNotification(type, title, message) {
 

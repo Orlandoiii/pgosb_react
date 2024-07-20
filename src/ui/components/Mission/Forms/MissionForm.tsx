@@ -1,18 +1,19 @@
 import React, { useReducer, useState } from 'react'
 
-import TableDataGrid from '../../core/datagrid/TableDataGrid'
-import testJson from '../../../mocks/operations.json'
+import ModalContainer from '../../../core/modal/ModalContainer'
+import { AddableTable } from '../../Temp/AddableTable '
 
 import {
-    MissionSchema,
-    missionService,
-    TMission,
-} from '../../../domain/models/mission/mission'
-import MissionForm from './Forms/MissionForm'
+    ServiceSchema,
+    serviceService,
+    TService,
+} from '../../../../domain/models/service/service'
+import ServiceForm from './ServiceForm'
 
-import { getDefaults } from '../../core/context/CustomFormContext'
-import LoadingModal from '../../core/modal/LoadingModal'
-import NotificationModal from '../../core/alerts/NotificationModal'
+import LoadingModal from '../../../core/modal/LoadingModal'
+import NotificationModal from '../../../core/alerts/NotificationModal'
+
+import { getDefaults } from '../../../core/context/CustomFormContext'
 
 const notificationInitialState = {
     open: false,
@@ -41,28 +42,42 @@ function notificationReducer(state, action) {
     return state
 }
 
-const MissionPage = () => {
+interface AuthorityFormProps {
+    missionId: number
+    showModal: boolean
+    onClose: () => void
+}
+
+const AuthorityForm = ({
+    missionId,
+    showModal,
+    onClose,
+}: AuthorityFormProps) => {
     const [notificationState, dispatch] = useReducer(
         notificationReducer,
         notificationInitialState
     )
+    const [openModal, setOpenModal] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [serviceId, setServiceId] = useState(0)
 
-    const [openAddForm, setOpenAddForm] = useState(false)
-    const [missionId, setMissionId] = useState(0)
-
-    async function addNewMission() {
-        console.log('Iniciando add de mision')
+    async function addNewService() {
         setLoading(true)
         try {
-            const result = await missionService.insert(
-                getDefaults<TMission>(MissionSchema as any) as TMission
-            )
+            const defaultValue = getDefaults<TService>(
+                ServiceSchema as any
+            ) as TService
+            defaultValue.missionId = missionId
+
+            console.log(`request servicio: ${JSON.stringify(defaultValue)}`)
+            const result = await serviceService.insert(defaultValue)
+
+            console.error(`response service: ${result}`)
 
             if (result.success) {
                 if (result.data?.id) {
-                    setMissionId(result.data.id)
-                    setOpenAddForm(true)
+                    setServiceId(result.data?.id)
+                    setOpenModal(true)
                 } else {
                     dispatch({
                         type: 'notification/open',
@@ -70,12 +85,10 @@ const MissionPage = () => {
                             type: 'error',
                             title: 'Oohh Error!!!',
                             message:
-                                'Lo sentimos tenemos problemas para agregar la misión',
+                                'El Id no fue retornado en el insert del servicio',
                         },
                     })
-                    console.error(
-                        'El Id no fue retornado en el insert de la mision'
-                    )
+                    console.error('')
                 }
             } else {
                 dispatch({
@@ -99,39 +112,40 @@ const MissionPage = () => {
                         'Lo sentimos tenemos problemas para agregar la misión',
                 },
             })
-            console.log(`Catch de error`)
             console.error(error)
         } finally {
             setLoading(false)
         }
     }
 
-    function onUpdate() {}
     return (
         <>
-            {/* <TableDataGrid
-                rawData={testJson}
-                onAdd={() => {
-                    addNewMission()
-                }}
-                onDoubleClickRow={() => {}}
-                permissions={''}
-                onDelete={() => {}}
-                onUpdate={onUpdate}
-            /> */}
+            <ModalContainer
+                showX={true}
+                downStikyChildren={''}
+                show={showModal}
+                onClose={() => onClose()}
+                title="Registro de Servicios"
+            >
+                <div className="space-y-10">
+                    <AddableTable
+                        title="Unidades"
+                        addButtonText="Agregar una unidad"
+                        onAddButtonClick={() => addNewService()}
+                    ></AddableTable>
+                </div>
+            </ModalContainer>
 
-            <button onClick={addNewMission}>Agregar</button>
-
-            {openAddForm && (
-                <MissionForm
-                    missionId={missionId}
-                    showModal={openAddForm}
-                    onClose={() => setOpenAddForm(false)}
-                ></MissionForm>
+            {openModal && (
+                <ServiceForm
+                    serviceId={serviceId}
+                    showModal={true}
+                    onClose={() => setOpenModal(false)}
+                ></ServiceForm>
             )}
 
-            {/* <LoadingModal initOpen={loading} children={null} /> */}
-            {/* <NotificationModal
+            {/* <LoadingModal initOpen={loading} children={null} />
+            <NotificationModal
                 show={notificationState.open}
                 children={null}
                 // initType={notificationState.type as any}
@@ -142,4 +156,4 @@ const MissionPage = () => {
     )
 }
 
-export default MissionPage
+export default AuthorityForm

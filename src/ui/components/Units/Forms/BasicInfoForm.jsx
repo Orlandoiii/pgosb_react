@@ -8,6 +8,7 @@ import React from "react";
 import { Colors } from "../../../../domain/abstractions/colors/colors";
 import { UnitSchemaBasicData } from "../../../../domain/models/unit/unit";
 import logger from "../../../../logic/Logger/logger";
+import { number } from "zod";
 
 
 
@@ -160,6 +161,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                                 description={"Año"}
                                 fieldName={"year"}
                                 placeholder="2022"
+                                mask={Number}
 
                             />
                         </div>

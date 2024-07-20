@@ -7,6 +7,7 @@ import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 import React from "react";
 import AddInput from "../../../core/inputs/AddInput";
 import { StationSchemaBasicData } from "../../../../domain/models/stations/station"; 
+import logger from "../../../../logic/Logger/logger";
 
 
 const institutions = ["Institución Nombre Largo Para Probar Como se Ve", "Plataforma de Gestion de Operaciones y Servicios Para Bomberos"]
@@ -90,6 +91,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                                 //useStrongErrColor={isSubmitted}
                                 items={phones}
                                 setItems={setPhones}
+                                
                             />
 
                         </div>
