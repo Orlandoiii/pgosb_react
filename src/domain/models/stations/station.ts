@@ -14,3 +14,7 @@ export const StationSchemaBasicData = z.object({
 })
 
 export type StationSchemaBasicDataType = z.infer<typeof StationSchemaBasicData>
+
+
+
+
