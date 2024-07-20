@@ -94,6 +94,8 @@ export default function AddInput({
 
     const [showModal, setShowModal] = useState(false);
 
+    const [controlValue, setControlValue] = useState("");
+
     let itemsTotal = items?.length;
 
     if (itemsTotal > 9) {
@@ -121,9 +123,9 @@ export default function AddInput({
 
         //inputRef.current?.blur();
 
-        let value = inputRef.current?.value?.trim();
+        // let value = inputRef.current?.value?.trim();
 
-        if (!value || value.length == 0) {
+        if (!controlValue || controlValue.length == 0) {
             return;
         }
 
@@ -165,12 +167,14 @@ export default function AddInput({
 
     function handleOnChange(e) {
 
-        let value = inputRef.current?.value;
+        // let value = inputRef.current?.value;
 
-        if (!value.match(allowPattern)) {
-            setErrMessage("El formato no es correcto")
-            return;
-        }
+        setControlValue(e.target.value);
+
+        // if (!controlValue.match(allowPattern)) {
+        //     setErrMessage("El formato no es correcto")
+        //     return;
+        // }
         // if (customValidator) {
         //     let err = customValidator(value);
         //     if (err != null) {
@@ -224,6 +228,7 @@ export default function AddInput({
                         onChange={handleOnChange}
                         onKeyDown={handleKeyDown}
                         placeholder={placeHolder}
+                        value={controlValue}
 
                     />
                     <div className="absolute top-1/2 right-1.5 transform -translate-y-1/2">
