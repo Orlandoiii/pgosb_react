@@ -2,8 +2,8 @@ import React from 'react';
 import ModalContainer from '../../core/modal/ModalContainer';
 import PermissionTable from './PermissionTable/components/PermissionTable';
 import Input from '../../core/inputs/Input';
-import Toggle from '../../core/buttons/Toggle';
 import Button from '../../core/buttons/Button';
+import Toggle from '../../core/buttons/Toggle';
 
 
 
@@ -44,11 +44,11 @@ function RegisterRole({ open, onClose,
 
                     <div className='flex w-full justify-center items-center space-x-3'>
                         <p className='text-lg font-medium'>Estado del Rol:</p>
-                        <Toggle active={roleState} setActive={() => {
+                        {/* <Toggle active={roleState} setActive={() => {
                             if (readonly)
                                 return;
                             setStateRol(a => !a);
-                        }} />
+                        }} /> */}
                     </div>
                 </div>
 

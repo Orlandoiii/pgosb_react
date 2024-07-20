@@ -9,7 +9,9 @@ import logger from "../../../../logic/Logger/logger";
 import CustomForm from "../../../core/context/CustomFormContext";
 import { UserSchemaBasicData } from "../../../../domain/models/user/user";
 import { dateMask, documentIdMask } from "../../../core/inputs/Common/Mask";
-import Toggle from "../../../core/buttons/Toggle";
+import FormToggle from "../../../core/inputs/FormToggle";
+import { MartialStatusListTypes, MartialStatusTypes } from "../../../../domain/abstractions/enums/martial_status_type";
+import { Genders } from "../../../../domain/abstractions/enums/genders";
 
 const genders = ["Masculino", "Femenino"];
 
@@ -29,12 +31,19 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
             Next(data);
     }
 
+    const initialData = !currentData ? {
+        "marital_status": MartialStatusTypes.Single,
+        "gender": Genders.Male,
+        "user_system": false,
+    } : currentData
+
+
     return (
 
         <CustomForm
 
             schema={UserSchemaBasicData}
-            initValue={currentData}
+            initValue={initialData}
             onSubmit={
                 (data) => {
                     logger.log("Aqui en User Info Form", data);
@@ -115,7 +124,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                                 <FormSelect
                                     fieldName={"marital_status"}
                                     description={"Estado Civil"}
-                                    options={civilStatusList}
+                                    options={MartialStatusListTypes}
                                     openUp={true} />
                             </div>
                         </div>
@@ -147,7 +156,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                     <div className="h-full w-full flex justify-start items-center space-x-2">
 
                         <p className="text-sm">Usuario Sistema:</p>
-                        <Toggle
+                        <FormToggle fieldName="user_system"
                         />
 
                     </div>

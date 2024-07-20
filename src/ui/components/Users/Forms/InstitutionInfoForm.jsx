@@ -3,7 +3,6 @@ import FormInput from "../../../core/inputs/FormInput";
 
 
 import { useContext, useState } from "react";
-import Toggle from "../../../core/buttons/Toggle";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import CustomForm from "../../../core/context/CustomFormContext";
@@ -30,7 +29,6 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
 
-    const [isSystemUser, setIsSystemUser] = useState(currentData?.user_system ?? false);
 
 
 

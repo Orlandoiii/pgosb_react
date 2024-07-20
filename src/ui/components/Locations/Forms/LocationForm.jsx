@@ -10,6 +10,7 @@ import axios from "axios";
 import { useConfig } from "../../../../logic/Config/ConfigContext";
 import logger from "../../../../logic/Logger/logger";
 import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
+import CustomForm from "../../../core/context/CustomFormContext";
 
 
 let LocationRawData = {
@@ -261,8 +262,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
     return (
 
-        <form
-            noValidate
+        <CustomForm
 
             onSubmit={(
                 data) => {
@@ -272,7 +272,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                 handleSubmitInternal(data)
             }}
-            className="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
+            classStyle="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
@@ -364,6 +364,6 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
             <FormHiddenButton clickNextRef={clickNextRef} clickSubmitRef={clickSubmitRef} />
 
 
-        </form>
+        </CustomForm>
     )
 }
