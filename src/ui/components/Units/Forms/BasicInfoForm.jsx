@@ -1,57 +1,25 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import FormInput from "../../../core/inputs/FormInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import CustomForm from "../../../core/context/CustomFormContext";
 import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 import React from "react";
+import { Colors } from "../../../../domain/abstractions/colors/colors";
+
+
 const brands = ["Ford", "Toyota", "Chevrolet"];
 
 const models = ["Aveo", "Corolla", "Lancer", "Terios"]
 
 const stations = ["Station 1", "Station 2", "Station 3"]
 
-const colors = ["Azul", "Verde", "Amarillo", "Plata", "Dorado"]
 
 const types = ["Tipo 1", "Tipo 2", "Tipo 3", "Tipo 4"]
-
-const requiredRule = {
-    required: {
-        value: false,
-        message: "El campo es requerido",
-    }
-}
 
 export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-   
-
-
-    const [brand, setBrand] = useState(currentData?.brand ?? brands[1]);
-
-    const [brandErr, setBrandErr] = useState(false);
-
-
-    const [model, setModel] = useState(currentData?.model ?? models[1]);
-
-    const [modelErr, setModelErr] = useState(false);
-
-
-    const [station, setStation] = useState(currentData?.station ?? stations[1]);
-
-    const [stationErr, setStationErr] = useState(false);
-
-
-
-    const [color, setColor] = useState(currentData?.color ?? colors[1]);
-
-    const [colorErr, setColorErr] = useState(false);
-
-
-    const [type, setType] = useState(currentData?.type ?? types[1]);
-
-    const [typeErr, setTypeErr] = useState(false);
 
     function handleSubmitInternal(data) {
 
@@ -65,20 +33,12 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
         <CustomForm
 
-
+            initValue={currentData}
             onSubmit={
-                handleSubmit((data) => {
-
-                    if (modelErr || brandErr || stationErr || colorErr || typeErr)
-                        return;
-
-                    const newData = {
-                        ...data, "unit_type": type, "make": brand, "model": model,
-                        "station": station, "color": color
-                    }
-
-                    handleSubmitInternal(newData)
-                })}
+                (data) => {
+                    logger.info();
+                    handleSubmitInternal(data)
+                }}
 
             classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
@@ -198,7 +158,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
                                 fieldName="color"
                                 description={"Color"}
-                                options={colors}
+                                options={Colors}
 
                                 openUp={true}
 
