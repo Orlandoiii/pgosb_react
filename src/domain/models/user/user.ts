@@ -59,11 +59,11 @@ export const UserSchemaBasicData = z
             )
             .optional(),
         gender: z.nativeEnum(Genders).optional(),
-        user_system: z.boolean().optional(),
+        user_system: z.boolean().default(false).optional(),
     })
     .refine(
         (value) => {
-            return value.user_system && (value.user_name?.length ?? 0) < 3
+            return !value.user_system && (value.user_name?.length ?? 0) < 3
         },
         { message: 'Debe ser mayor o igual a 3 caracteres' }
     )

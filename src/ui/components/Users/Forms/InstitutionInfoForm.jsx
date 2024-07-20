@@ -102,13 +102,13 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                             description={"Código de Funcionario/a"}
                             fieldName={"code"}
-                            placeholder="60"
+                            placeholder="600"
 
                         />
 
                         <FormSelectSearch
 
-                            fieldName="rol"
+                            fieldName={"rol"}
                             description={"Rol"}
                             options={rolNameList}
                             openUp={false} />
@@ -150,7 +150,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <FormSelect
                             description={"Jerarquia"}
-                            fieldName="rank"
+                            fieldName={"rank"}
                             options={rankList}
                             openUp={true} />
 
@@ -168,14 +168,14 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <FormSelectSearch
                             description={"División"}
-                            fieldName="division"
+                            fieldName={"division"}
                             options={divisions}
                             openUp={true}
                         />
 
                         <FormSelectSearch
                             description={"Profesión"}
-                            fieldName="profesion"
+                            fieldName={"profesion"}
                             options={profesions}
                             openUp={true}
                         />
