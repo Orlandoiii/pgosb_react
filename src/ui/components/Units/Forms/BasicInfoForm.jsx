@@ -115,9 +115,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             openUp={false}
                             onSelected={v => {
                                 setMarca(v);
-
-
-
                             }}
                         />
                         <SelectSearch
@@ -215,7 +212,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                                 description={'Año'}
                                 fieldName={'year'}
                                 placeholder="2022"
-                                mask={Number}
+                                
                             />
                         </div>
                     </div>
