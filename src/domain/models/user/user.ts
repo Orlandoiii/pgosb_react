@@ -8,14 +8,23 @@ export const UserSchemaBasicData = z
         user_name: z
             .string()
             .min(3, 'Debe ser mayor o igual a 3 caracteres')
-            .optional(),
-        email: z.string().email('El correo no es valido').optional(),
-        first_name: z.string().min(2, 'Debe tener 2 o más caracteres'),
-        last_name: z.string().min(2, 'Debe tener 2 o más caracteres'),
+            .or(z.string().length(0)),
+        email: z
+            .string()
+            .email('El correo no es valido')
+            .or(z.string().length(0)),
+        first_name: z
+            .string()
+            .min(2, 'Debe ser mayor o igual a 2 caracteres')
+            .or(z.string().length(0)),
+        last_name: z
+            .string()
+            .min(2, 'Debe ser mayor o igual a 2 caracteres')
+            .or(z.string().length(0)),
         legal_id: z
             .string()
             .min(6, 'Debe ser mayor o igual a 6 caracteres')
-            .optional(),
+            .or(z.string().length(0)),
         phone: z
             .string()
             .refine(
@@ -31,7 +40,10 @@ export const UserSchemaBasicData = z
                 { message: 'Debe tener 12 caracteres' }
             )
             .optional(),
-        zip_code: z.string().length(4, 'Debe tener 4 caracteres').optional(),
+        zip_code: z
+            .string()
+            .length(4, 'Debe tener 4 caracteres')
+            .or(z.string().length(0)),
         marital_status: z.nativeEnum(MartialStatusTypes),
         birth_date: z
             .string()
@@ -104,21 +116,30 @@ export const CharacteristicsSchema = z.object({
 export type CharacteristicsSchemaType = z.infer<typeof CharacteristicsSchema>
 
 export const UserIntutionalDataSchema = z.object({
-    code: z.string().min(3, 'Debe ser mayor o igual a 3 caracteres').optional(),
-    rol: z.string().min(3, 'Debe ser mayor o igual a 3 caracteres').optional(),
-    rank: z.string().min(3, 'Debe ser mayor o igual a 3 caracteres').optional(),
+    code: z
+        .string()
+        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .or(z.string().length(0)),
+    rol: z
+        .string()
+        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .or(z.string().length(0)),
+    rank: z
+        .string()
+        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .or(z.string().length(0)),
     institution: z
         .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .optional(),
+        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .or(z.string().length(0)),
     division: z
         .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .optional(),
+        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .or(z.string().length(0)),
     profesion: z
         .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .optional(),
+        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .or(z.string().length(0)),
 })
 
 const UserSchema = z.object({})
