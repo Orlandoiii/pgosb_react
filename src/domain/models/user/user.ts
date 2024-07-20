@@ -67,31 +67,38 @@ export const CharacteristicsSchema = z.object({
         .optional(),
     height: z
         .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .nullable()
+        .refine(
+            (value) => {
+                return !value || Number(value) >= 30
+            },
+            { message: 'Debe ser mayor o igual a 30' }
+        )
+        .refine(
+            (value) => {
+                return !value || Number(value) <= 240
+            },
+            { message: 'Debe ser menor o igual a 240' }
+        )
         .optional(),
     weight: z
         .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .nullable()
+        .refine(
+            (value) => {
+                return !value || Number(value) >= 30
+            },
+            { message: 'Debe ser mayor o igual a 30' }
+        )
+        .refine(
+            (value) => {
+                return !value || Number(value) <= 250
+            },
+            { message: 'Debe ser menor o igual a 250' }
+        )
         .optional(),
-    blood_type: z
-        .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .optional(),
-    shirt_size: z
-        .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .optional(),
-    pant_size: z
-        .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .optional(),
-    shoe_size: z
-        .string()
-        .min(3, 'Debe ser mayor o igual a 3 caracteres')
-        .nullable()
-        .optional(),
+    blood_type: z.string().optional(),
+    shirt_size: z.string().optional(),
+    pant_size: z.string().optional(),
+    shoe_size: z.string().nullable().optional(),
 })
 
 export type CharacteristicsSchemaType = z.infer<typeof CharacteristicsSchema>
