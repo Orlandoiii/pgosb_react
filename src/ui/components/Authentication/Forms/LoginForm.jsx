@@ -1,19 +1,13 @@
-import { useForm } from 'react-hook-form'
-import Input from '../../../core/inputs/Input'
-import React, { useState } from 'react'
+
+import React from 'react'
 import Button from '../../../core/buttons/Button'
 import logger from '../../../../logic/Logger/logger'
 import FireLogo from '../../../core/logo/FireLogo'
-// import { useRef, useState } from "react";
-import { dateMask } from '../../../core/inputs/Common/Mask'
 import { z } from 'zod'
 import CustomForm from '../../../core/context/CustomFormContext'
 import FormInput from '../../../core/inputs/FormInput'
-import Select from '../../../core/inputs/Select.tsx'
-import FormSelect from '../../../core/inputs/FormSelect.tsx'
-import SelectSearch from '../../../core/inputs/SelectSearch.tsx'
-import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
-import FormToggle from '../../../core/inputs/FormToggle.tsx'
+
+
 function MessageIcon() {
     return (
         <span className="absolute top-1/2 right-4 transform -translate-y-1/2 ">
@@ -62,32 +56,6 @@ function LockIcon() {
     )
 }
 
-const ruleUsername = {
-    required: {
-        value: true,
-        message: 'El nombre de usuario es requerido',
-    },
-}
-
-const rulePassword = {
-    required: {
-        value: true,
-        message: 'La contraseña es requerida',
-    },
-}
-
-const usernameMask = {
-    blocks: {
-        s: {
-            mask: String,
-        },
-    },
-
-    mask: 's$',
-}
-
-const testOptions = ['Option-1', 'Option-2']
-
 const loginModel = z.object({
     user_name: z
         .string({
@@ -98,28 +66,18 @@ const loginModel = z.object({
         .string({
             required_error: 'La contraseña es requerida',
         })
-        .min(1, 'La contraseña no puede estar vacía'),
-    test: z.string({
-        required_error: 'El select es requerido',
-    }),
-    search: z.enum(testOptions),
-    check: z.boolean()
+        .min(1, 'La contraseña no puede estar vacía')
 })
 
-// type LoginModelType = z.infer<typeof loginModel>
-
-let counter = 0
 export default function LoginForm({ onSubmit }) {
-    const [option, setOption] = useState(testOptions[0])
 
     function handleSubmitInternal(data) {
         logger.log('LOGIN DATA:', data)
         if (onSubmit) onSubmit(data)
     }
 
-    counter++
 
-    logger.log('Renderizando LoginForm:', counter)
+    logger.log('Renderizando LoginForm');
 
     return (
         <section
@@ -147,49 +105,23 @@ export default function LoginForm({ onSubmit }) {
                         <FormInput
                             fieldName="user_name"
                             description="Usuario:"
-                            // mask={dateMask}
                             placeholder="jondoe"
+                            icons={<MessageIcon />}
+                           
                         />
 
                         <FormInput
                             fieldName="password"
                             description="Contraseña:"
-                            // mask={dateMask}
-                            placeholder="*****"
+                            placeholder="********"
                             type="password"
-                        />
-
-                        <FormSelect
-                            openUp={true}
-                            fieldName={'test'}
-                            label={'Label:'}
-                            options={testOptions}
-                        />
-
-                        <FormSelectSearch
-                            label="Select-Search"
-                            fieldName="search"
-                            options={testOptions}
+                            icons={<LockIcon />}
                         />
                     </div>
-
-                    {/* <a className="mt-5 text-sm cursor-pointer  text-[#0088ce] 
-                        self-end hover:underline">¿Has olvidado tu contraseña?</a> */}
-
                     <div className="w-full   mt-8">
                         <Button width="w-full" height="h-[60px]">
                             Ingresar
                         </Button>
-
-                        {/* <button type="button" onClick={() => {
-                            defaultData.current = {
-                                user_name: '',
-                                password: ''
-                            }
-                            reset(defaultData.current)
-                        }}> Clear</button> */}
-
-                        <FormToggle fieldName={'check'}></FormToggle>
                     </div>
                 </CustomForm>
             </div>

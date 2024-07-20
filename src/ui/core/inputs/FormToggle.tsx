@@ -1,7 +1,6 @@
 import { Controller, FieldPath, FieldValues } from 'react-hook-form'
 import React, { ComponentPropsWithoutRef } from 'react'
 import {
-    getFieldError,
     useCustomFormContext,
 } from '../context/CustomFormContext'
 import logger from '../../../logic/Logger/logger'
@@ -14,11 +13,11 @@ interface FormInputProps<
     fieldName: TFieldName
 }
 
-function FormInput<T extends FieldValues>({
+function FormToggle<T extends FieldValues>({
     fieldName,
     ...rest
 }: FormInputProps<T>) {
-    const { register, errors, control } = useCustomFormContext<T>()
+    const { control } = useCustomFormContext<T>()
 
     // var fieldError = getFieldError(errors, fieldName)
     // var { ref, ...registerField } = register(fieldName)
@@ -61,4 +60,4 @@ function FormInput<T extends FieldValues>({
     )
 }
 
-export default FormInput
+export default FormToggle

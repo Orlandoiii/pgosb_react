@@ -1,13 +1,14 @@
-import { useForm } from "react-hook-form";
+import React from "react";
+import FormInput from "../../../core/inputs/FormInput";
 
-import Input from "../../../core/inputs/Input";
-import Select from "../../../core/inputs/Selects";
-import SelectWithSearch from "../../../core/inputs/SelectWithSearch";
 
 import { useContext, useState } from "react";
-import Toggle from "../../../core/buttons/Toggle";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
+import CustomForm from "../../../core/context/CustomFormContext";
+import { UserIntutionalDataSchema } from "../../../../domain/models/user/user";
+import FormSelect from "../../../core/inputs/FormSelect";
+import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 
 
 
@@ -22,44 +23,12 @@ const profesions = ["Profesión 1", "Profesión 2", "Profesión 3"]
 const instituions = ["Institución 1", "Institución 2", "Institución 3"]
 
 
-
-const requiredRule = {
-    required: {
-        value: false,
-        message: "El campo es requerido",
-    }
-}
-
-
 export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
 
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
 
-    const { register, handleSubmit, formState, setValue } = useForm({
-        mode: "onChange",
-        defaultValues: currentData
-    });
-
-    const { errors, isSubmitted } = formState;
-
-    const [rol, setRol] = useState(currentData?.rol ?? rolList[0]);
-
-    const [rolErr, setRolErr] = useState(false);
-
-
-    const [division, setDivision] = useState(currentData?.division ?? divisions[0]);
-
-    const [divisionErr, setDivisionErr] = useState(false);
-
-
-    const [profesion, setProfesion] = useState(currentData?.profesion ?? profesions[0]);
-
-    const [profesionErr, setProfesionErr] = useState(false);
-
-
-    const [isSystemUser, setIsSystemUser] = useState(currentData?.user_system ?? false);
 
 
 
@@ -76,26 +45,25 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     return (
 
-        <form
-            noValidate
-
-            onSubmit={handleSubmit((
+        <CustomForm
+            initValue={currentData}
+            schema={UserIntutionalDataSchema}
+            onSubmit={(
                 data) => {
 
-                if (rolErr || divisionErr || profesionErr)
-                    return
 
-                const newData = {
-                    ...data,
-                    "user_system": isSystemUser,
-                    "profesion": profesion,
-                    "rol": rol,
-                    "division": division,
-                }
 
-                handleSubmitInternal(newData)
-            })}
-            className="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
+                // const newData = {
+                //     ...data,
+                //     "user_system": isSystemUser,
+                //     "profesion": profesion,
+                //     "rol": rol,
+                //     "division": division,
+                // }
+
+                handleSubmitInternal(data)
+            }}
+            classStyle="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
 
 
             {/* <FormTitle title={"Datos Institucionales"} /> */}
@@ -109,58 +77,46 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <Input label={"Código de Funcionario/a"}
+                        <FormInput
 
-                            register={register}
-                            validationRules={requiredRule}
-
-                            useStrongErrColor={isSubmitted}
-                            errMessage={errors.code?.message}
-
-                            inputName={"code"}
-                            useDotLabel={true}
-                            placeHolder="60"
+                            description={"Código de Funcionario/a"}
+                            fieldName={"code"}
+                            placeholder="60"
 
                         />
 
-                        <SelectWithSearch
+                        <FormSelectSearch
 
-                            label={"Rol"}
-                            useDotLabel={true}
+                            fieldName="rol"
+                            description={"Rol"}
                             options={rolList}
-                            value={rol}
-                            onChange={(v) => { setRol(v) }}
-                            openUp={true}
-
-                            errMessage={rolErr}
-                            onError={(err) => { setRolErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                            openUp={true} />
 
 
 
-                        {/* <Input label={"Fecha de Ingreo"}
+                        {/* <FormInput description={"Fecha de Ingreo"}
                             register={register}
                             validationRules={requiredRule}
 
                             useStrongErrColor={isSubmitted}
                             errMessage={errors.in_date?.message}
 
-                            inputName={"in_date"}
+                            fieldName={"in_date"}
                             useDotLabel={true}
-                            placeHolder="01-01-0001"
+                            placeholder="01-01-0001"
 
                         />
 
-                        <Input label={"Fecha de Egreso"}
+                        <FormInput description={"Fecha de Egreso"}
                             register={register}
                             validationRules={requiredRule}
 
                             useStrongErrColor={isSubmitted}
                             errMessage={errors.out_date?.message}
 
-                            inputName={"out_date"}
+                            fieldName={"out_date"}
                             useDotLabel={true}
-                            placeHolder="01-01-0001"
+                            placeholder="01-01-0001"
 
                         /> */}
 
@@ -171,26 +127,16 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <Select
-                            label={"Jerarquia"}
-                            inputName="rank"
-                            register={register}
-                            setValue={setValue}
-                            useDotLabel={true}
+                        <FormSelect
+                            description={"Jerarquia"}
+                            fieldName="rank"
                             options={rankList}
-                            value={rankList[0]}
                             openUp={true} />
 
-
-
-                        <Select
-                            label={"Institución"}
-                            inputName={"institution"}
-                            register={register}
-                            setValue={setValue}
-                            useDotLabel={true}
+                        <FormSelect
+                            description={"Institución"}
+                            fieldName={"institution"}
                             options={instituions}
-                            value={instituions[0]}
                             openUp={true} />
 
                     </div>
@@ -199,38 +145,26 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <SelectWithSearch label={"División"}
-                            useDotLabel={true}
+                        <FormSelectSearch
+                            description={"División"}
+                            fieldName="division"
                             options={divisions}
-                            value={division}
-                            onChange={(v) => { setDivision(v) }}
                             openUp={true}
-                            onError={(err) => { setDivisionErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                        />
 
-                        <SelectWithSearch
-                            label={"Profesión"}
-                            useDotLabel={true}
+                        <FormSelectSearch
+                            description={"Profesión"}
+                            fieldName="profesion"
                             options={profesions}
-                            value={profesion}
-                            onChange={(v) => { setProfesion(v) }}
                             openUp={true}
-                            onError={(err) => { setProfesionErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                        />
 
 
 
 
                     </div>
 
-                    <div className="h-full w-full flex justify-start items-center space-x-2">
-
-                        <p className="text-sm">Usuario Sistema:</p>
-                        <Toggle
-                            active={isSystemUser}
-                            setActive={setIsSystemUser} />
-
-                    </div>
+                   
 
 
                 </div>
@@ -240,6 +174,6 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
             <FormHiddenButton clickNextRef={clickNextRef} clickSubmitRef={clickSubmitRef} />
 
 
-        </form>
+        </CustomForm>
     )
 }

@@ -6,7 +6,6 @@ import {
 import MainLayout from "./ui/components/Layouts/MainLayout"
 import NotFound from "./ui/core/errors/NotFound"
 import ErrorPage from "./ui/core/errors/ErrorPage";
-import Testing from "./ui/practice/Testing";
 import UserPage from "./ui/components/Users/UserPage";
 import ComingSoonPage from "./ui/core/errors/ComingSoonPage";
 import UnitPage from "./ui/components/Units/UnitPage";
@@ -60,10 +59,10 @@ const router = createBrowserRouter([
             path: "missions/",
             element: <MissionPage />
          },
-         {
-            path: "test/",
-            element: <Testing />
-         }
+         // {
+         //    path: "test/",
+         //    element: <Testing />
+         // }
 
       ]
    },

@@ -1,62 +1,30 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { StepContext } from "../../Stepper/Stepper";
-import { useForm } from "react-hook-form";
-import SelectWithSearch from "../../../core/inputs/SelectWithSearch";
-import Input from "../../../core/inputs/Input";
+import FormInput from "../../../core/inputs/FormInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
+import CustomForm from "../../../core/context/CustomFormContext";
+import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
+import React from "react";
+import { Colors } from "../../../../domain/abstractions/colors/colors";
+import { UnitSchemaBasicData } from "../../../../domain/models/unit/unit";
+import logger from "../../../../logic/Logger/logger";
 
-const brands = ["Ford", "Toyota", "Chevrolet"];
+
+
+const make = ["Ford", "Toyota", "Chevrolet"];
 
 const models = ["Aveo", "Corolla", "Lancer", "Terios"]
 
 const stations = ["Station 1", "Station 2", "Station 3"]
 
-const colors = ["Azul", "Verde", "Amarillo", "Plata", "Dorado"]
 
 const types = ["Tipo 1", "Tipo 2", "Tipo 3", "Tipo 4"]
 
-const requiredRule = {
-    required: {
-        value: false,
-        message: "El campo es requerido",
-    }
-}
-
 export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
+    
+    
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const { register, handleSubmit, formState } = useForm({
-        mode: "onChange",
-        defaultValues: currentData,
-    });
-
-    const { errors, isSubmitted } = formState;
-
-
-    const [brand, setBrand] = useState(currentData?.brand ?? brands[1]);
-
-    const [brandErr, setBrandErr] = useState(false);
-
-
-    const [model, setModel] = useState(currentData?.model ?? models[1]);
-
-    const [modelErr, setModelErr] = useState(false);
-
-
-    const [station, setStation] = useState(currentData?.station ?? stations[1]);
-
-    const [stationErr, setStationErr] = useState(false);
-
-
-
-    const [color, setColor] = useState(currentData?.color ?? colors[1]);
-
-    const [colorErr, setColorErr] = useState(false);
-
-
-    const [type, setType] = useState(currentData?.type ?? types[1]);
-
-    const [typeErr, setTypeErr] = useState(false);
 
     function handleSubmitInternal(data) {
 
@@ -68,24 +36,16 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
     }
     return (
 
-        <form
-            noValidate
-
+        <CustomForm
+            schema={UnitSchemaBasicData}
+            initValue={currentData}
             onSubmit={
-                handleSubmit((data) => {
+                (data) => {
+                    logger.info(data);
+                    handleSubmitInternal(data)
+                }}
 
-                    if (modelErr || brandErr || stationErr || colorErr || typeErr)
-                        return;
-
-                    const newData = {
-                        ...data, "unit_type": type, "make": brand, "model": model,
-                        "station": station, "color": color
-                    }
-
-                    handleSubmitInternal(newData)
-                })}
-
-            className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
+            classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
@@ -95,94 +55,63 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <SelectWithSearch label={"Tipo"}
-                            useDotLabel={true}
+                        <FormSelectSearch
+                            fieldName="unit_type"
+                            description={"Tipo"}
                             options={types}
-                            value={type}
-                            onChange={(v) => { setType(v) }}
                             openUp={false}
-                            onError={(err) => { setTypeErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                        />
 
-                        <SelectWithSearch label={"Marca"}
-                            useDotLabel={true}
-                            options={brands}
-                            value={brand}
-                            onChange={(v) => { setBrand(v) }}
+                        <FormSelectSearch
+                            fieldName="make"
+                            description={"Marca"}
+                            options={make}
                             openUp={false}
-                            onError={(err) => { setBrandErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                        />
 
 
-                        <SelectWithSearch label={"Modelo"}
-                            useDotLabel={true}
+                        <FormSelectSearch
+                            description={"Modelo"}
+                            fieldName="model"
                             options={models}
-                            value={model}
-                            onChange={(v) => { setModel(v) }}
                             openUp={false}
-                            onError={(err) => { setModelErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+                        />
 
                     </div>
 
                     <div className="">
 
-                        <SelectWithSearch label={"Estación"}
-                            useDotLabel={true}
+                        <FormSelectSearch
+                            description={"Estación"}
+                            fieldName="station"
                             options={stations}
-                            value={station}
-                            onChange={(v) => { setStation(v) }}
                             openUp={false}
-                            onError={(err) => { setStationErr(err) }}
-                            useStrongErrColor={isSubmitted} />
+
+                        />
 
                     </div>
 
                     <div className="md:flex md:space-x-2">
 
 
-                        <Input
-
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.motor_serial?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Serial del Motor"}
-                            inputName={"motor_serial"}
-                            useDotLabel={true}
-                            placeHolder="25FG80996645"
+                        <FormInput
+                            description={"Serial del Motor"}
+                            fieldName={"motor_serial"}
+                            placeholder="25FG80996645"
 
                         />
 
-                        <Input
-
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.vehicle_serial?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Serial del Vehiculo"}
-                            inputName={"vehicle_serial"}
-                            useDotLabel={true}
-                            placeHolder="80FG80996645"
+                        <FormInput
+                            description={"Serial del Vehiculo"}
+                            fieldName={"vehicle_serial"}
+                            placeholder="80FG80996645"
 
                         />
 
-                        <Input
-
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.fuel_type?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Tipo de Combustible"}
-                            inputName={"fuel_type"}
-                            useDotLabel={true}
-                            placeHolder="Diesel"
+                        <FormInput
+                            description={"Tipo de Combustible"}
+                            fieldName={"fuel_type"}
+                            placeholder="Diesel"
 
                         />
 
@@ -194,18 +123,10 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
                         <div className="md:w-[w-[50%]]">
-                            <Input
-
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.alias?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Alias"}
-                                inputName={"alias"}
-                                useDotLabel={true}
-                                placeHolder="El Caballito"
+                            <FormInput
+                                description={"Alias"}
+                                fieldName={"alias"}
+                                placeholder="El Caballito"
 
                             />
                         </div>
@@ -213,49 +134,32 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
                         <div className="md:w-[25%]">
-                            <SelectWithSearch label={"Color"}
-                                useDotLabel={true}
-                                options={colors}
-                                value={color}
-                                onChange={(v) => { setColor(v) }}
+                            <FormSelectSearch
+                                fieldName="color"
+                                description={"Color"}
+                                options={Colors}
                                 openUp={true}
-                                onError={(err) => { setColorErr(err) }}
-                                useStrongErrColor={isSubmitted} />
+
+                            />
                         </div>
 
 
 
                         <div className="md:w-[25%]">
 
-                            <Input
-
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.plate?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Placa"}
-                                inputName={"plate"}
-                                useDotLabel={true}
-                                placeHolder="7HW33A"
+                            <FormInput
+                                description={"Placa"}
+                                fieldName={"plate"}
+                                placeholder="7HW33A"
 
                             />
                         </div>
 
                         <div className="md:w-[18%]">
-                            <Input
-
-                                register={register}
-                                validationRules={requiredRule}
-
-                                errMessage={errors.year?.message}
-                                useStrongErrColor={isSubmitted}
-
-                                label={"Año"}
-                                inputName={"year"}
-                                useDotLabel={true}
-                                placeHolder="2022"
+                            <FormInput
+                                description={"Año"}
+                                fieldName={"year"}
+                                placeholder="2022"
 
                             />
                         </div>
@@ -272,6 +176,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
             <FormHiddenButton clickNextRef={clickNextRef} clickSubmitRef={clickSubmitRef} />
 
-        </form>
+        </CustomForm>
     )
 }

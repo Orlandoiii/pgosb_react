@@ -1,37 +1,26 @@
-import { useForm } from "react-hook-form";
+import React from "react";
 
-import Input from "../../../core/inputs/Input";
-import Select from "../../../core/inputs/Selects";
+import FormInput from "../../../core/inputs/FormInput";
+import FormSelect from "../../../core/inputs/FormSelect";
 import { useContext } from "react";
 import { StepContext } from "../../Stepper/Stepper";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
-import FormTitle from "../../../core/titles/FormTitle";
 import logger from "../../../../logic/Logger/logger";
+import CustomForm from "../../../core/context/CustomFormContext";
+import { UserSchemaBasicData } from "../../../../domain/models/user/user";
+import { dateMask, documentIdMask } from "../../../core/inputs/Common/Mask";
+import FormToggle from "../../../core/inputs/FormToggle";
+import { MartialStatusListTypes, MartialStatusTypes } from "../../../../domain/abstractions/enums/martial_status_type";
+import { Genders } from "../../../../domain/abstractions/enums/genders";
 
 const genders = ["Masculino", "Femenino"];
 
 const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
 
 
-const requiredRule = {
-    required: {
-        value: false,
-        message: "El campo es requerido",
-    }
-}
-
 export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
     const { clickNextRef, currentData, Next } = useContext(StepContext);
-
-    const { register, handleSubmit, formState, setValue } = useForm({
-        mode: "onChange",
-        defaultValues: currentData,
-    });
-
-    const { errors, isSubmitted } = formState;
-
-
 
     function handleSubmitInternal(data) {
 
@@ -42,18 +31,26 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
             Next(data);
     }
 
+    const initialData = !currentData ? {
+        "marital_status": MartialStatusTypes.Single,
+        "gender": Genders.Male,
+        "user_system": false,
+    } : currentData
+
+
     return (
 
-        <form
-            noValidate
+        <CustomForm
 
+            schema={UserSchemaBasicData}
+            initValue={initialData}
             onSubmit={
-                handleSubmit((data) => {
-                    logger.log("AQUI", data);
+                (data) => {
+                    logger.log("Aqui en User Info Form", data);
                     handleSubmitInternal(data)
-                })}
+                }}
 
-            className="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
+            classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
@@ -61,104 +58,49 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                 <div className="w-full space-y-4 px-2 max-w-[720px]">
 
                     <div className="md:flex md:space-x-2">
-                        <Input
-
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.user_name?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Usuario"}
-                            inputName={"user_name"}
-                            useDotLabel={true}
-                            placeHolder="Jondoe"
-
+                        <FormInput
+                            description={"Usuario"}
+                            fieldName={"user_name"}
+                            placeholder="Jondoe"
                         />
-
-
-                        <Input
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.email?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Email"}
-                            inputName={"email"}
-                            useDotLabel={true}
-                            placeHolder="jondoe@example.com" />
-
-
-
+                        <FormInput
+                            description={"Email"}
+                            fieldName={"email"}
+                            placeholder="jondoe@example.com" />
                     </div>
 
 
                     <div className="md:flex  md:space-x-2">
 
 
-                        <Input
+                        <FormInput
+                            description={"Nombre"}
+                            fieldName={"first_name"}
+                            placeholder="Jon" />
 
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.first_name?.message}
-                            useStrongErrColor={isSubmitted}
-
-
-                            label={"Nombre"}
-                            inputName={"first_name"}
-                            useDotLabel={true}
-                            placeHolder="Jon" />
-
-
-                        <Input
-
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.last_name?.message}
-                            useStrongErrColor={isSubmitted}
-
-
-                            label={"Apellido"}
-                            inputName={"last_name"}
-                            useDotLabel={true}
-                            placeHolder="Doe" />
-
-
-
-
+                        <FormInput
+                            description={"Apellido"}
+                            fieldName={"last_name"}
+                            placeholder="Doe" />
 
                     </div>
 
                     <div className="md:flex md:space-x-2">
 
 
-                        <Input
+                        <FormInput
+                            description={"Cedula"}
+                            fieldName={"legal_id"}
+                            placeholder="V0000000"
+                            mask={documentIdMask}
+                        />
 
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.phone?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Cedula"}
-                            inputName={"legal_id"}
-                            useDotLabel={true}
-                            placeHolder="V2190681" />
-
-                        <Input
-                            register={register}
-                            validationRules={requiredRule}
-
-                            errMessage={errors.secondary_phone?.message}
-                            useStrongErrColor={isSubmitted}
-
-                            label={"Teléfono"}
-                            inputName={"phone"}
-                            useDotLabel={true}
-                            placeHolder="02129998877" />
+                        <FormInput
+                            description={"Teléfono"}
+                            fieldName={"phone"}
+                            placeholder="02129998877"
+                            mask={Number}
+                        />
 
 
                     </div>
@@ -169,67 +111,53 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
                         <div className="w-[50%] flex space-x-2">
                             <div className="md:w-[35%]">
-                                <Input
-
-                                    register={register}
-                                    validationRules={requiredRule}
-
-                                    errMessage={errors.zip_code?.message}
-                                    useStrongErrColor={isSubmitted}
-
-                                    label={"Cod. Área"}
-                                    inputName={"zip_code"}
-                                    useDotLabel={true}
-                                    placeHolder="0244" />
+                                <FormInput
+                                    description={"Cod. Área"}
+                                    fieldName={"zip_code"}
+                                    placeholder="0244"
+                                    mask={Number}
+                                />
 
                             </div>
 
                             <div className="w-[65%]">
-                                <Select
-
-                                    inputName={"marital_status"}
-                                    label={"Estado Civil"}
-                                    useDotLabel={true}
-                                    options={civilStatusList}
-                                    value={civilStatusList[0]}
-                                    register={register}
-                                    setValue={setValue}
+                                <FormSelect
+                                    fieldName={"marital_status"}
+                                    description={"Estado Civil"}
+                                    options={MartialStatusListTypes}
                                     openUp={true} />
                             </div>
                         </div>
 
                         <div className="w-[50%] flex space-x-2">
                             <div className="w-[60%]">
-                                <Input
-
-                                    register={register}
-                                    validationRules={requiredRule}
-
-                                    errMessage={errors.birth_date?.message}
-                                    useStrongErrColor={isSubmitted}
-
-                                    label={"Fe. Nacimiento"}
-                                    inputName={"birth_date"}
-                                    useDotLabel={true}
-                                    placeHolder="01-01-0001" />
-
+                                <FormInput
+                                    description={"Fe. Nacimiento"}
+                                    fieldName={"birth_date"}
+                                    placeholder="dd-mm-aaaa"
+                                    mask={dateMask}
+                                />
                             </div>
 
-
                             <div className="md:w-[50%]">
-                                <Select
-                                    inputName={"gender"}
-                                    register={register}
-                                    setValue={setValue}
-                                    label={"Género"}
-                                    useDotLabel={true}
+                                <FormSelect
+                                    fieldName={"gender"}
+                                    description={"Género"}
                                     options={genders}
-                                    value={genders[0]}
                                     openUp={true} />
                             </div>
                         </div>
 
 
+
+                    </div>
+
+
+                    <div className="h-full w-full flex justify-start items-center space-x-2">
+
+                        <p className="text-sm">Usuario Sistema:</p>
+                        <FormToggle fieldName="user_system"
+                        />
 
                     </div>
                 </div>
@@ -238,6 +166,6 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
             <FormHiddenButton clickNextRef={clickNextRef} clickSubmitRef={clickSubmitRef} />
 
-        </form>
+        </CustomForm>
     )
 }

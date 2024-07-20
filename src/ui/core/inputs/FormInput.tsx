@@ -1,5 +1,5 @@
 import { FieldPath, FieldValues } from 'react-hook-form'
-import React, { ComponentPropsWithoutRef } from 'react'
+import React, { ComponentPropsWithoutRef, ReactNode } from 'react'
 import { getFieldError, useCustomFormContext } from '../context/CustomFormContext'
 import logger from '../../../logic/Logger/logger'
 import Input from './Input'
@@ -12,7 +12,8 @@ interface FormInputProps<
     fieldName: TFieldName
     description: string
     mask?: {}
-    placeholder?: string
+    placeholder?: string,
+    icons?: ReactNode,
 }
 
 function FormInput<T extends FieldValues>({
@@ -20,6 +21,7 @@ function FormInput<T extends FieldValues>({
     description,
     mask,
     placeholder,
+    icons,
     ...rest
 }: FormInputProps<T>) {
     const { register, isSubmitted, resetCount, errors } = useCustomFormContext<T>()
@@ -41,6 +43,7 @@ function FormInput<T extends FieldValues>({
             maskDefinition={mask}
             refCallback={ref}
             resetCount={resetCount}
+            icons={icons}
             {...registerField}
             {...rest}
         />
