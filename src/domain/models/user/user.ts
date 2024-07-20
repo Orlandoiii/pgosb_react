@@ -63,9 +63,15 @@ export const UserSchemaBasicData = z
     })
     .refine(
         (value) => {
-            return value.user_system && value.user_name.length >= 3
+            return (
+                (value.user_system && value.user_name.length >= 3) ||
+                !value.user_system
+            )
         },
-        { message: 'Debe ser mayor o igual a 3 caracteres' }
+        {
+            path: ['user_name'],
+            message: 'Debe ser mayor o igual a 3 caracteres',
+        }
     )
 
 export type UserSchemaBasicDataType = z.infer<typeof UserSchemaBasicData>
@@ -81,9 +87,9 @@ export const CharacteristicsSchema = z.object({
         .string()
         .refine(
             (value) => {
-                return !value || Number(value) >= 30
+                return !value || Number(value) >= 1.70
             },
-            { message: 'Debe ser mayor o igual a 30' }
+            { message: 'Debe ser mayor o igual a 1.70' }
         )
         .refine(
             (value) => {
