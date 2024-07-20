@@ -63,9 +63,15 @@ export const UserSchemaBasicData = z
     })
     .refine(
         (value) => {
-            return value.user_system && value.user_name.length >= 3
+            return (
+                (value.user_system && value.user_name.length >= 3) ||
+                !value.user_system
+            )
         },
-        { message: 'Debe ser mayor o igual a 3 caracteres' }
+        {
+            path: ['user_name'],
+            message: 'Debe ser mayor o igual a 3 caracteres',
+        }
     )
 
 export type UserSchemaBasicDataType = z.infer<typeof UserSchemaBasicData>
