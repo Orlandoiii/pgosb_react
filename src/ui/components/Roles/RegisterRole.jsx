@@ -32,7 +32,7 @@ function RegisterRole({ open, onClose,
                     <div className='flex justify-center items-center w-full space-x-3'>
                         <p className='text-lg font-medium'>Nombre del Rol:</p>
                         <div className='w-[60%]'>
-                            <Input readOnly={readonly} inputName={"role_name"} label={""}  value={roleName}
+                            <Input readOnly={readonly} inputName={"role_name"} label={""} value={roleName}
                                 onChange={(e) => {
                                     if (readonly)
                                         return;
@@ -44,11 +44,11 @@ function RegisterRole({ open, onClose,
 
                     <div className='flex w-full justify-center items-center space-x-3'>
                         <p className='text-lg font-medium'>Estado del Rol:</p>
-                        {/* <Toggle active={roleState} setActive={() => {
+                        <Toggle active={roleState} onClick={() => {
                             if (readonly)
                                 return;
                             setStateRol(a => !a);
-                        }} /> */}
+                        }} />
                     </div>
                 </div>
 

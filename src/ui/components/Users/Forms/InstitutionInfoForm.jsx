@@ -12,16 +12,14 @@ import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 import axios from "axios";
 import { useConfig } from "../../../../logic/Config/ConfigContext";
 import logger from "../../../../logic/Logger/logger";
+import { EnumToStringArray } from "../../../../utilities/converters/enum_converter";
+import { Hierarchys } from "../../../../domain/abstractions/enums/hierarchys";
+import { DivisionTypes } from "../../../../domain/abstractions/enums/division_types";
+import { ProfessionTypes } from "../../../../domain/abstractions/enums/profession_types";
 
 
 
-// const rolList = ["Administrador", "Usuario", "Otro"]
 
-const rankList = ["Rango 1", "Rango 2", "Rango 3"]
-
-const divisions = ["División 1", "División 2", "División 3"]
-
-const profesions = ["Profesión 1", "Profesión 2", "Profesión 3"]
 
 const instituions = ["Institución 1", "Institución 2", "Institución 3"]
 
@@ -151,14 +149,14 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                         <FormSelect
                             description={"Jerarquia"}
                             fieldName={"rank"}
-                            options={rankList}
-                            openUp={true} />
+                            options={EnumToStringArray(Hierarchys)}
+                            openUp={false} />
 
                         <FormSelect
                             description={"Institución"}
                             fieldName={"institution"}
                             options={instituions}
-                            openUp={true} />
+                            openUp={false} />
 
                     </div>
 
@@ -169,7 +167,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                         <FormSelectSearch
                             description={"División"}
                             fieldName={"division"}
-                            options={divisions}
+                            options={EnumToStringArray(DivisionTypes)}
                             openUp={true}
                             initialValue={currentData?.division}
                         />
@@ -177,7 +175,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                         <FormSelectSearch
                             description={"Profesión"}
                             fieldName={"profesion"}
-                            options={profesions}
+                            options={EnumToStringArray(ProfessionTypes)}
                             openUp={true}
                             initialValue={currentData?.profesion}
                         />
