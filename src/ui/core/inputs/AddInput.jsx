@@ -128,16 +128,16 @@ export default function AddInput({
             return;
         }
 
-        logger.log("Anadiendo valor", value);
+        logger.log("Anadiendo valor", controlValue);
 
-        if (items?.includes(value))
+        if (items?.includes(controlValue))
             return;
 
         if (!setItems)
             return;
 
         setItems(currentItems => {
-            let newItems = [...currentItems, value];
+            let newItems = [...currentItems, controlValue];
 
             return newItems;
         })
@@ -173,12 +173,12 @@ export default function AddInput({
             setErrMessage("El formato no es correcto")
             return;
         }
-        if (customValidator) {
-            let err = customValidator(value);
-            if (err != null) {
-                setErrMessage(err);
-            }
-        }
+        // if (customValidator) {
+        //     let err = customValidator(value);
+        //     if (err != null) {
+        //         setErrMessage(err);
+        //     }
+        // }
         setErrMessage("");
     }
 
