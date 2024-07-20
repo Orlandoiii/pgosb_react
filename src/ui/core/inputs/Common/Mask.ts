@@ -48,7 +48,7 @@ export const dateMask = {
 const allowedLetters = ["V", "E", "G", "J"];
 
 export const documentIdMask = {
-    mask: "D000000000000",
+    mask: /^V[0-9]{0,10}$|^E[0-9]{0,9}$|^P[0-1A-Z]{0,14}$/,
     definitions: {
         D: {
             mask: IMask.MaskedEnum,
@@ -56,10 +56,40 @@ export const documentIdMask = {
         }
     },
     lazy: false,
-    //overwrite: true,
+    overwrite: true,
     prepare: function (str) {
         return str.toUpperCase();
     },
 };
 
+export const numberMask = {
+    mask: /^[1-9][0-9]{0,9}$/,
+    definitions: {
+        D: {
+            mask: IMask.MaskedEnum,
+            enum: allowedLetters,
+        }
+    },
+    lazy: false,
+    overwrite: true,
+    prepare: function (str) {
+        return str.toUpperCase();
+    },
+};
+
+
+export const heightMask = {
+    mask: "0.00",
+    definitions: {
+        D: {
+            mask: IMask.MaskedEnum,
+            enum: allowedLetters,
+        }
+    },
+    lazy: false,
+    overwrite: true,
+    prepare: function (str) {
+        return str.toUpperCase();
+    },
+};
 

@@ -8,7 +8,7 @@ import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import logger from "../../../../logic/Logger/logger";
 import CustomForm from "../../../core/context/CustomFormContext";
 import { UserSchemaBasicData } from "../../../../domain/models/user/user";
-import { dateMask, documentIdMask } from "../../../core/inputs/Common/Mask";
+import { dateMask, documentIdMask, numberMask } from "../../../core/inputs/Common/Mask";
 import FormToggle from "../../../core/inputs/FormToggle";
 import { MartialStatusListTypes, MartialStatusTypes } from "../../../../domain/abstractions/enums/martial_status_type";
 import { Genders } from "../../../../domain/abstractions/enums/genders";
@@ -98,8 +98,8 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                         <FormInput
                             description={"Teléfono"}
                             fieldName={"phone"}
-                            placeholder="02129998877"
-                            mask={Number}
+                            placeholder="2129998877"
+                            mask={numberMask}
                         />
 
 

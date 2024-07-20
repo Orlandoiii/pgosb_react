@@ -23,7 +23,10 @@ export const UserSchemaBasicData = z
             .or(z.string().length(0)),
         legal_id: z
             .string()
-            .min(6, 'Debe ser mayor o igual a 6 caracteres')
+            .refine((value) => {return !value || !value.toUpperCase().startsWith('V') ||(value.toUpperCase().startsWith('V') && value.length >= 8 ) }, {message: 'Debe tener 7 o más caracteres'})
+            .refine((value) => {return !value || !value.toUpperCase().startsWith('V') || (value.toUpperCase().startsWith('V') && value.length <= 11 ) }, {message: 'Debe tener 10 o menos caracteres'})
+            .refine((value) => {return !value || !value.toUpperCase().startsWith('E') || (value.toUpperCase().startsWith('E') && value.length == 10 ) }, {message: 'Debe tener 9 caracteres'})
+            .refine((value) => {return !value || !value.toUpperCase().startsWith('P') || (value.toUpperCase().startsWith('P') && value.length == 15 ) }, {message: 'Debe tener 14 caracteres'})
             .or(z.string().length(0)),
         phone: z
             .string()
@@ -87,9 +90,9 @@ export const CharacteristicsSchema = z.object({
         .string()
         .refine(
             (value) => {
-                return !value || Number(value) >= 1.70
+                return !value || Number(value) >= 0.30
             },
-            { message: 'Debe ser mayor o igual a 1.70' }
+            { message: 'Debe ser mayor o igual a 0.30' }
         )
         .refine(
             (value) => {
