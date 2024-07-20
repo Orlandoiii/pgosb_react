@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import logger from "../../../logic/Logger/logger";
-import { useConfig } from "../../../logic/Config/ConfigContext";
+import { useConfig } from "./ConfigContext";
 
 
 const LayoutContex = createContext({

@@ -1,6 +1,6 @@
 import axios, { AxiosInstance } from 'axios'
+import { LoadConfigFile } from '../ui/core/context/ConfigContext'
 
-import { LoadConfigFile } from '../logic/Config/ConfigContext'
 
 export type FromJsonArrayResult<T> = {
     success: boolean

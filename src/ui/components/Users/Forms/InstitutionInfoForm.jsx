@@ -10,12 +10,12 @@ import { UserIntutionalDataSchema } from "../../../../domain/models/user/user";
 import FormSelect from "../../../core/inputs/FormSelect";
 import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 import axios from "axios";
-import { useConfig } from "../../../../logic/Config/ConfigContext";
 import logger from "../../../../logic/Logger/logger";
 import { EnumToStringArray } from "../../../../utilities/converters/enum_converter";
 import { Hierarchys } from "../../../../domain/abstractions/enums/hierarchys";
 import { DivisionTypes } from "../../../../domain/abstractions/enums/division_types";
 import { ProfessionTypes } from "../../../../domain/abstractions/enums/profession_types";
+import { useConfig } from "../../../core/context/ConfigContext";
 
 
 

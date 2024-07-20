@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useReducer, useState } from 'react';
 import { useEffect } from 'react';
-import { LoadingModal, useLoadModal } from '../../ui/core/modal/LoadingModal';
-import logger from '../Logger/logger';
+import { LoadingModal, useLoadModal } from '../modal/LoadingModal';
+import logger from '../../../logic/Logger/logger';
 import axios from 'axios';
 
 

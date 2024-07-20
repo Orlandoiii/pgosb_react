@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
 import axios from "axios";
-import { useConfig } from "../../../logic/Config/ConfigContext";
 import logger from "../../../logic/Logger/logger";
 import { LoadingModal } from "../../core/modal/LoadingModal";
 import { Detail } from "../../core/detail/Detail";
@@ -12,6 +11,7 @@ import { useLayout } from "../../core/context/LayoutContext";
 import { useUser } from "../../core/context/UserDataContext";
 import { useNavigate } from "react-router-dom";
 import { ConvertValue } from "../../../logic/Formatters/Formatters";
+import { useConfig } from "../../core/context/ConfigContext";
 const alertController = new AlertController();
 
 

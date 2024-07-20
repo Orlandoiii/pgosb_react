@@ -12,7 +12,6 @@ import logger from "../../../../logic/Logger/logger";
 import { useLocation } from "../../../core/hooks/useLocation";
 import SelectSearch from "../../../core/inputs/SelectSearch";
 import { LocationSchema } from "../../../../domain/models/location/location";
-import { addressMakes } from "../../../core/inputs/Common/Mask";
 
 
 
@@ -129,7 +128,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             description={"Sector"}
                             fieldName={"sector"}
                             placeholder="Sector..."
-                            mask={addressMakes}
+                          
 
                         />
 

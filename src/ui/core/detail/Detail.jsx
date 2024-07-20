@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import Accordion from "../accordion/Accordion";
 import ModalContainer from "../modal/ModalContainer";
 import { useLayout } from "../context/LayoutContext";
-import logger from "../../../logic/Logger/logger";
 
 export function Detail({ data, title, onClose, showDetail }) {
 

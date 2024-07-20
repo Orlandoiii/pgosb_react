@@ -1,7 +1,7 @@
 import axios from "axios";
 import logger from "../../../logic/Logger/logger";
 import { useEffect, useState } from "react";
-import { useConfig } from "../../../logic/Config/ConfigContext";
+import { useConfig } from "../context/ConfigContext";
 
 
 class State {

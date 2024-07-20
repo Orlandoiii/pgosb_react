@@ -1,5 +1,7 @@
 import { toast } from "react-toastify";
 import SmallToast from "./SmallToast";
+import React from "react";
+
 
 export default class AlertController {
     notifyInfo(message = "") {
@@ -28,7 +30,7 @@ export default class AlertController {
         });
     }
 
-    
+
     notifyWarning(message = "") {
         toast.warning(<SmallToast type="warning" message={message} />, {
             position: "top-center",
