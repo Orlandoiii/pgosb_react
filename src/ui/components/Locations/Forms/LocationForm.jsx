@@ -33,9 +33,10 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     }
 
 
-    const initialData = !currentData ? { state: "Miranda" } : currentData
+    const initialData = currentData ? currentData : { state: "Miranda" }
 
 
+    logger.log("CURRENT DATA:", initialData);
 
 
     const { states, state, municipalitys, municipality, parishs, parish, setState, setMunicipality, setParish } = useLocation();
@@ -46,7 +47,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
         <CustomForm
 
-            initialData={initialData}
+            initValue={initialData}
 
             schema={LocationSchema}
             onSubmit={(
@@ -54,9 +55,9 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                 logger.log("LocationForm", data)
 
-                // const newData = { ...data, "state": estado, "municipality": municipio, "parish": parroquia }
+                const newData = { ...data, "state": state, "municipality": municipality, "parish": parish }
 
-                handleSubmitInternal(data)
+                handleSubmitInternal(newData)
             }}
             classStyle="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
 
@@ -69,8 +70,8 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
                         <SelectSearch
-                            fieldName={"state"}
-                            description={"Estado"}
+                            inputName={"state"}
+                            label={"Estado"}
                             searhValue={state}
                             setSearhValue={setState}
                             //value={state}
@@ -85,8 +86,8 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                         />
                         <SelectSearch
 
-                            fieldName="municipality"
-                            description={"Municipio"}
+                            inputName="municipality"
+                            label={"Municipio"}
                             options={municipalitys}
 
                             searhValue={municipality}
@@ -103,8 +104,8 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                         />
                         <SelectSearch
 
-                            fieldName="parish"
-                            description={"Parroquia"}
+                            inputName="parish"
+                            label={"Parroquia"}
                             options={parishs}
                             searhValue={parish}
                             setSearhValue={setParish}

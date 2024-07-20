@@ -15,7 +15,7 @@ import logger from "../../../../logic/Logger/logger";
 
 
 
-const rolList = ["Administrador", "Usuario", "Otro"]
+// const rolList = ["Administrador", "Usuario", "Otro"]
 
 const rankList = ["Rango 1", "Rango 2", "Rango 3"]
 
@@ -47,10 +47,21 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
             Next(data);
     }
 
+    const rolNameList = rolList.map(rol => rol.role_name)
+
     useEffect(() => {
-        axios.get(config.back_url + "/api/v1/rol/all").then((r) => {
-            logger.log(r.data);
+
+
+
+        axios.get(config.back_url + "/api/v1/role/all").then((r) => {
+            if (r.status > 199 && r.status < 300) {
+                setRolsList(r.data);
+                return;
+            }
+        }).catch(err => {
+            logger.error(err);
         })
+
     }, [])
 
     return (
@@ -91,16 +102,16 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                             description={"Código de Funcionario/a"}
                             fieldName={"code"}
-                            placeholder="60"
+                            placeholder="600"
 
                         />
 
                         <FormSelectSearch
 
-                            fieldName="rol"
+                            fieldName={"rol"}
                             description={"Rol"}
-                            options={rolList}
-                            openUp={true} />
+                            options={rolNameList}
+                            openUp={false} />
 
 
 
@@ -139,7 +150,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <FormSelect
                             description={"Jerarquia"}
-                            fieldName="rank"
+                            fieldName={"rank"}
                             options={rankList}
                             openUp={true} />
 
@@ -157,14 +168,14 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <FormSelectSearch
                             description={"División"}
-                            fieldName="division"
+                            fieldName={"division"}
                             options={divisions}
                             openUp={true}
                         />
 
                         <FormSelectSearch
                             description={"Profesión"}
-                            fieldName="profesion"
+                            fieldName={"profesion"}
                             options={profesions}
                             openUp={true}
                         />
