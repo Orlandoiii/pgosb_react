@@ -6,9 +6,12 @@ import CustomForm from "../../../core/context/CustomFormContext";
 import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 import React from "react";
 import { Colors } from "../../../../domain/abstractions/colors/colors";
+import { UnitSchemaBasicData } from "../../../../domain/models/unit/unit";
+import logger from "../../../../logic/Logger/logger";
 
 
-const brands = ["Ford", "Toyota", "Chevrolet"];
+
+const make = ["Ford", "Toyota", "Chevrolet"];
 
 const models = ["Aveo", "Corolla", "Lancer", "Terios"]
 
@@ -18,6 +21,8 @@ const stations = ["Station 1", "Station 2", "Station 3"]
 const types = ["Tipo 1", "Tipo 2", "Tipo 3", "Tipo 4"]
 
 export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
+    
+    
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
 
@@ -32,11 +37,11 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
     return (
 
         <CustomForm
-
+            schema={UnitSchemaBasicData}
             initValue={currentData}
             onSubmit={
                 (data) => {
-                    logger.info();
+                    logger.info(data);
                     handleSubmitInternal(data)
                 }}
 
@@ -51,31 +56,24 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
                         <FormSelectSearch
-
                             fieldName="unit_type"
                             description={"Tipo"}
-
                             options={types}
-
                             openUp={false}
                         />
 
                         <FormSelectSearch
-
-                            fieldName="brand"
+                            fieldName="make"
                             description={"Marca"}
-                            options={brands}
-
+                            options={make}
                             openUp={false}
                         />
 
 
                         <FormSelectSearch
-
                             description={"Modelo"}
                             fieldName="model"
                             options={models}
-
                             openUp={false}
                         />
 
@@ -84,12 +82,9 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                     <div className="">
 
                         <FormSelectSearch
-
                             description={"Estación"}
                             fieldName="station"
-
                             options={stations}
-
                             openUp={false}
 
                         />
@@ -100,9 +95,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
                         <FormInput
-
-
-
                             description={"Serial del Motor"}
                             fieldName={"motor_serial"}
                             placeholder="25FG80996645"
@@ -110,9 +102,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                         />
 
                         <FormInput
-
-
-
                             description={"Serial del Vehiculo"}
                             fieldName={"vehicle_serial"}
                             placeholder="80FG80996645"
@@ -120,11 +109,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                         />
 
                         <FormInput
-
-
-
-
-
                             description={"Tipo de Combustible"}
                             fieldName={"fuel_type"}
                             placeholder="Diesel"
@@ -140,10 +124,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <div className="md:w-[w-[50%]]">
                             <FormInput
-
-
-
-
                                 description={"Alias"}
                                 fieldName={"alias"}
                                 placeholder="El Caballito"
@@ -155,13 +135,10 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <div className="md:w-[25%]">
                             <FormSelectSearch
-
                                 fieldName="color"
                                 description={"Color"}
                                 options={Colors}
-
                                 openUp={true}
-
 
                             />
                         </div>
@@ -171,9 +148,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                         <div className="md:w-[25%]">
 
                             <FormInput
-
-
-
                                 description={"Placa"}
                                 fieldName={"plate"}
                                 placeholder="7HW33A"
@@ -183,8 +157,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
                         <div className="md:w-[18%]">
                             <FormInput
-
-
                                 description={"Año"}
                                 fieldName={"year"}
                                 placeholder="2022"
