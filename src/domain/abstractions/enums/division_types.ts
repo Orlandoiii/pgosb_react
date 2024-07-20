@@ -1,0 +1,18 @@
+enum DivisionTypes {
+    Rescatés = 'RESCATÉS',
+    Incendio = 'INCENDIO',
+    Prehospitalaria = 'PREHOSPITALARIA',
+    Plaedbem = 'PLAEDBEM',
+    Tecnología = 'TECNOLOGÍA',
+    Prevención = 'PREVENCIÓN',
+    Educación = 'EDUCACIÓN',
+    Motorizados = 'MOTORIZADOS',
+    Logística = 'LOGÍSTICA',
+    Taller = 'TALLER',
+    TalentoHumano = 'TALENTO HUMANO',
+    Comunicaciones = 'COMUNICACIONES',
+    Transmisiones = 'TRANSMISIONES',
+    Matpel = 'MATPEL',
+    Archivos = 'ARCHIVOS',
+    Prensa = 'PRENSA',
+}

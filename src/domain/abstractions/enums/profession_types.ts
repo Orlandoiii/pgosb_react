@@ -1,0 +1,16 @@
+enum ProfessionTypes {
+    Bombero = 'BOMBERO',
+    JefeDeBomberos = 'JEFE DE BOMBEROS',
+    Paramédico = 'PARAMÉDICO',
+    ConductorDeCamiónDeBomberos = 'CONDUCTOR DE CAMIÓN DE BOMBEROS',
+    EspecialistaEnMaterialesPeligrosos = 'ESPECIALISTA EN MATERIALES PELIGROSOS',
+    BuzoBombero = 'BUZO BOMBERO',
+    TécnicoEnEmergenciasMédicas = 'TÉCNICO EN EMERGENCIAS MÉDICAS',
+    DespachadorDeEmergencias = 'DESPACHADOR DE EMERGENCIAS',
+    PrevencionistaDeIncendios = 'PREVENCIONISTA DE INCENDIOS',
+    InstructorDeBomberos = 'INSTRUCTOR DE BOMBEROS',
+    BomberoForestal = 'BOMBERO FORESTAL',
+    PilotoDeHelicóptero = 'PILOTO DE HELICÓPTERO',
+    PerroDeRescate = 'PERRO DE RESCATE',
+    CapellánDeBomberos = 'CAPELLÁN DE BOMBEROS',
+}
