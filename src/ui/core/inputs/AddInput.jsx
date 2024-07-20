@@ -166,7 +166,7 @@ export default function AddInput({
 
         let value = inputRef.current?.value;
 
-        if (!controlValue.match(allowPattern)) {
+        if (!value.match(allowPattern)) {
             setErrMessage("El formato no es correcto")
             return;
         }
