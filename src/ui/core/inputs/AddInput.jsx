@@ -94,9 +94,6 @@ export default function AddInput({
 
     const [showModal, setShowModal] = useState(false);
 
-    const [controlValue, setControlValue] = useState("");
-
-
     let itemsTotal = items?.length;
 
     if (itemsTotal > 9) {
@@ -124,7 +121,9 @@ export default function AddInput({
 
         //inputRef.current?.blur();
 
-        if (!controlValue || controlValue.length == 0) {
+        let value = inputRef.current?.value?.trim();
+
+        if (!value || value.length == 0) {
             return;
         }
 
@@ -138,10 +137,8 @@ export default function AddInput({
 
         setItems(currentItems => {
             let newItems = [...currentItems, value];
-
             return newItems;
         })
-        setControlValue("");
 
 
     }
@@ -167,7 +164,7 @@ export default function AddInput({
 
     function handleOnChange(e) {
 
-        setControlValue(e.target.value);
+        let value = inputRef.current?.value;
 
         if (!value.match(allowPattern)) {
             setErrMessage("El formato no es correcto")
@@ -223,7 +220,6 @@ export default function AddInput({
                         ref={inputRef}
                         id={inputName}
                         type={type}
-                        value={controlValue}
                         onChange={handleOnChange}
                         onKeyDown={handleKeyDown}
                         placeholder={placeHolder}
