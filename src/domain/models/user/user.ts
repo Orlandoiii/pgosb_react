@@ -61,12 +61,12 @@ export const UserSchemaBasicData = z
         gender: z.nativeEnum(Genders).optional(),
         user_system: z.boolean().default(false).optional(),
     })
-    .refine(
-        (value) => {
-            return !value.user_system && (value.user_name?.length ?? 0) < 3
-        },
-        { message: 'Debe ser mayor o igual a 3 caracteres' }
-    )
+    // .refine(
+    //     (value) => {
+    //         return !value.user_system && (value.user_name?.length ?? 0) < 3
+    //     },
+    //     { message: 'Debe ser mayor o igual a 3 caracteres' }
+    // )
 
 export type UserSchemaBasicDataType = z.infer<typeof UserSchemaBasicData>
 
@@ -118,27 +118,27 @@ export type CharacteristicsSchemaType = z.infer<typeof CharacteristicsSchema>
 export const UserIntutionalDataSchema = z.object({
     code: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     rol: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     rank: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     institution: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     division: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
     profesion: z
         .string()
-        .length(3, 'Debe ser mayor o igual a 3 caracteres')
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
 })
 

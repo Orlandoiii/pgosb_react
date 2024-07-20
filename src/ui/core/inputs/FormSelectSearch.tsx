@@ -16,6 +16,7 @@ interface FormSelectProps<
     options: string[] | (() => Promise<string[]>)
     description: string
     openUp?: boolean,
+    initialValue?: string
 }
 
 let counter = 0;
@@ -27,6 +28,7 @@ function FormSelectSearch<
     options,
     description,
     openUp = false,
+    initialValue,
     ...rest
 
 }: FormSelectProps<T>) {
@@ -45,7 +47,7 @@ function FormSelectSearch<
 
     const { ref, onChange, ...restRegister } = register(fieldName);
 
-    const [searhValue, setSearhValue] = useState("");
+    const [searhValue, setSearhValue] = useState(initialValue ?? "");
 
 
     //logger.error("ERROR EN SELECT:", fieldError?.message)
