@@ -81,6 +81,7 @@ export default function AddInput({
     placeHolder = "",
     items = [],
     setItems,
+    mask
 }) {
 
     if (!inputName)
@@ -98,6 +99,19 @@ export default function AddInput({
     if (itemsTotal > 9) {
         itemsTotal = `${9}+`
     }
+
+
+    useEffect(() => {
+
+        if (!mask)
+            return;
+
+        const inputElement = document.getElementById(inputName)
+        const imask = IMask(inputElement, mask)
+        imask.updateValue()
+
+        return () => imask.destroy()
+    }, [])
 
     function addValue() {
 
@@ -135,10 +149,10 @@ export default function AddInput({
             addValue();
             return;
         }
-        if (!e.key.match(allowPattern)) {
-            e.preventDefault();
-            return;
-        }
+        // if (!e.key.match(allowPattern)) {
+        //     e.preventDefault();
+        //     return;
+        // }
     }
 
     function handleClickEyeButton() {

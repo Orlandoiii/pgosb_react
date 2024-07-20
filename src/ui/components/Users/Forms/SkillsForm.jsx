@@ -1,11 +1,12 @@
-import { useForm } from "react-hook-form";
 
-import Input from "../../../core/inputs/Input";
-import Select from "../../../core/inputs/Select";
 import { useContext, useState } from "react";
 import AddInput from "../../../core/inputs/AddInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import { StepContext } from "../../Stepper/Stepper";
+import CustomForm from "../../../core/context/CustomFormContext";
+import { CharacteristicsSchema } from "../../../../domain/models/user/user";
+import FormInput from "../../../core/inputs/FormInput";
+import FormSelect from "../../../core/inputs/FormSelect";
 
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
@@ -25,9 +26,7 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
 
-    const { register, handleSubmit, formState, setValue } = useForm({ mode: "onChange", defaultValues: currentData });
 
-    const { errors, isSubmitted } = formState;
 
     const [skills, setSkills] = useState(currentData?.skills ?? []);
 
@@ -44,20 +43,26 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
             Next(data);
     }
 
+    const initialData = currentData ? currentData : {
+        blood_type: "A+",
+        shirt_size: "M",
+        pant_size: "M",
+    }
+
     return (
 
-        <form
-            noValidate
-
-            onSubmit={handleSubmit((data) => {
+        <CustomForm
+            initValue={initialData}
+            schema={CharacteristicsSchema}
+            onSubmit={(data) => {
 
                 const newData = {
                     ...data, "skills": skills, "allergies": allergies,
                 }
 
                 handleSubmitInternal(newData)
-            })}
-            className="mx-auto my-4 w-full max-w-[380px] md:max-w-[100%] bg-transparent">
+            }}
+            classStyle="mx-auto my-4 w-full max-w-[380px] md:max-w-[100%] bg-transparent">
 
             {/* <FormTitle title={"Habilidades y Alergias"} /> */}
 
@@ -69,9 +74,8 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                         label={"Habilidades"}
                         inputName={"skills"}
-                        useDotLabel={true}
                         placeHolder="Habilidad Ejem: Paramédico"
-                        useStrongErrColor={isSubmitted}
+                        mask={Number}
                         items={skills}
                         setItems={setSkills}
                     />
@@ -86,9 +90,8 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                             label={"Alergias"}
                             inputName={"allergies"}
-                            useDotLabel={true}
                             placeHolder="Alergia Ejem: Nuez"
-                            useStrongErrColor={isSubmitted}
+
                             items={allergies}
                             setItems={setAllergies}
                         />
@@ -110,45 +113,28 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                             <div className="flex space-x-2 ">
                                 <div className="md:w-[30%]">
-                                    <Input label={"Altura"}
-
-                                        register={register}
-                                        validationRules={requiredRule}
-
-                                        errMessage={errors.height?.message}
-                                        useStrongErrColor={isSubmitted}
-
-                                        inputName={"height"} useDotLabel={true}
-                                        placeHolder="1.70"
+                                    <FormInput
+                                        description={"Altura"}
+                                        fieldName={"height"}
+                                        placeholder="1.70"
                                     />
                                 </div>
 
                                 <div className="md:w-[30%]">
-                                    <Input label={"Peso"}
-
-                                        register={register}
-                                        validationRules={requiredRule}
-
-                                        errMessage={errors.weight?.message}
-                                        useStrongErrColor={isSubmitted}
-
-                                        inputName={"weight"}
-                                        useDotLabel={true}
-                                        placeHolder="70"
+                                    <FormInput
+                                        description={"Peso"}
+                                        fieldName={"weight"}
+                                        placeholder="70"
 
                                     />
                                 </div>
 
 
                                 <div className="md:w-[40%]">
-                                    <Select
-                                        label={"Tipo de Sangre"}
-                                        inputName={"blood_type"}
-                                        register={register}
-                                        useDotLabel={true}
+                                    <FormSelect
+                                        description={"Tipo de Sangre"}
+                                        fieldName={"blood_type"}
                                         options={bloodTypes}
-                                        value={bloodTypes[0]}
-                                        setValue={setValue}
                                         openUp={true} />
                                 </div>
                             </div>
@@ -167,14 +153,11 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
 
                                 <div className=" md:w-[33%]">
-                                    <Select
-                                        inputName={"shirt_size"}
-                                        label={"Camisa"}
-                                        useDotLabel={true}
+                                    <FormSelect
+                                        fieldName={"shirt_size"}
+                                        description={"Camisa"}
                                         options={shirtSizes}
-                                        value={shirtSizes[0]}
-                                        register={register}
-                                        setValue={setValue}
+
                                         openUp={true}
 
                                     />
@@ -182,13 +165,10 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
 
                                 <div className=" md:w-[33%]">
-                                    <Select label={"Pantalón"}
-                                        inputName={"pant_size"}
-                                        register={register}
-                                        setValue={setValue}
-                                        useDotLabel={true}
+                                    <FormSelect
+                                        description={"Pantalón"}
+                                        fieldName={"pant_size"}
                                         options={shirtSizes}
-                                        value={shirtSizes[0]}
                                         openUp={true}
                                     />
                                 </div>
@@ -196,41 +176,22 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
 
                                 <div className="md:w-[33%]">
-                                    <Input
-
-                                        register={register}
-                                        validationRules={requiredRule}
-
-                                        errMessage={errors.shoe_size?.message}
-                                        useStrongErrColor={isSubmitted}
-
-
-                                        label={"Zapatos"}
-                                        inputName={"shoe_size"} useDotLabel={true}
-                                        placeHolder="37"
+                                    <FormInput
+                                        description={"Zapatos"}
+                                        fieldName={"shoe_size"}
+                                        placeholder="37"
 
                                     />
                                 </div>
                             </div>
-
-
-
-
                         </div>
-
-
-
-
-
                     </div>
-
-
                 </div>
 
             </div>
 
             <FormHiddenButton clickNextRef={clickNextRef} clickSubmitRef={clickSubmitRef} />
 
-        </form>
+        </CustomForm>
     )
 }

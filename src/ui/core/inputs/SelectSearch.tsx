@@ -5,6 +5,8 @@ import logger from '../../../logic/Logger/logger';
 
 interface SelectSearchProps extends SelectProps {
     errMessage?: string,
+    searhValue:string,
+    setSearhValue:React.Dispatch<React.SetStateAction<string>> 
 }
 
 
@@ -20,6 +22,9 @@ export default function SelectSearch({
     errMessage,
     onChange,
     useStrongErrColor,
+    searhValue,
+    setSearhValue,
+    
     ...rest
 
     //controlled = false,
@@ -34,7 +39,6 @@ export default function SelectSearch({
 
     const inpRef: React.MutableRefObject<HTMLInputElement | null> | undefined = useRef(null);
 
-    const [searhValue, setSearhValue] = useState("");
 
     useEffect(() => {
         const handleClickOutside = (event) => {

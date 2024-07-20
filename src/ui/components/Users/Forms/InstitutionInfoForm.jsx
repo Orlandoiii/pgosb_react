@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import FormInput from "../../../core/inputs/FormInput";
 
 
@@ -9,6 +9,9 @@ import CustomForm from "../../../core/context/CustomFormContext";
 import { UserIntutionalDataSchema } from "../../../../domain/models/user/user";
 import FormSelect from "../../../core/inputs/FormSelect";
 import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
+import axios from "axios";
+import { useConfig } from "../../../../logic/Config/ConfigContext";
+import logger from "../../../../logic/Logger/logger";
 
 
 
@@ -28,9 +31,10 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
+    const [rolList, setRolsList] = useState([])
 
 
-
+    const { config } = useConfig()
 
     function handleSubmitInternal(data) {
 
@@ -42,6 +46,12 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
         if (Next)
             Next(data);
     }
+
+    useEffect(() => {
+        axios.get(config.back_url + "/api/v1/rol/all").then((r) => {
+            logger.log(r.data);
+        })
+    }, [])
 
     return (
 
@@ -164,7 +174,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     </div>
 
-                   
+
 
 
                 </div>

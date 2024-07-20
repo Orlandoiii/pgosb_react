@@ -25,12 +25,12 @@ export type UserSchemaBasicDataType = z.infer<typeof UserSchemaBasicData>
 export const CharacteristicsSchema = z.object({
     skills: z.array(z.string()).optional(),
     allergies: z.array(z.string()).optional(),
-    height: z.number().nullable().optional(),
-    weight: z.number().nullable().optional(),
+    height: z.string().nullable().optional(),
+    weight: z.string().nullable().optional(),
     blood_type: z.string().optional(),
     shirt_size: z.string().optional(),
     pant_size: z.string().optional(),
-    shoe_size: z.number().nullable().optional(),
+    shoe_size: z.string().nullable().optional(),
 })
 
 export type CharacteristicsSchemaType = z.infer<typeof CharacteristicsSchema>
