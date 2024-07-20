@@ -10,7 +10,6 @@ export const UnitSchemaBasicData = z.object({
 
     station: z.string().optional(),
 
-
     motor_serial: z.string().optional(),
     vehicle_serial: z.string().optional(),
     fuel_type: z.string().optional(),
@@ -21,36 +20,26 @@ export const UnitSchemaBasicData = z.object({
     year: z.string().optional(),
 
 })
+export type UnitSchemaBasicDataType = z.infer<typeof UnitSchemaBasicData>
 
-export type UserSchemaBasicDataType = z.infer<typeof UnitSchemaBasicData>
 
-
-export const CharacteristicsSchema = z.object({
+export const UnitCharacteristicsSchema = z.object({
+    
+    purpose: z.string().optional(),
+    
+    capacity: z.string().optional(),
 
 
     unity_condition: z.string().optional(),
 
-    capacity: z.string().optional(),
     details: z.string().optional(),
+
     water_capacity: z.string().optional(),
     observations: z.string().optional(),
 
 })
 
-export type CharacteristicsSchemaType = z.infer<typeof CharacteristicsSchema>
+export type UnitCharacteristicsSchemaType = z.infer<typeof UnitCharacteristicsSchema>
 
-
-export const UserIntutionalDataSchema = z.object({
-    code: z.string().optional(),
-
-
-});
-
-
-const UserSchema = z.object({
-
-   
-
-});
 
 
