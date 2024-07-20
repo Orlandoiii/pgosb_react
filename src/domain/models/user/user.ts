@@ -93,9 +93,9 @@ export const CharacteristicsSchema = z.object({
         )
         .refine(
             (value) => {
-                return !value || Number(value) <= 240
+                return !value || Number(value) <= 2.40
             },
-            { message: 'Debe ser menor o igual a 240' }
+            { message: 'Debe ser menor o igual a 2.40' }
         )
         .optional(),
     weight: z
