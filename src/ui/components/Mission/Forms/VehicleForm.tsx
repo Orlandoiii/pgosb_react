@@ -1,5 +1,5 @@
 import { FieldValues } from 'react-hook-form'
-import React from 'react'
+import React, { useReducer, useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
 import ModalContainer from '../../../core/modal/ModalContainer'
@@ -16,21 +16,80 @@ import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
+import { vehicleService } from '../../../../domain/models/vehicle/vehicle_involved'
+
+import LoadingModal from '../../../core/modal/LoadingModal'
+import NotificationModal from '../../../core/alerts/NotificationModal'
+
+import { getDefaults } from '../../../core/context/CustomFormContext'
+
+const notificationInitialState = {
+    open: false,
+    message: '',
+    type: 'info',
+    title: '',
+}
+
+function notificationReducer(state, action) {
+    switch (action.type) {
+        case 'notification/open':
+            return {
+                ...state,
+                open: true,
+                title: action.payload.title,
+                message: action.payload.message,
+                type: action.payload.type,
+            }
+        case 'notification/close':
+            return {
+                ...state,
+                open: false,
+            }
+    }
+
+    return state
+}
+
 interface AuthorityFormProps {
+    serviceId: number
     showModal: boolean
     initValue?: TVehicleInvolved | null
     onClose: () => void
 }
 
 const AuthorityForm = ({
+    serviceId,
     showModal,
     initValue,
     onClose,
 }: AuthorityFormProps) => {
+    const [notificationState, dispatch] = useReducer(
+        notificationReducer,
+        notificationInitialState
+    )
+    const [loading, setLoading] = useState(false)
+
     const areaCodes = EnumToStringArray(AreaCodes)
 
     async function handleSubmitInternal(data: FieldValues) {
-        await new Promise((resolve) => setTimeout(() => {}, 1000))
+        const parsed = VehicleInvolvedSchema.parse(data)
+        parsed.serviceId = serviceId
+
+        const result = await vehicleService.insert(parsed)
+
+        if (result.success) onClose()
+        else {
+            dispatch({
+                type: 'notification/open',
+                payload: {
+                    type: 'error',
+                    title: 'Oohh Error!!!',
+                    message:
+                        'Lo sentimos tenemos problemas para agregar el vehiculo',
+                },
+            })
+            console.error(result.error)
+        }
     }
 
     return (
@@ -113,6 +172,15 @@ const AuthorityForm = ({
                     </div>
                 </CustomForm>
             </ModalContainer>
+
+            <LoadingModal initOpen={loading} children={null} />
+            <NotificationModal
+                show={notificationState.open}
+                children={null}
+                // initType={notificationState.type as any}
+                // title={notificationState.title}
+                initMessage={notificationState.message}
+            />
         </>
     )
 }

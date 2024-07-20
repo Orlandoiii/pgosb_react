@@ -1,9 +1,9 @@
 import { FieldValues } from 'react-hook-form'
-import React from 'react'
+import React, { useReducer, useState } from 'react'
 
 import {
     TInfrastructure,
-    InfrastructureValidator,
+    InfrastructureSchema,
 } from '../../../../domain/models/infrastructure/infrastructure'
 import FormTitle from '../../../core/titles/FormTitle'
 import ModalContainer from '../../../core/modal/ModalContainer'
@@ -13,21 +13,79 @@ import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
+import { infrastructureService } from '../../../../domain/models/infrastructure/infrastructure'
+
+import LoadingModal from '../../../core/modal/LoadingModal'
+import NotificationModal from '../../../core/alerts/NotificationModal'
+
+import { getDefaults } from '../../../core/context/CustomFormContext'
+
+const notificationInitialState = {
+    open: false,
+    message: '',
+    type: 'info',
+    title: '',
+}
+
+function notificationReducer(state, action) {
+    switch (action.type) {
+        case 'notification/open':
+            return {
+                ...state,
+                open: true,
+                title: action.payload.title,
+                message: action.payload.message,
+                type: action.payload.type,
+            }
+        case 'notification/close':
+            return {
+                ...state,
+                open: false,
+            }
+    }
+
+    return state
+}
+
 interface AuthorityFormProps {
+    serviceId: number
     showModal: boolean
     initValue?: TInfrastructure | null
     onClose: () => void
 }
+const [notificationState, dispatch] = useReducer(
+    notificationReducer,
+    notificationInitialState
+)
+const [loading, setLoading] = useState(false)
 
 const areaCodes = ['0212', '0412', '0414', '0424']
 
 const AuthorityForm = ({
+    serviceId,
     showModal,
     initValue,
     onClose,
 }: AuthorityFormProps) => {
     async function handleSubmitInternal(data: FieldValues) {
-        await new Promise((resolve) => setTimeout(() => {}, 1000))
+        const parsed = InfrastructureSchema.parse(data)
+        parsed.serviceId = serviceId
+
+        const result = await infrastructureService.insert(parsed)
+
+        if (result.success) onClose()
+        else {
+            dispatch({
+                type: 'notification/open',
+                payload: {
+                    type: 'error',
+                    title: 'Oohh Error!!!',
+                    message:
+                        'Lo sentimos tenemos problemas para agregar el vehiculo',
+                },
+            })
+            console.error(result.error)
+        }
     }
 
     return (
@@ -40,7 +98,7 @@ const AuthorityForm = ({
                 title="Registro de Autoridade u Organismo Presente"
             >
                 <CustomForm
-                    schema={InfrastructureValidator}
+                    schema={InfrastructureSchema}
                     initValue={initValue}
                     onSubmit={handleSubmitInternal}
                 >
@@ -49,22 +107,22 @@ const AuthorityForm = ({
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_type'}
+                                fieldName={'buildType'}
                                 description={'Tipo de infrastructura:'}
                                 options={areaCodes}
                             />
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_occupation'}
+                                fieldName={'buildOccupation'}
                                 description={'Ocupación:'}
                                 options={areaCodes}
                             />
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_area'}
+                                fieldName={'buildArea'}
                                 description={'Area de ubicación:'}
                                 options={areaCodes}
                             />
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_access'}
+                                fieldName={'buildAccess'}
                                 description={'Acceso:'}
                                 options={areaCodes}
                             />
@@ -72,7 +130,7 @@ const AuthorityForm = ({
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormSelect<TInfrastructure>
-                                fieldName={'goods_type'}
+                                fieldName={'goodsType'}
                                 description={'Tipo de bienes:'}
                                 options={areaCodes}
                             />
@@ -88,22 +146,22 @@ const AuthorityForm = ({
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_room_type'}
+                                fieldName={'buildRoomType'}
                                 description={'Tipo de habitación:'}
                                 options={areaCodes}
                             />
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_floor'}
+                                fieldName={'buildFloor'}
                                 description={'Pisos:'}
                                 options={areaCodes}
                             />
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_wall'}
+                                fieldName={'buildWall'}
                                 description={'Paredes:'}
                                 options={areaCodes}
                             />
                             <FormSelect<TInfrastructure>
-                                fieldName={'build_roof'}
+                                fieldName={'buildRoof'}
                                 description={'Techos:'}
                                 options={areaCodes}
                             />
@@ -134,6 +192,15 @@ const AuthorityForm = ({
                     </div>
                 </CustomForm>
             </ModalContainer>
+
+            <LoadingModal initOpen={loading} children={null} />
+            <NotificationModal
+                show={notificationState.open}
+                children={null}
+                // initType={notificationState.type as any}
+                // title={notificationState.title}
+                initMessage={notificationState.message}
+            />
         </>
     )
 }
