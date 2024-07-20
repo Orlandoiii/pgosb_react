@@ -226,13 +226,13 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
                 Next
             }}
         >
-            <div className="h-full  w-full md:w-[900px] md:h-[650px] flex flex-col justify-between p-1.5 space-y-4">
+            <div className="h-full  w-full md:w-[900px] md:h-[700px] flex flex-col justify-between p-1.5 space-y-4">
 
                 <div className="py-2 px-4 border border-gray-200 rounded-md shadow-md bg-slate-50">
                     <StepperTracker steps={steps} stepCounter={stepCounter} />
                 </div>
 
-                <div className="w-full  h-[520px]  flex flex-col   border bg-slate-50  rounded-md shadow-lg overflow-y-auto">
+                <div className="w-full  h-[620px]  flex flex-col   border bg-slate-50  rounded-md shadow-lg overflow-y-auto">
                     <div className="">
                         <FormTitle title={currentStep.title} />
                     </div>

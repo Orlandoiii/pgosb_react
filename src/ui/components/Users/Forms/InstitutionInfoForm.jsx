@@ -166,14 +166,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     </div>
 
-                    <div className="h-full w-full flex justify-start items-center space-x-2">
-
-                        <p className="text-sm">Usuario Sistema:</p>
-                        <Toggle
-                            active={isSystemUser}
-                            setActive={setIsSystemUser} />
-
-                    </div>
+                   
 
 
                 </div>
