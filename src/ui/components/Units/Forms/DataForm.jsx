@@ -14,12 +14,11 @@ import logger from "../../../../logic/Logger/logger";
 export default function DataForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
- 
 
-    const [details, setDetails] = useState([]);
 
-    const [condtions, setConditions] = useState([]);
+    const [details, setDetails] = useState(currentData?.details ?? []);
 
+  
 
     function handleSubmitInternal(data) {
 
@@ -38,7 +37,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
             onSubmit={
                 (data) => {
                     logger.info(data);
-                    const newData = {...data,details:details}
+                    const newData = { ...data, details: details }
                     handleSubmitInternal(newData)
                 }}
 
@@ -135,7 +134,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
 
 
-                    <div className="md:flex md:space-x-2">
+                    <div className="md:flex md:space-x-4">
 
                         <AddInput
                             label={"Detalles"}

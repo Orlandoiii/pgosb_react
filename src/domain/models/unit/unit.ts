@@ -9,19 +9,19 @@ export const UnitSchemaBasicData = z.object({
         })
         .optional(),
 
-    make: z
-        .string({
-            required_error: 'La marca de la unidad es requerida',
-        })
-        .optional(),
+    // make: z
+    //     .string({
+    //         required_error: 'La marca de la unidad es requerida',
+    //     })
+    //     .optional(),
 
-    model: z.string({
-        required_error: 'El modelo de la unidad es obligatorio',
-    }),
+    // model: z.string({
+    //     required_error: 'El modelo de la unidad es obligatorio',
+    // }),
 
-    station: z.string({
-        required_error: 'El modelo de la unidad es obligatorio',
-    }),
+    // station: z.string({
+    //     required_error: 'El modelo de la unidad es obligatorio',
+    // }),
 
     motor_serial: z
         .string()
@@ -181,7 +181,7 @@ export const UnitCharacteristicsSchema = z.object({
         ),
 
     details: z.array(z.string()).optional(),
-    unity_condition: z.string().optional(),
+    unit_condition: z.string().optional(),
 
     observations: z.string().optional(),
 })
