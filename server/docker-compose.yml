@@ -1,0 +1,11 @@
+version: '3.8' # Specify Docker Compose version
+
+services:
+  pgosb_web_app:
+    image: orlandoiii/pgosb_web_app:0.8.0 # Your Docker image name
+    container_name: pgosb_web_app # (Optional) Custom container name
+    ports:
+      - "8082:8082"  # Expose port 8080 (adjust if your app uses a different port)
+    #volumes:
+     # - ./config:/app/config # Mount the host's config directory to the container's /app/config
+  

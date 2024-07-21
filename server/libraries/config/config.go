@@ -15,7 +15,7 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-var ruta = "./appsettings.json"
+var ruta = "./config/appsettings.json"
 
 var executableFolder string = ""
 var appConfiguration *AppConfig
