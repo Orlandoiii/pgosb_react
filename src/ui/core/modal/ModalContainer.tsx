@@ -1,3 +1,4 @@
+import React, { PropsWithChildren, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion"
 import logger from "../../../logic/Logger/logger";
 import Backdrop from "./Backdrop";
@@ -32,8 +33,17 @@ export function CloseXSimbol({ onClose }) {
     )
 }
 
+export interface ModalContainerProps {
+    show: boolean,
+    onClose?: () => void | undefined,
+    showX?: boolean,
+    title?: string,
+    downStikyChildren?: ReactNode
+}
 
-export default function ModalContainer({ show, onClose, showX = true, children = any, title = "", downStikyChildren }) {
+
+export default function ModalContainer({ show, onClose,
+    showX = true, children, title = "", downStikyChildren }: PropsWithChildren<ModalContainerProps>) {
 
     logger.log("Renderizo Modal Container")
 
@@ -46,11 +56,11 @@ export default function ModalContainer({ show, onClose, showX = true, children =
         >
             {show && <Backdrop>
                 <motion.div
-                    variants={scaleAnimation}
-                    initial={"initial"}
-                    animate={"animate"}
-                    exit={"exit"}
-                    transition={"transition"}
+
+                    initial={scaleAnimation.initial}
+                    animate={scaleAnimation.animate}
+                    exit={scaleAnimation.exit}
+                    transition={scaleAnimation.transition}
 
                     className="relative w-full h-full md:w-auto  md:h-auto  rounded-xl  
         bg-slate-100 shadow-lg shadow-gray-400 ">

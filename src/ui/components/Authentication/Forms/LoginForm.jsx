@@ -88,7 +88,7 @@ export default function LoginForm({ onSubmit }) {
             <div className="py-6 px-6 min-w-[360px] sm:min-w-[440px]  md:min-w-[500px] md:min-h-[560px]">
                 <div className="mb-8 flex justify-center items-center space-x-2">
                     <FireLogo width="w-[70px]" height="h-[70px]" bgColor="" />
-                    <h1 className="uppercase text-5xl ">pgsob</h1>
+                    <h1 className="uppercase text-5xl ">gres</h1>
                 </div>
 
                 <h2 className="text-center mb-8  text-lg md:text-xl">

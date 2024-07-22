@@ -1,3 +1,4 @@
+import React, { ReactNode } from "react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom"
 
@@ -10,13 +11,18 @@ function CloseArrowIcon({ onClick }) {
 }
 
 
+interface ModalStepPageProps {
+    show: boolean,
+    onClose?: () => void | undefined,
+    parent?: ReactNode
+
+}
+
+
 export function ModalStepPage({ show, onClose, children, parent }) {
-    let parentNode = useRef(null);
-
-    parentNode.current = parent;
-
+    let parentNode = useRef(parent);
     useEffect(() => {
-        if (!parentNode.current) {
+        if (!parentNode?.current) {
             parentNode.current = document.querySelector("#step-page-modal");
         }
     }, [])

@@ -82,7 +82,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                 handleSubmitInternal(data)
             }}
-            classStyle="mx-auto my-4 w-full max-w-[365px] md:max-w-[100%]">
+            classStyle="mx-auto my-4 w-full ">
 
 
             {/* <FormTitle title={"Datos Institucionales"} /> */}
@@ -90,7 +90,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[860px]">
 
 
 
@@ -105,8 +105,8 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                         />
 
                         <FormSelectSearch
-                            initialValue={currentData?.rol}
-                            fieldName={"rol"}
+                            initialValue={currentData?.role}
+                            fieldName={"role"}
                             description={"Rol"}
                             options={rolNameList}
                             openUp={false} />
@@ -143,50 +143,40 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
 
 
-                    <div className="md:flex md:space-x-2">
-
-
-                        <FormSelect
-                            description={"Jerarquia"}
-                            fieldName={"rank"}
-                            options={EnumToStringArray(Hierarchys)}
-                            openUp={false} />
-
-                        <FormSelect
-                            description={"Institución"}
-                            fieldName={"institution"}
-                            options={instituions}
-                            openUp={false} />
-
-                    </div>
 
 
 
-                    <div className="md:flex md:space-x-2">
+                    <FormSelect
+                        description={"Jerarquia"}
+                        fieldName={"rank"}
+                        options={EnumToStringArray(Hierarchys)}
+                        openUp={false} />
 
-                        <FormSelectSearch
-                            description={"División"}
-                            fieldName={"division"}
-                            options={EnumToStringArray(DivisionTypes)}
-                            openUp={true}
-                            initialValue={currentData?.division}
-                        />
-
-                        <FormSelectSearch
-                            description={"Profesión"}
-                            fieldName={"profesion"}
-                            options={EnumToStringArray(ProfessionTypes)}
-                            openUp={true}
-                            initialValue={currentData?.profesion}
-                        />
+                    <FormSelect
+                        description={"Institución"}
+                        fieldName={"institution"}
+                        options={instituions}
+                        openUp={false} />
 
 
 
 
-                    </div>
 
+                    <FormSelectSearch
+                        description={"División"}
+                        fieldName={"division"}
+                        options={EnumToStringArray(DivisionTypes)}
+                        openUp={true}
+                        initialValue={currentData?.division}
+                    />
 
-
+                    <FormSelectSearch
+                        description={"Profesión"}
+                        fieldName={"profession"}
+                        options={EnumToStringArray(ProfessionTypes)}
+                        openUp={true}
+                        initialValue={currentData?.profession}
+                    />
 
                 </div>
 

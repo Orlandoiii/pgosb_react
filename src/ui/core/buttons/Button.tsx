@@ -1,4 +1,4 @@
-import React from "react"
+import React, { MouseEventHandler, PropsWithChildren } from "react"
 
 
 const defaultBgColors = {
@@ -9,26 +9,28 @@ const defaultBgColors = {
     Warning: 'bg-[#6C757D]',
 }
 
+interface ButtonProps {
+    colorType?: string,
+    onClick?: MouseEventHandler<HTMLButtonElement> | undefined
+    hoverColor?: string,
+    width?: string,
+    height?: string
+}
+
 export default function Button({
     children,
     colorType = defaultBgColors.Primary,
-    onClickRaw,
     onClick,
     hoverColor = "hover:bg-[#0069D9]",
     width = "",
     height = ""
-}) {
-    function handleOnClick(e) {
-        if (onClickRaw) onClickRaw(e)
-
-        if (onClick) onClick()
-    }
+}: PropsWithChildren<ButtonProps>) {
 
     return (
         <button
             className={`block ${height}  ${width} px-3 py-2 ${colorType} text-white 
             text-md rounded-md shadow-md ${hoverColor} `}
-            onClick={handleOnClick}
+            onClick={onClick}
         >
             {children}
         </button>

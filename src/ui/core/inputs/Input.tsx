@@ -86,7 +86,7 @@ export default function Input({
             </div>
 
             <span className={`absolute left-0 top-full w-full overflow-x-hidden 
-                text-ellipsis whitespace-nowrap text-sm  px-2 bg-transparent transition-all ease-in-out duration-500
+                text-ellipsis whitespace-nowrap text-[0.75rem]  px-2 bg-transparent transition-all ease-in-out duration-500
                 ${useStrongErrColor ? "text-rose-500" : "text-slate-500"} 
                 ${errMessage && errMessage?.length > 0 ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-8"}`}>{errMessage}</span>
 

@@ -6,10 +6,10 @@ import axios from "axios";
 import { useConfig } from "./ConfigContext";
 
 const UserDataContext = createContext({
-    userData: null,
-    userRolData: null,
+    userData: {},
+    userRolData: {},
     userDataIsLoad: false,
-    modulesPermissions: null,
+    modulesPermissions: [],
     err: null
 });
 

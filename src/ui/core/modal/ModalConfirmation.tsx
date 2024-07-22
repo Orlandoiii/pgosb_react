@@ -1,3 +1,4 @@
+import React, { PropsWithChildren } from "react";
 import { createContext, useContext, useRef, useState } from "react";
 import Button from "../buttons/Button";
 import { CloseXSimbol } from "./ModalContainer";
@@ -6,9 +7,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import Backdrop from "./Backdrop";
 
 
-const ConfirmationModalContext = createContext({
-    showConfirmationModal: () => Promise.resolve(false),
-});
+
 
 const dropInEffect = {
     hidden: {
@@ -29,7 +28,16 @@ const dropInEffect = {
     },
 }
 
-function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }) {
+interface ModalConfirmationProps {
+    open: boolean,
+    onClose?: () => void,
+    title: string,
+    message: string,
+    onReject: () => void | Promise<void>,
+    onAccept: () => void | Promise<void>
+}
+
+function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }: ModalConfirmationProps) {
     logger.log("Renderizo Confirmation Modal")
 
     return (<AnimatePresence
@@ -97,36 +105,44 @@ function ModalConfirmation({ open, onClose, title, message, onReject, onAccept }
 }
 
 
+const ConfirmationModalContext = createContext({
+    showConfirmationModal: (t: string, m: string) => new Promise<boolean>((resolve) => { }),
+});
+
 export function useConfirmationModal() {
     return useContext(ConfirmationModalContext);
 }
 
-export default function ConfirmationModalProvider({ children }) {
+const r = (b: boolean) => { };
+
+export default function ConfirmationModalProvider({ children }: PropsWithChildren) {
 
     const [showModalState, setShowModalState] = useState(false);
     const [message, setMessage] = useState('');
     const [title, setTitle] = useState('');
 
-    const resolvePromise = useRef({});
+    const resolvePromise = useRef(r);
 
-    const showConfirmationModal = (t, m) => {
+    const showConfirmationModal = (t: string, m: string) => {
         setMessage(m);
         setTitle(t);
         setShowModalState(true);
 
-        return new Promise((resolve) => {
+        const result = new Promise<boolean>((resolve, _) => {
             resolvePromise.current = resolve;
         });
+
+        return result;
     };
 
     const handleConfirm = () => {
         setShowModalState(false);
-        resolvePromise.current(true);
+        resolvePromise?.current(true);
     };
 
     const handleCancel = () => {
         setShowModalState(false);
-        resolvePromise.current(false);
+        resolvePromise?.current(false);
     };
 
     return (

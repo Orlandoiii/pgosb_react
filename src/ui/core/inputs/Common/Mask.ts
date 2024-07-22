@@ -57,7 +57,7 @@ export const documentIdMask = {
         }
     },
     lazy: false,
-    overwrite: true,
+
     prepare: function (str) {
         return str.toUpperCase();
     },
@@ -65,14 +65,15 @@ export const documentIdMask = {
 
 export const numberMask = {
     mask: /^[1-9][0-9]{0,9}$/,
-    definitions: {
-        D: {
-            mask: IMask.MaskedEnum,
-            enum: allowedLetters,
-        }
-    },
     lazy: false,
-    overwrite: true,
+    prepare: function (str) {
+        return str.toUpperCase();
+    },
+};
+
+export const numberMaskAllowZero = {
+    mask: /^[0-9]{0,9}$/,
+    lazy: false,
     prepare: function (str) {
         return str.toUpperCase();
     },

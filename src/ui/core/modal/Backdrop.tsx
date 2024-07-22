@@ -1,3 +1,4 @@
+import React, { MutableRefObject, PropsWithChildren } from "react";
 import { motion } from "framer-motion"
 import logger from "../../../logic/Logger/logger";
 
@@ -14,12 +15,14 @@ const backDropAnimation = {
     }
 }
 
-export default function Backdrop({ children, outRef, backGround = "bg-white/60" }) {
+interface BackdropProps {
+    outRef?: MutableRefObject<HTMLDivElement> | undefined
+    backGround?: string
+}
+
+export default function Backdrop({ children, outRef, backGround = "bg-white/60" }: PropsWithChildren<BackdropProps>) {
 
     logger.log("Renderizo Backdrop ");
-
-
-
     return (
         <>
             <motion.div

@@ -32,13 +32,17 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     }
 
 
-    const initialData = currentData ? currentData : { state: "Miranda" }
+    const initialData = currentData;
 
 
     logger.log("CURRENT DATA:", initialData);
 
 
-    const { states, state, municipalitys, municipality, parishs, parish, setState, setMunicipality, setParish } = useLocation();
+    const { states, state, municipalitys, municipality,
+        parishs, parish, setState, setMunicipality, setParish } = useLocation(currentData?.state,
+            currentData?.municipality,
+            currentData?.parish);
+
 
 
 
@@ -62,7 +66,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[860px]">
 
 
 
@@ -76,12 +80,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             //value={state}
                             options={states}
                             openUp={false}
-                            onSelected={v => {
-                                setState(v)
-                                setMunicipality("")
-                                setParish("")
-
-                            }}
+                            
                         />
                         <SelectSearch
 
@@ -93,10 +92,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             setSearhValue={setMunicipality}
 
                             openUp={false}
-                            onSelected={v => {
-                                setMunicipality(v)
-                                setParish("")
-                            }}
+                          
 
 
 
@@ -109,39 +105,28 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                             searhValue={parish}
                             setSearhValue={setParish}
                             openUp={false}
-                            onSelected={v => { setParish(v) }}
-
-
-                        />
-
-                    </div>
-
-
-
-                    <div className="md:flex md:space-x-2">
-
-
-
-
-
-                        <FormInput
-                            description={"Sector"}
-                            fieldName={"sector"}
-                            placeholder="Sector..."
                           
 
-                        />
-
-                        <FormInput
-                            description={"Urbanización/Comunidad/Barrio"}
-                            fieldName={"community"}
-                            placeholder="Urbanización..."
 
                         />
-
-
 
                     </div>
+
+
+                    <FormInput
+                        description={"Sector"}
+                        fieldName={"sector"}
+                        placeholder="Sector..."
+
+
+                    />
+
+                    <FormInput
+                        description={"Urbanización/Comunidad/Barrio"}
+                        fieldName={"community"}
+                        placeholder="Urbanización..."
+
+                    />
 
                     <div className="md:flex md:space-x-2">
 

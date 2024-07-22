@@ -182,37 +182,37 @@ export default function ModuleComponent({
             }, {});
 
 
-            const transformedData = {}
+            // const transformedData = {}
 
-            for (const key in mergedData) {
-
-
-                const value = fieldDefinition.get(key)
-
-                if (!value) {
-                    transformedData[key] = mergedData[key];
-                    continue;
-                }
-
-                const type = value?.type;
-
-                if (!type) {
-                    transformedData[key] = mergedData[key];
-                    continue;
-                }
-
-                transformedData[key] = ConvertValue(mergedData[key], type);
-
-            }
+            // for (const key in mergedData) {
 
 
-            logger.info("REGISTER CREATE/UPDATE Datos enviados:", JSON.stringify(transformedData))
+            //     const value = fieldDefinition.get(key)
 
-            logger.info("DATA ENVIADA AL BACK:", transformedData);
+            //     if (!value) {
+            //         transformedData[key] = mergedData[key];
+            //         continue;
+            //     }
+
+            //     const type = value?.type;
+
+            //     if (!type) {
+            //         transformedData[key] = mergedData[key];
+            //         continue;
+            //     }
+
+            //     transformedData[key] = ConvertValue(mergedData[key], type);
+
+            // }
+
+
+            // logger.info("REGISTER CREATE/UPDATE Datos enviados:", JSON.stringify(transformedData))
+
+            logger.log("DATA ENVIADA AL BACK:", mergedData);
 
             axios({
                 url: endpoint,
-                data: transformedData,
+                data: mergedData,
                 method: method
             }).then(r => {
                 closeLoadModal()

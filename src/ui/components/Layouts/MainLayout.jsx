@@ -1,6 +1,4 @@
 import { ToastContainer } from "react-toastify";
-import Navbar from "../../core/navbar/Navbar";
-import Sidebar from "../../core/sidebar/Sidebar";
 import { Outlet, useNavigate } from "react-router-dom";
 import 'react-toastify/dist/ReactToastify.css';
 import logger from "../../../logic/Logger/logger";
@@ -8,6 +6,8 @@ import ConfirmationModalProvider from "../../core/modal/ModalConfirmation";
 import { useEffect } from "react";
 import { useAuth } from "../Authentication/AuthProvider";
 import UserDataProvider from "../../core/context/UserDataContext";
+import Sidebar from "../../core/sidebar/Sidebar";
+import Navbar from "../../core/navbar/Navbar";
 
 
 export default function MainLayout({ }) {
