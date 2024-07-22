@@ -102,7 +102,13 @@ export default function AddInput({
     const [showModal, setShowModal] = useState(false)
     const [controlValue, setControlValue] = useState('')
 
-    let itemsTotal = items?.length
+    const [errMessage, setErrMessage] = useState("");
+
+    const [showModal, setShowModal] = useState(false);
+
+    const [controlValue, setControlValue] = useState("");
+
+    let itemsTotal = items?.length;
 
     if (itemsTotal > 9) {
         itemsTotal = `${9}+`
@@ -121,8 +127,16 @@ export default function AddInput({
     function addValue() {
         if (errMessage && errMessage.length > 0) return
 
-        if (!controlValue.trim() || controlValue.trim().length == 0) {
-            return
+        if (errMessage && errMessage.length > 0)
+            return;
+
+
+        //inputRef.current?.blur();
+
+        // let value = inputRef.current?.value?.trim();
+
+        if (!controlValue || controlValue.length == 0) {
+            return;
         }
 
         logger.log('Anadiendo valor', controlValue)
@@ -160,7 +174,21 @@ export default function AddInput({
     function handleOnChange(e) {
         setControlValue(e.currentTarget.value)
 
-        setErrMessage('')
+        // let value = inputRef.current?.value;
+
+        setControlValue(e.target.value);
+
+        // if (!controlValue.match(allowPattern)) {
+        //     setErrMessage("El formato no es correcto")
+        //     return;
+        // }
+        // if (customValidator) {
+        //     let err = customValidator(value);
+        //     if (err != null) {
+        //         setErrMessage(err);
+        //     }
+        // }
+        setErrMessage("");
     }
 
     function handleDeleteItem(item) {
@@ -207,6 +235,8 @@ export default function AddInput({
                         onChange={handleOnChange}
                         onKeyDown={handleKeyDown}
                         placeholder={placeHolder}
+                        value={controlValue}
+
                     />
                     <div className="absolute top-1/2 right-1.5 transform -translate-y-1/2">
                         {
