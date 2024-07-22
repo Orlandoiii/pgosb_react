@@ -15,7 +15,7 @@ import { Genders } from "../../../../domain/abstractions/enums/genders";
 
 const genders = ["Masculino", "Femenino"];
 
-const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
+// const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
 
 
 export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {

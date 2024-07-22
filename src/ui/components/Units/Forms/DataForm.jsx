@@ -4,9 +4,9 @@ import FormInput from "../../../core/inputs/FormInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import CustomForm from "../../../core/context/CustomFormContext";
 import React from "react";
-import AddInput from "../../../core/inputs/AddInput";
 import { UnitCharacteristicsSchema } from "../../../../domain/models/unit/unit";
 import logger from "../../../../logic/Logger/logger";
+import AddInput from "../../../core/inputs/AddInput";
 
 
 
@@ -18,7 +18,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
     const [details, setDetails] = useState(currentData?.details ?? []);
 
-  
+
 
     function handleSubmitInternal(data) {
 
@@ -48,7 +48,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-3  px-2 max-w-[860px]">
 
                     <div className="md:flex md:space-x-2">
                         <FormInput
@@ -62,46 +62,38 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
 
-                        <div className="md:w-[20%]">
-                            <FormInput
-                                description={"Cap. Personas"}
-                                fieldName={"capacity"}
-                                placeholder="8"
-                                mask={Number}
+                        <FormInput
+                            description={"Cap. Personas"}
+                            fieldName={"capacity"}
+                            placeholder="8"
+                            mask={Number}
 
-                            />
-                        </div>
+                        />
 
-                        <div className="">
-                            <FormInput
+                        <FormInput
 
-                                description={"Cap. Heridos"}
-                                fieldName={"hurt_capacity"}
-                                placeholder="4"
-                                mask={Number}
-                            />
-
-                        </div>
+                            description={"Cap. Heridos"}
+                            fieldName={"hurt_capacity"}
+                            placeholder="4"
+                            mask={Number}
+                        />
 
 
-                        <div className="">
-                            <FormInput
-                                description={"Nro. Puertas"}
-                                fieldName={"doors"}
-                                placeholder="4"
-                                mask={Number}
-                            />
-                        </div>
+
+                        <FormInput
+                            description={"Nro. Puertas"}
+                            fieldName={"doors"}
+                            placeholder="4"
+                            mask={Number}
+                        />
 
 
-                        <div className="">
-                            <FormInput
-                                description={"Rendimiento"}
-                                fieldName={"performance"}
-                                placeholder="10 Km/L"
-                                mask={Number}
-                            />
-                        </div>
+                        <FormInput
+                            description={"Rendimiento"}
+                            fieldName={"performance"}
+                            placeholder="10 Km/L"
+                            mask={Number}
+                        />
 
 
                     </div>
@@ -134,23 +126,20 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
 
 
-                    <div className="md:flex md:space-x-4">
 
-                        <AddInput
-                            label={"Detalles"}
-                            inputName={"details"}
-                            useDotLabel={true}
-                            placeHolder="Ejem: Tiene una ventana rota"
-                            items={details}
-                            setItems={setDetails}
-                        />
+                    <AddInput
+                        label={"Detalles"}
+                        inputName={"details"}
+                        placeHolder="Ejem: Tiene una ventana rota"
+                        items={details}
+                        setItems={setDetails}
+                    />
 
-                        <FormInput
-                            description={"Condición de la Unidad"}
-                            fieldName={"unit_condition"}
-                            placeholder="En Perfecto Estado"
-                        />
-                    </div>
+                    <FormInput
+                        description={"Condición de la Unidad"}
+                        fieldName={"unit_condition"}
+                        placeholder="En Perfecto Estado"
+                    />
 
                 </div>
 

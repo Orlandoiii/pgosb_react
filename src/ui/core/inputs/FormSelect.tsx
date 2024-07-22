@@ -36,7 +36,6 @@ function FormSelect<
     //Esta aqui para forzar el render del select
     //const [selectedValue, setSelectedValue] = useState(value && value != "" ? value : options[0]);
 
-    logger.error("Form SELECT", errors);
 
     return (
         <Select

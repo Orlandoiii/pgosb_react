@@ -6,8 +6,6 @@ import RolsIncon from "../icons/RolsIcon"
 import StationIcon from "../icons/StationIcon"
 import UnitIcon from "../icons/UnitIcon"
 import LocationIcon from "../icons/LocationIcon"
-// import AmbulanceIcon from "../icons/AmbulanceIcon"
-import FireLogo from "../logo/FireLogo"
 import logger from "../../../logic/Logger/logger"
 import { LogOutIcon } from "../icons/LogOutIcon"
 import { useAuth } from "../../components/Authentication/AuthProvider"
@@ -17,6 +15,7 @@ import { reversedModuleNameDictionary } from "../../components/Roles/RolesPages"
 import AlertController from "../alerts/AlertController"
 import { BiArrowFromRight } from 'react-icons/bi'
 import { useConfirmationModal } from '../modal/ModalConfirmation'
+import FireLogo from '../logo/FireLogo'
 
 const alert = new AlertController();
 
@@ -78,7 +77,7 @@ export default function Sidebar({ }) {
          rounded-r-3xl ${collapse ? "" : " md:min-w-[300px]"}`}>
 
 
-                <div className={`relative  py-6 ${collapse ? "" : "md:px-8"}`}>
+                <div className={`relative  py-6 ${collapse ? "" : "md:px-10"}`}>
                     <div className={`w-full flex justify-center  items-center  ${collapse ? "" : " md:justify-start md:space-x-2"}`}>
                         <div className='relative p-1 flex justify-center items-center'>
                             <div className="absolute w-full h-full border-1 rounded-full ring-1 ring-[#2286DD]  animate-pulse"></div>
@@ -86,7 +85,7 @@ export default function Sidebar({ }) {
                         </div>
 
                         <h1 className={`absolute text-[whitesmoke] 
-                        ${collapse ? "" : "md:left-20  md:opacity-100"}
+                        ${collapse ? "" : "md:left-24  md:opacity-100"}
                         transition-all ease-in-out duration-500 opacity-0 left-0  
                         text-3xl uppercase font-medium`}>Gres</h1>
 

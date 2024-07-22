@@ -1,14 +1,13 @@
 
 import { useContext, useState } from "react";
-import AddInput from "../../../core/inputs/AddInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import { StepContext } from "../../Stepper/Stepper";
 import CustomForm from "../../../core/context/CustomFormContext";
 import { CharacteristicsSchema } from "../../../../domain/models/user/user";
 import FormInput from "../../../core/inputs/FormInput";
 import FormSelect from "../../../core/inputs/FormSelect";
-import logger from "../../../../logic/Logger/logger";
 import { heightMask } from "../../../core/inputs/Common/Mask";
+import AddInput from "../../../core/inputs/AddInput";
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 

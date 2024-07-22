@@ -1,9 +1,9 @@
 import { useState } from "react"
-import { EyeButton, StoreList } from "../inputs/AddInput";
 import ModalContainer from "../modal/ModalContainer";
 import logger from "../../../logic/Logger/logger";
 import { useLayout } from "../context/LayoutContext";
 import { AnimatePresence, motion } from "framer-motion";
+import { EyeButton, StoreList } from "../inputs/AddInput";
 
 function isBoolean(value) {
     let isBool = typeof value === 'boolean';

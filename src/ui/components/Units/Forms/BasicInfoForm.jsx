@@ -75,10 +75,15 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
 
+    const initialData = currentData ? currentData : {
+        color: "Gris",
+        fuel_type: "GASOLINA"
+    }
+
     return (
         <CustomForm
             schema={UnitSchemaBasicData}
-            initValue={currentData}
+            initValue={initialData}
             onSubmit={(data) => {
                 logger.info(data)
 
@@ -95,8 +100,10 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
             classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]"
         >
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-3  px-2 max-w-[860px]">
+
                     <div className="md:flex md:space-x-2">
+
                         <FormSelectSearch
                             fieldName={"unit_type"}
                             description={'Tipo'}
@@ -113,9 +120,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             //value={state}
                             options={marcas}
                             openUp={false}
-                            onSelected={v => {
-                                setMarca(v);
-                            }}
+                          
                         />
                         <SelectSearch
 
@@ -127,10 +132,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             setSearhValue={setModelo}
 
                             openUp={false}
-                            onSelected={v => {
-                                setModelo(v)
-
-                            }}
+                          
 
 
 
@@ -171,50 +173,45 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             placeholder="80FG80996645"
                         />
 
-                        <FormSelect
-                            description={'Tipo de Combustible'}
-                            fieldName={'fuel_type'}
-                            placeholder="Diesel"
-                            options={EnumToStringArray(FuelTypes)}
-                            openUp={false}
-                        />
+
                     </div>
 
+                    <FormSelect
+                        description={'Tipo de Combustible'}
+                        fieldName={'fuel_type'}
+                        placeholder="Diesel"
+                        options={EnumToStringArray(FuelTypes)}
+                        openUp={false}
+                    />
+
                     <div className="md:flex  md:space-x-2">
-                        <div className="md:w-[w-[50%]]">
-                            <FormInput
-                                description={'Alias'}
-                                fieldName={'alias'}
-                                placeholder="El Caballito"
-                            />
-                        </div>
+                        <FormInput
+                            description={'Alias'}
+                            fieldName={'alias'}
+                            placeholder="El Caballito"
+                        />
 
-                        <div className="md:w-[25%]">
-                            <FormSelectSearch
-                                fieldName={"color"}
-                                description={'Color'}
-                                initialValue={currentData?.color ?? Colors[0]}
-                                options={Colors}
-                                openUp={true}
-                            />
-                        </div>
+                        <FormSelectSearch
+                            fieldName={"color"}
+                            description={'Color'}
+                            initialValue={currentData?.color ?? Colors[0]}
+                            options={Colors}
+                            openUp={true}
+                        />
 
-                        <div className="md:w-[25%]">
-                            <FormInput
-                                description={'Placa'}
-                                fieldName={'plate'}
-                                placeholder="7HW33A"
-                            />
-                        </div>
+                        <FormInput
+                            description={'Placa'}
+                            fieldName={'plate'}
+                            placeholder="7HW33A"
+                        />
 
-                        <div className="md:w-[18%]">
-                            <FormInput
-                                description={'Año'}
-                                fieldName={'year'}
-                                placeholder="2022"
-                                
-                            />
-                        </div>
+                        <FormInput
+                            description={'Año'}
+                            fieldName={'year'}
+                            placeholder="2022"
+
+                        />
+
                     </div>
                 </div>
             </div>
