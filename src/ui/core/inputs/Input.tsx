@@ -18,7 +18,6 @@ export interface InputProps extends ComponentPropsWithoutRef<"input"> {
     maskDefinition?: any
 
 }
-let counter = 0;
 
 export default function Input({
 
@@ -36,8 +35,6 @@ export default function Input({
 }: InputProps) {
 
 
-    counter++;
-    logger.log("Renderizo Input", counter)
 
     const mergedRef = useCallback((node: HTMLInputElement) => {
         if (inputRef)
