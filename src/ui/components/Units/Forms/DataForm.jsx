@@ -91,7 +91,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                         <FormInput
                             description={"Rendimiento"}
                             fieldName={"performance"}
-                            placeholder="10 Km/L"
+                            placeholder="10"
                             mask={Number}
                         />
 
@@ -104,21 +104,21 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                         <FormInput
                             description={"Cap. Carga"}
                             fieldName={"load_capacity"}
-                            placeholder="10.000 Kg"
+                            placeholder="10"
                             mask={Number}
                         />
 
                         <FormInput
                             description={"Cap. Litros"}
                             fieldName={"water_capacity"}
-                            placeholder="10.000 L"
+                            placeholder="10"
                             mask={Number}
                         />
 
                         <FormInput
                             description={"Kilometraje Inicial"}
                             fieldName={"init_kilometer"}
-                            placeholder="10.0000 KM"
+                            placeholder="0"
                             mask={Number}
                         />
 

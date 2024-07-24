@@ -31,7 +31,6 @@ export default function SelectSearch({
 
 }: SelectSearchProps) {
 
-    logger.log("Renderizo new Select")
 
     const [open, setOpen] = useState(false)
 

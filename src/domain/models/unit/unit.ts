@@ -3,7 +3,7 @@ import { z } from 'zod'
 export const UnitSchemaBasicData = z.object({
     id: z.string().optional(),
 
-    unity_type: z
+    unit_type: z
         .string({
             required_error: 'El tipo de unidad es requerida',
         })
@@ -118,19 +118,7 @@ export const UnitCharacteristicsSchema = z.object({
     //PEOPLE CAPACITY
     capacity: z
         .string()
-        .optional()
-        .refine(
-            (value) => {
-                return !value || value.length >= 8
-            },
-            { message: 'Debe ser igual o mayor a 8 caracteres' }
-        )
-        .refine(
-            (value) => {
-                return value!.length <= 16
-            },
-            { message: 'Debe ser menor o igual a 16 caracteres' }
-        ),
+        .optional(),
 
     hurt_capacity: z
         .string()

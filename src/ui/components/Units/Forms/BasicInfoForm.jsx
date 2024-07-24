@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { StepContext } from '../../Stepper/Stepper'
 import FormInput from '../../../core/inputs/FormInput'
 import FormHiddenButton from '../../../core/buttons/FormHiddenButton'
@@ -17,12 +17,20 @@ import { FuelTypes } from '../../../../domain/abstractions/enums/fuel_types'
 import { useConfig } from '../../../core/context/ConfigContext'
 
 
-const carsCache = new Map();
 
 
-// const stations = ['Station 1', 'Station 2', 'Station 3']
+const unitPropertiesMask = {
+    mask: /^[A-Za-z0-9]{0,15}$/,
+    prepare: function (str) {
+        return str.toUpperCase();
+    },
+}
+
 
 export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
+    const carsCache = useRef(new Map());
+
+
     const { clickNextRef, currentData, Next } = useContext(StepContext)
     const unitTypes = EnumToStringArray(UnitTypes)
 
@@ -77,23 +85,31 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
         logger.log("MARCA MODELO", marca, modelo);
 
+        const marcaSeleccionada = marca != null && marca != "";
 
-        if (marca == null || marca == "") {
+        if (!marcaSeleccionada) {
             setModelo("");
         }
 
-        if (carsCache.has(marca)) {
-            setModelos(carsCache.get(marca))
+
+
+        if (marcaSeleccionada && carsCache.current.has(marca)) {
+            const getModels = carsCache.current.get(marca);
+            setModelos(getModels);
+            setModelo(getModels[0] ?? "");
             return;
         }
+
 
         axios.post(config.back_url + "/api/v1/vehicles/types", { "model": marca }).then(r => {
 
             const modelsResult = r.data?.map(v => v.model);
 
-            carsCache.set(marca, modelsResult);
+            carsCache.current.set(marca, modelsResult);
 
             setModelos(modelsResult);
+            setModelo(modelsResult[0] ?? "");
+
 
         })
 
@@ -134,7 +150,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                         <FormSelectSearch
                             fieldName={"unit_type"}
                             description={'Tipo'}
-                            initialValue={currentData?.unit_type ?? unitTypes[0]}
+                            initialValue={initialData?.unit_type ?? unitTypes[0]}
                             options={unitTypes}
                             openUp={false}
                         />
@@ -192,12 +208,14 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             description={'Serial del Motor'}
                             fieldName={'motor_serial'}
                             placeholder="25FG80996645"
+                            mask={unitPropertiesMask}
                         />
 
                         <FormInput
                             description={'Serial del Vehiculo'}
                             fieldName={'vehicle_serial'}
                             placeholder="80FG80996645"
+                            mask={unitPropertiesMask}
                         />
 
 
@@ -230,6 +248,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             description={'Placa'}
                             fieldName={'plate'}
                             placeholder="7HW33A"
+                            mask={unitPropertiesMask}
                         />
 
                         <FormInput

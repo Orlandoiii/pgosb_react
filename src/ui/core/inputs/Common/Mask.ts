@@ -112,3 +112,4 @@ export const addressMask = {
     mask: /^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*-?$/
 }
 
+
