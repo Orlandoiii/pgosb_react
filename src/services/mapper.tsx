@@ -10,6 +10,7 @@ export function mapEntity<TSource, TTarget>(
         const parsedSourceEntity = sourceSchema.parse(source)
         const targetEntity = mapper(parsedSourceEntity)
         targetSchema.parse(targetEntity)
+        console.log(`Mapper ${JSON.stringify(targetEntity)}`)
         return { success: true, result: targetEntity }
     } catch (error: any) {
         console.log(`Fallo el parseo por ${error}`)

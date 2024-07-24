@@ -31,12 +31,14 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
             Next(data);
     }
 
+    
     const initialData = !currentData ? {
         "marital_status": MartialStatusTypes.Single,
         "gender": Genders.Male,
         "user_system": false,
     } : currentData
-
+    
+    console.error(initialData)
 
     return (
 

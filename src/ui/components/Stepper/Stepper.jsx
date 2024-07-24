@@ -165,7 +165,7 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
     const [currentStep, setCurrentStep] = useState(steps[stepCounter]);
 
     const stepsData = useRef(data)
-
+    console.log(`Mensaje : sadalskdjaskljdsalkdjlas . ${JSON.stringify(stepsData)}`)
     const clickNextRef = useRef(null)
 
     function Next(data) {
