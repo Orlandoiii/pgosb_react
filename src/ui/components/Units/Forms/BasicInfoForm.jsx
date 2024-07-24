@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { StepContext } from '../../Stepper/Stepper'
 import FormInput from '../../../core/inputs/FormInput'
 import FormHiddenButton from '../../../core/buttons/FormHiddenButton'
@@ -17,6 +17,8 @@ import { FuelTypes } from '../../../../domain/abstractions/enums/fuel_types'
 import { useConfig } from '../../../core/context/ConfigContext'
 
 
+const carsCache = new Map();
+
 
 // const stations = ['Station 1', 'Station 2', 'Station 3']
 
@@ -32,9 +34,11 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
     const { config } = useConfig();
 
+    const [marca, setMarca] = useState(currentData?.make ?? "");
+
+
     const [marcas, setMarcas] = useState([])
 
-    const [marca, setMarca] = useState(currentData?.make ?? "");
 
     const [modelos, setModelos] = useState([]);
 
@@ -42,6 +46,9 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
     const [stations, setStations] = useState([]);
+
+
+
 
     const [station, setStation] = useState(currentData?.station ?? "");
 
@@ -64,13 +71,33 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
 
+
+
     useEffect(() => {
 
         logger.log("MARCA MODELO", marca, modelo);
-        axios.post(config.back_url + "/api/v1/vehicles/types", { "model": marca }).then(r => {
-            setModelos(r.data?.map(v => v.model));
+
+
+        if (marca == null || marca == "") {
             setModelo("");
+        }
+
+        if (carsCache.has(marca)) {
+            setModelos(carsCache.get(marca))
+            return;
+        }
+
+        axios.post(config.back_url + "/api/v1/vehicles/types", { "model": marca }).then(r => {
+
+            const modelsResult = r.data?.map(v => v.model);
+
+            carsCache.set(marca, modelsResult);
+
+            setModelos(modelsResult);
+
         })
+
+
     }, [marca])
 
 
@@ -120,7 +147,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             //value={state}
                             options={marcas}
                             openUp={false}
-                          
+
                         />
                         <SelectSearch
 
@@ -132,7 +159,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             setSearhValue={setModelo}
 
                             openUp={false}
-                          
+
 
 
 
