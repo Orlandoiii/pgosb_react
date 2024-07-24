@@ -1,4 +1,5 @@
 import { IMask } from "react-imask";
+import logger from "../../../../logic/Logger/logger";
 
 
 function formatDate(date) {
@@ -56,7 +57,7 @@ export const documentIdMask = {
         }
     },
     lazy: false,
-    overwrite: true,
+
     prepare: function (str) {
         return str.toUpperCase();
     },
@@ -64,14 +65,15 @@ export const documentIdMask = {
 
 export const numberMask = {
     mask: /^[1-9][0-9]{0,9}$/,
-    definitions: {
-        D: {
-            mask: IMask.MaskedEnum,
-            enum: allowedLetters,
-        }
-    },
     lazy: false,
-    overwrite: true,
+    prepare: function (str) {
+        return str.toUpperCase();
+    },
+};
+
+export const numberMaskAllowZero = {
+    mask: /^[0-9]{0,9}$/,
+    lazy: false,
     prepare: function (str) {
         return str.toUpperCase();
     },
@@ -92,4 +94,21 @@ export const heightMask = {
         return str.toUpperCase();
     },
 };
+
+
+export const nameMask = {
+    mask: /^[A-Za-z]{1,32}$/,
+    prepareChar: function (str, masked) {
+        //logger.log("MASK PREPARE:", str, masked);
+        if (masked._value.length == 0)
+            return str.toUpperCase();
+
+        return str;
+    },
+}
+
+
+export const addressMask = {
+    mask: /^[A-Za-z0-9]+(?:\s[A-Za-z0-9]+)*-?$/
+}
 

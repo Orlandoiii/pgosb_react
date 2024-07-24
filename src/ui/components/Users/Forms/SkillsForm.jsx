@@ -1,14 +1,13 @@
 
 import { useContext, useState } from "react";
-import AddInput from "../../../core/inputs/AddInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import { StepContext } from "../../Stepper/Stepper";
 import CustomForm from "../../../core/context/CustomFormContext";
 import { CharacteristicsSchema } from "../../../../domain/models/user/user";
 import FormInput from "../../../core/inputs/FormInput";
 import FormSelect from "../../../core/inputs/FormSelect";
-import logger from "../../../../logic/Logger/logger";
-import { heightMask  } from "../../../core/inputs/Common/Mask";
+import { heightMask } from "../../../core/inputs/Common/Mask";
+import AddInput from "../../../core/inputs/AddInput";
 
 const bloodTypes = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
@@ -38,9 +37,12 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
         blood_type: "A+",
         shirt_size: "M",
         pant_size: "M",
+        height:"0.35",
+
+        
     }
 
-    
+
 
     return (
 
@@ -55,11 +57,11 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
                 handleSubmitInternal(newData)
             }}
-            classStyle="mx-auto my-4 w-full max-w-[380px] md:max-w-[100%] bg-transparent">
+            classStyle="mx-auto my-4 w-full  bg-transparent">
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-4 px-2 max-w-[860px]">
 
                     <AddInput
 
@@ -94,89 +96,88 @@ export default function SkillForm({ clickSubmitRef, onSubmit }) {
 
 
 
-                    <div className="md:flex md:space-x-2 md:justify-between">
 
-                        <div className="w-[50%] space-y-2">
+                    <div className="w-full">
 
-                            <h2>Datos físicos</h2>
-
-
-                            <div className="flex space-x-2 ">
-                                <div className="md:w-[30%]">
-                                    <FormInput
-                                        description={"Altura"}
-                                        fieldName={"height"}
-                                        placeholder="1.70"
-                                        mask={heightMask}
-                                    />
-                                </div>
-
-                                <div className="md:w-[30%]">
-                                    <FormInput
-                                        description={"Peso"}
-                                        fieldName={"weight"}
-                                        placeholder="70"
-
-                                    />
-                                </div>
+                        <h2>Datos físicos</h2>
 
 
-                                <div className="md:w-[40%]">
-                                    <FormSelect
-                                        description={"Tipo de Sangre"}
-                                        fieldName={"blood_type"}
-                                        options={bloodTypes}
-                                        openUp={true} />
-                                </div>
+                        <div className="flex space-x-2 ">
+                            <div className="md:w-[30%]">
+                                <FormInput
+                                    description={"Altura"}
+                                    fieldName={"height"}
+                                    placeholder="1.70"
+                                    mask={heightMask}
+                                />
+                            </div>
+
+                            <div className="md:w-[30%]">
+                                <FormInput
+                                    description={"Peso"}
+                                    fieldName={"weight"}
+                                    placeholder="70"
+
+                                />
+                            </div>
+
+
+                            <div className="md:w-[40%]">
+                                <FormSelect
+                                    description={"Tipo de Sangre"}
+                                    fieldName={"blood_type"}
+                                    options={bloodTypes}
+                                    openUp={true} />
+                            </div>
+                        </div>
+
+
+
+                    </div>
+
+
+                    <div className="w-full ">
+
+                        <h2>Tallas</h2>
+
+                        <div className="flex space-x-2">
+
+
+
+                            <div className=" md:w-[33%]">
+                                <FormSelect
+                                    fieldName={"shirt_size"}
+                                    description={"Camisa"}
+                                    options={shirtSizes}
+
+                                    openUp={true}
+
+                                />
+                            </div>
+
+
+                            <div className=" md:w-[33%]">
+                                <FormSelect
+                                    description={"Pantalón"}
+                                    fieldName={"pant_size"}
+                                    options={shirtSizes}
+                                    openUp={true}
+                                />
                             </div>
 
 
 
-                        </div>
+                            <div className="md:w-[33%]">
+                                <FormInput
+                                    description={"Zapatos"}
+                                    fieldName={"shoe_size"}
+                                    placeholder="37"
 
-
-                        <div className="w-[50%] space-y-2">
-
-                            <h2>Tallas</h2>
-
-                            <div className="flex space-x-2">
-
-
-
-                                <div className=" md:w-[33%]">
-                                    <FormSelect
-                                        fieldName={"shirt_size"}
-                                        description={"Camisa"}
-                                        options={shirtSizes}
-
-                                        openUp={true}
-
-                                    />
-                                </div>
-
-
-                                <div className=" md:w-[33%]">
-                                    <FormSelect
-                                        description={"Pantalón"}
-                                        fieldName={"pant_size"}
-                                        options={shirtSizes}
-                                        openUp={true}
-                                    />
-                                </div>
-
-
-
-                                <div className="md:w-[33%]">
-                                    <FormInput
-                                        description={"Zapatos"}
-                                        fieldName={"shoe_size"}
-                                        placeholder="37"
-
-                                    />
-                                </div>
+                                />
                             </div>
                         </div>
                     </div>
+
                 </div>
 
             </div>

@@ -8,14 +8,14 @@ import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import logger from "../../../../logic/Logger/logger";
 import CustomForm from "../../../core/context/CustomFormContext";
 import { UserSchemaBasicData } from "../../../../domain/models/user/user";
-import { dateMask, documentIdMask, numberMask } from "../../../core/inputs/Common/Mask";
+import { dateMask, documentIdMask, nameMask, numberMask, numberMaskAllowZero } from "../../../core/inputs/Common/Mask";
 import FormToggle from "../../../core/inputs/FormToggle";
 import { MartialStatusListTypes, MartialStatusTypes } from "../../../../domain/abstractions/enums/martial_status_type";
 import { Genders } from "../../../../domain/abstractions/enums/genders";
 
 const genders = ["Masculino", "Femenino"];
 
-const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
+// const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
 
 
 export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
@@ -52,12 +52,12 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                     handleSubmitInternal(data)
                 }}
 
-            classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
+            classStyle="mx-auto my-4 w-full">
 
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full  px-2 max-w-[860px]">
 
                     <div className="md:flex md:space-x-2">
                         <FormInput
@@ -72,22 +72,26 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                     </div>
 
 
-                    <div className="md:flex  md:space-x-2">
+                    <div className="md:flex  md:space-x-2 mt-4">
 
 
                         <FormInput
                             description={"Nombre"}
                             fieldName={"first_name"}
-                            placeholder="Jon" />
+                            placeholder="Jon"
+                            mask={nameMask}
+                        />
 
                         <FormInput
                             description={"Apellido"}
                             fieldName={"last_name"}
-                            placeholder="Doe" />
+                            placeholder="Doe"
+                            mask={nameMask}
+                        />
 
                     </div>
 
-                    <div className="md:flex md:space-x-2">
+                    <div className="md:flex md:space-x-2 mt-4">
 
 
                         <FormInput
@@ -108,7 +112,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                     </div>
 
 
-                    <div className="md:flex md:space-x-2">
+                    <div className="md:flex md:space-x-2 mt-4">
 
 
                         <div className="w-[50%] flex space-x-2">
@@ -117,7 +121,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                                     description={"Cod. Área"}
                                     fieldName={"zip_code"}
                                     placeholder="0244"
-                                    mask={Number}
+                                    mask={numberMaskAllowZero}
                                 />
 
                             </div>
@@ -154,15 +158,17 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
                     </div>
 
-
-                    <div className="h-full w-full flex justify-start items-center space-x-2">
+                    <div className="h-full w-full flex justify-start items-center pl-1 space-x-2 mt-8">
 
                         <p className="text-sm">Usuario Sistema:</p>
                         <FormToggle fieldName="user_system"
                         />
 
                     </div>
+
+
                 </div>
+
 
             </div>
 

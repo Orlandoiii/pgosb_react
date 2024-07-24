@@ -13,6 +13,7 @@ import MissionForm from './Forms/MissionForm'
 import { getDefaults } from '../../core/context/CustomFormContext'
 import LoadingModal from '../../core/modal/LoadingModal'
 import NotificationModal from '../../core/alerts/NotificationModal'
+import LayoutContexProvider from '../../core/context/LayoutContext'
 
 const notificationInitialState = {
     open: false,
@@ -106,19 +107,22 @@ const MissionPage = () => {
         }
     }
 
-    function onUpdate() {}
+    function onUpdate() { }
     return (
         <>
-            {/* <TableDataGrid
-                rawData={testJson}
-                onAdd={() => {
-                    addNewMission()
-                }}
-                onDoubleClickRow={() => {}}
-                permissions={''}
-                onDelete={() => {}}
-                onUpdate={onUpdate}
-            /> */}
+            {/* <LayoutContexProvider layoutName={"mission_layout"}> */}
+                <TableDataGrid
+                    rawData={testJson}
+                    onAdd={() => {
+                        addNewMission()
+                    }}
+                    onDoubleClickRow={() => { }}
+                    permissions={''}
+                    onDelete={() => { }}
+                    onUpdate={onUpdate}
+                />
+            {/* </LayoutContexProvider> */}
+
 
             <button onClick={addNewMission}>Agregar</button>
 

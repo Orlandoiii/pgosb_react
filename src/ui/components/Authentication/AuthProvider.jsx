@@ -3,7 +3,7 @@ import axios from 'axios';
 import logger from '../../../logic/Logger/logger';
 import { createContext, useContext, useEffect, useReducer, useRef, useState } from 'react';
 import { LoadingModal } from '../../core/modal/LoadingModal';
-import { useConfig } from '../../../logic/Config/ConfigContext';
+import { useConfig } from '../../core/context/ConfigContext';
 import Cookies from 'js-cookie';
 import { jwtDecode } from "jwt-decode";
 

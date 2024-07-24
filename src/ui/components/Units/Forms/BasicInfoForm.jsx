@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 import { StepContext } from '../../Stepper/Stepper'
 import FormInput from '../../../core/inputs/FormInput'
 import FormHiddenButton from '../../../core/buttons/FormHiddenButton'
@@ -11,11 +11,13 @@ import logger from '../../../../logic/Logger/logger'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types'
 import axios from 'axios'
-import { useConfig } from '../../../../logic/Config/ConfigContext'
 import SelectSearch from '../../../core/inputs/SelectSearch'
 import FormSelect from '../../../core/inputs/FormSelect'
 import { FuelTypes } from '../../../../domain/abstractions/enums/fuel_types'
+import { useConfig } from '../../../core/context/ConfigContext'
 
+
+const carsCache = new Map();
 
 
 // const stations = ['Station 1', 'Station 2', 'Station 3']
@@ -32,9 +34,11 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
     const { config } = useConfig();
 
+    const [marca, setMarca] = useState(currentData?.make ?? "");
+
+
     const [marcas, setMarcas] = useState([])
 
-    const [marca, setMarca] = useState(currentData?.make ?? "");
 
     const [modelos, setModelos] = useState([]);
 
@@ -42,6 +46,9 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
     const [stations, setStations] = useState([]);
+
+
+
 
     const [station, setStation] = useState(currentData?.station ?? "");
 
@@ -64,21 +71,46 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
 
 
+
+
     useEffect(() => {
 
         logger.log("MARCA MODELO", marca, modelo);
-        axios.post(config.back_url + "/api/v1/vehicles/types", { "model": marca }).then(r => {
-            setModelos(r.data?.map(v => v.model));
+
+
+        if (marca == null || marca == "") {
             setModelo("");
+        }
+
+        if (carsCache.has(marca)) {
+            setModelos(carsCache.get(marca))
+            return;
+        }
+
+        axios.post(config.back_url + "/api/v1/vehicles/types", { "model": marca }).then(r => {
+
+            const modelsResult = r.data?.map(v => v.model);
+
+            carsCache.set(marca, modelsResult);
+
+            setModelos(modelsResult);
+
         })
+
+
     }, [marca])
 
 
 
+    const initialData = currentData ? currentData : {
+        color: "Gris",
+        fuel_type: "GASOLINA"
+    }
+
     return (
         <CustomForm
             schema={UnitSchemaBasicData}
-            initValue={currentData}
+            initValue={initialData}
             onSubmit={(data) => {
                 logger.info(data)
 
@@ -95,8 +127,10 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
             classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]"
         >
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-3  px-2 max-w-[860px]">
+
                     <div className="md:flex md:space-x-2">
+
                         <FormSelectSearch
                             fieldName={"unit_type"}
                             description={'Tipo'}
@@ -113,12 +147,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             //value={state}
                             options={marcas}
                             openUp={false}
-                            onSelected={v => {
-                                setMarca(v);
 
-
-
-                            }}
                         />
                         <SelectSearch
 
@@ -130,10 +159,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             setSearhValue={setModelo}
 
                             openUp={false}
-                            onSelected={v => {
-                                setModelo(v)
 
-                            }}
 
 
 
@@ -174,50 +200,45 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             placeholder="80FG80996645"
                         />
 
-                        <FormSelect
-                            description={'Tipo de Combustible'}
-                            fieldName={'fuel_type'}
-                            placeholder="Diesel"
-                            options={EnumToStringArray(FuelTypes)}
-                            openUp={false}
-                        />
+
                     </div>
 
+                    <FormSelect
+                        description={'Tipo de Combustible'}
+                        fieldName={'fuel_type'}
+                        placeholder="Diesel"
+                        options={EnumToStringArray(FuelTypes)}
+                        openUp={false}
+                    />
+
                     <div className="md:flex  md:space-x-2">
-                        <div className="md:w-[w-[50%]]">
-                            <FormInput
-                                description={'Alias'}
-                                fieldName={'alias'}
-                                placeholder="El Caballito"
-                            />
-                        </div>
+                        <FormInput
+                            description={'Alias'}
+                            fieldName={'alias'}
+                            placeholder="El Caballito"
+                        />
 
-                        <div className="md:w-[25%]">
-                            <FormSelectSearch
-                                fieldName={"color"}
-                                description={'Color'}
-                                initialValue={currentData?.color ?? Colors[0]}
-                                options={Colors}
-                                openUp={true}
-                            />
-                        </div>
+                        <FormSelectSearch
+                            fieldName={"color"}
+                            description={'Color'}
+                            initialValue={currentData?.color ?? Colors[0]}
+                            options={Colors}
+                            openUp={true}
+                        />
 
-                        <div className="md:w-[25%]">
-                            <FormInput
-                                description={'Placa'}
-                                fieldName={'plate'}
-                                placeholder="7HW33A"
-                            />
-                        </div>
+                        <FormInput
+                            description={'Placa'}
+                            fieldName={'plate'}
+                            placeholder="7HW33A"
+                        />
 
-                        <div className="md:w-[18%]">
-                            <FormInput
-                                description={'Año'}
-                                fieldName={'year'}
-                                placeholder="2022"
-                                mask={Number}
-                            />
-                        </div>
+                        <FormInput
+                            description={'Año'}
+                            fieldName={'year'}
+                            placeholder="2022"
+
+                        />
+
                     </div>
                 </div>
             </div>

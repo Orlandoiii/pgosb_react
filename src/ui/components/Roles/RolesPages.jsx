@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
 import axios from "axios";
-import { useConfig } from "../../../logic/Config/ConfigContext";
+import { useConfig } from "../../core/context/ConfigContext";
 import logger from "../../../logic/Logger/logger";
-import { LoadingModal, useLoadModal } from "../../core/modal/LoadingModal";
+import { LoadingModal } from "../../core/modal/LoadingModal";
 import { useConfirmationModal } from "../../core/modal/ModalConfirmation";
 import AlertController from "../../core/alerts/AlertController";
 import LayoutContexProvider from "../../core/context/LayoutContext";

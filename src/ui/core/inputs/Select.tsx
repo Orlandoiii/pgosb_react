@@ -2,6 +2,7 @@
 import React, { useState, useMemo, useEffect, useRef, MutableRefObject, Dispatch, SetStateAction } from 'react'
 import Input, { InputProps } from './Input'
 import logger from '../../../logic/Logger/logger';
+import { FixedSizeList as List } from 'react-window';
 
 
 function OptionContainerButton({ option, onClick }) {
@@ -70,6 +71,27 @@ export function Options({
 
     const justOneMacht = useRef("");
 
+    function handleOnClick(v) {
+        if (onSelected) onSelected(v)
+        //setOpen(false)
+    }
+
+    const OPTIONS = autoCompleted
+        ? options?.filter(
+            (o) =>
+                o
+                    .toString()
+                    .toLowerCase()
+                    .indexOf(value?.toString().toLowerCase()) !== -1
+        )
+        : options;
+
+    if (OPTIONS?.length === 1) {
+        justOneMacht.current = OPTIONS[0];
+    } else {
+        justOneMacht.current = "";
+    }
+
     useEffect(() => {
         if (justOneMacht.current != "") {
             setOpen(false);
@@ -77,31 +99,10 @@ export function Options({
         }
     }, [options, value])
 
-    function handleOnClick(v) {
-        if (onSelected) onSelected(v)
-        //setOpen(false)
-    }
-
-
     return useMemo(() => {
-        const OPTIONS = autoCompleted
-            ? options?.filter(
-                (o) =>
-                    o
-                        .toString()
-                        .toLowerCase()
-                        .indexOf(value?.toString().toLowerCase()) !== -1
-            )
-            : options;
-
-        if (OPTIONS?.length === 1) {
-            justOneMacht.current = OPTIONS[0];
-        } else {
-            justOneMacht.current = "";
-        }
-
         return OPTIONS?.length > 0
-            ? OPTIONS?.map((o, i) => (
+            ?
+            OPTIONS?.map((o, i) => (
                 <OptionContainerButton
                     option={o}
                     key={i}

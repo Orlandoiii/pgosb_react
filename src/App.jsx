@@ -12,12 +12,12 @@ import UnitPage from "./ui/components/Units/UnitPage";
 import logger from "./logic/Logger/logger.js";
 import StationPage from "./ui/components/Stations/StationPage";
 import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCenterPage";
-import ConfigContextProvider from "./logic/Config/ConfigContext";
 import LoginPage from "./ui/components/Authentication/LoginPage";
 import AuthProvider from "./ui/components/Authentication/AuthProvider";
-import RolesPages from "./ui/components/Roles/RolesPages.jsx";
+import RolesPages from "./ui/components/Roles/RolesPages";
 
-import MissionPage from './ui/components/Mission/MissionPage.tsx'
+import MissionPage from './ui/components/Mission/MissionPage'
+import ConfigContextProvider from "./ui/core/context/ConfigContext";
 
 
 const router = createBrowserRouter([
@@ -33,7 +33,7 @@ const router = createBrowserRouter([
          },
          {
             path: "services/",
-            element: <ComingSoonPage />
+            element: <MissionPage />
          },
          {
             path: "roles/",
@@ -54,11 +54,11 @@ const router = createBrowserRouter([
          {
             path: "assist/",
             element: <HealthcareCenterPage />
-         },
-         {
-            path: "missions/",
-            element: <MissionPage />
-         },
+         }
+         // {
+         //    path: "missions/",
+         //    element: <MissionPage />
+         // },
          // {
          //    path: "test/",
          //    element: <Testing />
@@ -89,13 +89,11 @@ function App() {
 
    return (
       <>
-
          <ConfigContextProvider>
             <AuthProvider>
                <RouterProvider router={router} />
             </AuthProvider>
          </ConfigContextProvider >
-
       </>
    )
 

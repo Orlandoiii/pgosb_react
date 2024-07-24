@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react"
 import TableDataGrid from "../../core/datagrid/TableDataGrid"
 import axios from "axios";
-import { useConfig } from "../../../logic/Config/ConfigContext";
 import logger from "../../../logic/Logger/logger";
 import { LoadingModal } from "../../core/modal/LoadingModal";
 import { Detail } from "../../core/detail/Detail";
@@ -12,6 +11,7 @@ import { useLayout } from "../../core/context/LayoutContext";
 import { useUser } from "../../core/context/UserDataContext";
 import { useNavigate } from "react-router-dom";
 import { ConvertValue } from "../../../logic/Formatters/Formatters";
+import { useConfig } from "../../core/context/ConfigContext";
 const alertController = new AlertController();
 
 
@@ -182,37 +182,37 @@ export default function ModuleComponent({
             }, {});
 
 
-            const transformedData = {}
+            // const transformedData = {}
 
-            for (const key in mergedData) {
-
-
-                const value = fieldDefinition.get(key)
-
-                if (!value) {
-                    transformedData[key] = mergedData[key];
-                    continue;
-                }
-
-                const type = value?.type;
-
-                if (!type) {
-                    transformedData[key] = mergedData[key];
-                    continue;
-                }
-
-                transformedData[key] = ConvertValue(mergedData[key], type);
-
-            }
+            // for (const key in mergedData) {
 
 
-            logger.info("REGISTER CREATE/UPDATE Datos enviados:", JSON.stringify(transformedData))
+            //     const value = fieldDefinition.get(key)
 
-            logger.info("DATA ENVIADA AL BACK:", transformedData);
+            //     if (!value) {
+            //         transformedData[key] = mergedData[key];
+            //         continue;
+            //     }
+
+            //     const type = value?.type;
+
+            //     if (!type) {
+            //         transformedData[key] = mergedData[key];
+            //         continue;
+            //     }
+
+            //     transformedData[key] = ConvertValue(mergedData[key], type);
+
+            // }
+
+
+            // logger.info("REGISTER CREATE/UPDATE Datos enviados:", JSON.stringify(transformedData))
+
+            logger.log("DATA ENVIADA AL BACK:", mergedData);
 
             axios({
                 url: endpoint,
-                data: transformedData,
+                data: mergedData,
                 method: method
             }).then(r => {
                 closeLoadModal()

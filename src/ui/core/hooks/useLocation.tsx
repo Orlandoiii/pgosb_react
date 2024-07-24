@@ -1,7 +1,7 @@
 import axios from "axios";
 import logger from "../../../logic/Logger/logger";
 import { useEffect, useState } from "react";
-import { useConfig } from "../../../logic/Config/ConfigContext";
+import { useConfig } from "../context/ConfigContext";
 
 
 class State {
@@ -148,14 +148,16 @@ async function makeRequest(endpoint, token, setData) {
 
 
 
-export function useLocation() {
-    const [states, setStates] = useState(LocationRawData.StatesIsLoad ? LocationRawData?.States?.map(s => s.name) : ["Miranda"]);
+export function useLocation(initEstado, initMunicipio, initParroquia) {
+
+    const [states, setStates] = useState(LocationRawData.StatesIsLoad ?
+        LocationRawData?.States?.map(s => s.name) : ["Miranda"]);
 
 
-    const [estado, setEstado] = useState("Miranda");
+    const [estado, setEstado] = useState(initEstado ?? "Miranda");
 
 
-    const canLoadMunicipios = LocationRawData.MunicipalitysIsLoad &&
+    const canLoadMunicipios = LocationRawData.StatesIsLoad &&
         LocationRawData.MunicipalitysIsLoad && estado && estado != "";
 
 
@@ -163,7 +165,7 @@ export function useLocation() {
     const [municipios, setMunicipios] = useState(canLoadMunicipios ?
         getMunicipios(estado) : [])
 
-    const [municipio, setMunicipio] = useState("Chacao");
+    const [municipio, setMunicipio] = useState(initMunicipio ?? "");
 
 
 
@@ -173,7 +175,7 @@ export function useLocation() {
     const [parroquias, setParroquias] = useState(canLoadParroquias ?
         getParroquias(estado, municipio) : []
     )
-    const [parroquia, setParroquia] = useState("Chacao");
+    const [parroquia, setParroquia] = useState(initParroquia ?? "");
 
 
 
@@ -213,7 +215,10 @@ export function useLocation() {
 
     }
 
+    logger.log("RENDERIZANDO FORM LOCATION:-1", initEstado, initMunicipio, initParroquia);
 
+
+    logger.log("RENDERIZANDO FORM LOCATION:-2", estado, municipio, parroquia);
 
     useEffect(() => {
 
@@ -240,7 +245,7 @@ export function useLocation() {
         return () => {
             cancelTokenSource.cancel('unmonted');
         }
-    })
+    }, [])
 
 
     useEffect(() => {
@@ -253,9 +258,9 @@ export function useLocation() {
         let m = getMunicipios(estado);
 
         setMunicipios(m)
-        if (m[0])
-            setMunicipio(m[0])
-    }, [estado, setMunicipio, setMunicipios])
+        // if (m[0])
+        //     setMunicipio(m[0])
+    }, [estado])
 
     useEffect(() => {
         if (municipio == null || municipio == "") {
@@ -268,11 +273,11 @@ export function useLocation() {
         let p = getParroquias(estado, municipio);
 
         setParroquias(p);
-        if (p[0])
-            setParroquia(p[0]);
+        // if (p[0])
+        //     setParroquia(p[0]);
 
 
-    }, [estado, municipio, setParroquia, setParroquias])
+    }, [estado, municipio])
 
 
     return {

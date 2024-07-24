@@ -23,10 +23,10 @@ export const UserSchemaBasicData = z
             .or(z.string().length(0)),
         legal_id: z
             .string()
-            .refine((value) => {return !value || !value.toUpperCase().startsWith('V') ||(value.toUpperCase().startsWith('V') && value.length >= 8 ) }, {message: 'Debe tener 7 o más caracteres'})
-            .refine((value) => {return !value || !value.toUpperCase().startsWith('V') || (value.toUpperCase().startsWith('V') && value.length <= 11 ) }, {message: 'Debe tener 10 o menos caracteres'})
-            .refine((value) => {return !value || !value.toUpperCase().startsWith('E') || (value.toUpperCase().startsWith('E') && value.length == 10 ) }, {message: 'Debe tener 9 caracteres'})
-            .refine((value) => {return !value || !value.toUpperCase().startsWith('P') || (value.toUpperCase().startsWith('P') && value.length == 15 ) }, {message: 'Debe tener 14 caracteres'})
+            .refine((value) => { return !value || !value.toUpperCase().startsWith('V') || (value.toUpperCase().startsWith('V') && value.length >= 8) }, { message: 'Debe tener 7 o más caracteres' })
+            .refine((value) => { return !value || !value.toUpperCase().startsWith('V') || (value.toUpperCase().startsWith('V') && value.length <= 11) }, { message: 'Debe tener 10 o menos caracteres' })
+            .refine((value) => { return !value || !value.toUpperCase().startsWith('E') || (value.toUpperCase().startsWith('E') && value.length == 10) }, { message: 'Debe tener 9 caracteres' })
+            .refine((value) => { return !value || !value.toUpperCase().startsWith('P') || (value.toUpperCase().startsWith('P') && value.length == 15) }, { message: 'Debe tener 14 caracteres' })
             .or(z.string().length(0)),
         phone: z
             .string()
@@ -96,9 +96,9 @@ export const CharacteristicsSchema = z.object({
         )
         .refine(
             (value) => {
-                return !value || Number(value) <= 2.40
+                return !value || Number(value) <= 2.50
             },
-            { message: 'Debe ser menor o igual a 2.40' }
+            { message: 'Debe ser menor o igual a 2.50' }
         )
         .optional(),
     weight: z
@@ -129,7 +129,7 @@ export const UserIntutionalDataSchema = z.object({
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
-    rol: z
+    role: z
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
@@ -145,7 +145,7 @@ export const UserIntutionalDataSchema = z.object({
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
-    profesion: z
+    profession: z
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),

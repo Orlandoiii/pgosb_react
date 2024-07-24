@@ -171,28 +171,48 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
     )
 
     Object.entries(rawData[0])
-        .forEach(([value, _]) => {
+        .forEach(([value, keyName]) => {
 
-            const config = layout.find(v => v.column_name == value)
-            if (config) {
+            if (layout != null) {
+
+                const config = layout?.find(v => v.column_name == value)
+                if (config) {
 
 
-                logger.log("Table Grid Config:", config);
-                logger.log("Table Grid value:", value);
-                logger.log("Visibilidad:", config.visibility);
-                if (config.visibility)
-                    COLUMNS.push(
-                        {
+                    logger.log("Table Grid Config:", config);
+                    logger.log("Table Grid value:", value);
+                    logger.log("Visibilidad:", config.visibility);
+                    if (config.visibility)
+                        COLUMNS.push(
+                            {
 
-                            header: config.display_name,
-                            accessorKey: value,
-                            //footer: key,
-                        }
-                    )
+                                header: config.display_name,
+                                accessorKey: value,
+                                //footer: key,
+                            }
+                        )
 
-            } else {
-                logger.log("DATO FALTANTE:", value);
+                } else {
+                    logger.log("DATO FALTANTE:", value);
+                }
+
+
+
+
             }
+
+            else {
+                COLUMNS.push(
+                    {
+
+                        header: keyName,
+                        accessorKey: value,
+                        //footer: key,
+                    }
+                )
+            }
+
+
 
 
         })

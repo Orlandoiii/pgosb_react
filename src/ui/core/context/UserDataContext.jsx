@@ -3,13 +3,13 @@ import { useAuth } from "../../components/Authentication/AuthProvider";
 import logger from "../../../logic/Logger/logger";
 import { LoadingModal } from "../modal/LoadingModal";
 import axios from "axios";
-import { useConfig } from "../../../logic/Config/ConfigContext";
+import { useConfig } from "./ConfigContext";
 
 const UserDataContext = createContext({
-    userData: null,
-    userRolData: null,
+    userData: {},
+    userRolData: {},
     userDataIsLoad: false,
-    modulesPermissions: null,
+    modulesPermissions: [],
     err: null
 });
 
