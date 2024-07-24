@@ -14,6 +14,12 @@ import { getDefaults } from '../../core/context/CustomFormContext'
 import LoadingModal from '../../core/modal/LoadingModal'
 import NotificationModal from '../../core/alerts/NotificationModal'
 import LayoutContexProvider from '../../core/context/LayoutContext'
+import ServiceForm from './Forms/ServiceForm'
+import {
+    ServiceSchema,
+    serviceService,
+    TService,
+} from '../../../domain/models/service/service'
 
 const notificationInitialState = {
     open: false,
@@ -51,11 +57,13 @@ const MissionPage = () => {
 
     const [openAddForm, setOpenAddForm] = useState(false)
     const [missionId, setMissionId] = useState(0)
+    const [serviceId, setServiceId] = useState(0)
 
     async function addNewMission() {
-        console.log('Iniciando add de mision')
+
         setLoading(true)
         try {
+            console.log(`AQUI ${JSON.stringify(getDefaults<TMission>(MissionSchema as any) as TMission)}`)
             const result = await missionService.insert(
                 getDefaults<TMission>(MissionSchema as any) as TMission
             )
@@ -64,6 +72,42 @@ const MissionPage = () => {
                 if (result.data?.id) {
                     setMissionId(result.data.id)
                     setOpenAddForm(true)
+
+                    const defaultValue = getDefaults<TService>(
+                        ServiceSchema as any
+                    ) as TService
+                    defaultValue.missionId = result.data.id
+
+                    const resultService =
+                        await serviceService.insert(defaultValue)
+                    if (resultService.success) {
+                        if (result.data?.id) {
+                            setServiceId(result.data?.id)
+                            setOpenAddForm(true)
+                        } else {
+                            dispatch({
+                                type: 'notification/open',
+                                payload: {
+                                    type: 'error',
+                                    title: 'Oohh Error!!!',
+                                    message:
+                                        'El Id no fue retornado en el insert del servicio',
+                                },
+                            })
+                            console.error('')
+                        }
+                    } else {
+                        dispatch({
+                            type: 'notification/open',
+                            payload: {
+                                type: 'error',
+                                title: 'Oohh Error!!!',
+                                message:
+                                    'Lo sentimos tenemos problemas para agregar la misión',
+                            },
+                        })
+                        console.error(result.error)
+                    }
                 } else {
                     dispatch({
                         type: 'notification/open',
@@ -107,31 +151,36 @@ const MissionPage = () => {
         }
     }
 
-    function onUpdate() { }
+    function onUpdate() {}
     return (
         <>
             {/* <LayoutContexProvider layoutName={"mission_layout"}> */}
-                <TableDataGrid
-                    rawData={testJson}
-                    onAdd={() => {
-                        addNewMission()
-                    }}
-                    onDoubleClickRow={() => { }}
-                    permissions={''}
-                    onDelete={() => { }}
-                    onUpdate={onUpdate}
-                />
+            <TableDataGrid
+                rawData={testJson}
+                onAdd={() => {
+                    addNewMission()
+                }}
+                onDoubleClickRow={() => {}}
+                permissions={{
+                    add: true,
+                    delete: true,
+                    export: true,
+                    print: true,
+                    update: true,
+                }}
+                onDelete={() => {}}
+                onUpdate={onUpdate}
+            />
             {/* </LayoutContexProvider> */}
-
 
             <button onClick={addNewMission}>Agregar</button>
 
             {openAddForm && (
-                <MissionForm
-                    missionId={missionId}
+                <ServiceForm
+                    serviceId={serviceId}
                     showModal={openAddForm}
                     onClose={() => setOpenAddForm(false)}
-                ></MissionForm>
+                ></ServiceForm>
             )}
 
             {/* <LoadingModal initOpen={loading} children={null} /> */}
