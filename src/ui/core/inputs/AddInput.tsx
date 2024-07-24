@@ -1,15 +1,16 @@
-import React, { ComponentPropsWithoutRef, useEffect, useRef, useState } from "react";
-import OpenEyeIcon from "../icons/OpenEyeIncon";
-import PlusIcon from "../icons/PlusIcon";
-import { CommonLogic } from "./ShareLogic";
-import MiniXIcon from "../icons/MiniXIcon";
-import ModalContainer from "../modal/ModalContainer";
-import logger from "../../../logic/Logger/logger";
-import { IMask } from "react-imask";
-
-const common = new CommonLogic();
-
-
+import React, {
+    ComponentPropsWithoutRef,
+    useEffect,
+    useRef,
+    useState,
+} from 'react'
+import OpenEyeIcon from '../icons/OpenEyeIncon'
+import PlusIcon from '../icons/PlusIcon'
+import { CommonLogic } from './ShareLogic'
+import MiniXIcon from '../icons/MiniXIcon'
+import ModalContainer from '../modal/ModalContainer'
+import logger from '../../../logic/Logger/logger'
+import { IMask } from 'react-imask'
 
 const common = new CommonLogic()
 
@@ -85,18 +86,15 @@ export function StoreList({ items, onDelete, showDelete = true }) {
     )
 }
 
-
-interface AddInputProps extends ComponentPropsWithoutRef<"input"> {
-    inputName: string,
-    label: string,
-    useStrongErrColor?: boolean,
+interface AddInputProps extends ComponentPropsWithoutRef<'input'> {
+    inputName: string
+    label: string
+    useStrongErrColor?: boolean
     items?: Array<any>
-    setItems: any,
-    mask?: any,
+    setItems: any
+    mask?: any
     placeHolder?: string
-
 }
-
 
 export default function AddInput({
     inputName,
@@ -105,25 +103,18 @@ export default function AddInput({
     items = [],
     setItems,
     mask,
-    placeHolder = "",
+    placeHolder = '',
     ...rest
 }: AddInputProps) {
-
     const inputRef = useRef(null)
 
     const [errMessage, setErrMessage] = useState('')
 
     const [showModal, setShowModal] = useState(false)
+
     const [controlValue, setControlValue] = useState('')
 
-    const [errMessage, setErrMessage] = useState("");
-
-    const [showModal, setShowModal] = useState(false);
-
-    const [controlValue, setControlValue] = useState("");
-
-    let itemsTotal: number | string = items?.length;
-
+    let itemsTotal: number | string = items?.length
 
     if (itemsTotal > 9) {
         itemsTotal = `${9}+`
@@ -132,7 +123,7 @@ export default function AddInput({
     useEffect(() => {
         if (!mask) return
 
-        const inputElement: any = document.getElementById(inputName);
+        const inputElement: any = document.getElementById(inputName)
         const imask = IMask(inputElement, mask)
         imask.updateValue()
 
@@ -142,16 +133,14 @@ export default function AddInput({
     function addValue() {
         if (errMessage && errMessage.length > 0) return
 
-        if (errMessage && errMessage.length > 0)
-            return;
-
+        if (errMessage && errMessage.length > 0) return
 
         //inputRef.current?.blur();
 
         // let value = inputRef.current?.value?.trim();
 
         if (!controlValue || controlValue.length == 0) {
-            return;
+            return
         }
 
         logger.log('Anadiendo valor', controlValue)
@@ -166,10 +155,8 @@ export default function AddInput({
             return newItems
         })
 
-        setControlValue("");
+        setControlValue('')
         //inputRef.current.blur();
-
-
     }
 
     function handleKeyDown(e) {
@@ -195,7 +182,7 @@ export default function AddInput({
 
         // let value = inputRef.current?.value;
 
-        setControlValue(e.target.value);
+        setControlValue(e.target.value)
 
         // if (!controlValue.match(allowPattern)) {
         //     setErrMessage("El formato no es correcto")
@@ -207,7 +194,7 @@ export default function AddInput({
         //         setErrMessage(err);
         //     }
         // }
-        setErrMessage("");
+        setErrMessage('')
     }
 
     function handleDeleteItem(item) {
@@ -235,9 +222,13 @@ export default function AddInput({
                 <div
                     className={`relative h-11 w-full  rounded-s-md shadow-sm flex
                              border-2  border-r-0
-                             ${!common.isErr(errMessage) ?
-                        CommonLogic.neutralColor :
-                        (useStrongErrColor ? CommonLogic.errColor : CommonLogic.errSoftColor)}  
+                             ${
+                                 !common.isErr(errMessage)
+                                     ? CommonLogic.neutralColor
+                                     : useStrongErrColor
+                                       ? CommonLogic.errColor
+                                       : CommonLogic.errSoftColor
+                             }  
                              hover:border-3.5  hover:${common.borderColor(errMessage, useStrongErrColor)} 
                              has-[:focus]:border-3.5 has-[:focus]:${common.borderColor(errMessage, useStrongErrColor)} `}
                 >
@@ -250,7 +241,6 @@ export default function AddInput({
                         placeholder={placeHolder}
                         value={controlValue}
                         {...rest}
-
                     />
                     <div className="absolute top-1/2 right-1.5 transform -translate-y-1/2">
                         {
