@@ -16,12 +16,12 @@ import { Hierarchys } from "../../../../domain/abstractions/enums/hierarchys";
 import { DivisionTypes } from "../../../../domain/abstractions/enums/division_types";
 import { ProfessionTypes } from "../../../../domain/abstractions/enums/profession_types";
 import { useConfig } from "../../../core/context/ConfigContext";
+import FormToggle from "../../../core/inputs/FormToggle";
 
 
 
 
 
-const instituions = ["Institución 1", "Institución 2", "Institución 3"]
 
 
 export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
@@ -31,6 +31,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [rolList, setRolsList] = useState([])
 
+    const [stations, setStations] = useState([])
 
     const { config } = useConfig()
 
@@ -60,12 +61,27 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
             logger.error(err);
         })
 
+        axios.get(config.back_url + "/api/v1/station/all").then((r) => {
+            if (r.status > 199 && r.status < 300) {
+                setStations(r.data.map(s => s.name));
+                return;
+            }
+        }).catch(err => {
+            logger.error(err);
+        })
+
     }, [])
+
+
+    const initialData = !currentData ? {
+
+        "user_system": false,
+    } : { ...currentData, user_system: Boolean(currentData?.user_system) }
 
     return (
 
         <CustomForm
-            initValue={currentData}
+            initValue={initialData}
             schema={UserIntutionalDataSchema}
             onSubmit={(
                 data) => {
@@ -93,90 +109,83 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                 <div className="w-full space-y-4 px-2 max-w-[860px]">
 
 
-
                     <div className="md:flex md:space-x-2">
+                        <FormInput
+                            description={"Usuario"}
+                            fieldName={"user_name"}
+                            placeholder="Jondoe"
+                        />
 
                         <FormInput
 
-                            description={"Código de Funcionario/a"}
+                            description={"Equipo"}
                             fieldName={"code"}
                             placeholder="600"
 
                         />
 
+                    </div>
+
+
+                    <div className="md:flex md:space-x-2">
+
+
                         <FormSelectSearch
-                            initialValue={currentData?.role}
+                            initialValue={initialData?.role}
                             fieldName={"role"}
                             description={"Rol"}
                             options={rolNameList}
                             openUp={false} />
 
+                        <FormSelect
+                            description={"Jerarquia"}
+                            fieldName={"rank"}
+                            options={EnumToStringArray(Hierarchys)}
+                            openUp={false} />
 
-
-                        {/* <FormInput description={"Fecha de Ingreo"}
-                            register={register}
-                            validationRules={requiredRule}
-
-                            useStrongErrColor={isSubmitted}
-                            errMessage={errors.in_date?.message}
-
-                            fieldName={"in_date"}
-                            useDotLabel={true}
-                            placeholder="01-01-0001"
-
-                        />
-
-                        <FormInput description={"Fecha de Egreso"}
-                            register={register}
-                            validationRules={requiredRule}
-
-                            useStrongErrColor={isSubmitted}
-                            errMessage={errors.out_date?.message}
-
-                            fieldName={"out_date"}
-                            useDotLabel={true}
-                            placeholder="01-01-0001"
-
-                        /> */}
 
                     </div>
 
 
 
-
-
-
-                    <FormSelect
-                        description={"Jerarquia"}
-                        fieldName={"rank"}
-                        options={EnumToStringArray(Hierarchys)}
-                        openUp={false} />
-
-                    <FormSelect
-                        description={"Institución"}
-                        fieldName={"institution"}
-                        options={instituions}
-                        openUp={false} />
-
-
-
-
-
                     <FormSelectSearch
-                        description={"División"}
-                        fieldName={"division"}
-                        options={EnumToStringArray(DivisionTypes)}
-                        openUp={true}
-                        initialValue={currentData?.division}
+                        description={"Estación"}
+                        fieldName={"station"}
+                        options={stations}
+                        openUp={false}
+                        initialValue={initialData?.station ?? ""}
                     />
 
-                    <FormSelectSearch
-                        description={"Profesión"}
-                        fieldName={"profession"}
-                        options={EnumToStringArray(ProfessionTypes)}
-                        openUp={true}
-                        initialValue={currentData?.profession}
-                    />
+
+
+
+                    <div className="md:flex md:space-x-2">
+
+                        <FormSelectSearch
+                            description={"División"}
+                            fieldName={"division"}
+                            options={EnumToStringArray(DivisionTypes)}
+                            openUp={true}
+                            initialValue={initialData?.division}
+                        />
+
+                        <FormSelectSearch
+                            description={"Profesión"}
+                            fieldName={"profession"}
+                            options={EnumToStringArray(ProfessionTypes)}
+                            openUp={true}
+                            initialValue={initialData?.profession}
+                        />
+
+                    </div>
+
+                    <div className="h-full w-full flex justify-start items-center pl-1 space-x-2 mt-8">
+
+                        <p className="text-sm">Usuario Sistema:</p>
+                        <FormToggle fieldName="user_system"
+                        />
+
+                    </div>
 
                 </div>
 

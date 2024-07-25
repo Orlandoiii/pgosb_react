@@ -154,7 +154,7 @@ export const UnitCharacteristicsSchema = z.object({
         .optional()
         .refine(
             (value) => {
-                return !value || Number(value) <= 10000
+                return !value || value == "" || Number(value) <= 10000
             },
             { message: 'Debe ser menor o igual a 10.000' }
         ),
@@ -168,7 +168,7 @@ export const UnitCharacteristicsSchema = z.object({
             { message: 'Debe ser menor a 100' }
         ),
 
-    details: z.array(z.string()).optional(),
+    // details: z.array(z.string()).optional(),
     unit_condition: z.string().optional(),
 
     observations: z.string().optional(),

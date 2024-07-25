@@ -92,7 +92,7 @@ function StepTrackerItem({ title, number, isActive = false, isCompleted = false 
         return "bg-slate-400";
     }
 
-    function getBgColor(){
+    function getBgColor() {
         if (isCompleted)
             return "bg-[#D6EAF8]"
 
@@ -120,7 +120,7 @@ function StepTrackerItem({ title, number, isActive = false, isCompleted = false 
                    rounded-full flex justify-center items-center 
                    mr-3 text-sm lg:w-[35px] lg:h-[35px] `}>{number}</span> */}
 
-                <h4 className={`text-center text-md ${isActive ? "text-lg": ""}  ${isCompleted ? 'text-black' : ''}`}>{title}</h4>
+                <h4 className={`text-center text-md ${isActive ? "text-lg" : ""}  ${isCompleted ? 'text-black' : ''}`}>{title}</h4>
 
             </div>
 
@@ -165,14 +165,21 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
     const [currentStep, setCurrentStep] = useState(steps[stepCounter]);
 
     const stepsData = useRef(data)
-    console.log(`Mensaje : sadalskdjaskljdsalkdjlas . ${JSON.stringify(stepsData)}`)
+    console.log(`Mensaje :   ${JSON.stringify(stepsData)}`)
     const clickNextRef = useRef(null)
 
     function Next(data) {
 
         logger.log("En Next Function Data:", data);
 
-        stepsData.current[stepCounter] = {
+        let idx = stepsData.current?.findIndex(v => v.title == currentStep.title)
+
+
+        if (idx == -1) {
+            idx = stepCounter;
+        }
+
+        stepsData.current[idx] = {
             title: currentStep.title,
             data: data,
         };
@@ -207,7 +214,7 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
         setCurrentStep(steps[stepCounter - 1])
     }
 
-    const currentData = stepsData?.current != null && stepsData.current[stepCounter]?.data;
+    const currentData = stepsData?.current != null && stepsData?.current.find(v => v.title == currentStep.title)?.data;
 
 
     logger.log(`Renderizo Stepper con: 

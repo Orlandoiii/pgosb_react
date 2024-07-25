@@ -115,7 +115,7 @@ export default function Sidebar({ }) {
                                 <SideBarLink collpase={collapse} link="/services" icon={<ServiceIcon />} name='Servicios' onClick={(e) => {
                                     handleClick(e, "Servicios")
                                 }} />
-                                <SideBarLink collpase={collapse} link="/users" icon={<UsersIcon />} name='Usuarios' onClick={(e) => {
+                                <SideBarLink collpase={collapse} link="/users" icon={<UsersIcon />} name='Funcionarios' onClick={(e) => {
                                     handleClick(e, "Usuarios")
                                 }} />
                                 <SideBarLink collpase={collapse} link="/roles" icon={<RolsIncon />} name='Roles' onClick={(e) => {

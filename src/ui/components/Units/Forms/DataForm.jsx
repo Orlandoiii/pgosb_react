@@ -7,18 +7,23 @@ import React from "react";
 import { UnitCharacteristicsSchema } from "../../../../domain/models/unit/unit";
 import logger from "../../../../logic/Logger/logger";
 import AddInput from "../../../core/inputs/AddInput";
+import FormSelect from "../../../core/inputs/FormSelect";
 
 
-
+const UnitConditions = ["OPERATIVA", "FUERA DE SERVICIO", "DESINCORPORADA"];
 
 export default function DataForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
 
 
-    const [details, setDetails] = useState(currentData?.details ?? []);
+
+    const detailsIsArray = currentData?.details != null && Array.isArray(currentData?.details)
+
+    const [details, setDetails] = useState(detailsIsArray ? currentData?.details : []);
 
 
+    const initialData = !currentData ? { unit_condition: UnitConditions[0] } : currentData
 
     function handleSubmitInternal(data) {
 
@@ -32,7 +37,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
         <CustomForm
             schema={UnitCharacteristicsSchema}
-            initValue={currentData}
+            initValue={initialData}
 
             onSubmit={
                 (data) => {
@@ -44,7 +49,6 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
             classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
-            {/* <FormTitle title={"Características del Vehículo"} /> */}
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
@@ -89,7 +93,7 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
 
                         <FormInput
-                            description={"Rendimiento"}
+                            description={"Rendimiento (Km/L)"}
                             fieldName={"performance"}
                             placeholder="10"
                             mask={Number}
@@ -102,21 +106,21 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
 
                     <div className="md:flex md:space-x-2">
                         <FormInput
-                            description={"Cap. Carga"}
+                            description={"Cap. Carga (Kg)"}
                             fieldName={"load_capacity"}
                             placeholder="10"
                             mask={Number}
                         />
 
                         <FormInput
-                            description={"Cap. Litros"}
+                            description={"Cap. Litros (L)"}
                             fieldName={"water_capacity"}
                             placeholder="10"
                             mask={Number}
                         />
 
                         <FormInput
-                            description={"Kilometraje Inicial"}
+                            description={"Kilometraje Inicial (Km)"}
                             fieldName={"init_kilometer"}
                             placeholder="0"
                             mask={Number}
@@ -135,10 +139,12 @@ export default function DataForm({ clickSubmitRef, onSubmit }) {
                         setItems={setDetails}
                     />
 
-                    <FormInput
+                    <FormSelect
                         description={"Condición de la Unidad"}
                         fieldName={"unit_condition"}
-                        placeholder="En Perfecto Estado"
+                        options={UnitConditions}
+                        openUp={true}
+
                     />
 
                 </div>

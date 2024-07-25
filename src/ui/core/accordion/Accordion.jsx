@@ -39,7 +39,7 @@ function KeyValue({ keyName, value }) {
                 <ArrayElement title={keyName} values={value} /> :
 
                 <p className="text-[#0A2F4E] text-xs font-semibold 
-                text-ellipsis whitespace-nowrap overflow-x-hidden">{isBoolean(value) ? value.toString() : value}</p>}
+                text-ellipsis whitespace-nowrap overflow-x-hidden">{isBoolean(value) ? (value ? "Si" : "No") : value}</p>}
 
         </div>
 
@@ -56,7 +56,22 @@ function ArrayElement({ title, values }) {
 
         <div className="flex flex-col justify-between items-center">
 
-            <EyeButton onClick={() => { setOpen(o => !o) }} />
+            <EyeButton
+                disable={values.length == 0}
+                onClick={() => {
+                    if (values?.length == 0)
+                        return;
+                    setOpen(o => !o)
+                }} >
+                {values.length > 0 && (
+                    <p
+                        className="absolute rounded-full h-[18px] w-[18px] z-1 p-1 text-sm -top-1 -right-3 
+        text-[whitesmoke] bg-rose-500 flex items-center justify-center"
+                    >
+                        {values.length > 9 ? "9+" : values.length.toString()}
+                    </p>
+                )}
+            </EyeButton>
 
             <ModalContainer title={title} show={open} onClose={() => { setOpen(false) }}>
                 <StoreList items={values} showDelete={false}></StoreList>
