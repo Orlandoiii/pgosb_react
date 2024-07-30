@@ -10,7 +10,6 @@ import { RegisterModuleComponent } from "./RegisterModuleComponent";
 import { useLayout } from "../../core/context/LayoutContext";
 import { useUser } from "../../core/context/UserDataContext";
 import { useNavigate } from "react-router-dom";
-import { ConvertValue } from "../../../logic/Formatters/Formatters";
 import { useConfig } from "../../core/context/ConfigContext";
 const alertController = new AlertController();
 

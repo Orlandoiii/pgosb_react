@@ -54,23 +54,26 @@ const detailTitle = "Detalles del Usuario";
 
 const stepsObjects = [
    {
-      title: "Datos Básicos",
+      title: "Datos básicos",
       content: <InfoPersonalForm />,
 
    },
    {
-      title: "Ubicación",
-      content: <LocationForm />
+      title: "Datos institucionales",
+      content: <InstitutionInfoForm />
    },
+
    {
       title: "Características",
       content: <SkillForm />,
 
    },
+
    {
-      title: "Datos Institucionales",
-      content: <InstitutionInfoForm />
+      title: "Ubicación",
+      content: <LocationForm />
    }
+
 ]
 
 

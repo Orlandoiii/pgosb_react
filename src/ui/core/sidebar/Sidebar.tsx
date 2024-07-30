@@ -73,7 +73,7 @@ export default function Sidebar({ }) {
 
             <aside className={`relative h-screen min-w-[90px]   
         bg-[#1C2434] shadow-xl  overflow-hidden  flex flex-col
-         trasition-position ease-in-out duration-700 
+         trasition-position ease-in-out duration-500 
          rounded-r-3xl ${collapse ? "" : " md:min-w-[300px]"}`}>
 
 
@@ -90,7 +90,7 @@ export default function Sidebar({ }) {
                         text-3xl uppercase font-medium`}>Gres</h1>
 
                         <button className={`absolute ${collapse ? "opacity-0" : " md:top-1/2  md:right-1 md:transform md:-translate-y-1/2"}  
-                        p-1   hover:scale-125 rounded-lg`}
+                        p-1   hover:scale-125 rounded-lg  transition-all ease-in-out duration-500 `}
                             onClick={() => { setCollapse(o => !o) }}>
                             <div className={`${collapse ? "rotate-180 right-8" : "rotate-0 right-1"}`}>
                                 <BiArrowFromRight color='whitesmoke' size={30} />
@@ -115,7 +115,7 @@ export default function Sidebar({ }) {
                                 <SideBarLink collpase={collapse} link="/services" icon={<ServiceIcon />} name='Servicios' onClick={(e) => {
                                     handleClick(e, "Servicios")
                                 }} />
-                                <SideBarLink collpase={collapse} link="/users" icon={<UsersIcon />} name='Usuarios' onClick={(e) => {
+                                <SideBarLink collpase={collapse} link="/users" icon={<UsersIcon />} name='Funcionarios' onClick={(e) => {
                                     handleClick(e, "Usuarios")
                                 }} />
                                 <SideBarLink collpase={collapse} link="/roles" icon={<RolsIncon />} name='Roles' onClick={(e) => {

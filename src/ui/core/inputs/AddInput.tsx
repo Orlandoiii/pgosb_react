@@ -14,15 +14,15 @@ import { IMask } from 'react-imask'
 
 const common = new CommonLogic()
 
-export function EyeButton({ onClick, children }) {
+export function EyeButton({ onClick, children, disable = false }) {
     return (
         <button
             type="button"
             onClick={(e) => {
                 if (onClick) onClick(e)
             }}
-            className="relative h-full w-9 border-gray-500 
-        rounded-e-md bg-[#0A2F4E] flex items-center justify-center cursor-pointer transition-all duration-500  hover:bg-[#2286DD]"
+            className={`relative h-full w-9 border-gray-500 
+        rounded-e-md ${!disable ? "bg-[#0A2F4E] hover:bg-[#2286DD] cursor-pointer" : "bg-slate-500 cursor-none"}  flex items-center justify-center cursor-pointer transition-all duration-500  `}
         >
             <OpenEyeIcon width="w-5" heigth="h-5" />
 
@@ -222,13 +222,12 @@ export default function AddInput({
                 <div
                     className={`relative h-11 w-full  rounded-s-md shadow-sm flex
                              border-2  border-r-0
-                             ${
-                                 !common.isErr(errMessage)
-                                     ? CommonLogic.neutralColor
-                                     : useStrongErrColor
-                                       ? CommonLogic.errColor
-                                       : CommonLogic.errSoftColor
-                             }  
+                             ${!common.isErr(errMessage)
+                            ? CommonLogic.neutralColor
+                            : useStrongErrColor
+                                ? CommonLogic.errColor
+                                : CommonLogic.errSoftColor
+                        }  
                              hover:border-3.5  hover:${common.borderColor(errMessage, useStrongErrColor)} 
                              has-[:focus]:border-3.5 has-[:focus]:${common.borderColor(errMessage, useStrongErrColor)} `}
                 >

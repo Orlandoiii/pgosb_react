@@ -9,11 +9,10 @@ import logger from "../../../../logic/Logger/logger";
 import CustomForm from "../../../core/context/CustomFormContext";
 import { UserSchemaBasicData } from "../../../../domain/models/user/user";
 import { dateMask, documentIdMask, nameMask, numberMask, numberMaskAllowZero } from "../../../core/inputs/Common/Mask";
-import FormToggle from "../../../core/inputs/FormToggle";
 import { MartialStatusListTypes, MartialStatusTypes } from "../../../../domain/abstractions/enums/martial_status_type";
 import { Genders } from "../../../../domain/abstractions/enums/genders";
+import { EnumToStringArray } from "../../../../utilities/converters/enum_converter";
 
-const genders = ["Masculino", "Femenino"];
 
 // const civilStatusList = ["Solter@", "Casad@", "Divorciad@", "Viud@"]
 
@@ -31,14 +30,14 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
             Next(data);
     }
 
-    
+
+
     const initialData = !currentData ? {
         "marital_status": MartialStatusTypes.Single,
         "gender": Genders.Male,
-        "user_system": false,
-    } : currentData
-    
-    console.error(initialData)
+
+    } : { ...currentData }
+
 
     return (
 
@@ -59,18 +58,6 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
                 <div className="w-full  px-2 max-w-[860px]">
 
-                    <div className="md:flex md:space-x-2">
-                        <FormInput
-                            description={"Usuario"}
-                            fieldName={"user_name"}
-                            placeholder="Jondoe"
-                        />
-                        <FormInput
-                            description={"Email"}
-                            fieldName={"email"}
-                            placeholder="jondoe@example.com" />
-                    </div>
-
 
                     <div className="md:flex  md:space-x-2 mt-4">
 
@@ -90,6 +77,16 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                         />
 
                     </div>
+
+
+                    <FormInput
+                        description={"Email"}
+                        fieldName={"email"}
+                        placeholder="jondoe@example.com" />
+
+
+
+
 
                     <div className="md:flex md:space-x-2 mt-4">
 
@@ -116,7 +113,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
 
                         <div className="w-[50%] flex space-x-2">
-                            <div className="md:w-[35%]">
+                            {/* <div className="md:w-[35%]">
                                 <FormInput
                                     description={"Cod. Área"}
                                     fieldName={"zip_code"}
@@ -124,15 +121,13 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                                     mask={numberMaskAllowZero}
                                 />
 
-                            </div>
+                            </div> */}
 
-                            <div className="w-[65%]">
-                                <FormSelect
-                                    fieldName={"marital_status"}
-                                    description={"Estado Civil"}
-                                    options={MartialStatusListTypes}
-                                    openUp={true} />
-                            </div>
+                            <FormSelect
+                                fieldName={"marital_status"}
+                                description={"Estado Civil"}
+                                options={EnumToStringArray(MartialStatusTypes)}
+                                openUp={true} />
                         </div>
 
                         <div className="w-[50%] flex space-x-2">
@@ -149,7 +144,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                                 <FormSelect
                                     fieldName={"gender"}
                                     description={"Género"}
-                                    options={genders}
+                                    options={EnumToStringArray(Genders)}
                                     openUp={true} />
                             </div>
                         </div>
@@ -158,13 +153,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
                     </div>
 
-                    <div className="h-full w-full flex justify-start items-center pl-1 space-x-2 mt-8">
 
-                        <p className="text-sm">Usuario Sistema:</p>
-                        <FormToggle fieldName="user_system"
-                        />
-
-                    </div>
 
 
                 </div>

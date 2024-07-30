@@ -11,12 +11,12 @@ import CustomForm from "../../../core/context/CustomFormContext";
 import logger from "../../../../logic/Logger/logger";
 import { useLocation } from "../../../core/hooks/useLocation";
 import SelectSearch from "../../../core/inputs/SelectSearch";
-import { LocationSchema } from "../../../../domain/models/location/location";
+import { LocationStationSchema } from "../../../../domain/models/stations/station";
 
 
 
 
-export default function LocationForm({ clickSubmitRef, onSubmit }) {
+export default function LocationStationForm({ clickSubmitRef, onSubmit }) {
 
 
 
@@ -52,16 +52,16 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
             initValue={initialData}
 
-            schema={LocationSchema}
-            onSubmit={(
-                data) => {
+            schema={LocationStationSchema}
+            onSubmit={(data) => {
 
-                logger.log("LocationForm", data)
+                logger.log("LocationStationForm AQUI", data)
 
                 const newData = {
                     ...data, "state": state,
                     "municipality": municipality, "parish": parish,
-                    "state_id": estadoId, "municipality_id": municipioId, "parish_id": parroquiaId
+                    "state_id": estadoId.toString(), "municipality_id": municipioId.toString(),
+                    "parish_id": parroquiaId.toString()
                 }
 
                 handleSubmitInternal(newData)
@@ -126,7 +126,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                     />
 
                     <FormInput
-                        description={"Urbanización/Comunidad/Barrio"}
+                        description={"Urbanización"}
                         fieldName={"community"}
                         placeholder="Urbanización..."
 
@@ -136,18 +136,18 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
 
                         <FormInput
-                            description={"Autopista/Carretera/Avenida/Calle"}
+                            description={"Calle"}
                             fieldName={"street"}
                             placeholder="Calle..."
 
                         />
 
-                        <FormInput
+                        {/* <FormInput
                             description={"Playa/Río/Quebrada"}
                             fieldName={"beach"}
                             placeholder="Playa/Río/Quebrada"
 
-                        />
+                        /> */}
 
                     </div>
 

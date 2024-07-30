@@ -50,7 +50,7 @@ const detailTitle = "Detalles de la Unidad";
 
 const stepsObjects = [
    {
-      title: "Datos Básicos",
+      title: "Datos básicos",
       content: <BasicInfoForm />,
 
    },

@@ -2,40 +2,48 @@ import { z } from "zod";
 
 export const StationSchemaBasicData = z.object({
 
-    institution: 
+  id:
     z.string()
-    .optional().refine((value) => {
-        return !value || value.length >= 5;
-      }, { message: 'Debe ser igual o mayor a 5 caracteres' })
-      .refine((value) => {
-        return value!.length <= 100;
-      }, { message: 'Debe ser menor o igual a 100 caracteres' }),
+      .optional(),
 
-    name: 
+  institution:
     z.string()
-    .optional().refine((value) => {
-        return !value || value.length >= 5;
-      }, { message: 'Debe ser igual o mayor a 5 caracteres' })
-      .refine((value) => {
-        return value!.length <= 100;
-      }, { message: 'Debe ser menor o igual a 140 caracteres' }),
+      .optional(),
 
-    description: 
+  name:
     z.string()
-    .optional().refine((value) => {
-        return !value || value.length >= 5;
-      }, { message: 'Debe ser igual o mayor a 5 caracteres' })
-      .refine((value) => {
-        return value!.length <= 100;
-      }, { message: 'Debe ser menor o igual a 240 caracteres' }),
+      .optional(),
 
-    phones:  z.array(z.number()).optional(),
-    code: z.number().optional(),
-    abbreviation: z.string().optional(),
-    regions: z.string().optional(),
+  description:
+    z.string()
+      .optional(),
+
+
+  code: z.string().optional(),
+
+  abbreviation: z.string().optional(),
+
 
 
 })
+
+export const LocationStationSchema = z.object({
+
+  sector: z.string().optional(),
+  community: z.string().optional(),
+  street: z.string().optional(),
+  beach: z.string().optional(),
+  address: z.string().optional()
+
+})
+
+
+
+export type LocationStationSchemaType = z.infer<typeof LocationStationSchema>
+
+
+
+
 
 export type StationSchemaBasicDataType = z.infer<typeof StationSchemaBasicData>
 

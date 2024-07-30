@@ -1,7 +1,7 @@
 import LayoutContexProvider from "../../core/context/LayoutContext";
 import ModuleComponent from "../Module/ModuleComponent";
 import StationForm from "./Forms/StationForm"
-import LocationForm from "../Locations/Forms/LocationForm"
+import LocationStationForm from "./Forms/LocationStationForm";
 
 
 function StationCreateActionData(config) {
@@ -10,7 +10,7 @@ function StationCreateActionData(config) {
       message: "Esta seguro que desea registrar la Estacion con los datos antes mostrados ?",
       successMessage: "Estacion guardada exitosamente",
       errMessage: "No se pudo guardar la Estacion",
-      endpoint: `${config.back_url}/api/v1/location/station/create`,
+      endpoint: `${config.back_url}/api/v1/station/create`,
       method: "post"
    }
 }
@@ -21,12 +21,12 @@ function StationUpdateActionData(config) {
       message: "Esta seguro que desea actualizar la Estacion con los datos antes mostrados ?",
       successMessage: "Estacion actualizada Exitosamente",
       errMessage: "No se pudo actualizar la Estacion",
-      endpoint: `${config.back_url}/api/v1/location/station/update`,
+      endpoint: `${config.back_url}/api/v1/station/update`,
       method: "put"
    }
 }
 
-const getAllDataEndpoint = '/api/v1/location/station/all';
+const getAllDataEndpoint = '/api/v1/station/all';
 
 const deleteConfig = {
    singleDeleteTitle: 'Eliminar Estacion',
@@ -50,13 +50,13 @@ const detailTitle = "Detalles de la Estacion";
 
 const stepsObjects = [
    {
-      title: "Datos Básicos",
+      title: "Datos básicos",
       content: <StationForm />,
 
    },
    {
       title: "Ubicación",
-      content: <LocationForm />
+      content: <LocationStationForm />
    }
 ]
 

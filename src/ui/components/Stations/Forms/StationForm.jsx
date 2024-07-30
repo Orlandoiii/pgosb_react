@@ -5,21 +5,20 @@ import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import CustomForm from "../../../core/context/CustomFormContext";
 import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
 import React from "react";
-import { StationSchemaBasicData } from "../../../../domain/models/stations/station"; 
+import { StationSchemaBasicData } from "../../../../domain/models/stations/station";
 import logger from "../../../../logic/Logger/logger";
 import AddInput from "../../../core/inputs/AddInput";
 
 
-const institutions = ["Institución Nombre Largo Para Probar Como se Ve", "Plataforma de Gestion de Operaciones y Servicios Para Bomberos"]
 
 
 
 export default function StationForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const [regions, setRegions] = useState([]);
+    const [regions, setRegions] = useState(currentData?.regions ?? []);
 
-    const [phones, setPhones] = useState([]);
+    const [phones, setPhones] = useState(currentData?.phones ?? []);
 
     function handleSubmitInternal(data) {
 
@@ -29,32 +28,44 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
         if (Next)
             Next(data);
     }
+
+    const initialData = currentData ? currentData : {
+        institution: "",
+        name: "",
+        description: "",
+        phones: phones,
+        regions: regions,
+        code: "",
+        abbreviation: ""
+
+    }
     return (
 
         <CustomForm
 
-        schema={StationSchemaBasicData}
-        initValue={currentData}
-        onSubmit={
-            (data) => {
-                logger.info(data);
-                handleSubmitInternal(data)
-            }}
+            schema={StationSchemaBasicData}
+            initValue={initialData}
+            onSubmit={
+                (data) => {
+                    logger.info(data);
+
+                    const newData = { ...data, regions: regions, phones: phones }
+
+                    handleSubmitInternal(newData)
+                }}
 
             classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
 
-            {/* <FormTitle title={"Datos básicos del Vehículo"} /> */}
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-3  px-2 max-w-[860px]">
 
-                    <FormSelectSearch
+                    <FormInput
                         fieldName="institution"
                         description={"Institución"}
-                        options={institutions}
+                        placeholder="Nombre de la Institución..."
 
-                        openUp={false}
                     />
 
                     <FormInput
@@ -82,13 +93,12 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                                 label={"Teléfonos"}
                                 inputName={"phones"}
-                                useDotLabel={true}
                                 placeHolder="0212-9855489"
                                 //useStrongErrColor={isSubmitted}
                                 items={phones}
                                 setItems={setPhones}
                                 mask={Number}
-                                
+
                             />
 
                         </div>
@@ -122,7 +132,6 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                             label={"Regiones"}
                             inputName={"regions"}
-                            useDotLabel={true}
                             placeHolder="Región Operativa Ejem:01M"
 
                             items={regions}

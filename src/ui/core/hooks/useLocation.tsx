@@ -89,6 +89,52 @@ function getMunicipios(stateName) {
 
 }
 
+function getEstadoId(estado) {
+    const canSearch = LocationRawData?.StatesIsLoad && estado &&
+        estado != "";
+
+    if (!canSearch)
+        return 0;
+
+
+    return LocationRawData?.States?.find(state => state.name == estado)?.id
+}
+
+
+function getMunicipioId(estado, municipio) {
+
+    const stateId = getEstadoId(estado);
+
+    if (!stateId || stateId == 0)
+        return 0;
+
+    const canSearch = LocationRawData?.MunicipalitysIsLoad && municipio && municipio != "";
+
+    if (!canSearch)
+        return 0
+
+    return LocationRawData?.Municipalitys?.find(m => m.state_id == stateId && m.name == municipio)?.id
+
+}
+
+function getParishId(estado, municipio, parroquia) {
+
+    const municipioId = getMunicipioId(estado, municipio);
+
+    if (!municipioId || municipioId == 0)
+        return 0;
+
+    if (LocationRawData?.ParishIsLoad) {
+
+        return LocationRawData?.Parish?.find(p => p.municipality_id == municipioId && p.name == parroquia)?.id;
+    }
+
+    return 0;
+}
+
+
+
+
 
 function getParroquias(estado, municipio) {
     logger.log("Buscando parroquias");
@@ -156,6 +202,8 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
     const [estado, setEstado] = useState(initEstado ?? "Miranda");
 
+    const [estadoId, setEstadoId] = useState(0)
+
 
     const canLoadMunicipios = LocationRawData.StatesIsLoad &&
         LocationRawData.MunicipalitysIsLoad && estado && estado != "";
@@ -167,6 +215,7 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
     const [municipio, setMunicipio] = useState(initMunicipio ?? "");
 
+    const [municipioId, setMunicipioId] = useState(0)
 
 
 
@@ -177,6 +226,7 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
     )
     const [parroquia, setParroquia] = useState(initParroquia ?? "");
 
+    const [parroquiaId, setParroquiaId] = useState(0)
 
 
 
@@ -255,6 +305,9 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
             return;
         }
 
+
+        setEstadoId(getEstadoId(estado) ?? 0)
+
         let m = getMunicipios(estado);
 
         setMunicipios(m)
@@ -272,12 +325,26 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
         let p = getParroquias(estado, municipio);
 
+        setMunicipioId(getMunicipioId(estado, municipio) ?? 0)
+
         setParroquias(p);
         // if (p[0])
         //     setParroquia(p[0]);
 
 
     }, [estado, municipio])
+
+
+    useEffect(() => {
+
+        if (!estado || estado == "" || !municipio || municipio == "" || !parroquia || parroquia == "")
+            return;
+
+        setParroquiaId(getParishId(estado, municipio, parroquia) ?? 0)
+
+
+    }, [estado, municipio, parroquia])
+
 
 
     return {
@@ -292,7 +359,11 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
         setState: setEstado,
         setMunicipality: setMunicipio,
-        setParish: setParroquia
+        setParish: setParroquia,
+
+        estadoId,
+        municipioId,
+        parroquiaId
     }
 
 }

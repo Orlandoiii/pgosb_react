@@ -5,10 +5,7 @@ import { Genders } from '../../abstractions/enums/genders'
 export const UserSchemaBasicData = z
     .object({
         id: z.string().optional(),
-        user_name: z
-            .string()
-            .min(3, 'Debe ser mayor o igual a 3 caracteres')
-            .or(z.string().length(0)),
+
         email: z
             .string()
             .email('El correo no es valido')
@@ -43,10 +40,10 @@ export const UserSchemaBasicData = z
                 { message: 'Debe tener 12 caracteres' }
             )
             .optional(),
-        zip_code: z
-            .string()
-            .length(4, 'Debe tener 4 caracteres')
-            .or(z.string().length(0)),
+        // zip_code: z
+        //     .string()
+        //     .length(4, 'Debe tener 4 caracteres')
+        //     .or(z.string().length(0)),
         marital_status: z.nativeEnum(MartialStatusTypes),
         birth_date: z
             .string()
@@ -62,20 +59,9 @@ export const UserSchemaBasicData = z
             )
             .optional(),
         gender: z.nativeEnum(Genders).optional(),
-        user_system: z.boolean().default(false).optional(),
+
     })
-    .refine(
-        (value) => {
-            return (
-                (value.user_system && value.user_name.length >= 3) ||
-                !value.user_system
-            )
-        },
-        {
-            path: ['user_name'],
-            message: 'Debe ser mayor o igual a 3 caracteres',
-        }
-    )
+
 
 export type UserSchemaBasicDataType = z.infer<typeof UserSchemaBasicData>
 
@@ -125,6 +111,12 @@ export const CharacteristicsSchema = z.object({
 export type CharacteristicsSchemaType = z.infer<typeof CharacteristicsSchema>
 
 export const UserIntutionalDataSchema = z.object({
+
+    user_name: z
+        .string()
+        .min(3, 'Debe ser mayor o igual a 3 caracteres')
+        .or(z.string().length(0)),
+
     code: z
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
@@ -137,7 +129,7 @@ export const UserIntutionalDataSchema = z.object({
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
-    institution: z
+    station: z
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
@@ -149,6 +141,7 @@ export const UserIntutionalDataSchema = z.object({
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
+
+    user_system: z.boolean().default(false).optional(),
 })
 
-const UserSchema = z.object({})
