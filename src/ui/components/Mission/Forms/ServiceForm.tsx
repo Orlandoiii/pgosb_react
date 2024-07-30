@@ -43,7 +43,7 @@ const AuthorityForm = ({
     return (
         <>
             <ModalContainer
-                showX={false}
+                showX={true}
                 downStikyChildren={''}
                 show={showModal}
                 onClose={() => onClose()}
@@ -52,12 +52,16 @@ const AuthorityForm = ({
                 <div className="space-y-10">
                     <AddableTable
                         title="Unidades"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar una unidad"
                         onAddButtonClick={() => setModal(ServiceModals.Unit)}
                     ></AddableTable>
 
                     <AddableTable
                         title="Bomberos"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar un bombero"
                         onAddButtonClick={() =>
                             setModal(ServiceModals.Firefighter)
@@ -66,6 +70,8 @@ const AuthorityForm = ({
 
                     <AddableTable
                         title="Infraestructuras"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar una infraestructura"
                         onAddButtonClick={() =>
                             setModal(ServiceModals.Infrastructure)
@@ -74,6 +80,8 @@ const AuthorityForm = ({
 
                     <AddableTable
                         title="Vehiculos"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar un vehiculo"
                         onAddButtonClick={() => setModal(ServiceModals.Vehicle)}
                     ></AddableTable>
@@ -96,13 +104,13 @@ const AuthorityForm = ({
             
         } */}
 
-            {/* {openModal && modalType == ServiceModals.Infrastructure && (
+            {openModal && modalType == ServiceModals.Infrastructure && (
                 <InfrastructureForm
                     serviceId={serviceId}
                     showModal={openModal}
                     onClose={() => setOpenModal(false)}
                 ></InfrastructureForm>
-            )} */}
+            )}
 
             {openModal && modalType == ServiceModals.Vehicle && (
                 <VehicleForm

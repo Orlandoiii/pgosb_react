@@ -130,6 +130,8 @@ const AuthorityForm = ({
                 <div className="space-y-10">
                     <AddableTable
                         title="Unidades"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar una unidad"
                         onAddButtonClick={() => addNewService()}
                     ></AddableTable>

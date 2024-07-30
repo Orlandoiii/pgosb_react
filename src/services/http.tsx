@@ -1,64 +1,70 @@
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosResponse } from 'axios'
 import { LoadConfigFile } from '../ui/core/context/ConfigContext'
 
-export type FromJsonArrayResult<T> = {
-    success: boolean
-    data?: T[]
-    error?: string
-}
-export type ApiArrayResponse<T> = {
-    success: boolean
-    data?: T[]
-    error?: string
-}
-
-export type FromJsonResult<T> = { success: boolean; data?: T; error?: string }
-export type ApiResponse<T> = { success: boolean; data?: T; error?: string }
-
-const isDebug = true
+export type RequestResult<T> = { success: boolean; data?: T; error?: string }
 
 async function getBaseClient(): Promise<AxiosInstance> {
     const config = await LoadConfigFile()
     return axios.create({ baseURL: config.config['back_url'] + '/api/v1/' })
 }
 
-export async function getAll<T>(
+function logTrace(data: string) {
+    if (true) {
+        console.trace(data)
+    }
+}
+
+async function requestInternal(
+    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     endpoint: string,
-    fromJson: (json: any) => FromJsonResult<T>
-): Promise<FromJsonArrayResult<T>> {
+    data?: object
+): Promise<RequestResult<any>> {
+    const serializedData = data ? JSON.stringify(data) : ''
+    const client = await getBaseClient()
+    console.log('client')
+
+
+    console.log(client)
     try {
-        const client = await getBaseClient()
-        const response = await client.get(`${endpoint}/all`)
+        var response: AxiosResponse<any, any>
 
-        if (isDebug)
-            console.trace(
-                `Request GET / endpoint: ${endpoint}/all / response: ${response.status} - ${JSON.stringify(response.data)}`
+        logTrace(
+            `Requesting: ${method} | endpoint: ${endpoint} | data: ${serializedData}`
+        )
+
+        if (endpoint.toUpperCase() === 'GET')
+            response = await client.get(method)
+        else if (endpoint.toUpperCase() === 'POST')
+            response = await client.post(method, data)
+        else if (endpoint.toUpperCase() === 'PUT')
+            response = await client.put(method, data)
+        else if (endpoint.toUpperCase() === 'DELETE')
+            response = await client.delete(method)
+
+        if (response!) {
+            logTrace(
+                `Request result for: ${method} | endpoint: ${endpoint} | data: ${serializedData} => response: ${response.status} - ${response.data}`
             )
 
-        if (response.status === 200 || !Array.isArray(response.data)) {
-            const result: T[] = []
-
-            for (const item in response.data) {
-                const parsed = fromJson(item)
-                if (parsed.success) result.push(parsed.data!)
-                else
-                    return {
-                        success: false,
-                        error: `Status code: ${response.status}, with data: ${response.data}`,
-                    }
+            if (response.status === 200)
+                return { success: true, data: response.data }
+            else {
+                return {
+                    success: false,
+                    error: `${response.status} - ${response.data}`,
+                }
             }
-
-            return { success: true, data: result }
-        } else
-            return {
-                success: false,
-                error: `Status code: ${response.status}, with data: ${response.data}`,
-            }
+        } else {
+            logTrace(
+                `Request result for: ${method} | endpoint: ${endpoint} | data: ${serializedData} => response: ${response!}`
+            )
+            return { success: false, data: 'No response from the request' }
+        }
     } catch (error) {
-        if (isDebug)
-            console.error(
-                `Request GET / endpoint: ${endpoint}/all / with message: ${error.message}`
-            )
+        logTrace(
+            `Exception on the request for: ${method} | endpoint: ${endpoint} | data: ${serializedData} => message: ${error.message}`
+        )
+
         return {
             success: false,
             error: `Exception on the request, with message: ${error.message}`,
@@ -66,74 +72,50 @@ export async function getAll<T>(
     }
 }
 
+export async function getAll<T>(
+    endpoint: string,
+    fromJson: (json: any) => { success: boolean; result?: T; error?: string }
+): Promise<RequestResult<T[]>> {
+    const response = await requestInternal('GET', `${endpoint}/all`)
+
+    if (response.success) {
+        const result: T[] = []
+
+        for (const item in response.data) {
+            const parsed = fromJson(item)
+            if (parsed.success) result.push(parsed.result!)
+            else
+                return {
+                    success: false,
+                    error: `Error in parse: ${parsed.error}`,
+                }
+        }
+        return { success: true, data: result }
+    } else return response
+}
+
 export async function getById<T>(
     endpoint: string,
     id: string,
-    fromJson: (json: any) => FromJsonResult<T>
+    fromJson: (json: any) => { success: boolean; result?: T; error?: string }
 ): Promise<{ success: boolean; data?: T; error?: string }> {
-    try {
-        const client = await getBaseClient()
-        const response = await client.get(`${endpoint}/${id}`)
+    const response = await requestInternal('GET', `${endpoint}/${id}`)
 
-        if (isDebug)
-            console.trace(
-                `Request GET / endpoint: ${endpoint}/${id} / response: ${response.status} - ${JSON.stringify(response.data)}`
-            )
-
-        if (response.status === 200) {
-            const parsed = fromJson(response.data)
-            return parsed
-        } else
-            return {
-                success: false,
-                error: `Status code:${response.status}, with data: ${response.data}`,
-            }
-    } catch (error) {
-        if (isDebug)
-            console.error(
-                `Request GET / endpoint: ${endpoint}/${id}  / with message: ${error.message}`
-            )
-        return {
-            success: false,
-            error: `Exception on the request GET / endpoint: ${endpoint}/all / with message: ${error.message}`,
-        }
-    }
+    if (response.success) {
+        const parsed = fromJson(response.data)
+        return parsed
+    } else return response
 }
 
-export async function insert<T>(
+export async function insert(
     endpoint: string,
     data: any
-): Promise<ApiResponse<T>> {
-    console.log(`esta es mi ${JSON.stringify(data)}`)
-    try {
-        const client = await getBaseClient()
-        const response = await client.post(
-            `${endpoint}/create`,
-            JSON.stringify(data)
-        )
+): Promise<{ success: boolean; error?: string }> {
+    const response = await requestInternal('POST', `${endpoint}/create`, data)
 
-        if (isDebug)
-            console.trace(
-                `Request POST / endpoint: ${endpoint}/create / message: ${JSON.stringify(data)} / response:${response.status} - ${JSON.stringify(response.data)}`
-            )
-
-        if (response.status === 200) {
-            return { success: true, data: response.data }
-        } else
-            return {
-                success: false,
-                error: `Status code:${response.status}, with data: ${response.data}`,
-            }
-    } catch (error) {
-        if (isDebug)
-            console.error(
-                `Request POST / endpoint: ${endpoint}/create / message: ${JSON.stringify(data)}  / with message: ${error.message}`
-            )
-        return {
-            success: false,
-            error: `Exception on the request POST / endpoint: ${endpoint}/all / with message: ${error.message}`,
-        }
-    }
+    if (response.success) {
+        return { success: true }
+    } else return response
 }
 
 export async function update(
@@ -141,97 +123,67 @@ export async function update(
     id: string,
     data: any
 ): Promise<{ success: boolean; error?: string }> {
-    try {
-        const client = await getBaseClient()
-        const response = await client.put(
-            `${endpoint}/update/${id}`,
-            JSON.stringify(data)
-        )
+    const response = await requestInternal(
+        'PUT',
+        `${endpoint}/update/${id}`,
+        data
+    )
 
-        if (isDebug)
-            console.trace(
-                `Request PUT / endpoint: ${endpoint}/update/${id} / message: ${JSON.stringify(data)} / response:${response.status} - ${JSON.stringify(response.data)}`
-            )
-
-        if (response.status === 200) {
-            return { success: true }
-        } else
-            return {
-                success: false,
-                error: `Status code:${response.status}, with data: ${response.data}`,
-            }
-    } catch (error) {
-        if (isDebug)
-            console.error(
-                `Request GET / endpoint: ${endpoint}/update/${id} / message: ${JSON.stringify(data)}  / with message: ${error.message}`
-            )
-        return {
-            success: false,
-            error: `Exception on the request PUT / endpoint: ${endpoint}/all / with message: ${error.message}`,
-        }
-    }
+    if (response.success) {
+        return { success: true }
+    } else return response
 }
 
 export async function remove(
     endpoint: string,
     id: string
 ): Promise<{ success: boolean; error?: string }> {
-    const client = await getBaseClient()
-    const response = await client.put(`${endpoint}/delete/${id}`)
+    const response = await requestInternal('DELETE', `${endpoint}/delete/${id}`)
 
-    if (isDebug)
-        console.trace(
-            `Request DELETE / endpoint:${endpoint}/delete/${id} / response:${response.status} - ${JSON.stringify(response.data)}`
-        )
-
-    if (response.status === 200) {
+    if (response.success) {
         return { success: true }
-    } else
-        return {
-            success: false,
-            error: `Status code:${response.status}, with data: ${response.data}`,
-        }
+    } else return response
 }
 
 export class CreateCRUD<T> {
     constructor(
         endpointCompound: string,
         toJson: (data: T) => any,
-        fromJson: (json: any) => FromJsonResult<any>
+        fromJson: (json: any) => RequestResult<any>
     ) {
         this.endpointCompound = endpointCompound
         this.fromJson = fromJson
         this.toJson = toJson
     }
 
-    private readonly fromJson: (json: any) => FromJsonResult<T>
+    private readonly fromJson: (json: any) => RequestResult<T>
     private readonly toJson: (data: T) => any
     private readonly endpointCompound: string
 
-    async getAll(): Promise<ApiArrayResponse<T>> {
+    async getAll(): Promise<RequestResult<T[]>> {
         return getAll<T>(this.endpointCompound, this.fromJson)
     }
 
-    async getById(id: string): Promise<ApiResponse<T>> {
+    async getById(id: string): Promise<RequestResult<T>> {
         return getById<T>(this.endpointCompound, id, this.fromJson)
     }
 
-    async insert(data: T): Promise<ApiResponse<T>> {
+    async insert(data: T): Promise<RequestResult<T>> {
         const mapped = this.toJson(data)
 
         if (mapped.success) return insert(this.endpointCompound, mapped.result)
-        else return { success: false, error: 'El parseo no fue satisfactorio' }
+        else return { success: false, error: 'El mapeo no fue satisfactorio' }
     }
 
-    async update(id: string, data: T): Promise<ApiResponse<T>> {
+    async update(id: string, data: T): Promise<RequestResult<T>> {
         const mapped = this.toJson(data)
 
         if (mapped.success)
             return update(this.endpointCompound, id, mapped.result)
-        else return { success: false, error: 'El parseo no fue satisfactorio' }
+        else return { success: false, error: 'El mapeo no fue satisfactorio' }
     }
 
-    async remove(id: string): Promise<ApiResponse<T>> {
+    async remove(id: string): Promise<RequestResult<T>> {
         return remove(this.endpointCompound, id)
     }
 }

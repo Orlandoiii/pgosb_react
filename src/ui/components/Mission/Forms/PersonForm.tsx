@@ -102,7 +102,7 @@ const PersonForm = ({
     return (
         <>
             <ModalContainer
-                showX={false}
+                showX={true}
                 downStikyChildren={''}
                 show={showModal}
                 onClose={() => onClose()}
@@ -243,7 +243,6 @@ const PersonForm = ({
                             <Button
                                 colorType="bg-[#3C50E0]"
                                 onClick={() => {}}
-                                onClickRaw={() => {}}
                                 children={'Aceptar'}
                             ></Button>
                         </div>

@@ -95,7 +95,7 @@ const AuthorityForm = ({
     return (
         <>
             <ModalContainer
-                showX={false}
+                showX={true}
                 downStikyChildren={''}
                 show={showModal}
                 onClose={() => onClose()}
@@ -165,7 +165,6 @@ const AuthorityForm = ({
                             <Button
                                 colorType="bg-[#3C50E0]"
                                 onClick={() => {}}
-                                onClickRaw={() => {}}
                                 children={'Aceptar'}
                             ></Button>
                         </div>

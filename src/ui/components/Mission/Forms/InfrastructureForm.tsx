@@ -18,8 +18,6 @@ import { infrastructureService } from '../../../../domain/models/infrastructure/
 import LoadingModal from '../../../core/modal/LoadingModal'
 import NotificationModal from '../../../core/alerts/NotificationModal'
 
-import { getDefaults } from '../../../core/context/CustomFormContext'
-
 const notificationInitialState = {
     open: false,
     message: '',
@@ -53,11 +51,6 @@ interface AuthorityFormProps {
     initValue?: TInfrastructure | null
     onClose: () => void
 }
-const [notificationState, dispatch] = useReducer(
-    notificationReducer,
-    notificationInitialState
-)
-const [loading, setLoading] = useState(false)
 
 const areaCodes = ['0212', '0412', '0414', '0424']
 
@@ -67,6 +60,13 @@ const AuthorityForm = ({
     initValue,
     onClose,
 }: AuthorityFormProps) => {
+    const [notificationState, dispatch] = useReducer(
+        notificationReducer,
+        notificationInitialState
+    )
+
+    const [loading, setLoading] = useState(false)
+
     async function handleSubmitInternal(data: FieldValues) {
         const parsed = InfrastructureSchema.parse(data)
         parsed.serviceId = serviceId
@@ -91,7 +91,7 @@ const AuthorityForm = ({
     return (
         <>
             <ModalContainer
-                showX={false}
+                showX={true}
                 downStikyChildren={''}
                 show={showModal}
                 onClose={() => onClose()}
@@ -185,7 +185,6 @@ const AuthorityForm = ({
                             <Button
                                 colorType="bg-[#3C50E0]"
                                 onClick={() => {}}
-                                onClickRaw={() => {}}
                                 children={'Aceptar'}
                             ></Button>
                         </div>

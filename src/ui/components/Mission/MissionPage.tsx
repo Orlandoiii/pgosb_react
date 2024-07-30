@@ -60,14 +60,18 @@ const MissionPage = () => {
     const [serviceId, setServiceId] = useState(0)
 
     async function addNewMission() {
-
         setLoading(true)
         try {
-            console.log(`AQUI ${JSON.stringify(getDefaults<TMission>(MissionSchema as any) as TMission)}`)
+            console.log(
+                `AQUI ${JSON.stringify(getDefaults<TMission>(MissionSchema as any) as TMission)}`
+            )
             const result = await missionService.insert(
                 getDefaults<TMission>(MissionSchema as any) as TMission
             )
 
+            //remover this!!!!!
+            setOpenAddForm(true)
+            
             if (result.success) {
                 if (result.data?.id) {
                     setMissionId(result.data.id)
