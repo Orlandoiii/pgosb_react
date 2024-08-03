@@ -90,16 +90,16 @@ function getRemainingTokenExpirationTime(token, expiresIn) {
 
 function setCookies(response) {
     Cookies.set(PGOSB_ACCESS_TOKEN_COOKIE, response.data.access_token, {
-        expires: response.data.expires_in, secure: false
+        expires: response.data.expires_in, secure: false, sameSite: 'None'
     })
     Cookies.set(PGOSB_REFRESH_TOKEN_COOKIE, response.data.refresh_token, {
-        expires: response.data.expires_in, secure: false
+        expires: response.data.expires_in, secure: false, sameSite: 'None'
     })
     Cookies.set(PGOSB_SESSION_STATE_COOKIE, response.data.session_state, {
-        expires: response.data.expires_in, secure: false
+        expires: response.data.expires_in, secure: false, sameSite: 'None'
     })
     Cookies.set(PGOSB_EXPIRES_IN_COOKIE, response.data.expires_in, {
-        expires: response.data.expires_in, secure: false
+        expires: response.data.expires_in, secure: false, sameSite: 'None'
     })
 }
 
