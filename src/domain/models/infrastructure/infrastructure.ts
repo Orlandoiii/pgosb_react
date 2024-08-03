@@ -4,14 +4,14 @@ import { mapEntity } from '../../../services/mapper'
 import { CreateCRUD } from '../../../services/http'
 
 export const InfrastructureSchema = z.object({
-    id: z.number(),
-    serviceId: z.number(),
+    id: z.coerce.number(),
+    serviceId: z.coerce.number(),
     buildType: z.string(),
     buildOccupation: z.string(),
     buildArea: z.string(),
     buildAccess: z.string(),
-    levels: z.number(),
-    people: z.number(),
+    levels: z.coerce.number(),
+    people: z.coerce.number(),
     goodsType: z.string(),
     buildRoof: z.string(),
     buildWall: z.string(),

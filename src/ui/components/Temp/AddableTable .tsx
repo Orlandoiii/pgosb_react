@@ -7,6 +7,8 @@ interface AddableTableProps<T> {
     enable?: boolean
     data: T[]
     idPropertyName: string
+    onEditButtonClick?: (id: string) => void
+    onDeleteButtonClick?: (id: string) => void
 }
 
 export function AddableTable<T>({
@@ -16,6 +18,8 @@ export function AddableTable<T>({
     enable = true,
     data = [],
     idPropertyName = '',
+    onEditButtonClick,
+    onDeleteButtonClick,
 }: AddableTableProps<T>) {
     var [internalData, setInternalData] = useState(data)
 
@@ -32,12 +36,12 @@ export function AddableTable<T>({
                 if (typeof valueA === 'string' && typeof valueB === 'string') {
                     return sortAsc
                         ? valueA.localeCompare(valueB)
-                        : valueB.localeCompare(valueA) // String comparison
+                        : valueB.localeCompare(valueA)
                 } else if (
                     typeof valueA === 'number' &&
                     typeof valueB === 'number'
                 ) {
-                    return sortAsc ? valueA - valueB : valueB - valueA // Numeric comparison
+                    return sortAsc ? valueA - valueB : valueB - valueA
                 } else {
                     throw new Error('Unsupported property type for sorting')
                 }
@@ -71,41 +75,44 @@ export function AddableTable<T>({
             <div className="text-xl text-slate-700 font-semibold">{title}</div>
             <table className="w-full select-none">
                 <thead>
-                    <tr className="h-10 border-b border-[#0A2F4E] text-sm text-slate-600">
+                    <tr className="relative h-10 w-full border-b border-[#0A2F4E] text-sm text-slate-600">
                         {anyElement() ? (
-                            Object.entries(internalData[0] as any).map(
-                                (property) => (
-                                    <td
-                                        key={property[0]}
-                                        className={`w-24 px-4 duration-200 hover:bg-slate-200 ${enable ? 'cursor-pointer' : ''}`}
-                                        onClick={
-                                            enable
-                                                ? () =>
-                                                      changeSort(
-                                                          property[0] as keyof T
-                                                      )
-                                                : () => {}
-                                        }
-                                    >
-                                        <div className="flex space-x-4">
-                                            <span>{property[0]}</span>
-                                            {property[0] == sort && (
-                                                <div
-                                                    className={`h-5 aspect-square ${sortAsc ? '-rotate-180' : ''} duration-200`}
-                                                >
-                                                    <svg
-                                                        xmlns="http://www.w3.org/2000/svg"
-                                                        viewBox="0 -960 960 960"
-                                                        fill="#e8eaed"
+                            <>
+                                {Object.entries(internalData[0] as any).map(
+                                    (property) => (
+                                        <td
+                                            key={property[0]}
+                                            className={`  px-4 duration-200 hover:bg-slate-200 ${enable ? 'cursor-pointer' : ''}`}
+                                            onClick={
+                                                enable
+                                                    ? () =>
+                                                          changeSort(
+                                                              property[0] as keyof T
+                                                          )
+                                                    : () => {}
+                                            }
+                                        >
+                                            <div className="flex space-x-4">
+                                                <span>{property[0]}</span>
+                                                {property[0] == sort && (
+                                                    <div
+                                                        className={`h-5 aspect-square ${sortAsc ? '-rotate-180' : ''} duration-200`}
                                                     >
-                                                        <path d="M480-80 200-360l56-56 184 183v-647h80v647l184-184 56 57L480-80Z" />
-                                                    </svg>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </td>
-                                )
-                            )
+                                                        <svg
+                                                            xmlns="http://www.w3.org/2000/svg"
+                                                            viewBox="0 -960 960 960"
+                                                            fill="#e8eaed"
+                                                        >
+                                                            <path d="M480-80 200-360l56-56 184 183v-647h80v647l184-184 56 57L480-80Z" />
+                                                        </svg>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </td>
+                                    )
+                                )}
+                                <td className="absolute top-0 left-0  pointer-events-non"></td>
+                            </>
                         ) : (
                             <td></td>
                         )}
@@ -116,7 +123,11 @@ export function AddableTable<T>({
                         internalData.map((element) => (
                             <tr
                                 key={element[idPropertyName]}
-                                className={`group/row relative h-10 ${enable ? 'cursor-pointer' : ''} text-sm text-slate-700 duration-200 hover:bg-slate-300`}
+                                onClick={() =>
+                                    onEditButtonClick &&
+                                    onEditButtonClick(element[idPropertyName])
+                                }
+                                className={`group/row relative h-10 w-full ${enable ? 'cursor-pointer' : ''} text-sm text-slate-700 duration-200 hover:bg-slate-300`}
                             >
                                 {Object.entries(element as any).map(
                                     (property) => (
@@ -128,6 +139,22 @@ export function AddableTable<T>({
                                         </td>
                                     )
                                 )}
+                                <td className="absolute z-10 top-0 left-0 flex h-full w-full select-none justify-end pointer-events-none">
+                                    <div className="sticky flex right-0 h-full w-fit space-x-1 items-center px-8 opacity-0 duration-200 group-hover/row:opacity-100">
+                                        <button
+                                            onClick={(e) => {
+                                                onDeleteButtonClick &&
+                                                    onDeleteButtonClick(
+                                                        element[idPropertyName]
+                                                    )
+                                                e.stopPropagation()
+                                            }}
+                                            className="pointer-events-auto h-7 aspect-square flex items-center text-lg justify-center bg-slate-400 border-2 border-white rounded-md text-white hover:bg-rose-500 duration-200"
+                                        >
+                                            X
+                                        </button>
+                                    </div>
+                                </td>
                             </tr>
                         ))}
                     <tr
@@ -146,6 +173,7 @@ export function AddableTable<T>({
                                 </span>
                             </button>
                         </td>
+                        <td className="w-0"></td>
                         {arrayOfLength(propertiesCount() - 1).map(
                             (property, index) => (
                                 <td key={index}></td>

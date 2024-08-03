@@ -137,23 +137,6 @@ const AuthorityForm = ({
                     ></AddableTable>
                 </div>
             </ModalContainer>
-
-            {openModal && (
-                <ServiceForm
-                    serviceId={serviceId}
-                    showModal={true}
-                    onClose={() => setOpenModal(false)}
-                ></ServiceForm>
-            )}
-
-            {/* <LoadingModal initOpen={loading} children={null} />
-            <NotificationModal
-                show={notificationState.open}
-                children={null}
-                // initType={notificationState.type as any}
-                // title={notificationState.title}
-                initMessage={notificationState.message}
-            /> */}
         </>
     )
 }

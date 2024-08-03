@@ -1,12 +1,11 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useReducer, useState } from 'react'
+import React, { useState } from 'react'
 
 import {
     TInfrastructure,
     InfrastructureSchema,
 } from '../../../../domain/models/infrastructure/infrastructure'
 import FormTitle from '../../../core/titles/FormTitle'
-import ModalContainer from '../../../core/modal/ModalContainer'
 import Button from '../../../core/buttons/Button'
 
 import CustomForm from '../../../core/context/CustomFormContext.tsx'
@@ -14,92 +13,71 @@ import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
 import { infrastructureService } from '../../../../domain/models/infrastructure/infrastructure'
+import ModalLayout from '../../../core/layouts/modal_layout.tsx'
+import LoadingModal from '../../../core/modal/LoadingModal.tsx'
+import { modalService } from '../../../core/overlay/overlay_service.tsx'
 
-import LoadingModal from '../../../core/modal/LoadingModal'
-import NotificationModal from '../../../core/alerts/NotificationModal'
-
-const notificationInitialState = {
-    open: false,
-    message: '',
-    type: 'info',
-    title: '',
-}
-
-function notificationReducer(state, action) {
-    switch (action.type) {
-        case 'notification/open':
-            return {
-                ...state,
-                open: true,
-                title: action.payload.title,
-                message: action.payload.message,
-                type: action.payload.type,
-            }
-        case 'notification/close':
-            return {
-                ...state,
-                open: false,
-            }
-    }
-
-    return state
-}
-
-interface AuthorityFormProps {
+interface InfrastructureFormProps {
     serviceId: number
-    showModal: boolean
     initValue?: TInfrastructure | null
-    onClose: () => void
+    onClose?: (success: boolean) => void
+    closeOverlay?: () => void
 }
 
 const areaCodes = ['0212', '0412', '0414', '0424']
 
-const AuthorityForm = ({
+const InfrastructureForm = ({
     serviceId,
-    showModal,
     initValue,
     onClose,
-}: AuthorityFormProps) => {
-    const [notificationState, dispatch] = useReducer(
-        notificationReducer,
-        notificationInitialState
-    )
-
+    closeOverlay,
+}: InfrastructureFormProps) => {
     const [loading, setLoading] = useState(false)
+    const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
-        const parsed = InfrastructureSchema.parse(data)
-        parsed.serviceId = serviceId
+        setLoading(true)
 
-        const result = await infrastructureService.insert(parsed)
+        try {
+            const parsed = InfrastructureSchema.parse(data)
+            const result = await infrastructureService.insert(parsed)
 
-        if (result.success) onClose()
-        else {
-            dispatch({
-                type: 'notification/open',
-                payload: {
-                    type: 'error',
-                    title: 'Oohh Error!!!',
-                    message:
-                        'Lo sentimos tenemos problemas para agregar el vehiculo',
-                },
-            })
-            console.error(result.error)
+            if (result.success) {
+                modalService.pushAlert(
+                    'Complete',
+                    `Infraestructura ${buttonText.replace('ar', 'ada')}`
+                )
+                if (onClose) onClose(true)
+            } else {
+                modalService.pushAlert(
+                    'Error',
+                    `No se pudo guardar la infrastructura por: ${result.data}`
+                )
+            }
+        } catch (error) {
+            modalService.pushAlert(
+                'Error',
+                `Error inesperado por: ${error.message}`
+            )
+        } finally {
+            setLoading(false)
         }
+    }
+
+    function handleClose() {
+        if (closeOverlay) closeOverlay()
+        if (onClose) onClose(false)
     }
 
     return (
         <>
-            <ModalContainer
-                showX={true}
-                downStikyChildren={''}
-                show={showModal}
-                onClose={() => onClose()}
-                title="Registro de Autoridade u Organismo Presente"
+            <ModalLayout
+                title={'Registro de Infrastructura'}
+                onClose={handleClose}
             >
                 <CustomForm
                     schema={InfrastructureSchema}
-                    initValue={initValue}
+                    initValue={{ ...initValue, serviceId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos del Vehiculo" />
@@ -190,18 +168,11 @@ const AuthorityForm = ({
                         </div>
                     </div>
                 </CustomForm>
-            </ModalContainer>
+            </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />
-            <NotificationModal
-                show={notificationState.open}
-                children={null}
-                // initType={notificationState.type as any}
-                // title={notificationState.title}
-                initMessage={notificationState.message}
-            />
         </>
     )
 }
 
-export default AuthorityForm
+export default InfrastructureForm

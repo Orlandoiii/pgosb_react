@@ -4,17 +4,17 @@ import { mapEntity } from '../../../services/mapper'
 import { CreateCRUD } from '../../../services/http'
 
 export const PersonInvolvedSchema = z.object({
-    id: z.number(),
-    unitId: z.number(),
-    serviceId: z.number(),
-    vehicleId: z.number(),
-    infrastructureId: z.number(),
+    id: z.coerce.number(),
+    unitId: z.coerce.number(),
+    serviceId: z.coerce.number(),
+    vehicleId: z.coerce.number(),
+    infrastructureId: z.coerce.number(),
     condition: z.string(),
     observations: z.string(),
 
     firstName: z.string(),
     lastName: z.string(),
-    age: z.number().positive(),
+    age: z.coerce.number().positive(),
     gender: z.string(),
 
     idDocumentType: z.string(),

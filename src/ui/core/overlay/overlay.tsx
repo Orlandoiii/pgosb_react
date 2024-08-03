@@ -41,12 +41,12 @@ function Overlay({
                         transition={{ duration: 0.12 }}
                         onClick={clickOutside}
                         aria-modal="true"
-                        className={`absolute top-0 left-0 h-full w-full ${background}`}
+                        className={`z-10 absolute top-0 left-0 h-full w-full ${background}`}
                     >
                         {type === 'Modal' && animation === 'Bounce' && (
                             <motion.div
                                 initial={{ scale: 0.7 }}
-                                animate={{ scale: [1, 1.2, 0.9, 1] }}
+                                animate={{ scale: [0.9, 1.05, 0.98, 1] }}
                                 transition={{
                                     duration: 0.2,
                                     ease: 'easeInOut',
