@@ -1,9 +1,13 @@
 import { useEffect, useState } from "react";
 
-export function useValueOrAsyncFunc<T>(valueOrAsyncFunc: T | (() => Promise<T>)): T {
+export function useValueOrAsyncFunc<T>(valueOrAsyncFunc: T | (() => Promise<T>)): { value: T; isLoading: boolean } {
   var [value, setValue] = useState<T>();
+  var [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    setValue(undefined);
+    setLoading(true);
+
     const handleAsync = async () => {
       if (typeof valueOrAsyncFunc === "function") {
         try {
@@ -15,10 +19,11 @@ export function useValueOrAsyncFunc<T>(valueOrAsyncFunc: T | (() => Promise<T>))
       } else {
         setValue(valueOrAsyncFunc);
       }
+      setLoading(false);
     };
 
     handleAsync();
-  }, [valueOrAsyncFunc]);
+  }, []);
 
-  return value!;
+  return { value: value!, isLoading: loading };
 }

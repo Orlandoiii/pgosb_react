@@ -8,53 +8,54 @@ import {
     UseFormRegister,
     UseFormSetValue,
     DefaultValues,
-    useForm
+    useForm,
 } from 'react-hook-form'
-import React, { createContext, useContext, useState, PropsWithChildren } from 'react'
+import React, {
+    createContext,
+    useContext,
+    useState,
+    PropsWithChildren,
+} from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import logger from '../../../logic/Logger/logger';
+import logger from '../../../logic/Logger/logger'
 
-
-
-
-export function getFieldError<T extends FieldValues, TFieldName extends FieldPath<T> = FieldPath<T>>(
-    errors: FieldErrors<T>,
-    fieldpath: TFieldName
-): FieldError | undefined {
-    var keys = (fieldpath as string).split(".");
-    var keyscount = keys.length;
-    var error: FieldError | undefined;
+export function getFieldError<
+    T extends FieldValues,
+    TFieldName extends FieldPath<T> = FieldPath<T>,
+>(errors: FieldErrors<T>, fieldpath: TFieldName): FieldError | undefined {
+    var keys = (fieldpath as string).split('.')
+    var keyscount = keys.length
+    var error: FieldError | undefined
 
     keys.forEach((key, index) => {
-        if (errors == undefined) return undefined;
+        if (errors == undefined) return undefined
 
-        if (index == keyscount - 1) error = errors[key] as FieldError | undefined;
-        else errors = errors[key] as FieldErrors<T>;
-    });
+        if (index == keyscount - 1)
+            error = errors[key] as FieldError | undefined
+        else errors = errors[key] as FieldErrors<T>
+    })
 
-    return error;
+    return error
 }
 
-export function getFieldValue<T extends FieldValues, TFieldName extends FieldPath<T> = FieldPath<T>>(
-    values: Readonly<DeepPartial<T>> | undefined,
-    fieldpath: TFieldName
-): any {
-    var keys = (fieldpath as string).split(".");
-    var keyscount = keys.length;
-    var value: any;
+export function getFieldValue<
+    T extends FieldValues,
+    TFieldName extends FieldPath<T> = FieldPath<T>,
+>(values: Readonly<DeepPartial<T>> | undefined, fieldpath: TFieldName): any {
+    var keys = (fieldpath as string).split('.')
+    var keyscount = keys.length
+    var value: any
 
     keys.forEach((key, index) => {
-        if (values == undefined) return undefined;
+        if (values == undefined) return undefined
 
-        if (index == keyscount - 1) value = values[key];
-        else values = values[key];
-    });
+        if (index == keyscount - 1) value = values[key]
+        else values = values[key]
+    })
 
-    return value;
+    return value
 }
-
-
 
 interface FormContextProps<T extends FieldValues> {
     register: UseFormRegister<T>
@@ -67,21 +68,18 @@ interface FormContextProps<T extends FieldValues> {
     errors: FieldErrors<T>
 }
 
-export const CustomFormContext = createContext<FormContextProps<any> | undefined>(
-    undefined
-)
-
+export const CustomFormContext = createContext<
+    FormContextProps<any> | undefined
+>(undefined)
 
 interface CustomFormProps<T extends FieldValues> {
     schema: z.ZodSchema<T>
     initValue?: T | null
-    onSubmit: (data: z.infer<z.ZodSchema<T>>) => void,
-    classStyle?: string | undefined;
+    onSubmit: (data: z.infer<z.ZodSchema<T>>) => void
+    classStyle?: string | undefined
 }
 
-export function getDefaults<T extends FieldValues>(
-    schema: z.ZodType<T, z.ZodTypeDef, T>
-): DefaultValues<T> {
+export function getDefaults<T extends FieldValues>(schema: z.ZodType<any>): T {
     if (schema instanceof z.ZodObject) {
         const entries = Object.entries(schema.shape).map(([key, value]) => {
             if (value instanceof z.ZodDefault) {
@@ -91,9 +89,9 @@ export function getDefaults<T extends FieldValues>(
             } else return [key, undefined]
         })
 
-        return Object.fromEntries(entries) as DefaultValues<T>
+        return Object.fromEntries(entries) as T
     }
-    return {} as DefaultValues<T>
+    return {} as T
 }
 
 export default function CustomForm<T extends FieldValues>({
@@ -101,7 +99,7 @@ export default function CustomForm<T extends FieldValues>({
     initValue = null,
     onSubmit,
     children,
-    classStyle
+    classStyle,
 }: PropsWithChildren<CustomFormProps<T>>) {
     const [resetCount, setResetCount] = useState(0)
 
@@ -112,7 +110,7 @@ export default function CustomForm<T extends FieldValues>({
     })
 
     function formReset() {
-        methods.reset(getDefaults(schema))
+        methods.reset(getDefaults<T>(schema))
         setResetCount(resetCount + 1)
     }
 
@@ -126,27 +124,24 @@ export default function CustomForm<T extends FieldValues>({
                 resetCount: resetCount,
                 defaultValues: methods.formState.defaultValues,
                 isSubmitted: methods.formState.isSubmitted,
-                errors: methods.formState.errors
+                errors: methods.formState.errors,
             }}
         >
-            <form noValidate className={classStyle}
-                onSubmit={
-                    methods.handleSubmit((data) => {
-                        logger.log("On Submit de la forma")
-                        onSubmit(schema.parse(data))
-                    })}
+            <form
+                noValidate
+                className={classStyle}
+                onSubmit={methods.handleSubmit((data) => {
+                    logger.log('On Submit de la forma')
+                    onSubmit(schema.parse(data))
+                })}
             >
                 {children}
-
             </form>
         </CustomFormContext.Provider>
     )
 }
 
-
 export function useCustomFormContext<T extends FieldValues>() {
     const context = useContext(CustomFormContext)
     return context as FormContextProps<T>
 }
-
-

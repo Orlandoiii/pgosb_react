@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { ReactElement, useState } from 'react'
 
 import ModalContainer from '../../../core/modal/ModalContainer'
 import { AddableTable } from '../../Temp/AddableTable '
@@ -10,122 +10,148 @@ import InfrastructureForm from './InfrastructureForm'
 import { infrastructureService } from '../../../../domain/models/infrastructure/infrastructure'
 import { personService } from '../../../../domain/models/person/person_involved'
 import { vehicleService } from '../../../../domain/models/vehicle/vehicle_involved'
+import { modalService } from '../../../core/overlay/overlay_service'
+import { CreateElementFunction } from '../../../core/overlay/models/overlay_item'
+import ModalLayout from '../../../core/layouts/modal_layout'
+import { CreateCRUD, RequestResult } from '../../../../services/http'
+
+function validateResponse(response: RequestResult<any>, target: string) {
+    if (response.success)
+        modalService.pushAlert('Complete', `${target} eliminada!`)
+    else
+        modalService.pushAlert(
+            'Error',
+            `No se pudo eliminar la ${target.toLowerCase()} por: `
+        )
+}
 
 interface AuthorityFormProps {
     serviceId: number
-    showModal: boolean
-    onClose: () => void
+    closeOverlay?: () => void
 }
 
-enum ServiceModals {
-    None,
-    Unit,
-    Firefighter,
-    Infrastructure,
-    Vehicle,
-    Person,
-    Authority,
-}
+const AuthorityForm = ({ serviceId, closeOverlay }: AuthorityFormProps) => {
+    function openModal<P>(element: CreateElementFunction<P>, props: P) {
+        modalService.pushModal(element, { ...props, closeOverlay: undefined })
+    }
 
-const AuthorityForm = ({
-    serviceId,
-    showModal,
-    onClose,
-}: AuthorityFormProps) => {
-    var [modalType, setModalType] = useState(ServiceModals.None)
-    var [openModal, setOpenModal] = useState(false)
+    async function deleteHandle(
+        service: CreateCRUD<any>,
+        id: string,
+        target: string
+    ) {
+        validateResponse(await service.remove(id), target)
+    }
 
-    function setModal(type: ServiceModals) {
-        setOpenModal(true)
-        setModalType(type)
+    async function editHandle(
+        service: CreateCRUD<any>,
+        id: string,
+        openMoal: (any) => void
+    ) {
+        const result = await service.getById(id)
+        if (result.success) {
+        } else
+            modalService.pushAlert('Error', `No se pudo encontrar el registro`)
     }
 
     return (
         <>
-            <ModalContainer
-                showX={false}
-                downStikyChildren={''}
-                show={showModal}
-                onClose={() => onClose()}
-                title="Registro de Datos del Servicio"
+            <ModalLayout
+                className=" max-h-[80vh] w-[80rem]"
+                title={'Registro de Datos del Servicio'}
+                onClose={closeOverlay}
             >
                 <div className="space-y-10">
                     <AddableTable
                         title="Unidades"
+                        data={[
+                            {
+                                id: 123,
+                                name: 'David',
+                                job: 'Desarrollador',
+                                edad: 28,
+                            },
+                        ]}
+                        idPropertyName="id"
                         addButtonText="Agregar una unidad"
-                        onAddButtonClick={() => setModal(ServiceModals.Unit)}
+                        onAddButtonClick={() =>
+                            openModal(InfrastructureForm, {
+                                serviceId: serviceId,
+                            })
+                        }
                     ></AddableTable>
 
                     <AddableTable
                         title="Bomberos"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar un bombero"
                         onAddButtonClick={() =>
-                            setModal(ServiceModals.Firefighter)
+                            openModal(InfrastructureForm, {
+                                serviceId: serviceId,
+                            })
                         }
                     ></AddableTable>
 
                     <AddableTable
                         title="Infraestructuras"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar una infraestructura"
                         onAddButtonClick={() =>
-                            setModal(ServiceModals.Infrastructure)
+                            openModal(InfrastructureForm, {
+                                serviceId: serviceId,
+                            })
                         }
+                        onEditButtonClick={(id) => {
+                            editHandle(
+                                infrastructureService,
+                                id,
+                                InfrastructureForm
+                            )
+                        }}
+                        onDeleteButtonClick={(id) => {
+                            deleteHandle(
+                                infrastructureService,
+                                id,
+                                'Infraestructura'
+                            )
+                        }}
                     ></AddableTable>
 
                     <AddableTable
                         title="Vehiculos"
+                        data={[]}
+                        idPropertyName="id"
                         addButtonText="Agregar un vehiculo"
-                        onAddButtonClick={() => setModal(ServiceModals.Vehicle)}
+                        onAddButtonClick={() =>
+                            openModal(VehicleForm, { serviceId: serviceId })
+                        }
+                        onEditButtonClick={(id) => {
+                            editHandle(vehicleService, id, VehicleForm)
+                        }}
+                        onDeleteButtonClick={(id) => {
+                            deleteHandle(vehicleService, id, 'Vehiculo')
+                        }}
                     ></AddableTable>
 
-                    {/* <AddableTable
-                        title="Autoridades"
-                        addButtonText="Agregar una autoridad"
+                    <AddableTable
+                        title="Personas"
+                        data={[]}
+                        idPropertyName="id"
+                        addButtonText="Agregar una persona"
                         onAddButtonClick={() =>
-                            setModal(ServiceModals.Authority)
+                            openModal(PersonForm, { serviceId: serviceId })
                         }
-                    ></AddableTable> */}
+                        onEditButtonClick={(id) => {
+                            editHandle(personService, id, PersonForm)
+                        }}
+                        onDeleteButtonClick={(id) => {
+                            deleteHandle(personService, id, 'Persona')
+                        }}
+                    ></AddableTable>
                 </div>
-            </ModalContainer>
-
-            {/* {openModal && modalType == ServiceModals.Unit &&
-            
-        }
-
-{openModal && modalType == ServiceModals.Firefighter &&
-            
-        } */}
-
-            {/* {openModal && modalType == ServiceModals.Infrastructure && (
-                <InfrastructureForm
-                    serviceId={serviceId}
-                    showModal={openModal}
-                    onClose={() => setOpenModal(false)}
-                ></InfrastructureForm>
-            )} */}
-
-            {openModal && modalType == ServiceModals.Vehicle && (
-                <VehicleForm
-                    serviceId={serviceId}
-                    showModal={openModal}
-                    onClose={() => setOpenModal(false)}
-                ></VehicleForm>
-            )}
-
-            {openModal && modalType == ServiceModals.Person && (
-                <PersonForm
-                    serviceId={serviceId}
-                    showModal={openModal}
-                    onClose={() => setOpenModal(false)}
-                ></PersonForm>
-            )}
-
-            {/* {openModal && modalType == ServiceModals.Authority && (
-                <AuthorityForm
-                    showModal={openModal}
-                    onClose={() => setOpenModal(false)}
-                ></AuthorityForm>
-            )} */}
+            </ModalLayout>
         </>
     )
 }

@@ -1,8 +1,7 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useReducer, useState } from 'react'
+import React, { useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
-import ModalContainer from '../../../core/modal/ModalContainer'
 import Button from '../../../core/buttons/Button'
 
 import {
@@ -19,91 +18,66 @@ import FormSelect from '../../../core/inputs/FormSelect.tsx'
 import { vehicleService } from '../../../../domain/models/vehicle/vehicle_involved'
 
 import LoadingModal from '../../../core/modal/LoadingModal'
-import NotificationModal from '../../../core/alerts/NotificationModal'
+import ModalLayout from '../../../core/layouts/modal_layout.tsx'
+import { modalService } from '../../../core/overlay/overlay_service.tsx'
 
-import { getDefaults } from '../../../core/context/CustomFormContext'
-
-const notificationInitialState = {
-    open: false,
-    message: '',
-    type: 'info',
-    title: '',
-}
-
-function notificationReducer(state, action) {
-    switch (action.type) {
-        case 'notification/open':
-            return {
-                ...state,
-                open: true,
-                title: action.payload.title,
-                message: action.payload.message,
-                type: action.payload.type,
-            }
-        case 'notification/close':
-            return {
-                ...state,
-                open: false,
-            }
-    }
-
-    return state
-}
-
-interface AuthorityFormProps {
+interface VehicleFormProps {
     serviceId: number
-    showModal: boolean
     initValue?: TVehicleInvolved | null
-    onClose: () => void
+    onClose?: (success: boolean) => void
+    closeOverlay?: () => void
 }
 
-const AuthorityForm = ({
+const VehicleForm = ({
     serviceId,
-    showModal,
     initValue,
     onClose,
-}: AuthorityFormProps) => {
-    const [notificationState, dispatch] = useReducer(
-        notificationReducer,
-        notificationInitialState
-    )
+    closeOverlay,
+}: VehicleFormProps) => {
     const [loading, setLoading] = useState(false)
-
     const areaCodes = EnumToStringArray(AreaCodes)
+    const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
-        const parsed = VehicleInvolvedSchema.parse(data)
-        parsed.serviceId = serviceId
+        setLoading(true)
 
-        const result = await vehicleService.insert(parsed)
+        try {
+            const parsed = VehicleInvolvedSchema.parse(data)
+            const result = await vehicleService.insert(parsed)
 
-        if (result.success) onClose()
-        else {
-            dispatch({
-                type: 'notification/open',
-                payload: {
-                    type: 'error',
-                    title: 'Oohh Error!!!',
-                    message:
-                        'Lo sentimos tenemos problemas para agregar el vehiculo',
-                },
-            })
-            console.error(result.error)
+            if (result.success) {
+                modalService.pushAlert(
+                    'Complete',
+                    `Vehiculo ${buttonText.replace('ar', 'ado')}`
+                )
+                if (onClose) onClose(true)
+            } else {
+                modalService.pushAlert(
+                    'Error',
+                    `No se pudo guardar el vehiculo por: ${result.data}`
+                )
+            }
+        } catch (error) {
+            modalService.pushAlert(
+                'Error',
+                `Error inesperado por: ${error.message}`
+            )
+        } finally {
+            setLoading(false)
         }
+    }
+
+    function handleClose() {
+        if (closeOverlay) closeOverlay()
+        if (onClose) onClose(false)
     }
 
     return (
         <>
-            <ModalContainer
-                showX={false}
-                downStikyChildren={''}
-                show={showModal}
-                onClose={() => onClose()}
-                title="Registro de Autoridade u Organismo Presente"
-            >
+            <ModalLayout title={'Registro de Vehiculo'} onClose={handleClose}>
                 <CustomForm
                     schema={VehicleInvolvedSchema}
-                    initValue={initValue}
+                    initValue={{ ...initValue, serviceId: serviceId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos del Vehiculo" />
@@ -165,24 +139,16 @@ const AuthorityForm = ({
                             <Button
                                 colorType="bg-[#3C50E0]"
                                 onClick={() => {}}
-                                onClickRaw={() => {}}
-                                children={'Aceptar'}
+                                children={buttonText}
                             ></Button>
                         </div>
                     </div>
                 </CustomForm>
-            </ModalContainer>
+            </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />
-            <NotificationModal
-                show={notificationState.open}
-                children={null}
-                // initType={notificationState.type as any}
-                // title={notificationState.title}
-                initMessage={notificationState.message}
-            />
         </>
     )
 }
 
-export default AuthorityForm
+export default VehicleForm

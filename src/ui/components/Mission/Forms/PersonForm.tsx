@@ -1,8 +1,7 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useReducer, useState } from 'react'
+import React, { useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
-import ModalContainer from '../../../core/modal/ModalContainer'
 import { Genders } from '../../../../domain/abstractions/enums/genders'
 import Button from '../../../core/buttons/Button'
 
@@ -17,100 +16,71 @@ import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes'
 import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
-import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
-import FormToggle from '../../../core/inputs/FormToggle.tsx'
 
 import { personService } from '../../../../domain/models/person/person_involved'
 
 import LoadingModal from '../../../core/modal/LoadingModal'
-import NotificationModal from '../../../core/alerts/NotificationModal'
 
-import { getDefaults } from '../../../core/context/CustomFormContext'
-
-const notificationInitialState = {
-    open: false,
-    message: '',
-    type: 'info',
-    title: '',
-}
-
-function notificationReducer(state, action) {
-    switch (action.type) {
-        case 'notification/open':
-            return {
-                ...state,
-                open: true,
-                title: action.payload.title,
-                message: action.payload.message,
-                type: action.payload.type,
-            }
-        case 'notification/close':
-            return {
-                ...state,
-                open: false,
-            }
-    }
-
-    return state
-}
+import { modalService } from '../../../core/overlay/overlay_service.tsx'
+import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 
 interface PersonFormProps {
     serviceId: number
-    showModal: boolean
     initValue?: TPersonInvolved | null
-    onClose: () => void
+    onClose?: (success: boolean) => void
+    closeOverlay?: () => void
 }
 
 const PersonForm = ({
     serviceId,
-    showModal,
     initValue,
     onClose,
+    closeOverlay,
 }: PersonFormProps) => {
-    const [notificationState, dispatch] = useReducer(
-        notificationReducer,
-        notificationInitialState
-    )
     const [loading, setLoading] = useState(false)
-
-    const documentTypes = EnumToStringArray(DocumentTypes)
     const areaCodes = EnumToStringArray(AreaCodes)
-    const genders = EnumToStringArray(Genders)
-    const units = []
+    const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
-        const parsed = PersonInvolvedSchema.parse(data)
-        parsed.serviceId = serviceId
+        setLoading(true)
 
-        const result = await personService.insert(parsed)
+        try {
+            const parsed = PersonInvolvedSchema.parse(data)
+            const result = await personService.insert(parsed)
 
-        if (result.success) onClose()
-        else {
-            dispatch({
-                type: 'notification/open',
-                payload: {
-                    type: 'error',
-                    title: 'Oohh Error!!!',
-                    message:
-                        'Lo sentimos tenemos problemas para agregar a la persona',
-                },
-            })
-            console.error(result.error)
+            if (result.success) {
+                modalService.pushAlert(
+                    'Complete',
+                    `Persona ${buttonText.replace('ar', 'ada')}`
+                )
+                if (onClose) onClose(true)
+            } else {
+                modalService.pushAlert(
+                    'Error',
+                    `No se pudo guardar la Persona por: ${result.data}`
+                )
+            }
+        } catch (error) {
+            modalService.pushAlert(
+                'Error',
+                `Error inesperado por: ${error.message}`
+            )
+        } finally {
+            setLoading(false)
         }
+    }
+
+    function handleClose() {
+        if (closeOverlay) closeOverlay()
+        if (onClose) onClose(false)
     }
 
     return (
         <>
-            <ModalContainer
-                showX={false}
-                downStikyChildren={''}
-                show={showModal}
-                onClose={() => onClose()}
-                title="Registro de Persona Involucrada"
-            >
+            <ModalLayout title={'Registro de Persona'} onClose={handleClose}>
                 <CustomForm
                     schema={PersonInvolvedSchema}
-                    initValue={initValue}
+                    initValue={{ ...initValue, serviceId: serviceId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <div className="md:flex md:md:items-start md:space-x-2">
@@ -243,22 +213,14 @@ const PersonForm = ({
                             <Button
                                 colorType="bg-[#3C50E0]"
                                 onClick={() => {}}
-                                onClickRaw={() => {}}
-                                children={'Aceptar'}
+                                children={buttonText}
                             ></Button>
                         </div>
                     </div>
                 </CustomForm>
-            </ModalContainer>
+            </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />
-            <NotificationModal
-                show={notificationState.open}
-                children={null}
-                // initType={notificationState.type as any}
-                // title={notificationState.title}
-                initMessage={notificationState.message}
-            />
         </>
     )
 }

@@ -4,13 +4,13 @@ import { mapEntity } from '../../../services/mapper'
 import { CreateCRUD } from '../../../services/http'
 
 export const VehicleInvolvedSchema = z.object({
-    id: z.number().default(0),
-    serviceId: z.number().default(0),
+    id: z.coerce.number().default(0),
+    serviceId: z.coerce.number().default(0),
     brand: z.string().default(''),
     model: z.string().default(''),
     color: z.string().default(''),
     licensePlate: z.string().default(''),
-    year: z.date().default(new Date()),
+    year: z.coerce.date().default(new Date()),
     condition: z.string().default(''),
     motorSerial: z.string().default(''),
     type: z.string().default(''),
