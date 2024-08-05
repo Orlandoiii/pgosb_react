@@ -1,144 +1,89 @@
-import React, { useReducer, useState } from 'react'
+import React, { useState } from 'react'
 
-import ModalContainer from '../../../core/modal/ModalContainer'
 import { AddableTable } from '../../Temp/AddableTable '
 
-import {
-    ServiceSchema,
-    serviceService,
-    TService,
-} from '../../../../domain/models/service/service'
+import { serviceService } from '../../../../domain/models/service/service'
 import ServiceForm from './ServiceForm'
 
+import { modalService } from '../../../core/overlay/overlay_service'
+import ModalLayout from '../../../core/layouts/modal_layout'
+import { CreateCRUD, getAll, RequestResult } from '../../../../services/http'
 import LoadingModal from '../../../core/modal/LoadingModal'
-import NotificationModal from '../../../core/alerts/NotificationModal'
 
-import { getDefaults } from '../../../core/context/CustomFormContext'
-
-const notificationInitialState = {
-    open: false,
-    message: '',
-    type: 'info',
-    title: '',
+function validateResponse(response: RequestResult<any>, target: string) {
+    if (response.success)
+        modalService.pushAlert('Complete', `${target} eliminada!`)
+    else
+        modalService.pushAlert(
+            'Error',
+            `No se pudo eliminar la ${target.toLowerCase()} por: `
+        )
 }
 
-function notificationReducer(state, action) {
-    switch (action.type) {
-        case 'notification/open':
-            return {
-                ...state,
-                open: true,
-                title: action.payload.title,
-                message: action.payload.message,
-                type: action.payload.type,
-            }
-        case 'notification/close':
-            return {
-                ...state,
-                open: false,
-            }
-    }
-
-    return state
+interface MissionFormProps {
+    missionId: string
+    onClose?: () => void
+    closeOverlay?: () => void
 }
 
-interface AuthorityFormProps {
-    missionId: number
-    showModal: boolean
-    onClose: () => void
-}
-
-const AuthorityForm = ({
+const MissionForm = ({
     missionId,
-    showModal,
     onClose,
-}: AuthorityFormProps) => {
-    const [notificationState, dispatch] = useReducer(
-        notificationReducer,
-        notificationInitialState
-    )
-    const [openModal, setOpenModal] = useState(false)
+    closeOverlay,
+}: MissionFormProps) => {
     const [loading, setLoading] = useState(false)
-    const [serviceId, setServiceId] = useState(0)
 
     async function addNewService() {
-        setLoading(true)
-        try {
-            const defaultValue = getDefaults<TService>(
-                ServiceSchema as any
-            ) as TService
-            defaultValue.missionId = missionId
+        modalService.pushModal(ServiceForm, {
+            missionId: missionId,
+            antaresCollection: [],
+            closeOverlay: undefined,
+        })
+    }
 
-            console.log(`request servicio: ${JSON.stringify(defaultValue)}`)
-            const result = await serviceService.insert(defaultValue)
+    async function deleteHandle(
+        service: CreateCRUD<any>,
+        id: string,
+        target: string
+    ) {
+        validateResponse(await service.remove(id), target)
+    }
 
-            console.error(`response service: ${result}`)
-
-            if (result.success) {
-                if (result.data?.id) {
-                    setServiceId(result.data?.id)
-                    setOpenModal(true)
-                } else {
-                    dispatch({
-                        type: 'notification/open',
-                        payload: {
-                            type: 'error',
-                            title: 'Oohh Error!!!',
-                            message:
-                                'El Id no fue retornado en el insert del servicio',
-                        },
-                    })
-                    console.error('')
-                }
-            } else {
-                dispatch({
-                    type: 'notification/open',
-                    payload: {
-                        type: 'error',
-                        title: 'Oohh Error!!!',
-                        message:
-                            'Lo sentimos tenemos problemas para agregar la misión',
-                    },
-                })
-                console.error(result.error)
-            }
-        } catch (error) {
-            dispatch({
-                type: 'notification/open',
-                payload: {
-                    type: 'error',
-                    title: 'Oohh Error!!!',
-                    message:
-                        'Lo sentimos tenemos problemas para agregar la misión',
-                },
-            })
-            console.error(error)
-        } finally {
-            setLoading(false)
-        }
+    async function editHandle(
+        service: CreateCRUD<any>,
+        id: string,
+        openMoal: (any) => void
+    ) {
+        const result = await service.getById(id)
+        if (result.success) {
+        } else
+            modalService.pushAlert('Error', `No se pudo encontrar el registro`)
     }
 
     return (
         <>
-            <ModalContainer
-                showX={true}
-                downStikyChildren={''}
-                show={showModal}
-                onClose={() => onClose()}
-                title="Registro de Servicios"
+            <ModalLayout
+                className=" max-h-[80vh] w-[80vw]"
+                title={'Registro de la Misión'}
+                onClose={closeOverlay}
             >
-                <div className="space-y-10">
-                    <AddableTable
-                        title="Unidades"
-                        data={[]}
-                        idPropertyName="id"
-                        addButtonText="Agregar una unidad"
-                        onAddButtonClick={() => addNewService()}
-                    ></AddableTable>
-                </div>
-            </ModalContainer>
+                <AddableTable
+                    title="Servicios"
+                    data={[]}
+                    idPropertyName="id"
+                    addButtonText="Agregar un servicio"
+                    onAddButtonClick={addNewService}
+                    onEditButtonClick={(id) => {
+                        editHandle(serviceService, id, ServiceForm)
+                    }}
+                    onDeleteButtonClick={(id) => {
+                        deleteHandle(serviceService, id, 'Infraestructura')
+                    }}
+                ></AddableTable>
+            </ModalLayout>
+            <LoadingModal initOpen={loading} children={null} />
         </>
     )
 }
 
-export default AuthorityForm
+export default MissionForm

@@ -39,7 +39,11 @@ export function Alert({
             {type === 'Error' && FailureIcon()}
 
             <div className="text-center space-y-2 max-w-[370px] min-h-[120px] p-2">
-                <h3 className="text-3xl font-semibold">Titulo</h3>
+                <h3 className="text-3xl font-semibold">
+                    {type === 'Info' && 'Info'}
+                    {type === 'Complete' && 'Completado'}
+                    {type === 'Error' && 'Oohh ...'}
+                </h3>
                 <p className="text-lg">{message}</p>
             </div>
 

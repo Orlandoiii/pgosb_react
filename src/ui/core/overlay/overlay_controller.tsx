@@ -22,26 +22,35 @@ function OverlayController({
         <>
             {type === 'Over' &&
                 items.map((item) => (
-                    <Overlay
-                        isVisible={item.isVisible}
-                        key={item.id}
-                        type={item.config.type}
-                        animation={item.config.animation}
-                        background={item.config.background}
-                        closeOnClickOut={item.config.closeOnClickOut}
-                        onClosed={() => onItemDismounted(item.id)}
-                        closeOverlay={() => {
-                            item.onClosed && item.onClosed()
-                            closeOverlay(item.id)
-                        }}
-                    >
-                        {'closeOverlay' in item.props
-                            ? item.element({
-                                  ...item.props,
-                                  closeOverlay: () => closeOverlay(item.id),
-                              })
-                            : item.element(item.props)}
-                    </Overlay>
+                    <>
+                        <Overlay
+                            isVisible={item.isVisible}
+                            key={item.id}
+                            type={item.config.type}
+                            animation={item.config.animation}
+                            background={item.config.background}
+                            closeOnClickOut={item.config.closeOnClickOut}
+                            onClosed={() => {
+                                onItemDismounted(item.id)
+                                item.onClosed && item.onClosed()
+                            }}
+                            closeOverlay={() => {
+                                closeOverlay(item.id)
+                            }}
+                        >
+                            {'closeOverlay' in item.props
+                                ? () => {
+                                      return item.element({
+                                          ...item.props,
+                                          closeOverlay: () =>
+                                              closeOverlay(item.id),
+                                      })
+                                  }
+                                : item.element(item.props)}
+                        </Overlay>
+                        {console.log('On modal Closed')}
+                        {console.log(item.onClosed)}
+                    </>
                 ))}
             {type === 'Top-Stack' && (
                 <div className="absolute top-0 left-0 flex flex-col h-full w-full justify-start items-center pointer-events-none">

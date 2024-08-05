@@ -1,19 +1,21 @@
 import { FieldPath, FieldValues } from 'react-hook-form'
 import React, { ComponentPropsWithoutRef, ReactNode } from 'react'
-import { getFieldError, useCustomFormContext } from '../context/CustomFormContext'
+import {
+    getFieldError,
+    useCustomFormContext,
+} from '../context/CustomFormContext'
 import logger from '../../../logic/Logger/logger'
 import Input from './Input'
-
 
 interface FormInputProps<
     T extends FieldValues,
     TFieldName extends FieldPath<T> = FieldPath<T>,
-> extends ComponentPropsWithoutRef<"input"> {
+> extends ComponentPropsWithoutRef<'input'> {
     fieldName: TFieldName
     description: string
     mask?: {}
-    placeholder?: string,
-    icons?: ReactNode,
+    placeholder?: string
+    icons?: ReactNode
 }
 
 function FormInput<T extends FieldValues>({
@@ -24,16 +26,16 @@ function FormInput<T extends FieldValues>({
     icons,
     ...rest
 }: FormInputProps<T>) {
-    const { register, isSubmitted, resetCount, errors } = useCustomFormContext<T>()
-
+    const { register, isSubmitted, resetCount, errors } =
+        useCustomFormContext<T>()
+    console.log(errors)
 
     var fieldError = getFieldError(errors, fieldName)
     var { ref, ...registerField } = register(fieldName)
 
-    logger.log("Renderizando FormInput", errors)
+    logger.log('Renderizando FormInput', errors)
 
     return (
-
         <Input
             inputName={fieldName}
             label={description}
@@ -47,9 +49,6 @@ function FormInput<T extends FieldValues>({
             {...registerField}
             {...rest}
         />
-
-
-
     )
 }
 

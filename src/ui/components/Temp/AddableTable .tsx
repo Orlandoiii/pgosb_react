@@ -73,16 +73,16 @@ export function AddableTable<T>({
     return (
         <div className={`space-y-2 ${enable ? 'opacity-100' : 'opacity-50'}`}>
             <div className="text-xl text-slate-700 font-semibold">{title}</div>
-            <table className="w-full select-none">
+            <table className="w-full select-none rounded-lg overflow-hidden">
                 <thead>
-                    <tr className="relative h-10 w-full border-b border-[#0A2F4E] text-sm text-slate-600">
+                    <tr className="relative h-10 w-full border-b border-[#0A2F4E] text-sm text-slate-200 bg-[#0A2F4E]">
                         {anyElement() ? (
                             <>
                                 {Object.entries(internalData[0] as any).map(
                                     (property) => (
                                         <td
                                             key={property[0]}
-                                            className={`  px-4 duration-200 hover:bg-slate-200 ${enable ? 'cursor-pointer' : ''}`}
+                                            className={`  px-4 duration-200 hover:bg-[#1d4368] ${enable ? 'cursor-pointer' : ''}`}
                                             onClick={
                                                 enable
                                                     ? () =>
@@ -127,14 +127,11 @@ export function AddableTable<T>({
                                     onEditButtonClick &&
                                     onEditButtonClick(element[idPropertyName])
                                 }
-                                className={`group/row relative h-10 w-full ${enable ? 'cursor-pointer' : ''} text-sm text-slate-700 duration-200 hover:bg-slate-300`}
+                                className={`group/row relative h-10 w-full ${enable ? 'cursor-pointer' : ''} bg-slate-200 text-sm text-slate-700 duration-200 border-b-2 border-slate-300 hover:border-slate-400 hover:bg-slate-300`}
                             >
                                 {Object.entries(element as any).map(
                                     (property) => (
-                                        <td
-                                            key={property[0]}
-                                            className="px-4 hover:border hover:border-slate-600"
-                                        >
+                                        <td key={property[0]} className="px-4">
                                             {property[1] as any}
                                         </td>
                                     )
@@ -162,7 +159,7 @@ export function AddableTable<T>({
                     >
                         <td>
                             <button
-                                className="absolute left-0 top-0 flex h-full w-full items-center px-2 text-slate-500 duration-200 hover:text-slate-800"
+                                className="absolute left-0 top-0 flex h-full w-full items-center px-2 bg-slate-200 text-slate-500 duration-200 hover:text-slate-800 hover:bg-slate-300"
                                 onClick={onAddButtonClick}
                                 disabled={!enable}
                             >

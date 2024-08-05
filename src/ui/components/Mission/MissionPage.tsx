@@ -1,4 +1,4 @@
-import React, { useReducer, useState } from 'react'
+import React, { useState } from 'react'
 
 import TableDataGrid from '../../core/datagrid/TableDataGrid'
 import testJson from '../../../mocks/operations.json'
@@ -10,20 +10,12 @@ import {
 } from '../../../domain/models/mission/mission'
 
 import { getDefaults } from '../../core/context/CustomFormContext'
-import ServiceForm from './Forms/ServiceForm'
-import {
-    ServiceSchema,
-    serviceService,
-    TService,
-} from '../../../domain/models/service/service'
-import { CreateElementFunction } from '../../core/overlay/models/overlay_item'
 import { modalService } from '../../core/overlay/overlay_service'
+import MissionForm from './Forms/MissionForm'
+import LoadingModal from '../../core/modal/LoadingModal'
 
 const MissionPage = () => {
     const [loading, setLoading] = useState(false)
-
-    const [missionId, setMissionId] = useState(0)
-    const [serviceId, setServiceId] = useState(0)
 
     async function addNewMission() {
         var errorMessage: string = ''
@@ -35,27 +27,16 @@ const MissionPage = () => {
             )
 
             if (missionResult.success && missionResult.data?.id) {
-                const defaultValue = getDefaults<TService>(ServiceSchema)
-                defaultValue.missionId = missionResult.data.id
-
-                const resultService = await serviceService.insert(defaultValue)
-                if (resultService.success && resultService.data?.id) {
-                    setMissionId(missionResult.data.id)
-                    setServiceId(missionResult.data?.id)
-
-                    openServiceModal(ServiceForm, { serviceId: serviceId })
-                    return
-                } else if (!resultService.success)
-                    errorMessage =
-                        'Lo sentimos tenemos problemas para agregar el servicio'
-                else if (!resultService.data?.id)
-                    errorMessage =
-                        'El Id no fue retornado en el agregar el servicio'
+                modalService.pushModal(MissionForm, {
+                    missionId: missionResult.data?.id,
+                    closeOverlay: undefined,
+                })
             } else if (!missionResult.success)
                 errorMessage =
                     'Lo sentimos tenemos problemas para agregar la misión'
-            else if (!missionResult.data?.id)
+            else if (!missionResult.data?.id) {
                 errorMessage = 'El Id no fue retornado en el agregar la misión'
+            }
         } catch (error) {
             errorMessage =
                 'Lo sentimos ocurrio un error inesperado al agregar la misión'
@@ -68,15 +49,11 @@ const MissionPage = () => {
 
     function onUpdate() {}
 
-    function openServiceModal<P>(element: CreateElementFunction<P>, props: P) {
-        modalService.pushModal(element, { ...props, closeOverlay: undefined })
-    }
-
     return (
         <>
             <TableDataGrid
                 rawData={testJson}
-                onAdd={() => openServiceModal(ServiceForm, { serviceId: 122 })}
+                onAdd={addNewMission}
                 onDoubleClickRow={() => {}}
                 permissions={{
                     add: true,
@@ -88,7 +65,8 @@ const MissionPage = () => {
                 onDelete={() => {}}
                 onUpdate={onUpdate}
             />
-            <button onClick={addNewMission}>Agregar</button>
+
+            <LoadingModal initOpen={loading} children={null} />
         </>
     )
 }

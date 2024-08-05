@@ -3,9 +3,13 @@ import { LoadConfigFile } from '../ui/core/context/ConfigContext'
 
 export type RequestResult<T> = { success: boolean; data?: T; error?: string }
 
-async function getBaseClient(): Promise<AxiosInstance> {
+function getBaseClient(): AxiosInstance {
+    return axios.create()
+}
+
+async function getBaseURL(): Promise<string> {
     const config = await LoadConfigFile()
-    return axios.create({ baseURL: config.config['back_url'] + '/api/v1/' })
+    return config.config['back_url'] + '/api/v1/'
 }
 
 function logTrace(data: string) {
@@ -20,30 +24,26 @@ async function requestInternal(
     data?: object
 ): Promise<RequestResult<any>> {
     const serializedData = data ? JSON.stringify(data) : ''
-    const client = await getBaseClient()
-    console.log('client')
 
-
-    console.log(client)
     try {
         var response: AxiosResponse<any, any>
 
         logTrace(
-            `Requesting: ${method} | endpoint: ${endpoint} | data: ${serializedData}`
+            `Requesting: ${method} | endpoint: ${(await getBaseURL()) + endpoint} | data: ${serializedData}`
         )
 
-        if (endpoint.toUpperCase() === 'GET')
-            response = await client.get(method)
-        else if (endpoint.toUpperCase() === 'POST')
-            response = await client.post(method, data)
-        else if (endpoint.toUpperCase() === 'PUT')
-            response = await client.put(method, data)
-        else if (endpoint.toUpperCase() === 'DELETE')
-            response = await client.delete(method)
+        if (method.toUpperCase() === 'GET')
+            response = await axios.get((await getBaseURL()) + endpoint)
+        else if (method.toUpperCase() === 'POST')
+            response = await axios.post((await getBaseURL()) + endpoint, data)
+        else if (method.toUpperCase() === 'PUT')
+            response = await axios.put((await getBaseURL()) + endpoint, data)
+        else if (method.toUpperCase() === 'DELETE')
+            response = await axios.delete((await getBaseURL()) + endpoint)
 
         if (response!) {
             logTrace(
-                `Request result for: ${method} | endpoint: ${endpoint} | data: ${serializedData} => response: ${response.status} - ${response.data}`
+                `Request result for: ${method} | endpoint: ${(await getBaseURL()) + endpoint} | data: ${serializedData} => response: ${response.status} - ${JSON.stringify(response.data)}`
             )
 
             if (response.status === 200)
@@ -56,13 +56,13 @@ async function requestInternal(
             }
         } else {
             logTrace(
-                `Request result for: ${method} | endpoint: ${endpoint} | data: ${serializedData} => response: ${response!}`
+                `Request result for: ${method} | endpoint: ${(await getBaseURL()) + endpoint} | data: ${serializedData} => response: ${JSON.stringify(response!)}`
             )
             return { success: false, data: 'No response from the request' }
         }
     } catch (error) {
         logTrace(
-            `Exception on the request for: ${method} | endpoint: ${endpoint} | data: ${serializedData} => message: ${error.message}`
+            `Exception on the request for: ${method} | endpoint: ${(await getBaseURL()) + endpoint} | data: ${serializedData} => message: ${error.message}`
         )
 
         return {
@@ -74,22 +74,27 @@ async function requestInternal(
 
 export async function getAll<T>(
     endpoint: string,
-    fromJson: (json: any) => { success: boolean; result?: T; error?: string }
+    fromJson?: (json: any) => { success: boolean; result?: T; error?: string }
 ): Promise<RequestResult<T[]>> {
     const response = await requestInternal('GET', `${endpoint}/all`)
 
     if (response.success) {
         const result: T[] = []
 
-        for (const item in response.data) {
-            const parsed = fromJson(item)
-            if (parsed.success) result.push(parsed.result!)
-            else
-                return {
-                    success: false,
-                    error: `Error in parse: ${parsed.error}`,
-                }
+        for (let i: number = 0; i < response.data.length; i++) {
+            if (fromJson) {
+                const parsed = fromJson(response.data[i])
+                if (parsed.success) result.push(parsed.result!)
+                else
+                    return {
+                        success: false,
+                        error: `Error in parse: ${parsed.error}`,
+                    }
+            } else {
+                result.push(response.data[i] as any)
+            }
         }
+
         return { success: true, data: result }
     } else return response
 }
@@ -103,31 +108,30 @@ export async function getById<T>(
 
     if (response.success) {
         const parsed = fromJson(response.data)
-        return parsed
+        return {
+            success: parsed.success,
+            data: parsed.result,
+            error: parsed.error,
+        }
     } else return response
 }
 
-export async function insert(
+export async function insert<T>(
     endpoint: string,
     data: any
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; data?: T; error?: string }> {
     const response = await requestInternal('POST', `${endpoint}/create`, data)
 
     if (response.success) {
-        return { success: true }
+        return { success: true, data: response.data }
     } else return response
 }
 
 export async function update(
     endpoint: string,
-    id: string,
     data: any
 ): Promise<{ success: boolean; error?: string }> {
-    const response = await requestInternal(
-        'PUT',
-        `${endpoint}/update/${id}`,
-        data
-    )
+    const response = await requestInternal('PUT', `${endpoint}/update`, data)
 
     if (response.success) {
         return { success: true }
@@ -175,11 +179,10 @@ export class CreateCRUD<T> {
         else return { success: false, error: 'El mapeo no fue satisfactorio' }
     }
 
-    async update(id: string, data: T): Promise<RequestResult<T>> {
+    async update(data: T): Promise<RequestResult<T>> {
         const mapped = this.toJson(data)
 
-        if (mapped.success)
-            return update(this.endpointCompound, id, mapped.result)
+        if (mapped.success) return update(this.endpointCompound, mapped.result)
         else return { success: false, error: 'El mapeo no fue satisfactorio' }
     }
 

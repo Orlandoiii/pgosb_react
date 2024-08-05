@@ -4,15 +4,15 @@ import { mapEntity } from '../../../services/mapper'
 import { CreateCRUD } from '../../../services/http'
 
 export const MissionSchema = z.object({
-    id: z.number().default(0),
+    id: z.string().default(""),
     code: z.string().default(''),
-    createdAt: z.string().default(''),
+    createdAt: z.coerce.date().default(new Date()),
 })
 
 export const ApiMissionSchema = z.object({
-    id: z.number().default(0),
+    id: z.string().default(""),
     code: z.string().default(''),
-    created_at: z.string().default(''),
+    created_at: z.date().default(new Date()),
 })
 
 export type TMission = z.infer<typeof MissionSchema>

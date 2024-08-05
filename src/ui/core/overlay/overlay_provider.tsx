@@ -14,6 +14,12 @@ const OverlayProvider: React.FC = () => {
 
     console.log(`Modales ${modals.length} toast: ${toasts.length}`)
 
+    console.log(
+        modals.map((item) => {
+            ;`${item.id} ${item.onClosed}`
+        })
+    )
+
     return (
         <>
             <OverlayController

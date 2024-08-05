@@ -25,7 +25,7 @@ import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 
 interface PersonFormProps {
-    serviceId: number
+    serviceId: string
     initValue?: TPersonInvolved | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
@@ -51,7 +51,9 @@ const PersonForm = ({
             if (result.success) {
                 modalService.pushAlert(
                     'Complete',
-                    `Persona ${buttonText.replace('ar', 'ada')}`
+                    `Persona ${buttonText.replace('dar', 'dada')}`,
+                    undefined,
+                    closeOverlay
                 )
                 if (onClose) onClose(true)
             } else {

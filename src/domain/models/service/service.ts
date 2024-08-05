@@ -4,9 +4,9 @@ import { mapEntity } from '../../../services/mapper'
 import { CreateCRUD } from '../../../services/http'
 
 export const ServiceSchema = z.object({
-    id: z.number().default(0),
-    missionId: z.number().default(0),
-    antaresId: z.number().default(0),
+    id: z.string().default(""),
+    missionId: z.string().default(""),
+    antaresId: z.string().default(""),
     units: z.array(z.number().default(0)).default([]),
     firefighter: z.array(z.number().default(0)).default([]),
     summary: z.string().default(''),
@@ -14,9 +14,9 @@ export const ServiceSchema = z.object({
 })
 
 export const ApiServiceSchema = z.object({
-    id: z.number().default(0),
-    mission_id: z.number().default(0),
-    antares_id: z.number().default(0),
+    id: z.string().default(""),
+    mission_id: z.string().default(""),
+    antares_id: z.string().default(""),
     units: z.array(z.number().default(0)).default([]),
     bombers: z.array(z.number().default(0)).default([]),
     summary: z.string().default(''),

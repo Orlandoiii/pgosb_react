@@ -1,7 +1,8 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import React, { ReactNode } from 'react'
+import React, { ReactElement, ReactNode } from 'react'
 
 import { OverlayContext } from './overlay_context'
+import { isFunction } from '@tanstack/react-table'
 
 export type AnimationType = 'Bounce' | 'FadeIn'
 export type OverlayType = 'Modal' | 'Loader'
@@ -12,7 +13,7 @@ interface OverlayProps {
     background?: string
     closeOnClickOut?: boolean
     onClosed?: () => void
-    children?: ReactNode
+    children?: ReactNode | (() => ReactElement)
     isVisible: boolean
     closeOverlay: () => void
 }
@@ -54,14 +55,18 @@ function Overlay({
                                 className="relative h-full w-full flex items-center justify-center pointer-events-none"
                             >
                                 <div className=" pointer-events-auto">
-                                    {children}
+                                    {isFunction(children)
+                                        ? children()
+                                        : children}
                                 </div>
                             </motion.div>
                         )}
                         {type === 'Modal' && animation === 'FadeIn' && (
                             <motion.div className="relative h-full w-full flex items-center justify-center pointer-events-none">
                                 <div className=" pointer-events-auto">
-                                    {children}
+                                    {isFunction(children)
+                                        ? children()
+                                        : children}
                                 </div>
                             </motion.div>
                         )}

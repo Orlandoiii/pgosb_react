@@ -18,7 +18,7 @@ import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 
 interface InfrastructureFormProps {
-    serviceId: number
+    serviceId: string
     initValue?: TInfrastructure | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
@@ -36,16 +36,22 @@ const InfrastructureForm = ({
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
+        console.log('submit')
+
         setLoading(true)
 
         try {
             const parsed = InfrastructureSchema.parse(data)
             const result = await infrastructureService.insert(parsed)
-
+            console.log('closeOverlay')
+            console.log(closeOverlay)
+            closeOverlay && closeOverlay()
             if (result.success) {
                 modalService.pushAlert(
                     'Complete',
-                    `Infraestructura ${buttonText.replace('ar', 'ada')}`
+                    `Infraestructura ${buttonText.replace('dar', 'dada')}`,
+                    undefined,
+                    closeOverlay
                 )
                 if (onClose) onClose(true)
             } else {
@@ -77,7 +83,7 @@ const InfrastructureForm = ({
             >
                 <CustomForm
                     schema={InfrastructureSchema}
-                    initValue={{ ...initValue, serviceId }}
+                    initValue={{ ...initValue, serviceId: serviceId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos del Vehiculo" />
@@ -162,7 +168,7 @@ const InfrastructureForm = ({
                         <div className="flex justify-end space-x-8">
                             <Button
                                 colorType="bg-[#3C50E0]"
-                                onClick={() => {}}
+                                onClick={(e) => {}}
                                 children={'Aceptar'}
                             ></Button>
                         </div>

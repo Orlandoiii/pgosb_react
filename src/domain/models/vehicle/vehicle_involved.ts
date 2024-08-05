@@ -4,8 +4,8 @@ import { mapEntity } from '../../../services/mapper'
 import { CreateCRUD } from '../../../services/http'
 
 export const VehicleInvolvedSchema = z.object({
-    id: z.coerce.number().default(0),
-    serviceId: z.coerce.number().default(0),
+    id: z.string().default(''),
+    serviceId: z.coerce.string().default(''),
     brand: z.string().default(''),
     model: z.string().default(''),
     color: z.string().default(''),
@@ -18,12 +18,12 @@ export const VehicleInvolvedSchema = z.object({
 })
 
 export const ApiVehicleInvolvedSchema = z.object({
-    id: z.number().default(0),
-    service_id: z.number().default(0),
+    id: z.string().default(''),
+    service_id: z.string().default(''),
     vehicle_condition: z.string().default(''),
     make: z.string().default(''),
     model: z.string().default(''),
-    year: z.date().default(new Date()),
+    year: z.string().default(''),
     plate: z.string().default(''),
     color: z.string().default(''),
     vehicle_type: z.string().default(''),
@@ -41,7 +41,7 @@ function fromApiInternal(data: TApiVehicleInvolved): TVehicleInvolved {
         condition: data.vehicle_condition,
         brand: data.make,
         model: data.model,
-        year: data.year,
+        year: new Date(data.year),
         licensePlate: data.plate,
         color: data.color,
         type: data.vehicle_type,
@@ -57,7 +57,7 @@ function toApiInternal(data: TVehicleInvolved): TApiVehicleInvolved {
         vehicle_condition: data.condition,
         make: data.brand,
         model: data.model,
-        year: data.year,
+        year: String(data.year),
         plate: data.licensePlate,
         color: data.color,
         vehicle_type: data.type,
@@ -70,7 +70,7 @@ export const FromApi = (data: TApiVehicleInvolved) =>
     mapEntity<TApiVehicleInvolved, TVehicleInvolved>(
         data,
         ApiVehicleInvolvedSchema as any,
-        VehicleInvolvedSchema as any, 
+        VehicleInvolvedSchema as any,
         fromApiInternal
     )
 export const ToApi = (data: TVehicleInvolved) =>

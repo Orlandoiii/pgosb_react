@@ -1,14 +1,18 @@
-import React, { useState, useEffect, useRef, MutableRefObject } from 'react';
-import Input from './Input';
-import { SelectProps, OptionSelectorButton, Options, OptionsContainer } from './Select';
-import logger from '../../../logic/Logger/logger';
+import React, { useState, useEffect, useRef, MutableRefObject } from 'react'
+import Input from './Input'
+import {
+    SelectProps,
+    OptionSelectorButton,
+    Options,
+    OptionsContainer,
+} from './Select'
+import logger from '../../../logic/Logger/logger'
 
 interface SelectSearchProps extends SelectProps {
-    errMessage?: string,
-    searhValue:string,
-    setSearhValue:React.Dispatch<React.SetStateAction<string>> 
+    errMessage?: string
+    searhValue: string
+    setSearhValue: React.Dispatch<React.SetStateAction<string>>
 }
-
 
 export default function SelectSearch({
     inputName,
@@ -24,20 +28,17 @@ export default function SelectSearch({
     useStrongErrColor,
     searhValue,
     setSearhValue,
-    
+
     ...rest
 
     //controlled = false,
-
 }: SelectSearchProps) {
-
-
     const [open, setOpen] = useState(false)
 
     const ref: MutableRefObject<HTMLDivElement | null> = useRef(null)
 
-    const inpRef: React.MutableRefObject<HTMLInputElement | null> | undefined = useRef(null);
-
+    const inpRef: React.MutableRefObject<HTMLInputElement | null> | undefined =
+        useRef(null)
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -51,37 +52,29 @@ export default function SelectSearch({
         }
     }, [open, setOpen])
 
-
     function handleOnSelected(selectValue) {
-
         setOpen(false)
-        setSearhValue(selectValue);
-        if (onSelected)
-            onSelected(selectValue)
-        inpRef?.current?.blur();
-
+        setSearhValue(selectValue)
+        if (onSelected) onSelected(selectValue)
+        inpRef?.current?.blur()
     }
 
     function handleOnFocus(e) {
-        setOpen(true);
-        setSearhValue("");
-        if (onFocus)
-            onFocus(e);
-        if (onSelected)
-            onSelected("");
+        setOpen(true)
+        setSearhValue('')
+        if (onFocus) onFocus(e)
+        if (onSelected) onSelected('')
     }
 
-
-
-
     useEffect(() => {
-        if (onOpenChange)
-            onOpenChange(open);
+        if (onOpenChange) onOpenChange(open)
     }, [open])
 
     return (
-        <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
-
+        <div
+            ref={ref}
+            className="relative space-y-1 text-left bg-inherit w-full"
+        >
             <Input
                 label={label}
                 inputName={inputName}
@@ -92,12 +85,16 @@ export default function SelectSearch({
                 refCallback={refCallback}
                 useStrongErrColor={useStrongErrColor}
                 onChange={(e) => {
-                    setSearhValue(e.target.value);
-                    if (onChange)
-                        onChange(e);
+                    setSearhValue(e.target.value)
+                    if (onChange) onChange(e)
                 }}
                 onFocus={handleOnFocus}
-                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp} />
+                icons={
+                    <OptionSelectorButton
+                        open={open}
+                        setOpen={setOpen}
+                        openUp={openUp}
+                    />
                 }
                 {...rest}
             />
@@ -108,7 +105,8 @@ export default function SelectSearch({
                     options={options}
                     value={searhValue}
                     setOpen={setOpen}
-                    onSelected={handleOnSelected} />
+                    onSelected={handleOnSelected}
+                />
             </OptionsContainer>
         </div>
     )

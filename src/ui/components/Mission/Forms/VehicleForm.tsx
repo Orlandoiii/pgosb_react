@@ -22,7 +22,7 @@ import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 
 interface VehicleFormProps {
-    serviceId: number
+    serviceId: string
     initValue?: TVehicleInvolved | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
@@ -48,7 +48,9 @@ const VehicleForm = ({
             if (result.success) {
                 modalService.pushAlert(
                     'Complete',
-                    `Vehiculo ${buttonText.replace('ar', 'ado')}`
+                    `Vehiculo ${buttonText.replace('dar', 'dado')}`,
+                    undefined,
+                    closeOverlay
                 )
                 if (onClose) onClose(true)
             } else {
