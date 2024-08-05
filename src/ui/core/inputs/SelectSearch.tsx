@@ -6,7 +6,6 @@ import {
     Options,
     OptionsContainer,
 } from './Select'
-import logger from '../../../logic/Logger/logger'
 
 interface SelectSearchProps extends SelectProps {
     errMessage?: string
