@@ -1,12 +1,13 @@
+import { isFunction } from "@tanstack/react-table";
 import { useEffect, useState } from "react";
 
 export function useValueOrAsyncFunc<T>(valueOrAsyncFunc: T | (() => Promise<T>)): { value: T; isLoading: boolean } {
-  
-  
-  
+
+
+
   var [value, setValue] = useState<T>();
-  var [loading, setLoading] = useState(true);
-  
+  var [loading, setLoading] = useState(isFunction(valueOrAsyncFunc));
+
   const handleAsync = async () => {
     if (typeof valueOrAsyncFunc === "function") {
       try {
