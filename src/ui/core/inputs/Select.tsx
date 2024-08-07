@@ -2,7 +2,6 @@
 import React, { useState, useMemo, useEffect, useRef, MutableRefObject, Dispatch, SetStateAction } from 'react'
 import Input, { InputProps } from './Input'
 import logger from '../../../logic/Logger/logger';
-import { FixedSizeList as List } from 'react-window';
 
 
 function OptionContainerButton({ option, onClick }) {
@@ -56,16 +55,27 @@ export function OptionSelectorButton({ open, setOpen, buttonRef, openUp }: Optio
     )
 }
 
+
+
+
+interface OptionsProps {
+    options: Array<string> | (() => Promise<string[]>)
+    value?: string
+    onSelected: (v: string) => void | undefined
+    setOpen: Dispatch<SetStateAction<boolean>>,
+    autoCompleted?: boolean
+}
+
 export function Options({
     options,
     value = "",
     onSelected,
     setOpen,
     autoCompleted = false,
-}) {
+}: OptionsProps) {
 
 
-    if (!options)
+    if (!options || !Array.isArray(options))
         return <></>
 
 

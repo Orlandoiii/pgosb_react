@@ -43,7 +43,10 @@ function FormSelectSearch<
 
     //const [searhValue, setSearhValue] = useState('');
 
-    const selectOptions = useValueOrAsyncFunc(options)
+
+    const selectedOptionsAsync = useValueOrAsyncFunc(options);
+
+    const selectOptions = Array.isArray(options) ? { value: options, isLoading: false } : selectedOptionsAsync;
 
     const { ref, onChange, ...restRegister } = register(fieldName);
 
@@ -59,7 +62,7 @@ function FormSelectSearch<
             openUp={openUp}
             label={description}
             inputName={fieldName}
-            options={selectOptions}
+            options={selectOptions.isLoading ? [] : selectOptions.value}
             useStrongErrColor={isSubmitted}
             searhValue={searhValue}
             setSearhValue={setSearhValue}
