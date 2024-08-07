@@ -6,6 +6,7 @@ interface AddableTableProps<T> {
     onAddButtonClick: () => void
     enable?: boolean
     data: T[]
+    defaultSort?: keyof T
     idPropertyName: string
     onEditButtonClick?: (id: string) => void
     onDeleteButtonClick?: (id: string) => void
@@ -17,6 +18,7 @@ export function AddableTable<T>({
     onAddButtonClick,
     enable = true,
     data = [],
+    defaultSort,
     idPropertyName = '',
     onEditButtonClick,
     onDeleteButtonClick,
@@ -24,7 +26,7 @@ export function AddableTable<T>({
     var [internalData, setInternalData] = useState(data)
 
     var [sortAsc, setSortAsc] = useState(false)
-    var [sort, setSort] = useState('')
+    var [sort, setSort] = useState(defaultSort ? defaultSort : idPropertyName)
 
     useEffect(() => {
         if (sort == '') return
@@ -49,11 +51,38 @@ export function AddableTable<T>({
         ])
     }, [sort, sortAsc])
 
+    useEffect(() => {
+        console.log('data')
+        console.log(data)
+
+        setInternalData([
+            ...data.sort((a, b) => {
+                const valueA = a?.[sort as keyof T]
+                const valueB = b?.[sort as keyof T]
+
+                if (typeof valueA === 'string' && typeof valueB === 'string') {
+                    return sortAsc
+                        ? valueA.localeCompare(valueB)
+                        : valueB.localeCompare(valueA)
+                } else if (
+                    typeof valueA === 'number' &&
+                    typeof valueB === 'number'
+                ) {
+                    return sortAsc ? valueA - valueB : valueB - valueA
+                } else {
+                    console.log(typeof valueA)
+                    console.log(typeof valueB)
+                    throw new Error('Unsupported property type for sorting')
+                }
+            }),
+        ])
+    }, [data])
+
     function changeSort(property: keyof T) {
         if (property == sort) {
             setSortAsc(!sortAsc)
         } else {
-            setSort(String(property))
+            setSort(property)
             setSortAsc(false)
         }
     }
@@ -71,7 +100,9 @@ export function AddableTable<T>({
     }
 
     return (
-        <div className={`space-y-2 ${enable ? 'opacity-100' : 'opacity-50'}`}>
+        <div
+            className={`space-y-2 ${enable ? 'opacity-100' : 'opacity-50'} w-full`}
+        >
             <div className="text-xl text-slate-700 font-semibold">{title}</div>
             <table className="w-full select-none rounded-lg overflow-hidden">
                 <thead>

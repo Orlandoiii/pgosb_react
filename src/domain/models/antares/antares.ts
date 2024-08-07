@@ -1,16 +1,17 @@
 import { z } from 'zod'
 
+import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
-import { CreateCRUD } from '../../../services/http'
+import { CRUD } from '../../../utilities/crud'
 
 export const AntaresSchema = z.object({
-    id: z.string().default(""),
+    id: z.string().default(''),
     type: z.string().default(''),
     description: z.string().default(''),
 })
 
 export const ApiAntaresSchema = z.object({
-    id: z.string().default(""),
+    id: z.string().default(''),
     type: z.string().default(''),
     description: z.string().default(''),
 })
@@ -34,7 +35,7 @@ function toApiInternal(data: TAntares): TApiAntares {
     }
 }
 
-export const AntaresFromApi = (data: TApiAntares) =>
+export const FromApi = (data: TApiAntares): ResultErr<TAntares> =>
     mapEntity<TApiAntares, TAntares>(
         data,
         ApiAntaresSchema as any,
@@ -42,7 +43,7 @@ export const AntaresFromApi = (data: TApiAntares) =>
         fromApiInternal
     )
 
-export const AntaresToApi = (data: TAntares) =>
+export const ToApi = (data: TAntares): ResultErr<TApiAntares> =>
     mapEntity<TAntares, TApiAntares>(
         data,
         AntaresSchema as any,
@@ -50,8 +51,4 @@ export const AntaresToApi = (data: TAntares) =>
         toApiInternal
     )
 
-export const missionService = new CreateCRUD<TAntares>(
-    'mission',
-    toApiInternal,
-    AntaresFromApi
-)
+export const antaresCrud = new CRUD<TAntares>('mission', ToApi, FromApi)

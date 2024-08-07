@@ -15,17 +15,19 @@ import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
-import { vehicleService } from '../../../../domain/models/vehicle/vehicle_involved'
+import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved'
 
 import LoadingModal from '../../../core/modal/LoadingModal'
 import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
+import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 
 interface VehicleFormProps {
     serviceId: string
     initValue?: TVehicleInvolved | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
+    add?: boolean
 }
 
 const VehicleForm = ({
@@ -33,6 +35,7 @@ const VehicleForm = ({
     initValue,
     onClose,
     closeOverlay,
+    add = true,
 }: VehicleFormProps) => {
     const [loading, setLoading] = useState(false)
     const areaCodes = EnumToStringArray(AreaCodes)
@@ -43,20 +46,24 @@ const VehicleForm = ({
 
         try {
             const parsed = VehicleInvolvedSchema.parse(data)
-            const result = await vehicleService.insert(parsed)
+
+            var result: ResultErr<TVehicleInvolved>
+
+            if (add) result = await vehicleCrud.insert(parsed)
+            else result = await vehicleCrud.update(parsed)
 
             if (result.success) {
                 modalService.pushAlert(
                     'Complete',
                     `Vehiculo ${buttonText.replace('dar', 'dado')}`,
                     undefined,
-                    closeOverlay
+                    handleClose
                 )
                 if (onClose) onClose(true)
             } else {
                 modalService.pushAlert(
                     'Error',
-                    `No se pudo guardar el vehiculo por: ${result.data}`
+                    `No se pudo guardar el vehiculo por: ${result.result}`
                 )
             }
         } catch (error) {

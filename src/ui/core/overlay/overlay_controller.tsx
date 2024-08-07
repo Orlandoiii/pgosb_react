@@ -32,7 +32,6 @@ function OverlayController({
                             closeOnClickOut={item.config.closeOnClickOut}
                             onClosed={() => {
                                 onItemDismounted(item.id)
-                                item.onClosed && item.onClosed()
                             }}
                             closeOverlay={() => {
                                 closeOverlay(item.id)
@@ -42,14 +41,14 @@ function OverlayController({
                                 ? () => {
                                       return item.element({
                                           ...item.props,
-                                          closeOverlay: () =>
-                                              closeOverlay(item.id),
+                                          closeOverlay: () => {
+                                              item.onClosed && item.onClosed()
+                                              closeOverlay(item.id)
+                                          },
                                       })
                                   }
                                 : item.element(item.props)}
                         </Overlay>
-                        {console.log('On modal Closed')}
-                        {console.log(item.onClosed)}
                     </>
                 ))}
             {type === 'Top-Stack' && (

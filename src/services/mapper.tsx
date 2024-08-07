@@ -1,11 +1,13 @@
 import { z } from 'zod'
 
+import { ResultErr } from '../domain/abstractions/types/resulterr'
+
 export function mapEntity<TSource, TTarget>(
     source: TSource,
     sourceSchema: z.ZodSchema<TSource>,
     targetSchema: z.ZodSchema<TTarget>,
     mapper: (source: TSource) => TTarget
-): { success: boolean; result?: TTarget; error?: string } {
+): ResultErr<TTarget> {
     try {
         const parsedSourceEntity = sourceSchema.parse(source)
         const targetEntity = mapper(parsedSourceEntity)

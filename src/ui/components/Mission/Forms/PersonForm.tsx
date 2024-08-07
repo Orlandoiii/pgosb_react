@@ -2,7 +2,6 @@ import { FieldValues } from 'react-hook-form'
 import React, { useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
-import { Genders } from '../../../../domain/abstractions/enums/genders'
 import Button from '../../../core/buttons/Button'
 
 import {
@@ -10,25 +9,26 @@ import {
     PersonInvolvedSchema,
 } from '../../../../domain/models/person/person_involved'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
-import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types'
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes'
 
 import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
-import { personService } from '../../../../domain/models/person/person_involved'
+import { personCrud } from '../../../../domain/models/person/person_involved'
 
 import LoadingModal from '../../../core/modal/LoadingModal'
 
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import ModalLayout from '../../../core/layouts/modal_layout.tsx'
+import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 
 interface PersonFormProps {
     serviceId: string
     initValue?: TPersonInvolved | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
+    add?: boolean
 }
 
 const PersonForm = ({
@@ -36,6 +36,7 @@ const PersonForm = ({
     initValue,
     onClose,
     closeOverlay,
+    add = true,
 }: PersonFormProps) => {
     const [loading, setLoading] = useState(false)
     const areaCodes = EnumToStringArray(AreaCodes)
@@ -46,7 +47,10 @@ const PersonForm = ({
 
         try {
             const parsed = PersonInvolvedSchema.parse(data)
-            const result = await personService.insert(parsed)
+            var result: ResultErr<TPersonInvolved>
+
+            if (add) result = await personCrud.insert(parsed)
+            else result = await personCrud.update(parsed)
 
             if (result.success) {
                 modalService.pushAlert(
@@ -59,7 +63,7 @@ const PersonForm = ({
             } else {
                 modalService.pushAlert(
                     'Error',
-                    `No se pudo guardar la Persona por: ${result.data}`
+                    `No se pudo guardar la Persona por: ${result.result}`
                 )
             }
         } catch (error) {

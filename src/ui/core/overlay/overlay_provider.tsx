@@ -12,14 +12,6 @@ const OverlayProvider: React.FC = () => {
         modalService.registerToastUpdateCallback(setToasts)
     }, [])
 
-    console.log(`Modales ${modals.length} toast: ${toasts.length}`)
-
-    console.log(
-        modals.map((item) => {
-            ;`${item.id} ${item.onClosed}`
-        })
-    )
-
     return (
         <>
             <OverlayController

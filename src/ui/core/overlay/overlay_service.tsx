@@ -25,24 +25,12 @@ class ModalService {
 
     private updateModals = () => {
         if (this.modalUpdateCallback) {
-            console.log(
-                this.modals.map((item) => {
-                    ;`${item.id} ${item.onClosed}`
-                })
-            )
-
             this.modalUpdateCallback([...this.modals])
         }
     }
 
     private updateToasts = () => {
         if (this.toastUpdateCallback) {
-            console.log(
-                this.modals.map((item) => {
-                    ;`${item.id} ${item.onClosed}`
-                })
-            )
-
             this.toastUpdateCallback([...this.toasts])
         }
     }
@@ -53,7 +41,6 @@ class ModalService {
         config: OverlayModalConfig = new OverlayModalConfig(),
         onClosed?: () => void
     ): () => void {
-
         const newModal = new OverlayItem(content, props, config, true, onClosed)
         this.modals.push(newModal)
         this.updateModals()
@@ -61,12 +48,30 @@ class ModalService {
     }
 
     updateModal<P>(modal: OverlayItem<P>, props: P) {
-        const modalToUpdate = this.modals.find((modalItem) => modalItem.id === modal.id);
+        const modalToUpdate = this.modals.find(
+            (modalItem) => modalItem.id === modal.id
+        )
         if (modalToUpdate) {
-          modalToUpdate.props = props;
-          this.updateModals();
+            modalToUpdate.props = props
+            this.updateModals()
         }
-      }
+    }
+
+    alertError(
+        text: string,
+        onResponse?: (response: boolean) => void,
+        onClosed?: () => void
+    ) {
+        this.pushAlert('Error', text, onResponse, onClosed)
+    }
+
+    alertSuccess(
+        text: string,
+        onResponse?: (response: boolean) => void,
+        onClosed?: () => void
+    ) {
+        this.pushAlert('Complete', text, onResponse, onClosed)
+    }
 
     pushAlert(
         type: AlertTypes,

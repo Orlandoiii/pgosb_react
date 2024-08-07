@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
+import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
-import { CreateCRUD } from '../../../services/http'
+import { CRUD } from '../../../utilities/crud'
 
 export const PersonInvolvedSchema = z.object({
     id: z.string().default(''),
@@ -113,7 +114,7 @@ function toApiInternal(data: TPersonInvolved): TApiPersonInvolved {
     }
 }
 
-export const FromApi = (data: TApiPersonInvolved) =>
+export const FromApi = (data: TApiPersonInvolved): ResultErr<TPersonInvolved> =>
     mapEntity<TApiPersonInvolved, TPersonInvolved>(
         data,
         ApiPersonInvolvedSchema as any,
@@ -121,7 +122,7 @@ export const FromApi = (data: TApiPersonInvolved) =>
         fromApiInternal
     )
 
-export const ToApi = (data: TPersonInvolved) =>
+export const ToApi = (data: TPersonInvolved): ResultErr<TApiPersonInvolved> =>
     mapEntity<TPersonInvolved, TApiPersonInvolved>(
         data,
         PersonInvolvedSchema as any,
@@ -129,7 +130,7 @@ export const ToApi = (data: TPersonInvolved) =>
         toApiInternal
     )
 
-export const personService = new CreateCRUD<TPersonInvolved>(
+export const personCrud = new CRUD<TPersonInvolved>(
     'mission/person',
     ToApi,
     FromApi

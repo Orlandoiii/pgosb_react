@@ -1,7 +1,9 @@
 import { z } from 'zod'
 
+import { ActionModal } from '../../../utilities/action_modal'
+import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
-import { CreateCRUD } from '../../../services/http'
+import { CRUD } from '../../../utilities/crud'
 
 export const InfrastructureSchema = z.object({
     id: z.coerce.number().default(0),
@@ -78,7 +80,7 @@ function toApiInternal(data: TInfrastructure): TApiInfrastructure {
     }
 }
 
-export const FromApi = (data: TApiInfrastructure) =>
+export const FromApi = (data: TApiInfrastructure): ResultErr<TInfrastructure> =>
     mapEntity<TApiInfrastructure, TInfrastructure>(
         data,
         ApiInfrastructureSchema as any,
@@ -86,7 +88,7 @@ export const FromApi = (data: TApiInfrastructure) =>
         fromApiInternal
     )
 
-export const ToApi = (data: TInfrastructure) =>
+export const ToApi = (data: TInfrastructure): ResultErr<TApiInfrastructure> =>
     mapEntity<TInfrastructure, TApiInfrastructure>(
         data,
         InfrastructureSchema as any,
@@ -94,7 +96,7 @@ export const ToApi = (data: TInfrastructure) =>
         toApiInternal
     )
 
-export const infrastructureService = new CreateCRUD<TInfrastructure>(
+export const infrastructureCrud = new CRUD<TInfrastructure>(
     'mission/infrastructure',
     ToApi,
     FromApi

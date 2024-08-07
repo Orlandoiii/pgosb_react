@@ -1,90 +1,64 @@
-import React, { useEffect, useState } from 'react'
-import { AddableTable } from '../../Temp/AddableTable '
+import React, { useState } from 'react'
 
-import PersonForm from '../Forms/PersonForm'
-import VehicleForm from '../Forms/VehicleForm'
-import InfrastructureForm from './InfrastructureForm'
-
-import { infrastructureService } from '../../../../domain/models/infrastructure/infrastructure'
-import { personService } from '../../../../domain/models/person/person_involved'
-import { vehicleService } from '../../../../domain/models/vehicle/vehicle_involved'
 import { modalService } from '../../../core/overlay/overlay_service'
-import { CreateElementFunction } from '../../../core/overlay/models/overlay_item'
-import ModalLayout from '../../../core/layouts/modal_layout'
-import { CreateCRUD, getAll, RequestResult } from '../../../../services/http'
+
+import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection'
+import { useCollection } from '../../../core/hooks/useCollection'
+
 import SelectSearch from '../../../core/inputs/SelectSearch'
+import ModalLayout from '../../../core/layouts/modal_layout'
+import LoadingModal from '../../../core/modal/LoadingModal'
+import { AddableTable } from '../../Temp/AddableTable '
+import Button from '../../../core/buttons/Button'
 import {
-    AntaresFromApi,
-    TAntares,
-} from '../../../../domain/models/antares/antares'
-import {
+    serviceCrud,
     ServiceSchema,
-    serviceService,
     TService,
 } from '../../../../domain/models/service/service'
-import LoadingModal from '../../../core/modal/LoadingModal'
 import { getDefaults } from '../../../core/context/CustomFormContext'
-import Button from '../../../core/buttons/Button'
+import { FromApi } from '../../../../domain/models/antares/antares'
 
-function validateResponse(response: RequestResult<any>, target: string) {
-    if (response.success)
-        modalService.pushAlert('Complete', `${target} eliminada!`)
-    else
-        modalService.pushAlert(
-            'Error',
-            `No se pudo eliminar la ${target.toLowerCase()} por: `
-        )
-}
+import InfrastructureForm from './InfrastructureForm'
+import { infrastructureCrud } from '../../../../domain/models/infrastructure/infrastructure'
+
+import VehicleForm from './VehicleForm'
+import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved'
+
+import PersonForm from './PersonForm'
+import { personCrud } from '../../../../domain/models/person/person_involved'
 
 interface ServiceFormProps {
     missionId: string
-    antaresCollection: TAntares[]
     closeOverlay?: () => void
 }
 
 const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
-    const [loading, setLoading] = useState(false)
-
-    const [antaresCollection, setAntaresCollection] = useState<TAntares[]>([])
-    const [antares, setAntares] = useState('')
-
-    const [savedAntares, setSavedAntares] = useState('')
+    const antaresCollection = useCollection('mission/antares', FromApi)
     const [serviceId, setServiceId] = useState('')
 
-    useEffect(() => {
-        const getAntares = async () => {
-            const response = await getAll<TAntares>(
-                'mission/antares',
-                AntaresFromApi
-            )
-            if (response.success && response.data)
-                setAntaresCollection(response.data)
-        }
-        getAntares()
-    }, [])
+    const [infrastructureActions, infrastructures] =
+        useActionModalAndCollection(
+            InfrastructureForm,
+            infrastructureCrud,
+            { serviceId: serviceId },
+            serviceId
+        )
+    const [vehicleActions, vehicles] = useActionModalAndCollection(
+        VehicleForm,
+        vehicleCrud,
+        { serviceId: serviceId },
+        serviceId
+    )
+    const [personActions, people] = useActionModalAndCollection(
+        PersonForm,
+        personCrud,
+        { serviceId: serviceId },
+        serviceId
+    )
 
-    function openModal<P>(element: CreateElementFunction<P>, props: P) {
-        modalService.pushModal(element, { ...props, closeOverlay: undefined })
-    }
-
-    async function deleteHandle(
-        service: CreateCRUD<any>,
-        id: string,
-        target: string
-    ) {
-        validateResponse(await service.remove(id), target)
-    }
-
-    async function editHandle(
-        service: CreateCRUD<any>,
-        id: string,
-        openMoal: (any) => void
-    ) {
-        const result = await service.getById(id)
-        if (result.success) {
-        } else
-            modalService.pushAlert('Error', `No se pudo encontrar el registro`)
-    }
+    const [loading, setLoading] = useState(false)
+    const [antares, setAntares] = useState('')
+    const [savedAntares, setSavedAntares] = useState('')
 
     function AntaresBlurHandler() {
         const selectedAntares = antaresCollection.filter(
@@ -117,14 +91,14 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
                 defaultValue.missionId = missionId
                 defaultValue.antaresId = antaresId
 
-                resultService = await serviceService.insert(defaultValue)
+                resultService = await serviceCrud.insert(defaultValue)
             } else {
-                const service = await serviceService.getById(serviceId)
+                const service = await serviceCrud.getById(serviceId)
 
-                if (service.success && service.data) {
-                    service.data.antaresId = antaresId
+                if (service.success && service.result) {
+                    service.result.antaresId = antaresId
 
-                    resultService = await serviceService.update(service.data)
+                    resultService = await serviceCrud.update(service.result)
                 }
             }
             if (resultService.success) {
@@ -148,12 +122,14 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
     function formIsEnable(): boolean {
         return savedAntares != '' && antares === savedAntares
     }
-    console.log(antares != '' && antares != savedAntares)
+
+    const antaresNames = antaresCollection.map((item) => item.description)
+    console.log('antaresNames', antaresNames)
 
     return (
         <>
             <ModalLayout
-                className=" max-h-[80vh] w-[80rem]"
+                className=" max-h-[80vh] min-w-[60vw] max-w-[90vw]"
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
@@ -161,9 +137,7 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
                     <SelectSearch
                         inputName={'model'}
                         label={'Modelo'}
-                        options={antaresCollection.map(
-                            (item) => item.description
-                        )}
+                        options={antaresNames}
                         searhValue={antares}
                         setSearhValue={setAntares}
                         onBlur={AntaresBlurHandler}
@@ -179,99 +153,57 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
                         ></Button>
                     </div>
                 </div>
-                <div className="space-y-10">
+                <div className="space-y-10 w-full">
                     <AddableTable
                         enable={formIsEnable()}
                         title="Unidades"
-                        data={[
-                            {
-                                id: 123,
-                                name: 'David',
-                                job: 'Desarrollador',
-                                edad: 28,
-                            },
-                        ]}
+                        data={[]}
                         idPropertyName="id"
                         addButtonText="Agregar una unidad"
-                        onAddButtonClick={() =>
-                            openModal(InfrastructureForm, {
-                                serviceId: serviceId,
-                            })
-                        }
+                        onAddButtonClick={infrastructureActions.add}
                     ></AddableTable>
 
                     <AddableTable
                         enable={formIsEnable()}
                         title="Bomberos"
                         data={[]}
+                        defaultSort={''}
                         idPropertyName="id"
                         addButtonText="Agregar un bombero"
-                        onAddButtonClick={() =>
-                            openModal(InfrastructureForm, {
-                                serviceId: serviceId,
-                            })
-                        }
+                        onAddButtonClick={infrastructureActions.add}
                     ></AddableTable>
 
                     <AddableTable
                         enable={formIsEnable()}
                         title="Infraestructuras"
-                        data={[]}
+                        data={infrastructures}
                         idPropertyName="id"
                         addButtonText="Agregar una infraestructura"
-                        onAddButtonClick={() =>
-                            openModal(InfrastructureForm, {
-                                serviceId: serviceId,
-                            })
-                        }
-                        onEditButtonClick={(id) => {
-                            editHandle(
-                                infrastructureService,
-                                id,
-                                InfrastructureForm
-                            )
-                        }}
-                        onDeleteButtonClick={(id) => {
-                            deleteHandle(
-                                infrastructureService,
-                                id,
-                                'Infraestructura'
-                            )
-                        }}
+                        onAddButtonClick={infrastructureActions.add}
+                        onEditButtonClick={infrastructureActions.edit}
+                        onDeleteButtonClick={infrastructureActions.delete}
                     ></AddableTable>
 
                     <AddableTable
                         enable={formIsEnable()}
                         title="Vehiculos"
-                        data={[]}
+                        data={vehicles}
                         idPropertyName="id"
                         addButtonText="Agregar un vehiculo"
-                        onAddButtonClick={() =>
-                            openModal(VehicleForm, { serviceId: serviceId })
-                        }
-                        onEditButtonClick={(id) => {
-                            editHandle(vehicleService, id, VehicleForm)
-                        }}
-                        onDeleteButtonClick={(id) => {
-                            deleteHandle(vehicleService, id, 'Vehiculo')
-                        }}
+                        onAddButtonClick={vehicleActions.add}
+                        onEditButtonClick={vehicleActions.edit}
+                        onDeleteButtonClick={vehicleActions.delete}
                     ></AddableTable>
 
                     <AddableTable
                         enable={formIsEnable()}
                         title="Personas"
-                        data={[]}
+                        data={people}
                         idPropertyName="id"
                         addButtonText="Agregar una persona"
-                        onAddButtonClick={() =>
-                            openModal(PersonForm, { serviceId: serviceId })
-                        }
-                        onEditButtonClick={(id) => {
-                            editHandle(personService, id, PersonForm)
-                        }}
-                        onDeleteButtonClick={(id) => {
-                            deleteHandle(personService, id, 'Persona')
-                        }}
+                        onAddButtonClick={personActions.add}
+                        onEditButtonClick={personActions.edit}
+                        onDeleteButtonClick={personActions.delete}
                     ></AddableTable>
                 </div>
             </ModalLayout>
@@ -280,5 +212,4 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
         </>
     )
 }
-
 export default ServiceForm

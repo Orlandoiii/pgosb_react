@@ -12,16 +12,18 @@ import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
-import { infrastructureService } from '../../../../domain/models/infrastructure/infrastructure'
+import { infrastructureCrud } from '../../../../domain/models/infrastructure/infrastructure'
 import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
+import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 
 interface InfrastructureFormProps {
     serviceId: string
     initValue?: TInfrastructure | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
+    add?: boolean
 }
 
 const areaCodes = ['0212', '0412', '0414', '0424']
@@ -31,6 +33,7 @@ const InfrastructureForm = ({
     initValue,
     onClose,
     closeOverlay,
+    add = true,
 }: InfrastructureFormProps) => {
     const [loading, setLoading] = useState(false)
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
@@ -41,11 +44,14 @@ const InfrastructureForm = ({
         setLoading(true)
 
         try {
+            console.log('data', data)
             const parsed = InfrastructureSchema.parse(data)
-            const result = await infrastructureService.insert(parsed)
-            console.log('closeOverlay')
-            console.log(closeOverlay)
-            closeOverlay && closeOverlay()
+            console.log('parsed', parsed)
+            var result: ResultErr<TInfrastructure>
+
+            if (add) result = await infrastructureCrud.insert(parsed)
+            else result = await infrastructureCrud.update(parsed)
+
             if (result.success) {
                 modalService.pushAlert(
                     'Complete',
@@ -57,7 +63,7 @@ const InfrastructureForm = ({
             } else {
                 modalService.pushAlert(
                     'Error',
-                    `No se pudo guardar la infrastructura por: ${result.data}`
+                    `No se pudo guardar la infrastructura por: ${result.result}`
                 )
             }
         } catch (error) {
@@ -74,6 +80,7 @@ const InfrastructureForm = ({
         if (closeOverlay) closeOverlay()
         if (onClose) onClose(false)
     }
+    console.log('initValue', initValue)
 
     return (
         <>

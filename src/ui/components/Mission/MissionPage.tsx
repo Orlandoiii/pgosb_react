@@ -5,7 +5,7 @@ import testJson from '../../../mocks/operations.json'
 
 import {
     MissionSchema,
-    missionService,
+    missionCrud,
     TMission,
 } from '../../../domain/models/mission/mission'
 
@@ -22,19 +22,19 @@ const MissionPage = () => {
         try {
             setLoading(true)
 
-            const missionResult = await missionService.insert(
+            const missionResult = await missionCrud.insert(
                 getDefaults<TMission>(MissionSchema)
             )
 
-            if (missionResult.success && missionResult.data?.id) {
+            if (missionResult.success && missionResult.result?.id) {
                 modalService.pushModal(MissionForm, {
-                    missionId: missionResult.data?.id,
+                    missionId: missionResult.result?.id,
                     closeOverlay: undefined,
                 })
             } else if (!missionResult.success)
                 errorMessage =
                     'Lo sentimos tenemos problemas para agregar la misión'
-            else if (!missionResult.data?.id) {
+            else if (!missionResult.result?.id) {
                 errorMessage = 'El Id no fue retornado en el agregar la misión'
             }
         } catch (error) {

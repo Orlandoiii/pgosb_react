@@ -1,7 +1,8 @@
 import { z } from 'zod'
 
+import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
-import { CreateCRUD } from '../../../services/http'
+import { CRUD } from '../../../utilities/crud'
 
 export const VehicleInvolvedSchema = z.object({
     id: z.string().default(''),
@@ -10,7 +11,7 @@ export const VehicleInvolvedSchema = z.object({
     model: z.string().default(''),
     color: z.string().default(''),
     licensePlate: z.string().default(''),
-    year: z.coerce.date().default(new Date()),
+    year: z.coerce.string().default(''),
     condition: z.string().default(''),
     motorSerial: z.string().default(''),
     type: z.string().default(''),
@@ -41,7 +42,7 @@ function fromApiInternal(data: TApiVehicleInvolved): TVehicleInvolved {
         condition: data.vehicle_condition,
         brand: data.make,
         model: data.model,
-        year: new Date(data.year),
+        year: data.year,
         licensePlate: data.plate,
         color: data.color,
         type: data.vehicle_type,
@@ -57,7 +58,7 @@ function toApiInternal(data: TVehicleInvolved): TApiVehicleInvolved {
         vehicle_condition: data.condition,
         make: data.brand,
         model: data.model,
-        year: String(data.year),
+        year: data.year,
         plate: data.licensePlate,
         color: data.color,
         vehicle_type: data.type,
@@ -66,14 +67,16 @@ function toApiInternal(data: TVehicleInvolved): TApiVehicleInvolved {
     }
 }
 
-export const FromApi = (data: TApiVehicleInvolved) =>
+export const FromApi = (
+    data: TApiVehicleInvolved
+): ResultErr<TVehicleInvolved> =>
     mapEntity<TApiVehicleInvolved, TVehicleInvolved>(
         data,
         ApiVehicleInvolvedSchema as any,
         VehicleInvolvedSchema as any,
         fromApiInternal
     )
-export const ToApi = (data: TVehicleInvolved) =>
+export const ToApi = (data: TVehicleInvolved): ResultErr<TApiVehicleInvolved> =>
     mapEntity<TVehicleInvolved, TApiVehicleInvolved>(
         data,
         VehicleInvolvedSchema as any,
@@ -81,7 +84,7 @@ export const ToApi = (data: TVehicleInvolved) =>
         toApiInternal
     )
 
-export const vehicleService = new CreateCRUD<TVehicleInvolved>(
+export const vehicleCrud = new CRUD<TVehicleInvolved>(
     'mission/vehicle',
     ToApi,
     FromApi

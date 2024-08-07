@@ -1,12 +1,13 @@
 import { z } from 'zod'
 
+import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
-import { CreateCRUD } from '../../../services/http'
+import { CRUD } from '../../../utilities/crud'
 
 export const ServiceSchema = z.object({
-    id: z.string().default(""),
-    missionId: z.string().default(""),
-    antaresId: z.string().default(""),
+    id: z.string().default(''),
+    missionId: z.string().default(''),
+    antaresId: z.string().default(''),
     units: z.array(z.number().default(0)).default([]),
     firefighter: z.array(z.number().default(0)).default([]),
     summary: z.string().default(''),
@@ -14,9 +15,9 @@ export const ServiceSchema = z.object({
 })
 
 export const ApiServiceSchema = z.object({
-    id: z.string().default(""),
-    mission_id: z.string().default(""),
-    antares_id: z.string().default(""),
+    id: z.string().default(''),
+    mission_id: z.string().default(''),
+    antares_id: z.string().default(''),
     units: z.array(z.number().default(0)).default([]),
     bombers: z.array(z.number().default(0)).default([]),
     summary: z.string().default(''),
@@ -50,7 +51,7 @@ function toApiInternal(data: TService): TApiService {
     }
 }
 
-export const FromApi = (data: TApiService) =>
+export const FromApi = (data: TApiService): ResultErr<TService> =>
     mapEntity<TApiService, TService>(
         data,
         ApiServiceSchema as any,
@@ -58,7 +59,7 @@ export const FromApi = (data: TApiService) =>
         fromApiInternal
     )
 
-export const ToApi = (data: TService) =>
+export const ToApi = (data: TService): ResultErr<TApiService> =>
     mapEntity<TService, TApiService>(
         data,
         ServiceSchema as any,
@@ -66,8 +67,4 @@ export const ToApi = (data: TService) =>
         toApiInternal
     )
 
-export const serviceService = new CreateCRUD<TService>(
-    'mission/service',
-    ToApi,
-    FromApi
-)
+export const serviceCrud = new CRUD<TService>('mission/service', ToApi, FromApi)
