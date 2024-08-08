@@ -1,25 +1,25 @@
 import { z } from 'zod'
 
-import { ActionModal } from '../../../utilities/action_modal'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
+import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 
 export const InfrastructureSchema = z.object({
     id: z.coerce.number().default(0),
-    serviceId: z.coerce.string().default(''),
-    buildType: z.string().default(''),
-    buildOccupation: z.string().default(''),
-    buildArea: z.string().default(''),
-    buildAccess: z.string().default(''),
+    serviceId: zodEmptyOrGreaterThan(0),
+    buildType: zodEmptyOrGreaterThan(3),
+    buildOccupation: zodEmptyOrGreaterThan(3),
+    buildArea: zodEmptyOrGreaterThan(3),
+    buildAccess: zodEmptyOrGreaterThan(3),
     levels: z.coerce.number().default(0),
     people: z.coerce.number().default(0),
-    goodsType: z.string().default(''),
-    buildRoof: z.string().default(''),
-    buildWall: z.string().default(''),
-    buildFloor: z.string().default(''),
-    buildRoomType: z.string().default(''),
-    observations: z.string().default(''),
+    goodsType: zodEmptyOrGreaterThan(3),
+    buildRoof: zodEmptyOrGreaterThan(3),
+    buildWall: zodEmptyOrGreaterThan(3),
+    buildFloor: zodEmptyOrGreaterThan(3),
+    buildRoomType: zodEmptyOrGreaterThan(3),
+    observations: zodEmptyOrGreaterThan(2),
 })
 
 export const ApiInfrastructureSchema = z.object({
@@ -101,3 +101,15 @@ export const infrastructureCrud = new CRUD<TInfrastructure>(
     ToApi,
     FromApi
 )
+
+export const infrastructureNameConverter: {
+    [K in keyof TInfrastructure]?: string
+} = {
+    id: 'Id',
+    buildType: 'Tipo',
+    buildOccupation: 'Ocupacion',
+    buildArea: 'Area',
+    goodsType: 'Tipo de bien',
+    people: 'Personas',
+    levels: 'Niveles',
+}

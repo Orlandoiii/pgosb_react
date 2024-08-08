@@ -3,18 +3,19 @@ import { z } from 'zod'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
+import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 
 export const VehicleInvolvedSchema = z.object({
-    id: z.string().default(''),
-    serviceId: z.coerce.string().default(''),
-    brand: z.string().default(''),
-    model: z.string().default(''),
-    color: z.string().default(''),
-    licensePlate: z.string().default(''),
+    id: zodEmptyOrGreaterThan(0),
+    serviceId: zodEmptyOrGreaterThan(0),
+    brand: zodEmptyOrGreaterThan(3),
+    model: zodEmptyOrGreaterThan(3),
+    color: zodEmptyOrGreaterThan(3),
+    licensePlate: zodEmptyOrGreaterThan(5),
     year: z.coerce.string().default(''),
-    condition: z.string().default(''),
-    motorSerial: z.string().default(''),
-    type: z.string().default(''),
+    condition: zodEmptyOrGreaterThan(3),
+    motorSerial: zodEmptyOrGreaterThan(8),
+    type: zodEmptyOrGreaterThan(3),
     verified: z.boolean().default(false),
 })
 
@@ -89,3 +90,14 @@ export const vehicleCrud = new CRUD<TVehicleInvolved>(
     ToApi,
     FromApi
 )
+
+export const vehicleNameConverter: { [K in keyof TVehicleInvolved]?: string } =
+    {
+        id: 'Id',
+        type: 'Tipo',
+        brand: 'Marca',
+        model: 'Modelo',
+        color: 'Colors',
+        year: 'Año',
+        licensePlate: 'Placa',
+    }

@@ -22,6 +22,8 @@ import LoadingModal from '../../../core/modal/LoadingModal'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
+import { Genders } from '../../../../domain/abstractions/enums/genders.ts'
+import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types.ts'
 
 interface PersonFormProps {
     serviceId: string
@@ -122,7 +124,7 @@ const PersonForm = ({
                                 <FormSelect<TPersonInvolved>
                                     fieldName={'gender'}
                                     description={'Genero:'}
-                                    options={areaCodes}
+                                    options={EnumToStringArray(Genders)}
                                 />
                             </div>
 
@@ -138,7 +140,7 @@ const PersonForm = ({
                                     <FormSelect<TPersonInvolved>
                                         fieldName={'idDocumentType'}
                                         description={'Tipo de Documento:'}
-                                        options={areaCodes}
+                                        options={EnumToStringArray(DocumentTypes)}
                                     />
                                 </div>
 
@@ -152,7 +154,7 @@ const PersonForm = ({
                                 <FormSelect<TPersonInvolved>
                                     fieldName={'phoneNumberAreaCode'}
                                     description={'Código:'}
-                                    options={areaCodes}
+                                    options={EnumToStringArray(AreaCodes)}
                                 />
                             </div>
 

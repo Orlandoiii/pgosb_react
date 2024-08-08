@@ -3,10 +3,11 @@ import { z } from 'zod'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
+import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 
 export const MissionSchema = z.object({
-    id: z.string().default(''),
-    code: z.string().default(''),
+    id: zodEmptyOrGreaterThan(0),
+    code: zodEmptyOrGreaterThan(0),
     createdAt: z.coerce.date().default(new Date()),
 })
 

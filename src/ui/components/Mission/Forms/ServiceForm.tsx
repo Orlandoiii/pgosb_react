@@ -19,13 +19,13 @@ import { getDefaults } from '../../../core/context/CustomFormContext'
 import { FromApi } from '../../../../domain/models/antares/antares'
 
 import InfrastructureForm from './InfrastructureForm'
-import { infrastructureCrud } from '../../../../domain/models/infrastructure/infrastructure'
+import { infrastructureCrud, infrastructureNameConverter } from '../../../../domain/models/infrastructure/infrastructure'
 
 import VehicleForm from './VehicleForm'
-import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved'
+import { vehicleCrud, vehicleNameConverter } from '../../../../domain/models/vehicle/vehicle_involved'
 
 import PersonForm from './PersonForm'
-import { personCrud } from '../../../../domain/models/person/person_involved'
+import { personCrud, personNameConverter } from '../../../../domain/models/person/person_involved'
 
 interface ServiceFormProps {
     missionId: string
@@ -179,6 +179,7 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
                         data={infrastructures}
                         idPropertyName="id"
                         addButtonText="Agregar una infraestructura"
+                        nameConverter={infrastructureNameConverter}
                         onAddButtonClick={infrastructureActions.add}
                         onEditButtonClick={infrastructureActions.edit}
                         onDeleteButtonClick={infrastructureActions.delete}
@@ -190,6 +191,7 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
                         data={vehicles}
                         idPropertyName="id"
                         addButtonText="Agregar un vehiculo"
+                        nameConverter={vehicleNameConverter}
                         onAddButtonClick={vehicleActions.add}
                         onEditButtonClick={vehicleActions.edit}
                         onDeleteButtonClick={vehicleActions.delete}
@@ -201,6 +203,7 @@ const ServiceForm = ({ missionId, closeOverlay }: ServiceFormProps) => {
                         data={people}
                         idPropertyName="id"
                         addButtonText="Agregar una persona"
+                        nameConverter={personNameConverter}
                         onAddButtonClick={personActions.add}
                         onEditButtonClick={personActions.edit}
                         onDeleteButtonClick={personActions.delete}

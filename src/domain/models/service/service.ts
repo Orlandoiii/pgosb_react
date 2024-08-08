@@ -3,15 +3,16 @@ import { z } from 'zod'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
+import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 
 export const ServiceSchema = z.object({
-    id: z.string().default(''),
-    missionId: z.string().default(''),
-    antaresId: z.string().default(''),
+    id: zodEmptyOrGreaterThan(0),
+    missionId: zodEmptyOrGreaterThan(0),
+    antaresId: zodEmptyOrGreaterThan(0),
     units: z.array(z.number().default(0)).default([]),
     firefighter: z.array(z.number().default(0)).default([]),
-    summary: z.string().default(''),
-    description: z.string().default(''),
+    summary: zodEmptyOrGreaterThan(3),
+    description: zodEmptyOrGreaterThan(3),
 })
 
 export const ApiServiceSchema = z.object({
@@ -68,3 +69,10 @@ export const ToApi = (data: TService): ResultErr<TApiService> =>
     )
 
 export const serviceCrud = new CRUD<TService>('mission/service', ToApi, FromApi)
+
+export const serviceNameConverter: { [K in keyof TService]?: string } = {
+    id: 'Id',
+    antaresId: 'Antares',
+    firefighter: 'Bomberos',
+    units: 'Unidades',
+}
