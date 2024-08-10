@@ -23,7 +23,11 @@ export class CRUD<T> {
     async insert(data: T): Promise<ResultErr<T>> {
         const mapped = this.toJson(data)
 
-        if (mapped.success) return insert(this.endpointCompound, mapped.result)
+        if (mapped.success) {
+           const result = await insert<T>(this.endpointCompound, mapped.result)
+           if (!result.success || typeof result.result != 'object') return result
+           return this.fromJson(result.result)
+        }
         else return { success: false, error: 'El mapeo no fue satisfactorio' }
     }
 

@@ -12,8 +12,15 @@ export class ActionModal<T, P> {
         private readonly baseProps: P,
         private readonly groupId: string,
         private readonly collectionChanged?: (data: T[]) => void
-    ) {}
+    ) {
+        this.add = this.add.bind(this);
+        this.edit = this.edit.bind(this);
+        this.delete = this.delete.bind(this);
+        this.openModal = this.openModal.bind(this);
+        this.updateCollection = this.updateCollection.bind(this);
+    }
 
+    
     add() {
         this.openModal()
     }
@@ -35,6 +42,7 @@ export class ActionModal<T, P> {
     }
 
     private openModal(add: boolean = true, props?: Partial<P>) {
+        console.log("calleddd")
         modalService.pushModal(
             this.modal,
             {

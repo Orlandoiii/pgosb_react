@@ -12,7 +12,7 @@ interface AddableTableProps<T> {
     data: T[]
     defaultSort?: keyof T
     idPropertyName: string
-    nameConverter?: {[K in keyof T]?: string}
+    nameConverter?: { [K in keyof T]?: string }
     onEditButtonClick?: (id: string) => void
     onDeleteButtonClick?: (id: string) => void
 }
@@ -36,6 +36,7 @@ export function AddableTable<T>({
 
     useEffect(() => {
         if (sort == '') return
+
         setInternalData([
             ...internalData.sort((a, b) => {
                 const valueA = a?.[sort as keyof T]
@@ -58,9 +59,6 @@ export function AddableTable<T>({
     }, [sort, sortAsc])
 
     useEffect(() => {
-        console.log('data')
-        console.log(data)
-
         setInternalData([
             ...data.sort((a, b) => {
                 const valueA = a?.[sort as keyof T]
@@ -100,7 +98,7 @@ export function AddableTable<T>({
     function propertiesCount(): number {
         return anyElement()
             ? nameConverter
-                ? Object.entries(nameConverter[0] as any).length
+                ? Object.entries(nameConverter as any).length
                 : Object.entries(internalData[0] as any).length
             : 0
     }
@@ -120,44 +118,54 @@ export function AddableTable<T>({
                         {anyElement() ? (
                             <>
                                 {Object.entries(internalData[0] as any).map(
-                                    (property) => {
-                                        !nameConverter ||
-                                        nameConverter.hasOwnProperty(
-                                            property[0]
-                                        ) ? (
-                                            <td
-                                                key={property[0]}
-                                                className={`  px-4 duration-200 hover:bg-[#1d4368] ${enable ? 'cursor-pointer' : ''}`}
-                                                onClick={
-                                                    enable
-                                                        ? () =>
-                                                              changeSort(
-                                                                  property[0] as keyof T
-                                                              )
-                                                        : () => {}
-                                                }
-                                            >
-                                                <div className="flex space-x-4">
-                                                    <span>{property[0]}</span>
-                                                    {property[0] == sort && (
-                                                        <div
-                                                            className={`h-5 aspect-square ${sortAsc ? '-rotate-180' : ''} duration-200`}
-                                                        >
-                                                            <svg
-                                                                xmlns="http://www.w3.org/2000/svg"
-                                                                viewBox="0 -960 960 960"
-                                                                fill="#e8eaed"
+                                    (property) => (
+                                        <>
+                                            {!nameConverter ||
+                                            (nameConverter &&
+                                                nameConverter.hasOwnProperty(
+                                                    String(property[0])
+                                                )) ? (
+                                                <td
+                                                    key={`${property[0]}-header`}
+                                                    className={`  px-4 duration-200 hover:bg-[#1d4368] ${enable ? 'cursor-pointer' : ''}`}
+                                                    onClick={
+                                                        enable
+                                                            ? () =>
+                                                                  changeSort(
+                                                                      String(
+                                                                          property[0]
+                                                                      ) as keyof T
+                                                                  )
+                                                            : () => {}
+                                                    }
+                                                >
+                                                    <div className="flex space-x-4">
+                                                        <span>
+                                                            {nameConverter
+                                                                ? nameConverter[property[0]]
+                                                                : property[0]}
+                                                        </span>
+                                                        {property[0] ==
+                                                            sort && (
+                                                            <div
+                                                                className={`h-5 aspect-square ${sortAsc ? '-rotate-180' : ''} duration-200`}
                                                             >
-                                                                <path d="M480-80 200-360l56-56 184 183v-647h80v647l184-184 56 57L480-80Z" />
-                                                            </svg>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </td>
-                                        ) : (
-                                            <></>
-                                        )
-                                    }
+                                                                <svg
+                                                                    xmlns="http://www.w3.org/2000/svg"
+                                                                    viewBox="0 -960 960 960"
+                                                                    fill="#e8eaed"
+                                                                >
+                                                                    <path d="M480-80 200-360l56-56 184 183v-647h80v647l184-184 56 57L480-80Z" />
+                                                                </svg>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            ) : (
+                                                <></>
+                                            )}
+                                        </>
+                                    )
                                 )}
                                 <td className="absolute top-0 left-0  pointer-events-non"></td>
                             </>
@@ -181,7 +189,7 @@ export function AddableTable<T>({
                                     (property) =>
                                         !nameConverter ||
                                         nameConverter.hasOwnProperty(
-                                            property[0]
+                                            String(property[0])
                                         ) ? (
                                             <td
                                                 key={property[0]}

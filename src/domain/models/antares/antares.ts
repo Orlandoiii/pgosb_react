@@ -35,7 +35,7 @@ function toApiInternal(data: TAntares): TApiAntares {
     }
 }
 
-export const FromApi = (data: TApiAntares): ResultErr<TAntares> =>
+export const AntaresFromApi = (data: TApiAntares): ResultErr<TAntares> =>
     mapEntity<TApiAntares, TAntares>(
         data,
         ApiAntaresSchema as any,
@@ -43,7 +43,7 @@ export const FromApi = (data: TApiAntares): ResultErr<TAntares> =>
         fromApiInternal
     )
 
-export const ToApi = (data: TAntares): ResultErr<TApiAntares> =>
+export const AntaresToApi = (data: TAntares): ResultErr<TApiAntares> =>
     mapEntity<TAntares, TApiAntares>(
         data,
         AntaresSchema as any,
@@ -51,4 +51,8 @@ export const ToApi = (data: TAntares): ResultErr<TApiAntares> =>
         toApiInternal
     )
 
-export const antaresCrud = new CRUD<TAntares>('mission', ToApi, FromApi)
+export const antaresCrud = new CRUD<TAntares>(
+    'mission',
+    AntaresToApi,
+    AntaresFromApi
+)

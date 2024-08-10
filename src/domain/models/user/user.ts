@@ -1,6 +1,8 @@
-import { z } from 'zod'
+import { string, z } from 'zod'
 import { MartialStatusTypes } from '../../abstractions/enums/martial_status_type'
 import { Genders } from '../../abstractions/enums/genders'
+import { mapEntity } from '../../../services/mapper'
+import { ResultErr } from '../../abstractions/types/resulterr'
 
 export const UserSchemaBasicData = z
     .object({
@@ -145,3 +147,24 @@ export const UserIntutionalDataSchema = z.object({
     user_system: z.boolean().default(false).optional(),
 })
 
+
+type UserSimple  = {
+	id: string
+	name: string
+	user_name: string
+	rank: string
+	code: string
+	legal_id: string
+}
+
+export const UserSimpleFromApi = (
+    data: UserSimple
+): ResultErr<UserSimple> => {
+    return {success: true, result : data, error: ''}
+}
+
+export const UserSimpleToApi = (
+    data: UserSimple
+): ResultErr<UserSimple> => {
+    return {success: true, result : data, error: ''}
+}

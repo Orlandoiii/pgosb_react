@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { ResultErr } from '../../abstractions/types/resulterr'
+import { mapEntity } from '../../../services/mapper'
 
 export const UnitSchemaBasicData = z.object({
     id: z.string().optional(),
@@ -177,3 +179,32 @@ export const UnitCharacteristicsSchema = z.object({
 export type UnitCharacteristicsSchemaType = z.infer<
     typeof UnitCharacteristicsSchema
 >
+
+
+function fromApiInternal(data: UnitCharacteristicsSchemaType): UnitCharacteristicsSchemaType {
+    return data
+}
+
+function toApiInternal(data: UnitCharacteristicsSchemaType): UnitCharacteristicsSchemaType {
+    return data
+}
+
+export const InitFromApi = (
+    data: UnitCharacteristicsSchemaType
+): ResultErr<UnitCharacteristicsSchemaType> =>
+    mapEntity<UnitCharacteristicsSchemaType, UnitCharacteristicsSchemaType>(
+        data,
+        UnitCharacteristicsSchema as any,
+        UnitCharacteristicsSchema as any,
+        fromApiInternal
+    )
+
+export const InfrastructureToApi = (
+    data: UnitCharacteristicsSchemaType
+): ResultErr<UnitCharacteristicsSchemaType> =>
+    mapEntity<UnitCharacteristicsSchemaType, UnitCharacteristicsSchemaType>(
+        data,
+        UnitCharacteristicsSchema as any,
+        UnitCharacteristicsSchema as any,
+        toApiInternal
+    )

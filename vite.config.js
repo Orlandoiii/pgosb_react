@@ -12,7 +12,7 @@ export default defineConfig({
     },
     preview: {
         host: true,
-        port: 5173, // Set your desired port for the preview server
+        port: 5100, // Set your desired port for the preview server
     },
     build: {
         outDir: "./server/ui/dist/"

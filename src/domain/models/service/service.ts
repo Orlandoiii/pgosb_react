@@ -9,20 +9,20 @@ export const ServiceSchema = z.object({
     id: zodEmptyOrGreaterThan(0),
     missionId: zodEmptyOrGreaterThan(0),
     antaresId: zodEmptyOrGreaterThan(0),
-    units: z.array(z.number().default(0)).default([]),
-    firefighter: z.array(z.number().default(0)).default([]),
+    units: z.array(z.string()).default([]),
+    firefighter: z.array(z.string()).default([]),
     summary: zodEmptyOrGreaterThan(3),
     description: zodEmptyOrGreaterThan(3),
 })
 
 export const ApiServiceSchema = z.object({
-    id: z.string().default(''),
-    mission_id: z.string().default(''),
-    antares_id: z.string().default(''),
-    units: z.array(z.number().default(0)).default([]),
-    bombers: z.array(z.number().default(0)).default([]),
-    summary: z.string().default(''),
-    description: z.string().default(''),
+    id: zodEmptyOrGreaterThan(0),
+    mission_id: zodEmptyOrGreaterThan(0),
+    antares_id: zodEmptyOrGreaterThan(0),
+    units: z.array(z.string()).default([]),
+    bombers: z.array(z.string()).default([]),
+    summary: zodEmptyOrGreaterThan(0),
+    description: zodEmptyOrGreaterThan(0),
 })
 
 export type TService = z.infer<typeof ServiceSchema>
@@ -52,7 +52,7 @@ function toApiInternal(data: TService): TApiService {
     }
 }
 
-export const FromApi = (data: TApiService): ResultErr<TService> =>
+export const ServiceFromApi = (data: TApiService): ResultErr<TService> =>
     mapEntity<TApiService, TService>(
         data,
         ApiServiceSchema as any,
@@ -60,7 +60,7 @@ export const FromApi = (data: TApiService): ResultErr<TService> =>
         fromApiInternal
     )
 
-export const ToApi = (data: TService): ResultErr<TApiService> =>
+export const ServiceToApi = (data: TService): ResultErr<TApiService> =>
     mapEntity<TService, TApiService>(
         data,
         ServiceSchema as any,
@@ -68,7 +68,11 @@ export const ToApi = (data: TService): ResultErr<TApiService> =>
         toApiInternal
     )
 
-export const serviceCrud = new CRUD<TService>('mission/service', ToApi, FromApi)
+export const serviceCrud = new CRUD<TService>(
+    'mission/service',
+    ServiceToApi,
+    ServiceFromApi
+)
 
 export const serviceNameConverter: { [K in keyof TService]?: string } = {
     id: 'Id',

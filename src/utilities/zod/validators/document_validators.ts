@@ -2,7 +2,7 @@ import { z } from 'zod'
 
 import { zodEmptyOr } from '../empty_string'
 
-export function zodPhoneNumber(): any {
+export function zodIdDocument(): any {
     return zodEmptyOr(
         z
             .string()

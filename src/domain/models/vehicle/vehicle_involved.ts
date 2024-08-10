@@ -68,7 +68,7 @@ function toApiInternal(data: TVehicleInvolved): TApiVehicleInvolved {
     }
 }
 
-export const FromApi = (
+export const VehicleFromApi = (
     data: TApiVehicleInvolved
 ): ResultErr<TVehicleInvolved> =>
     mapEntity<TApiVehicleInvolved, TVehicleInvolved>(
@@ -77,7 +77,9 @@ export const FromApi = (
         VehicleInvolvedSchema as any,
         fromApiInternal
     )
-export const ToApi = (data: TVehicleInvolved): ResultErr<TApiVehicleInvolved> =>
+export const VehicleToApi = (
+    data: TVehicleInvolved
+): ResultErr<TApiVehicleInvolved> =>
     mapEntity<TVehicleInvolved, TApiVehicleInvolved>(
         data,
         VehicleInvolvedSchema as any,
@@ -87,8 +89,8 @@ export const ToApi = (data: TVehicleInvolved): ResultErr<TApiVehicleInvolved> =>
 
 export const vehicleCrud = new CRUD<TVehicleInvolved>(
     'mission/vehicle',
-    ToApi,
-    FromApi
+    VehicleToApi,
+    VehicleFromApi
 )
 
 export const vehicleNameConverter: { [K in keyof TVehicleInvolved]?: string } =

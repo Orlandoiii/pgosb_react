@@ -8,13 +8,13 @@ import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 export const MissionSchema = z.object({
     id: zodEmptyOrGreaterThan(0),
     code: zodEmptyOrGreaterThan(0),
-    createdAt: z.coerce.date().default(new Date()),
+    createdAt: zodEmptyOrGreaterThan(0),
 })
 
 export const ApiMissionSchema = z.object({
     id: z.string().default(''),
     code: z.string().default(''),
-    created_at: z.date().default(new Date()),
+    created_at: zodEmptyOrGreaterThan(0),
 })
 
 export type TMission = z.infer<typeof MissionSchema>
@@ -36,7 +36,7 @@ function toApiInternal(data: TMission): TApiMission {
     }
 }
 
-export const FromApi = (data: TApiMission): ResultErr<TMission> =>
+export const MissionFromApi = (data: TApiMission): ResultErr<TMission> =>
     mapEntity<TApiMission, TMission>(
         data,
         ApiMissionSchema as any,
@@ -44,7 +44,7 @@ export const FromApi = (data: TApiMission): ResultErr<TMission> =>
         fromApiInternal
     )
 
-export const ToApi = (data: TMission): ResultErr<TApiMission> =>
+export const MissionToApi = (data: TMission): ResultErr<TApiMission> =>
     mapEntity<TMission, TApiMission>(
         data,
         MissionSchema as any,
@@ -52,4 +52,8 @@ export const ToApi = (data: TMission): ResultErr<TApiMission> =>
         toApiInternal
     )
 
-export const missionCrud = new CRUD<TMission>('mission', ToApi, FromApi)
+export const missionCrud = new CRUD<TMission>(
+    'mission',
+    MissionToApi,
+    MissionFromApi
+)

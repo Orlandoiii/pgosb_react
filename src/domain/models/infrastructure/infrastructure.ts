@@ -80,7 +80,9 @@ function toApiInternal(data: TInfrastructure): TApiInfrastructure {
     }
 }
 
-export const FromApi = (data: TApiInfrastructure): ResultErr<TInfrastructure> =>
+export const InfrastructureFromApi = (
+    data: TApiInfrastructure
+): ResultErr<TInfrastructure> =>
     mapEntity<TApiInfrastructure, TInfrastructure>(
         data,
         ApiInfrastructureSchema as any,
@@ -88,7 +90,9 @@ export const FromApi = (data: TApiInfrastructure): ResultErr<TInfrastructure> =>
         fromApiInternal
     )
 
-export const ToApi = (data: TInfrastructure): ResultErr<TApiInfrastructure> =>
+export const InfrastructureToApi = (
+    data: TInfrastructure
+): ResultErr<TApiInfrastructure> =>
     mapEntity<TInfrastructure, TApiInfrastructure>(
         data,
         InfrastructureSchema as any,
@@ -98,8 +102,8 @@ export const ToApi = (data: TInfrastructure): ResultErr<TApiInfrastructure> =>
 
 export const infrastructureCrud = new CRUD<TInfrastructure>(
     'mission/infrastructure',
-    ToApi,
-    FromApi
+    InfrastructureToApi,
+    InfrastructureFromApi
 )
 
 export const infrastructureNameConverter: {

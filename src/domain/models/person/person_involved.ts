@@ -5,6 +5,7 @@ import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
 import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 import { zodPhoneNumber } from '../../../utilities/zod/validators/phone_validators'
+import { zodIdDocument } from '../../../utilities/zod/validators/document_validators'
 
 export const PersonInvolvedSchema = z.object({
     id: zodEmptyOrGreaterThan(0),
@@ -64,9 +65,9 @@ function fromApiInternal(data: TApiPersonInvolved): TPersonInvolved {
     return {
         id: data.id,
         serviceId: data.service_id,
-        unitId: Number(data.unit_id),
-        infrastructureId: Number(data.infrastructure_id),
-        vehicleId: Number(data.vehicle_id),
+        unitId: data.unit_id,
+        infrastructureId: data.infrastructure_id,
+        vehicleId: data.vehicle_id,
         condition: data.condition,
         observations: data.observations,
         firstName: data.first_name,
@@ -113,7 +114,9 @@ function toApiInternal(data: TPersonInvolved): TApiPersonInvolved {
     }
 }
 
-export const FromApi = (data: TApiPersonInvolved): ResultErr<TPersonInvolved> =>
+export const PersonFromApi = (
+    data: TApiPersonInvolved
+): ResultErr<TPersonInvolved> =>
     mapEntity<TApiPersonInvolved, TPersonInvolved>(
         data,
         ApiPersonInvolvedSchema as any,
@@ -121,7 +124,9 @@ export const FromApi = (data: TApiPersonInvolved): ResultErr<TPersonInvolved> =>
         fromApiInternal
     )
 
-export const ToApi = (data: TPersonInvolved): ResultErr<TApiPersonInvolved> =>
+export const PersonToApi = (
+    data: TPersonInvolved
+): ResultErr<TApiPersonInvolved> =>
     mapEntity<TPersonInvolved, TApiPersonInvolved>(
         data,
         PersonInvolvedSchema as any,
@@ -131,12 +136,9 @@ export const ToApi = (data: TPersonInvolved): ResultErr<TApiPersonInvolved> =>
 
 export const personCrud = new CRUD<TPersonInvolved>(
     'mission/person',
-    ToApi,
-    FromApi
+    PersonToApi,
+    PersonFromApi
 )
-function zodIdDocument(): any {
-    throw new Error('Function not implemented.')
-}
 
 export const personNameConverter: { [K in keyof TPersonInvolved]?: string } = {
     id: 'Id',
