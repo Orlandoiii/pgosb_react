@@ -239,11 +239,11 @@ function RolesPageInternal({ }) {
         setRoleId(role.id);
         setRoleName(role.role_name)
 
-        let stateRole = true;
-        if (role.st_role == "0")
-            stateRole = false;
+        // let stateRole = true;
+        // if (role.st_role == "0")
+        //     stateRole = false;
 
-        setRoleStatus(stateRole);
+        setRoleStatus(role.st_role);
 
         const permissions = translateAndConvertPermissions(
             role.access_schema, reversedModuleNameDictionary, propDictonary)
@@ -360,11 +360,11 @@ function RolesPageInternal({ }) {
         setRoleId(role.id);
         setRoleName(role.role_name)
 
-        let stateRole = true;
-        if (role.st_role == "0")
-            stateRole = false;
+        // let stateRole = true;
+        // if (role.st_role == "0")
+        //     stateRole = false;
 
-        setRoleStatus(stateRole);
+        setRoleStatus(role.st_role);
 
         const permissions = translateAndConvertPermissions(
             role.access_schema, reversedModuleNameDictionary, propDictonary)
@@ -445,7 +445,7 @@ function RolesPageInternal({ }) {
 
         const data = {
             role_name: roleName,
-            st_role: roleStatus ? 1 : 0,
+            st_role: roleStatus,
             access_schema: access_schema
         }
 
@@ -455,7 +455,7 @@ function RolesPageInternal({ }) {
         }
 
         if (currentFormAction == "update") {
-            data.id = parseInt(roleId);
+            data.id = roleId;
             updateRol(data);
             return;
         }
