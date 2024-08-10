@@ -6,7 +6,7 @@ import LoadingModal from '../../../core/modal/LoadingModal'
 import { AddableTable } from '../../Temp/AddableTable '
 
 import ServiceForm from './ServiceForm'
-import { serviceCrud } from '../../../../domain/models/service/service'
+import { serviceCrud, serviceNameConverter } from '../../../../domain/models/service/service'
 
 interface MissionFormProps {
     missionId: string
@@ -41,6 +41,7 @@ const MissionForm = ({
                     defaultSort={'id'}
                     idPropertyName="id"
                     addButtonText="Agregar un servicio"
+                    nameConverter={serviceNameConverter}
                     onAddButtonClick={serviceActions.add}
                     onEditButtonClick={serviceActions.edit}
                     onDeleteButtonClick={serviceActions.delete}

@@ -17,6 +17,12 @@ import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
+import { EnumToStringArray } from '../../../../utilities/converters/enum_converter.tsx'
+import { InfrastructureType } from '../../../../domain/abstractions/enums/infrastructure_types.ts'
+import { Goods } from '../../../../domain/abstractions/enums/goods.ts'
+import { FloorTypes } from '../../../../domain/abstractions/enums/floor_types.ts'
+import { WallTypes } from '../../../../domain/abstractions/enums/wall_types.ts'
+import { CeilingTypes } from '../../../../domain/abstractions/enums/ceiling_types.ts'
 
 interface InfrastructureFormProps {
     serviceId: string
@@ -100,7 +106,7 @@ const InfrastructureForm = ({
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildType'}
                                 description={'Tipo de infrastructura:'}
-                                options={areaCodes}
+                                options={EnumToStringArray(InfrastructureType)}
                             />
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildOccupation'}
@@ -123,7 +129,7 @@ const InfrastructureForm = ({
                             <FormSelect<TInfrastructure>
                                 fieldName={'goodsType'}
                                 description={'Tipo de bienes:'}
-                                options={areaCodes}
+                                options={EnumToStringArray(Goods)}
                             />
                             <FormInput<TInfrastructure>
                                 fieldName={'levels'}
@@ -144,17 +150,17 @@ const InfrastructureForm = ({
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildFloor'}
                                 description={'Pisos:'}
-                                options={areaCodes}
+                                options={EnumToStringArray(FloorTypes)}
                             />
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildWall'}
                                 description={'Paredes:'}
-                                options={areaCodes}
+                                options={EnumToStringArray(WallTypes)}
                             />
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildRoof'}
                                 description={'Techos:'}
-                                options={areaCodes}
+                                options={EnumToStringArray(CeilingTypes)}
                             />
                         </div>
 

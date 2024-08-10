@@ -3,37 +3,36 @@ import { z } from 'zod'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
+import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
+import { zodPhoneNumber } from '../../../utilities/zod/validators/phone_validators'
 
 export const PersonInvolvedSchema = z.object({
-    id: z.string().default(''),
-    unitId: z.coerce.number().default(0),
-    serviceId: z.coerce.string().default(''),
-    vehicleId: z.coerce.number().default(0),
-    infrastructureId: z.coerce.number().default(0),
-    condition: z.string().default(''),
-    observations: z.string().default(''),
+    id: zodEmptyOrGreaterThan(0),
+    unitId: zodEmptyOrGreaterThan(0),
+    serviceId: zodEmptyOrGreaterThan(0),
+    vehicleId: zodEmptyOrGreaterThan(0),
+    infrastructureId: zodEmptyOrGreaterThan(0),
+    condition: zodEmptyOrGreaterThan(3),
+    observations: zodEmptyOrGreaterThan(3),
 
-    firstName: z.string().default(''),
-    lastName: z.string().default(''),
+    firstName: zodEmptyOrGreaterThan(3),
+    lastName: zodEmptyOrGreaterThan(3),
     age: z.coerce.number().positive().default(0),
-    gender: z.string().default(''),
+    gender: zodEmptyOrGreaterThan(3),
 
-    idDocumentType: z.string().default(''),
-    idDocument: z.string().default(''),
+    idDocumentType: zodEmptyOrGreaterThan(3),
+    idDocument: zodIdDocument(),
 
-    phoneNumberAreaCode: z
-        .string()
-        .length(4, 'Debe tener 4 caracteres')
-        .default(''),
-    phoneNumber: z.string().length(9, 'Debe tener 9 caracteres').default(''),
+    phoneNumberAreaCode: zodEmptyOrGreaterThan(3),
+    phoneNumber: zodPhoneNumber(),
 
-    state: z.string().default(''),
-    municipality: z.string().default(''),
-    parish: z.string().default(''),
-    description: z.string().default(''),
+    state: zodEmptyOrGreaterThan(3),
+    municipality: zodEmptyOrGreaterThan(3),
+    parish: zodEmptyOrGreaterThan(3),
+    description: zodEmptyOrGreaterThan(3),
 
-    employmentStatus: z.string().default(''),
-    pathology: z.string().default(''),
+    employmentStatus: zodEmptyOrGreaterThan(3),
+    pathology: zodEmptyOrGreaterThan(3),
 })
 
 export const ApiPersonInvolvedSchema = z.object({
@@ -135,3 +134,15 @@ export const personCrud = new CRUD<TPersonInvolved>(
     ToApi,
     FromApi
 )
+function zodIdDocument(): any {
+    throw new Error('Function not implemented.')
+}
+
+export const personNameConverter: { [K in keyof TPersonInvolved]?: string } = {
+    id: 'Id',
+    idDocument: 'Documento',
+    firstName: 'Nombre',
+    lastName: 'Apellido',
+    gender: 'Sexo',
+    age: 'Edad',
+}
