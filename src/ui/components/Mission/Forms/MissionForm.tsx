@@ -32,9 +32,9 @@ const MissionForm = ({
     )
 
     return (
-        <>const alertController = new AlertController();
+        <>
             <ModalLayout
-                className=" max-h-[80vh] w-[80vw]"
+                className="max-h-[90vh] min-w-[70vw] max-w-[85vw]"
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >

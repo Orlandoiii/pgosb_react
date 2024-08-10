@@ -118,9 +118,7 @@ export const UnitCharacteristicsSchema = z.object({
     purpose: z.string().optional(),
 
     //PEOPLE CAPACITY
-    capacity: z
-        .string()
-        .optional(),
+    capacity: z.string().optional(),
 
     hurt_capacity: z
         .string()
@@ -156,7 +154,7 @@ export const UnitCharacteristicsSchema = z.object({
         .optional()
         .refine(
             (value) => {
-                return !value || value == "" || Number(value) <= 10000
+                return !value || value == '' || Number(value) <= 10000
             },
             { message: 'Debe ser menor o igual a 10.000' }
         ),
@@ -180,12 +178,15 @@ export type UnitCharacteristicsSchemaType = z.infer<
     typeof UnitCharacteristicsSchema
 >
 
-
-function fromApiInternal(data: UnitCharacteristicsSchemaType): UnitCharacteristicsSchemaType {
+function fromApiInternal(
+    data: UnitCharacteristicsSchemaType
+): UnitCharacteristicsSchemaType {
     return data
 }
 
-function toApiInternal(data: UnitCharacteristicsSchemaType): UnitCharacteristicsSchemaType {
+function toApiInternal(
+    data: UnitCharacteristicsSchemaType
+): UnitCharacteristicsSchemaType {
     return data
 }
 
@@ -208,3 +209,19 @@ export const InfrastructureToApi = (
         UnitCharacteristicsSchema as any,
         toApiInternal
     )
+
+export type UnitSimple = {
+    id: string,
+	plate: string,
+	station: string,
+	unit_type: string,
+	alias: string,
+}
+
+export const UnitSimpleFromApi = (data: UnitSimple): ResultErr<UnitSimple> => {
+    return { success: true, result: data, error: '' }
+}
+
+export const UnitSimpleToApi = (data: UnitSimple): ResultErr<UnitSimple> => {
+    return { success: true, result: data, error: '' }
+}

@@ -38,8 +38,11 @@ import {
 } from '../../../../domain/models/person/person_involved'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr'
 import AlertController from '../../../core/alerts/AlertController'
-import FormTextArea from '../../../core/inputs/FormTextArea'
-import { UserSimpleFromApi } from '../../../../domain/models/user/user'
+import { UserSimple } from '../../../../domain/models/user/user'
+import TextArea from '../../../core/inputs/TextArea'
+import { UnitSimple } from '../../../../domain/models/unit/unit'
+import LocationIcon from '../../../core/icons/LocationIcon'
+import { get } from '../../../../services/http'
 
 const alertController = new AlertController()
 
@@ -55,9 +58,11 @@ const ServiceForm = ({
     closeOverlay,
 }: ServiceFormProps) => {
     const antaresCollection = useCollection('mission/antares', AntaresFromApi)
-    const usersCollection = useSimpleCollection('user', UserSimpleFromApi)
-    // const unitsCollection = useCollection('unit', AntaresFromApi)
-    console.log(usersCollection)
+    const usersCollection: UserSimple[] = useSimpleCollection('user')
+    const unitsCollection: UnitSimple[] = useSimpleCollection('unit')
+
+    const [serviceUsers, setServiceUsers] = useState<UserSimple[]>([])
+    const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
 
     const [serviceId, setServiceId] = useState(initValue ? initValue.id : '-1')
 
@@ -85,6 +90,16 @@ const ServiceForm = ({
     const [antares, setAntares] = useState('')
     const [savedAntares, setSavedAntares] = useState('')
     const [setIt, setSetIt] = useState(false)
+    const [details, setDetails] = useState(
+        initValue ? initValue.description : ''
+    )
+
+    const [savedDetails, setSavedDetails] = useState(
+        initValue ? initValue.description : ''
+    )
+
+    const [ubicationSaved, setUbicationSaved] = useState(false)
+    console.log('antares', antares)
 
     useEffect(() => {
         if (!setIt && initValue && antaresCollection.length > 0) {
@@ -94,13 +109,33 @@ const ServiceForm = ({
             setSavedAntares(description)
             setAntares(description)
             setSetIt(true)
+
+            updateUnits()
+            updateUsers()
         }
-    }, [antaresCollection])
+    }, [])
+
+    async function updateUnits() {
+        const result = await get<UnitSimple[]>(
+            `mission/service/unit/${serviceId}`
+        )
+        if (result.success && result.result) setServiceUnits(result.result)
+        console.log(result)
+    }
+
+    async function updateUsers() {
+        const result = await get<UserSimple[]>(
+            `mission/service/user/${serviceId}`
+        )
+        if (result.success && result.result) setServiceUsers(result.result)
+        console.log(result)
+    }
 
     function AntaresBlurHandler() {
         const selectedAntares = antaresCollection.filter(
             (item) => item.description === antares
         )[0]
+        console.log('blur', antares)
 
         if (selectedAntares) {
             if (savedAntares != '') return
@@ -109,10 +144,7 @@ const ServiceForm = ({
     }
 
     function antaresButtonClicked() {
-        const selectedAntares = antaresCollection.filter(
-            (item) => item.description === antares
-        )[0]
-        safeOrUpdateService(selectedAntares.id)
+        safeOrUpdateService(antares.split(' - ')[0])
     }
 
     async function safeOrUpdateService(antaresId: string) {
@@ -164,58 +196,129 @@ const ServiceForm = ({
         return savedAntares != '' && antares === savedAntares
     }
 
-    const antaresNames = antaresCollection.map((item) => item.description)
+    async function updateServiceDetails() {
+        if (details == savedDetails) return
+
+        const service = await serviceCrud.getById(serviceId)
+
+        if (service.success && service.result) {
+            service.result.description = details
+
+            const resultService = await serviceCrud.update(service.result)
+            if (resultService.success) setSavedDetails(details)
+        }
+    }
+
+    async function addUnitHandler(unit: string) {
+        const selected = unitsCollection.filter(
+            (items) => items.plate === unit
+        )[0]
+
+        const service = await serviceCrud.getById(serviceId)
+
+        if (service.success && service.result) {
+            service.result.units.push(selected.id)
+
+            const resultService = await serviceCrud.update(service.result)
+            if (resultService.success) {
+                alertController.notifySuccess('Unidad guardada')
+                updateUnits()
+            }
+        }
+    }
+
+    async function addUserHandler(unit: string) {
+        const selected = usersCollection.filter(
+            (items) => items.user_name === unit
+        )[0]
+
+        const service = await serviceCrud.getById(serviceId)
+
+        if (service.success && service.result) {
+            service.result.firefighter.push(selected.id)
+
+            const resultService = await serviceCrud.update(service.result)
+            if (resultService.success) {
+                alertController.notifySuccess('Usuario guardada')
+                updateUsers()
+            }
+        }
+    }
+
+    const antaresNames = antaresCollection.map(
+        (item) => `${item.id} - ${item.description}`
+    )
 
     return (
         <>
             <ModalLayout
-                className=" max-h-[80vh] min-w-[60vw] max-w-[90vw]"
+                className="max-h-[90vh] min-w-[70vw] max-w-[85vw]"
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex">
-                    <div>
-                        <div className="flex space-x-4">
-                            <SelectSearch
-                                inputName={'model'}
-                                label={'Modelo'}
-                                options={antaresNames}
-                                searhValue={antares}
-                                setSearhValue={setAntares}
-                                onBlur={AntaresBlurHandler}
-                                openUp={false}
-                            />
+                <div className="flex space-x-4">
+                    <SelectSearch
+                        inputName={'model'}
+                        label={'Modelo'}
+                        options={antaresNames}
+                        searhValue={antares}
+                        setSearhValue={setAntares}
+                        onBlur={AntaresBlurHandler}
+                        openUp={false}
+                    />
 
-                            <div className="mt-8 h-11">
-                                <Button
-                                    enable={
-                                        antares != '' && antares != savedAntares
-                                    }
-                                    colorType="bg-[#3C50E0]"
-                                    onClick={antaresButtonClicked}
-                                    children={'Guardar'}
-                                ></Button>
-                            </div>
-                        </div>
+                    <div className="mt-8 h-11">
+                        <Button
+                            enable={antares != ''}
+                            colorType="bg-[#3C50E0]"
+                            onClick={() => {
+                                console.log('ubicacion')
+                            }}
+                            children={
+                                <div className="h-6 w-6">
+                                    <LocationIcon />
+                                </div>
+                            }
+                        ></Button>
+                    </div>
+
+                    <div className="mt-8 h-11">
+                        <Button
+                            enable={antares != '' && antares != savedAntares}
+                            colorType="bg-[#3C50E0]"
+                            onClick={antaresButtonClicked}
+                            children={'Guardar'}
+                        ></Button>
+                    </div>
+                </div>
+
+                <div className="flex space-x-6 w-full pt-4">
+                    <div className="w-full">
                         <div className="space-y-10 w-full">
                             <AddableTable
                                 enable={formIsEnable()}
                                 title="Unidades"
-                                data={[]}
+                                data={serviceUnits}
+                                options={unitsCollection.map(
+                                    (item) => item.plate
+                                )}
+                                onAddOption={addUnitHandler}
                                 idPropertyName="id"
                                 addButtonText="Agregar una unidad"
-                                onAddButtonClick={infrastructureActions.add}
-                            ></AddableTable>
+                            />
 
                             <AddableTable
                                 enable={formIsEnable()}
                                 title="Bomberos"
-                                data={[]}
-                                defaultSort={''}
+                                data={serviceUsers}
+                                options={usersCollection.map(
+                                    (item) => item.user_name
+                                )}
+                                onAddOption={addUserHandler}
+                                defaultSort={'id'}
                                 idPropertyName="id"
                                 addButtonText="Agregar un bombero"
-                                onAddButtonClick={infrastructureActions.add}
-                            ></AddableTable>
+                            />
 
                             <AddableTable
                                 enable={formIsEnable()}
@@ -229,7 +332,7 @@ const ServiceForm = ({
                                 onDeleteButtonClick={
                                     infrastructureActions.delete
                                 }
-                            ></AddableTable>
+                            />
 
                             <AddableTable
                                 enable={formIsEnable()}
@@ -241,7 +344,7 @@ const ServiceForm = ({
                                 onAddButtonClick={vehicleActions.add}
                                 onEditButtonClick={vehicleActions.edit}
                                 onDeleteButtonClick={vehicleActions.delete}
-                            ></AddableTable>
+                            />
 
                             <AddableTable
                                 enable={formIsEnable()}
@@ -253,12 +356,25 @@ const ServiceForm = ({
                                 onAddButtonClick={personActions.add}
                                 onEditButtonClick={personActions.edit}
                                 onDeleteButtonClick={personActions.delete}
-                            ></AddableTable>
+                            />
                         </div>
                     </div>
-                    {/* <div>
-                        <FormTextArea<TService> fieldName={'description'} />
-                    </div> */}
+
+                    <div
+                        className={`w-1/2 space-y-4 pb-8 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
+                    >
+                        <span className="text-xl font-semibold text-slate-700">
+                            Descripción / Bitacora
+                        </span>
+                        <TextArea
+                            tabIndex={formIsEnable() ? undefined : -1}
+                            disabled={!formIsEnable()}
+                            inputName="description"
+                            value={details}
+                            onBlur={updateServiceDetails}
+                            onChange={(e) => setDetails(e.currentTarget.value)}
+                        />
+                    </div>
                 </div>
             </ModalLayout>
 

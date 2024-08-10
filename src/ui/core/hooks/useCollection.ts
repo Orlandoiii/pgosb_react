@@ -21,7 +21,7 @@ export function useCollection<T>(endpoint: string, mapper: (any) => ResultErr<T>
 }
 
 
-export function useSimpleCollection<T>(endpoint: string, mapper: (any) => ResultErr<T>): T[]{
+export function useSimpleCollection<T>(endpoint: string, mapper?: (any) => ResultErr<T>): T[]{
     const [collection, setCollection] = useState<T[]>([])
 
     useEffect(() => {
@@ -30,6 +30,7 @@ export function useSimpleCollection<T>(endpoint: string, mapper: (any) => Result
                 endpoint,
                 mapper
             )
+            
             if (response.success && response.result)
                 setCollection(response.result)
         }
