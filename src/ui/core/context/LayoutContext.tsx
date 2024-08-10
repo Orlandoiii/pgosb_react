@@ -39,9 +39,6 @@ export default function LayoutContexProvider({ layoutName, children }) {
             return null;
 
 
-
-
-
         return layoutConfig.reduce((acc, obj) => {
             const group = obj.group_name;
             const isVisible = obj.visibility;
