@@ -39,7 +39,8 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
 
     const { states, state, municipalitys, municipality,
-        parishs, parish, setState, setMunicipality, setParish, estadoId, municipioId, parroquiaId } = useLocation(currentData?.state,
+        parishs, parish, sectores, sector, setState, setMunicipality, setParish, setSector,
+        estadoId, municipioId, parroquiaId, sectorId } = useLocation(currentData?.state,
             currentData?.municipality,
             currentData?.parish);
 
@@ -117,10 +118,23 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                     </div>
 
 
-                    <FormInput
+                    {/* <FormInput
                         description={"Sector"}
                         fieldName={"sector"}
                         placeholder="Sector..."
+
+
+                    /> */}
+
+                    <SelectSearch
+
+                        inputName="sector"
+                        label={"Sector"}
+                        options={sectores}
+                        searhValue={sector}
+                        setSearhValue={setSector}
+                        openUp={false}
+
 
 
                     />

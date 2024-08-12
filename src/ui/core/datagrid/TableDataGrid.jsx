@@ -271,6 +271,7 @@ export default function TableDataGrid({ rawData, onAdd, onDoubleClickRow, onUpda
 
         return rowModel.rows.length
 
+       
 
     }
 

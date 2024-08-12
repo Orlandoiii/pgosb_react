@@ -5,20 +5,27 @@ import { useConfig } from "../context/ConfigContext";
 
 
 class State {
-    id?: number | undefined;
+    id?: string | number | undefined;
     name?: string | undefined;
 }
 
 class Municipality {
-    id?: number | undefined;
-    state_id?: number | undefined;
+    id?: string | number | undefined;
+    state_id?: string | number | undefined;
     name?: string | undefined;
 }
 
 class Parish {
-    id?: number | undefined;
-    state_id?: number | undefined;
-    municipality_id?: number | undefined;
+    id?: string | number | undefined;
+    state_id?: string | number | undefined;
+    municipality_id?: string | number | undefined;
+    name?: string | undefined;
+}
+
+
+class Sector {
+    id?: string | number | undefined;
+    parish_id?: string | number | undefined;
     name?: string | undefined;
 }
 
@@ -35,6 +42,10 @@ class LocationRawDataClass {
     Parish: Array<Parish> | undefined;
     ParishIsLoad: boolean;
 
+
+    Sector: Array<Sector> | undefined;
+    SectorIsLoad: boolean;
+
     constructor() {
         this.States = new Array();
         this.StatesIsLoad = false;
@@ -45,6 +56,9 @@ class LocationRawDataClass {
 
         this.Parish = new Array();
         this.ParishIsLoad = false;
+
+        this.Sector = new Array();
+        this.SectorIsLoad = false;
     }
 
 }
@@ -67,27 +81,12 @@ function SetPerish(data: Parish[] | undefined) {
     LocationRawData.ParishIsLoad = true;
 }
 
-function getMunicipios(stateName) {
-    if (!stateName || stateName == "" ||
-        !LocationRawData.StatesIsLoad || !LocationRawData.MunicipalitysIsLoad)
-        return []
 
-    const foundState = LocationRawData.States?.find(item => item?.name?.toLowerCase() === stateName.toLowerCase());
-
-
-    if (!foundState || !LocationRawData.MunicipalitysIsLoad)
-        return []
-
-
-    const result = LocationRawData.Municipalitys?.filter(m => m.state_id == foundState.id);
-
-    if (!result || result.length == 0) {
-        return ["N/A"]
-    }
-
-    return result.map(result => result.name);
-
+function SetSector(data: Sector[] | undefined) {
+    LocationRawData.Sector = data;
+    LocationRawData.SectorIsLoad = true;
 }
+
 
 function getEstadoId(estado) {
     const canSearch = LocationRawData?.StatesIsLoad && estado &&
@@ -132,9 +131,41 @@ function getParishId(estado, municipio, parroquia) {
     return 0;
 }
 
+function getSectorId(estado, municipio, parroquia, sector) {
+
+    const parishId = getParishId(estado, municipio, parroquia)
+
+    if (!parishId || parishId == 0)
+        return 0;
+
+    if (!LocationRawData?.SectorIsLoad) {
+        return 0;
+    }
+
+    return LocationRawData?.Sector?.find(s => s.parish_id == parishId && s.name == sector)?.id;
+}
+
+function getMunicipios(stateName) {
+    if (!stateName || stateName == "" ||
+        !LocationRawData.StatesIsLoad || !LocationRawData.MunicipalitysIsLoad)
+        return []
+
+    const foundState = LocationRawData.States?.find(item => item?.name?.toLowerCase() === stateName.toLowerCase());
 
 
+    if (!foundState || !LocationRawData.MunicipalitysIsLoad)
+        return []
 
+
+    const result = LocationRawData.Municipalitys?.filter(m => m.state_id == foundState.id);
+
+    if (!result || result.length == 0) {
+        return ["N/A"]
+    }
+
+    return result.map(result => result.name);
+
+}
 
 function getParroquias(estado, municipio) {
     logger.log("Buscando parroquias");
@@ -164,7 +195,7 @@ function getParroquias(estado, municipio) {
     logger.log("Buscando parroquias muni", foundMunicipio);
 
 
-    const result = LocationRawData.Parish?.filter(m => m.state_id == foundState.id && m.municipality_id == foundMunicipio.id);
+    const result = LocationRawData.Parish?.filter(m => m.municipality_id == foundMunicipio.id);
 
 
     logger.log("Buscando parroquias; Resutl", result);
@@ -178,6 +209,53 @@ function getParroquias(estado, municipio) {
 
 
 }
+
+function getSectores(estado, municipio, parroquia) {
+    logger.log("Buscando parroquias");
+
+    if (!estado || estado == "" || !municipio || municipio == "")
+        return []
+
+    if (!LocationRawData.StatesIsLoad || !LocationRawData.MunicipalitysIsLoad || !LocationRawData?.ParishIsLoad)
+        return [];
+
+    const foundState = LocationRawData.States?.find(item => item?.name?.toLowerCase() === estado.toLowerCase());
+
+
+    logger.log("Buscando parroquias state", foundState);
+
+
+    if (!foundState)
+        return [];
+
+    const foundMunicipio = LocationRawData.Municipalitys?.find(item => item?.name?.toLowerCase() === municipio.toLowerCase());
+
+
+    if (!foundMunicipio)
+        return [];
+
+
+    logger.log("Buscando parroquias muni", foundMunicipio);
+
+
+    const foundParroquia = LocationRawData.Parish?.find(item => item?.name?.toLowerCase() === parroquia.toLowerCase());
+
+
+    if (!foundParroquia)
+        return [];
+
+    const result = LocationRawData.Sector?.filter(m => m.parish_id == foundParroquia.id);
+
+    if (!result || result.length == 0) {
+        return ["N/A"]
+    }
+
+    return result.map(result => result.name);
+
+
+
+}
+
 
 async function makeRequest(endpoint, token, setData) {
     axios.get(endpoint, {
@@ -194,7 +272,7 @@ async function makeRequest(endpoint, token, setData) {
 
 
 
-export function useLocation(initEstado, initMunicipio, initParroquia) {
+export function useLocation(initEstado, initMunicipio, initParroquia, initSector) {
 
     const [states, setStates] = useState(LocationRawData.StatesIsLoad ?
         LocationRawData?.States?.map(s => s.name) : ["Miranda"]);
@@ -202,7 +280,7 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
     const [estado, setEstado] = useState(initEstado ?? "Miranda");
 
-    const [estadoId, setEstadoId] = useState(0)
+    const [estadoId, setEstadoId] = useState<string | number | undefined>(0)
 
 
     const canLoadMunicipios = LocationRawData.StatesIsLoad &&
@@ -215,7 +293,7 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
     const [municipio, setMunicipio] = useState(initMunicipio ?? "");
 
-    const [municipioId, setMunicipioId] = useState(0)
+    const [municipioId, setMunicipioId] = useState<string | number | undefined>(0)
 
 
 
@@ -226,7 +304,18 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
     )
     const [parroquia, setParroquia] = useState(initParroquia ?? "");
 
-    const [parroquiaId, setParroquiaId] = useState(0)
+    const [parroquiaId, setParroquiaId] = useState<string | number | undefined>(0)
+
+
+    const canLoadSectores = canLoadParroquias && LocationRawData.SectorIsLoad && parroquia && parroquia != "";
+
+
+    const [sectores, setSectores] = useState(canLoadSectores ?
+        getSectores(estado, municipio, parroquia) : []
+    )
+    const [sector, setSector] = useState(initSector ?? "");
+
+    const [sectorId, setSectorId] = useState<string | number | undefined>(0)
 
 
 
@@ -265,6 +354,17 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
     }
 
+    function SetSectorLocally(data) {
+        if (!LocationRawData.SectorIsLoad) {
+            SetSector(data)
+        }
+
+        if (LocationRawData.StatesIsLoad &&
+            LocationRawData.MunicipalitysIsLoad && LocationRawData.ParishIsLoad && LocationRawData.SectorIsLoad)
+            setSectores(getSectores(estado, municipio, parroquia))
+
+    }
+
     logger.log("RENDERIZANDO FORM LOCATION:-1", initEstado, initMunicipio, initParroquia);
 
 
@@ -290,6 +390,13 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
 
         if (!LocationRawData.ParishIsLoad)
             makeRequest(endpointParish, cancelTokenSource.token, SetParishLocally)
+
+
+        const endpointSector = `${config.back_url}` + "/api/v1/location/sector/all"
+
+
+        if (!LocationRawData.SectorIsLoad)
+            makeRequest(endpointSector, cancelTokenSource.token, SetSectorLocally)
 
 
         return () => {
@@ -346,6 +453,18 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
     }, [estado, municipio, parroquia])
 
 
+    useEffect(() => {
+
+        if (!estado || estado == "" || !municipio || municipio == "" || !parroquia ||
+            parroquia == "" || !sector || sector == "")
+            return;
+
+        setSectorId(getSectorId(estado, municipio, parroquia, sector) ?? 0)
+
+
+    }, [estado, municipio, parroquia, sector])
+
+
 
     return {
         states,
@@ -357,13 +476,21 @@ export function useLocation(initEstado, initMunicipio, initParroquia) {
         parishs: parroquias,
         parish: parroquia,
 
+        sectores: sectores,
+        sector: sector,
+
+
         setState: setEstado,
         setMunicipality: setMunicipio,
         setParish: setParroquia,
+        setSector: setSector,
+
 
         estadoId,
         municipioId,
-        parroquiaId
+        parroquiaId,
+        sectorId
+    
     }
 
 }
