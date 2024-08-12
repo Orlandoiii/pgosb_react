@@ -55,10 +55,12 @@ export async function getAllSimple<T>(
     fromJson?: (json: any) => ResultErr<T>
 ): Promise<ResultErr<T[]>> {
     const response = await requestInternal('GET', `${endpoint}/all/simple`)
+    console.log('response', response)
 
     if (response.success) {
-        const result: T[] = response.result.map((item: any) =>
-            fromJson ? fromJson(item).result : item
+        if (!fromJson) return { success: true, result: response.result }
+        const result: T[] = response.result.map(
+            (item: any) => fromJson(item).result
         )
         return { success: true, result: result }
     } else {
@@ -73,8 +75,9 @@ export async function getAll<T>(
     const response = await requestInternal('GET', `${endpoint}/all`)
 
     if (response.success) {
-        const result: T[] = response.result.map((item: any) =>
-            fromJson ? fromJson(item).result : item
+        if (!fromJson) return { success: true, result: response.result }
+        const result: T[] = response.result.map(
+            (item: any) => fromJson(item).result
         )
         return { success: true, result: result }
     } else {
@@ -90,8 +93,9 @@ export async function getGroup<T>(
     const response = await requestInternal('GET', `${endpoint}/group/${id}`)
 
     if (response.success) {
-        const result: T[] = response.result.map((item: any) =>
-            fromJson ? fromJson(item).result : item
+        if (!fromJson) return { success: true, result: response.result }
+        const result: T[] = response.result.map(
+            (item: any) => fromJson(item).result
         )
         return { success: true, result: result }
     } else {
@@ -108,6 +112,20 @@ export async function getById<T>(
 
     if (response.success) {
         return fromJson(response.result)
+    } else {
+        return response
+    }
+}
+
+export async function get<T>(
+    endpoint: string,
+    fromJson?: (json: any) => ResultErr<T>
+): Promise<ResultErr<T>> {
+    const response = await requestInternal('GET', `${endpoint}`)
+
+    if (response.success) {
+        if (fromJson) return fromJson(response.result)
+        return { success: true, result: response.result }
     } else {
         return response
     }

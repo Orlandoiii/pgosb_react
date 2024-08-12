@@ -1,5 +1,5 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
 import Button from '../../../core/buttons/Button'
@@ -21,6 +21,9 @@ import LoadingModal from '../../../core/modal/LoadingModal'
 import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
+import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types.ts'
+import { get, getAll } from '../../../../services/http.tsx'
+import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 
 interface VehicleFormProps {
     serviceId: string
@@ -38,8 +41,64 @@ const VehicleForm = ({
     add = true,
 }: VehicleFormProps) => {
     const [loading, setLoading] = useState(false)
+    const [brands, setBrands] = useState<string[]>([])
+    const [models, setModels] = useState<string[]>([])
+
+    useEffect(() => {
+        const getBrands = async () => {
+            const result = await get<any>('vehicles/types')
+            if (result.success) 
+                return setBrands(result.result)
+            return []
+        }
+        getBrands()
+    }, [])
+
+    async function getBrands(): Promise<string []>{
+        const result = await get<any>('vehicles/types')
+        if (result.success) 
+            return result.result
+        return []
+    }
+
+    console.log(
+        'brands',
+        brands,
+        typeof brands,
+        brands.length > 0 && brands[0],
+        brands.length > 0 && typeof brands[0]
+    )
+
+    // useEffect(() => {
+    //     const marcaSeleccionada = brands != null && brands != "";
+
+    //     if (!marcaSeleccionada) {
+    //         setModelo("");
+    //     }
+
+    //     if (marcaSeleccionada && carsCache.current.has(marca)) {
+    //         const getModels = carsCache.current.get(marca);
+    //         setModels(getModels);
+    //         setModelo(getModels[0] ?? "");
+    //         return;
+    //     }
+
+    //     post("vehicles/types", { "model": marca }).then(r => {
+
+    //         const modelsResult = r.data?.map(v => v.model);
+
+    //         carsCache.current.set(marca, modelsResult);
+
+    //         setModelos(modelsResult);
+    //         setModelo(modelsResult[0] ?? "");
+    //     })
+
+    // }, [marca])
+
     const areaCodes = EnumToStringArray(AreaCodes)
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
+
+    const unitTypes = EnumToStringArray(UnitTypes)
 
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
@@ -53,24 +112,16 @@ const VehicleForm = ({
             else result = await vehicleCrud.update(parsed)
 
             if (result.success) {
-                modalService.pushAlert(
-                    'Complete',
-                    `Vehiculo ${buttonText.replace('dar', 'dado')}`,
-                    undefined,
-                    handleClose
+                modalService.toastSuccess(
+                    `Vehiculo ${buttonText.replace('dar', 'dado')}`
                 )
-                if (onClose) onClose(true)
-            } else {
-                modalService.pushAlert(
-                    'Error',
+                handleClose()
+            } else
+                modalService.toastError(
                     `No se pudo guardar el vehiculo por: ${result.result}`
                 )
-            }
         } catch (error) {
-            modalService.pushAlert(
-                'Error',
-                `Error inesperado por: ${error.message}`
-            )
+            modalService.toastError(`Error inesperado por: ${error.message}`)
         } finally {
             setLoading(false)
         }
@@ -93,34 +144,29 @@ const VehicleForm = ({
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormInput<TVehicleInvolved>
-                                fieldName={'licensePlate'}
-                                description="Placa"
+                            <FormSelectSearch<TVehicleInvolved>
+                                fieldName={'type'}
+                                description={'Tipo:'}
+                                options={unitTypes}
                             />
 
-                            <FormSelect<TVehicleInvolved>
+                            <FormSelectSearch<TVehicleInvolved>
                                 fieldName={'brand'}
-                                description={'Label:'}
-                                options={areaCodes}
+                                description={'Marca:'}
+                                options={getBrands}
                             />
 
-                            <FormSelect<TVehicleInvolved>
+                            <FormSelectSearch<TVehicleInvolved>
                                 fieldName={'model'}
                                 description={'Modelo:'}
-                                options={areaCodes}
+                                options={models}
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TVehicleInvolved>
-                                fieldName={'motorSerial'}
-                                description="Serial del Motor"
-                            />
-
-                            <FormSelect<TVehicleInvolved>
-                                fieldName={'type'}
-                                description={'Tipo:'}
-                                options={areaCodes}
+                                fieldName={'licensePlate'}
+                                description="Placa"
                             />
 
                             <FormInput<TVehicleInvolved>

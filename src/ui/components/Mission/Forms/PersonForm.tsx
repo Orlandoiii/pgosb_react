@@ -1,5 +1,5 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
 import Button from '../../../core/buttons/Button'
@@ -24,6 +24,12 @@ import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { Genders } from '../../../../domain/abstractions/enums/genders.ts'
 import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types.ts'
+import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
+import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection.ts'
+import InfrastructureForm from './InfrastructureForm.tsx'
+import { infrastructureCrud } from '../../../../domain/models/infrastructure/infrastructure.ts'
+import VehicleForm from './VehicleForm.tsx'
+import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved.ts'
 
 interface PersonFormProps {
     serviceId: string
@@ -41,6 +47,21 @@ const PersonForm = ({
     add = true,
 }: PersonFormProps) => {
     const [loading, setLoading] = useState(false)
+
+    const [infrastructureActions, infrastructures] =
+        useActionModalAndCollection(
+            InfrastructureForm,
+            infrastructureCrud,
+            { serviceId: serviceId },
+            serviceId
+        )
+    const [vehicleActions, vehicles] = useActionModalAndCollection(
+        VehicleForm,
+        vehicleCrud,
+        { serviceId: serviceId },
+        serviceId
+    )
+
     const areaCodes = EnumToStringArray(AreaCodes)
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
@@ -55,24 +76,16 @@ const PersonForm = ({
             else result = await personCrud.update(parsed)
 
             if (result.success) {
-                modalService.pushAlert(
-                    'Complete',
-                    `Persona ${buttonText.replace('dar', 'dada')}`,
-                    undefined,
-                    closeOverlay
+                modalService.toastSuccess(
+                    `Persona ${buttonText.replace('dar', 'dada')}`
                 )
-                if (onClose) onClose(true)
-            } else {
-                modalService.pushAlert(
-                    'Error',
-                    `No se pudo guardar la Persona por: ${result.result}`
+                handleClose()
+            } else
+                modalService.toastError(
+                    `No se pudo guardar la persona por: ${result.result}`
                 )
-            }
         } catch (error) {
-            modalService.pushAlert(
-                'Error',
-                `Error inesperado por: ${error.message}`
-            )
+            modalService.toastError(`Error inesperado por: ${error.message}`)
         } finally {
             setLoading(false)
         }
@@ -85,25 +98,28 @@ const PersonForm = ({
 
     return (
         <>
-            <ModalLayout title={'Registro de Persona'} onClose={handleClose}>
+            <ModalLayout className='max-h-[90vh] max-w-[85vw]' title={'Registro de Persona'} onClose={handleClose}>
                 <CustomForm
                     schema={PersonInvolvedSchema}
                     initValue={{ ...initValue, serviceId: serviceId }}
                     onSubmit={handleSubmitInternal}
                 >
-                    <div className="md:flex md:md:items-start md:space-x-2">
-                        <FormInput<TPersonInvolved>
-                            fieldName={'condition'}
-                            description="Condición:"
+                    <div className="md:flex md:md:items-start md:space-x-2 pb-8">
+                        <FormSelectSearch<TPersonInvolved>
+                            fieldName={'vehicleId'}
+                            description={'Vehiculo Involucrado:'}
+                            options={vehicles.map((x) => String(x.id))}
                         />
-
-                        <div className="w-44">
-                            <FormSelect<TPersonInvolved>
-                                fieldName={'unitId'}
-                                description={'Vehiculo de Traslado:'}
-                                options={areaCodes}
-                            />
-                        </div>
+                        <FormSelectSearch<TPersonInvolved>
+                            fieldName={'infrastructureId'}
+                            description={'Infraestructura Involucrada:'}
+                            options={infrastructures.map((x) => String(x.id))}
+                        />
+                        <FormSelectSearch<TPersonInvolved>
+                            fieldName={'unitId'}
+                            description={'Vehiculo de Traslado:'}
+                            options={areaCodes}
+                        />
                     </div>
 
                     <FormTitle title="Datos de la persona" />
@@ -136,25 +152,9 @@ const PersonForm = ({
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <div className="w-full">
-                                <div className="w-44">
-                                    <FormSelect<TPersonInvolved>
-                                        fieldName={'idDocumentType'}
-                                        description={'Tipo de Documento:'}
-                                        options={EnumToStringArray(DocumentTypes)}
-                                    />
-                                </div>
-
                                 <FormInput<TPersonInvolved>
                                     fieldName={'idDocument'}
                                     description="Documento de Identidad:"
-                                />
-                            </div>
-
-                            <div className="w-44">
-                                <FormSelect<TPersonInvolved>
-                                    fieldName={'phoneNumberAreaCode'}
-                                    description={'Código:'}
-                                    options={EnumToStringArray(AreaCodes)}
                                 />
                             </div>
 
@@ -175,6 +175,10 @@ const PersonForm = ({
                                 description="Patología:"
                             />
                         </div>
+                        <FormInput<TPersonInvolved>
+                            fieldName={'condition'}
+                            description="Condición:"
+                        />
 
                         <div className="h-4"></div>
 
@@ -194,7 +198,7 @@ const PersonForm = ({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TPersonInvolved>
                                 fieldName={'state'}
-                                description="Estado:"
+                                description="Estado físico:"
                             />
 
                             <FormInput<TPersonInvolved>

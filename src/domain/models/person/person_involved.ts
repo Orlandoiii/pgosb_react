@@ -18,13 +18,10 @@ export const PersonInvolvedSchema = z.object({
 
     firstName: zodEmptyOrGreaterThan(3),
     lastName: zodEmptyOrGreaterThan(3),
-    age: z.coerce.number().positive().default(0),
+    age: zodEmptyOrGreaterThan(3),
     gender: zodEmptyOrGreaterThan(3),
 
-    idDocumentType: zodEmptyOrGreaterThan(3),
     idDocument: zodIdDocument(),
-
-    phoneNumberAreaCode: zodEmptyOrGreaterThan(3),
     phoneNumber: zodPhoneNumber(),
 
     state: zodEmptyOrGreaterThan(3),
@@ -74,10 +71,8 @@ function fromApiInternal(data: TApiPersonInvolved): TPersonInvolved {
         lastName: data.last_name,
         age: Number(data.age),
         gender: data.gender,
-        idDocumentType: data.legal_id.slice(0, 1),
-        idDocument: data.legal_id.slice(1),
-        phoneNumberAreaCode: data.phone?.slice(0, 4),
-        phoneNumber: data.phone?.slice(4),
+        idDocument: data.legal_id,
+        phoneNumber: data.phone,
         state: data.state,
         municipality: data.municipality,
         parish: data.parish,
@@ -88,9 +83,6 @@ function fromApiInternal(data: TApiPersonInvolved): TPersonInvolved {
 }
 
 function toApiInternal(data: TPersonInvolved): TApiPersonInvolved {
-    const phoneNumber = data.phoneNumberAreaCode
-        ? `${data.phoneNumberAreaCode}${data.phoneNumber}`
-        : data.phoneNumber
     return {
         id: data.id,
         service_id: data.serviceId,
@@ -102,7 +94,7 @@ function toApiInternal(data: TPersonInvolved): TApiPersonInvolved {
         age: String(data.age),
         gender: data.gender,
         legal_id: data.idDocument,
-        phone: phoneNumber,
+        phone: data.phoneNumber,
         employment: data.employmentStatus,
         state: data.state,
         municipality: data.municipality,

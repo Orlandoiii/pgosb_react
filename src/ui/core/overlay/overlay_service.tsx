@@ -4,10 +4,13 @@ import {
     OverlayModalConfig,
 } from './models/overlay_item'
 import { Alert, AlertTypes } from '../alerts/alert'
+import AlertController from '../alerts/AlertController'
 // import Toast, { ToastTypes } from "../notifications/toast";
 
 type ModalUpdateCallback = (modals: OverlayItem<any>[]) => void
 type ToastUpdateCallback = (toasts: OverlayItem<any>[]) => void
+
+const alertController = new AlertController()
 
 class ModalService {
     private modals: OverlayItem<any>[] = []
@@ -55,6 +58,14 @@ class ModalService {
             modalToUpdate.props = props
             this.updateModals()
         }
+    }
+
+    toastError(text: string) {
+        alertController.notifyError(text)
+    }
+
+    toastSuccess(text: string) {
+        alertController.notifySuccess(text)
     }
 
     alertError(

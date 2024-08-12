@@ -59,24 +59,16 @@ const InfrastructureForm = ({
             else result = await infrastructureCrud.update(parsed)
 
             if (result.success) {
-                modalService.pushAlert(
-                    'Complete',
-                    `Infraestructura ${buttonText.replace('dar', 'dada')}`,
-                    undefined,
-                    closeOverlay
+                modalService.toastSuccess(
+                    `Infraestructura ${buttonText.replace('dar', 'dada')}`
                 )
-                if (onClose) onClose(true)
-            } else {
-                modalService.pushAlert(
-                    'Error',
-                    `No se pudo guardar la infrastructura por: ${result.result}`
+                handleClose()
+            } else
+                modalService.toastError(
+                    `No se pudo guardar la infraestructura por: ${result.result}`
                 )
-            }
         } catch (error) {
-            modalService.pushAlert(
-                'Error',
-                `Error inesperado por: ${error.message}`
-            )
+            modalService.toastError(`Error inesperado por: ${error.message}`)
         } finally {
             setLoading(false)
         }
@@ -99,7 +91,7 @@ const InfrastructureForm = ({
                     initValue={{ ...initValue, serviceId: serviceId }}
                     onSubmit={handleSubmitInternal}
                 >
-                    <FormTitle title="Datos del Vehiculo" />
+                    <FormTitle title="Datos de la Infraestructura" />
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">

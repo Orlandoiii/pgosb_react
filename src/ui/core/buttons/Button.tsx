@@ -26,12 +26,17 @@ export default function Button({
     height = '',
     enable = true,
 }: PropsWithChildren<ButtonProps>) {
+    console.log('enable', enable)
+
     return (
         <button
             disabled={!enable}
-            className={`block ${height}  ${width} px-3 py-2 ${colorType} text-white 
-            text-md rounded-md shadow-md ${hoverColor} `}
-            onClick={onClick}
+            className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
+            text-md rounded-md shadow-md text-nowrap ${enable ? hoverColor : 'hover:bg-slate-500 pointer-events-none '} `}
+            onClick={(e) => {
+                if (!enable) return
+                onClick && onClick(e)
+            }}
         >
             {children}
         </button>

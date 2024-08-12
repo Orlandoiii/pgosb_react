@@ -148,7 +148,7 @@ export const UserIntutionalDataSchema = z.object({
 })
 
 
-type UserSimple  = {
+export type UserSimple  = {
 	id: string
 	name: string
 	user_name: string
