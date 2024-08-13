@@ -43,11 +43,11 @@ class ModalService {
         props: P,
         config: OverlayModalConfig = new OverlayModalConfig(),
         onClosed?: () => void
-    ): () => void {
+    ): { modal: OverlayItem<P>; closeModal: () => void } {
         const newModal = new OverlayItem(content, props, config, true, onClosed)
         this.modals.push(newModal)
         this.updateModals()
-        return () => this.closeModal(newModal.id)
+        return { modal: newModal, closeModal: () => this.closeModal(newModal.id) };
     }
 
     updateModal<P>(modal: OverlayItem<P>, props: P) {

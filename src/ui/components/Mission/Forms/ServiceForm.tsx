@@ -6,10 +6,9 @@ import {
     useSimpleCollection,
 } from '../../../core/hooks/useCollection'
 
-import SelectSearch from '../../../core/inputs/SelectSearch'
 import ModalLayout from '../../../core/layouts/modal_layout'
 import LoadingModal from '../../../core/modal/LoadingModal'
-import { AddableTable } from '../../Temp/AddableTable '
+import { AddableTable } from '../../Temp/AddableTable'
 import Button from '../../../core/buttons/Button'
 import {
     serviceCrud,
@@ -43,6 +42,7 @@ import TextArea from '../../../core/inputs/TextArea'
 import { UnitSimple } from '../../../../domain/models/unit/unit'
 import LocationIcon from '../../../core/icons/LocationIcon'
 import { get } from '../../../../services/http'
+import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
 
 const alertController = new AlertController()
 
@@ -256,8 +256,15 @@ const ServiceForm = ({
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex space-x-4">
-                    <SelectSearch
+                <div className="flex space-x-4 w-full">
+                    <SelectWithSearch
+                        description="Prueba"
+                        options={antaresNames}
+                        controlled={true}
+                        selectedOption={antares}
+                        selectionChange={(e) => setAntares(e)}
+                    ></SelectWithSearch>
+                    {/* <SelectSearch
                         inputName={'model'}
                         label={'Modelo'}
                         options={antaresNames}
@@ -265,9 +272,9 @@ const ServiceForm = ({
                         setSearhValue={setAntares}
                         onBlur={AntaresBlurHandler}
                         openUp={false}
-                    />
-
-                    <div className="mt-8 h-11">
+                    /> */}
+                    {/* 
+                    <div className="mt-8 h-11 mb-2.5">
                         <Button
                             enable={antares != ''}
                             colorType="bg-[#3C50E0]"
@@ -280,9 +287,9 @@ const ServiceForm = ({
                                 </div>
                             }
                         ></Button>
-                    </div>
+                    </div> */}
 
-                    <div className="mt-8 h-11">
+                    <div className="mt-8 h-11 mb-2.5">
                         <Button
                             enable={antares != '' && antares != savedAntares}
                             colorType="bg-[#3C50E0]"

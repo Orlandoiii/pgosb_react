@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Button from '../../core/buttons/Button'
 import SelectSearch from '../../core/inputs/SelectSearch'
+import { SelectWithSearch } from '../../alter/components/inputs/select_with_search'
 
 type FriendlyNames<T> = {
     [K in keyof T]: string
@@ -251,7 +252,16 @@ export function AddableTable<T>({
                             <div
                                 className={`${showInnerAdd && options ? '' : '-translate-x-full opacity-0 pointer-events-none'} absolute left-0 top-0 flex h-full w-full items-center bg-slate-200 space-x-4 px-2`}
                             >
-                                <SelectSearch
+                                <SelectWithSearch
+                                    options={options}
+                                    controlled={true}
+                                    selectedOption={selectedOption}
+                                    selectionChange={(e) =>
+                                        setSelectedOption(e)
+                                    }
+                                ></SelectWithSearch>
+
+                                {/* <SelectSearch
                                     tabIndex={showInnerAdd ? undefined : -1}
                                     inputName={'model'}
                                     options={options!}
@@ -259,7 +269,7 @@ export function AddableTable<T>({
                                     setSearhValue={setSelectedOption}
                                     onBlur={blurOptionsHandler}
                                     openUp={false}
-                                />
+                                /> */}
 
                                 <Button
                                     enable={selectedOption != ''}
