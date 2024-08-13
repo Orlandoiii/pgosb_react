@@ -444,16 +444,24 @@ export function useLocation(initEstado, initMunicipio, initParroquia, initSector
 
     useEffect(() => {
 
-        if (!estado || estado == "" || !municipio || municipio == "" || !parroquia || parroquia == "")
-            return;
-
+        if (!parroquia || parroquia == "") {
+            setSector("")
+            setSectores([])
+            return
+        }
+        
+        let sec = getSectores(estado,municipio,parroquia)
+        
         setParroquiaId(getParishId(estado, municipio, parroquia) ?? 0)
 
+        setSectores(sec)
 
     }, [estado, municipio, parroquia])
 
 
     useEffect(() => {
+
+
 
         if (!estado || estado == "" || !municipio || municipio == "" || !parroquia ||
             parroquia == "" || !sector || sector == "")
@@ -490,7 +498,7 @@ export function useLocation(initEstado, initMunicipio, initParroquia, initSector
         municipioId,
         parroquiaId,
         sectorId
-    
+
     }
 
 }
