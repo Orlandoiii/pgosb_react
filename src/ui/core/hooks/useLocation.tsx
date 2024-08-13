@@ -256,7 +256,6 @@ function getSectores(estado, municipio, parroquia) {
 
 }
 
-
 async function makeRequest(endpoint, token, setData) {
     axios.get(endpoint, {
         cancelToken: token
@@ -269,8 +268,6 @@ async function makeRequest(endpoint, token, setData) {
         logger.error(err);
     })
 }
-
-
 
 export function useLocation(initEstado, initMunicipio, initParroquia, initSector) {
 
