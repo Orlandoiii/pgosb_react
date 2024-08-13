@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection'
 import ModalLayout from '../../../core/layouts/modal_layout'
 import LoadingModal from '../../../core/modal/LoadingModal'
-import { AddableTable } from '../../Temp/AddableTable '
+import { AddableTable } from '../../Temp/AddableTable'
 
 import ServiceForm from './ServiceForm'
 import {
@@ -38,6 +38,20 @@ const MissionForm = ({
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
+                <AddableTable
+                    title="Ubicaciones"
+                    data={services}
+                    defaultSort={'id'}
+                    idPropertyName="id"
+                    addButtonText="Agregar un servicio"
+                    nameConverter={serviceNameConverter}
+                    onAddButtonClick={serviceActions.add}
+                    onEditButtonClick={serviceActions.edit}
+                    onDeleteButtonClick={serviceActions.delete}
+                ></AddableTable>
+
+                <div className="h-8"></div>
+
                 <AddableTable
                     title="Servicios"
                     data={services}

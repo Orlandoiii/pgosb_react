@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 
 interface OverlayContextProps {
-    closeOverlay: () => void
+    closeOverlay?: () => void
 }
 
 export const OverlayContext = createContext<OverlayContextProps | undefined>(

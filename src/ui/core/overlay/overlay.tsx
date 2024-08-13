@@ -4,21 +4,35 @@ import React, { ReactElement, ReactNode } from 'react'
 import { OverlayContext } from './overlay_context'
 import { isFunction } from '@tanstack/react-table'
 
+export type Position =
+    | 'Top-Left'
+    | 'Top'
+    | 'Top-Right'
+    | 'Center-Left'
+    | 'Center'
+    | 'Center-Right'
+    | 'Bottom-Left'
+    | 'Bottom'
+    | 'Bottom-Right'
 export type AnimationType = 'Bounce' | 'FadeIn'
 export type OverlayType = 'Modal' | 'Loader'
 
 interface OverlayProps {
+    position?: Position
+    className?: string
     type?: OverlayType
     animation?: AnimationType
     background?: string
     closeOnClickOut?: boolean
     onClosed?: () => void
-    children?: ReactNode | (() => ReactElement)
+    children?: ReactNode
     isVisible: boolean
-    closeOverlay: () => void
+    closeOverlay?: () => void
 }
 
 function Overlay({
+    position = 'Center',
+    className = '',
     type = 'Modal',
     animation = 'Bounce',
     background = 'bg-black bg-opacity-30',
@@ -29,8 +43,26 @@ function Overlay({
     closeOverlay,
 }: OverlayProps) {
     async function clickOutside(e: React.MouseEvent) {
-        if (e.target === e.currentTarget && closeOnClickOut) closeOverlay()
+        if (e.target === e.currentTarget && closeOnClickOut && closeOverlay) {
+            closeOverlay()
+        }
     }
+
+    function positionClass(): string {
+        var verticalPosition: string
+        var horizontalPosition: string
+
+        if (position.includes('Top')) verticalPosition = 'items-start'
+        if (position.includes('Bottom')) verticalPosition = 'items-end'
+        else verticalPosition = 'items-center'
+
+        if (position.includes('Left')) horizontalPosition = 'justify-start'
+        if (position.includes('Right')) horizontalPosition = 'justify-end'
+        else horizontalPosition = 'justify-center'
+
+        return `${verticalPosition} ${horizontalPosition}`
+    }
+
     return (
         <OverlayContext.Provider value={{ closeOverlay }}>
             <AnimatePresence onExitComplete={onClosed}>
@@ -52,7 +84,7 @@ function Overlay({
                                     duration: 0.2,
                                     ease: 'easeInOut',
                                 }}
-                                className="relative h-full w-full flex items-center justify-center pointer-events-none"
+                                className={`${className} ${positionClass()} relative h-full w-full flex pointer-events-none`}
                             >
                                 <div className=" pointer-events-auto">
                                     {isFunction(children)
@@ -62,7 +94,9 @@ function Overlay({
                             </motion.div>
                         )}
                         {type === 'Modal' && animation === 'FadeIn' && (
-                            <motion.div className="relative h-full w-full flex items-center justify-center pointer-events-none">
+                            <motion.div
+                                className={`${className} ${positionClass()} relative h-full w-full flex pointer-events-none`}
+                            >
                                 <div className=" pointer-events-auto">
                                     {isFunction(children)
                                         ? children()
@@ -72,7 +106,9 @@ function Overlay({
                         )}
 
                         {type === 'Loader' && (
-                            <div className="animate-pulse">
+                            <div
+                                className={`${className} ${positionClass()} h-full w-full flex`}
+                            >
                                 <svg
                                     className="w-32 fill-gray-600 animate-spin"
                                     xmlns="http://www.w3.org/2000/svg"
