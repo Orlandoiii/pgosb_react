@@ -42,7 +42,9 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
         parishs, parish, sectores, sector, setState, setMunicipality, setParish, setSector,
         estadoId, municipioId, parroquiaId, sectorId } = useLocation(currentData?.state,
             currentData?.municipality,
-            currentData?.parish);
+            currentData?.parish,
+            currentData?.sector
+        );
 
 
 

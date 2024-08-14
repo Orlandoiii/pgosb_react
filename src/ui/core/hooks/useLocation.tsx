@@ -256,21 +256,13 @@ async function makeRequest(endpoint, token, setData) {
         })
 }
 
-export function useLocation(
-    initEstado,
-    initMunicipio,
-    initParroquia,
-    initSector
-) {
-    console.log('LocationRawData', LocationRawData)
+export function useLocation(initEstado, initMunicipio, initParroquia, initSector) {
 
-    const [states, setStates] = useState(
-        LocationRawData.StatesIsLoad
-            ? LocationRawData?.States?.map((s) => s.name)
-            : ['Miranda']
-    )
+    const [states, setStates] = useState(LocationRawData.StatesIsLoad ?
+        LocationRawData?.States?.map(s => s.name) : ["Miranda"]);
 
-    const [estado, setEstado] = useState(initEstado ?? 'Miranda')
+
+    const [estado, setEstado] = useState(initEstado ?? "Miranda");
 
     const [estadoId, setEstadoId] = useState<string | number | undefined>(0)
 
@@ -453,31 +445,28 @@ export function useLocation(
     }, [estado, municipio])
 
     useEffect(() => {
-        if (
-            !estado ||
-            estado == '' ||
-            !municipio ||
-            municipio == '' ||
-            !parroquia ||
-            parroquia == ''
-        )
-            return
 
+        if (!parroquia || parroquia == "") {
+            setSector("")
+            setSectores([])
+            return
+        }
+        
+        let sec = getSectores(estado,municipio,parroquia)
+        
         setParroquiaId(getParishId(estado, municipio, parroquia) ?? 0)
+
+        setSectores(sec)
+
     }, [estado, municipio, parroquia])
 
     useEffect(() => {
-        if (
-            !estado ||
-            estado == '' ||
-            !municipio ||
-            municipio == '' ||
-            !parroquia ||
-            parroquia == '' ||
-            !sector ||
-            sector == ''
-        )
-            return
+
+
+
+        if (!estado || estado == "" || !municipio || municipio == "" || !parroquia ||
+            parroquia == "" || !sector || sector == "")
+            return;
 
         setSectorId(getSectorId(estado, municipio, parroquia, sector) ?? 0)
     }, [estado, municipio, parroquia, sector])
@@ -503,6 +492,7 @@ export function useLocation(
         estadoId,
         municipioId,
         parroquiaId,
-        sectorId,
+        sectorId
+
     }
 }
