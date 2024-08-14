@@ -45,6 +45,7 @@ import { get } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { Roles } from '../../../../domain/abstractions/enums/roles'
+import TextInput from '../../../alter/components/inputs/text_input'
 
 const alertController = new AlertController()
 
@@ -63,9 +64,10 @@ const ServiceForm = ({
     const usersCollection: UserSimple[] = useSimpleCollection('user')
     const unitsCollection: UnitSimple[] = useSimpleCollection('unit')
 
-    const [unit, setUnit] = useState('')
-    const [firefighter, setFirefighter] = useState('')
-    const [firefighterRol, setFirefighterRol] = useState('')
+    const [unharmed, setUnharmed] = useState('')
+    const [injured, setInjured] = useState('')
+    const [transferred, setTransferred] = useState('')
+    const [deceased, setDeceased] = useState('')
 
     const [serviceUsers, setServiceUsers] = useState<UserSimple[]>([])
     const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
@@ -355,11 +357,59 @@ const ServiceForm = ({
                     </div>
 
                     <div
-                        className={`w-1/2 space-y-4 pb-8 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
+                        className={`flex flex-col w-1/2 space-y-4  ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
                     >
+                        <div className="w-full space-y-4">
+                            <span className="text-xl font-semibold text-slate-700">
+                                Personas sin documetación
+                            </span>
+
+                            <div className="w-full">
+                                <div className="flex items-center space-x-4">
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Ilesos'}
+                                        value={unharmed}
+                                        onChange={(e) =>
+                                            setUnharmed(e.currentTarget.value)
+                                        }
+                                    ></TextInput>
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Lesionados'}
+                                        value={injured}
+                                        onChange={(e) =>
+                                            setInjured(e.currentTarget.value)
+                                        }
+                                    ></TextInput>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Trasladados'}
+                                        value={transferred}
+                                        onChange={(e) =>
+                                            setTransferred(
+                                                e.currentTarget.value
+                                            )
+                                        }
+                                    ></TextInput>
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Fallecidos'}
+                                        value={deceased}
+                                        onChange={(e) =>
+                                            setDeceased(e.currentTarget.value)
+                                        }
+                                    ></TextInput>
+                                </div>
+                            </div>
+                        </div>
+
                         <span className="text-xl font-semibold text-slate-700">
                             Descripción / Bitacora
                         </span>
+
                         <TextArea
                             tabIndex={formIsEnable() ? undefined : -1}
                             disabled={!formIsEnable()}
