@@ -359,7 +359,7 @@ export default function AuthProvider({ children }) {
                     }).catch(err => {
                         if (err.code != "CANCELLED_REQUEST") {
                             //clearCookies()
-                            dispatch({ type: "LOGIN_NOT_AUTHENTICATED" })
+                            //No se ha podido recargar el token
                         }
                     });
             }, 180000)
