@@ -15,6 +15,7 @@ import HealthcareCenterPage from "./ui/components/HealthcareCenter/HealthcareCen
 import LoginPage from "./ui/components/Authentication/LoginPage";
 import AuthProvider from "./ui/components/Authentication/AuthProvider";
 import RolesPages from "./ui/components/Roles/RolesPages";
+import OverlayProvider from './ui/core/overlay/overlay_provider'
 
 import MissionPage from './ui/components/Mission/MissionPage'
 import ConfigContextProvider from "./ui/core/context/ConfigContext";
@@ -93,6 +94,7 @@ function App() {
             <AuthProvider>
                <RouterProvider router={router} />
             </AuthProvider>
+            <OverlayProvider />
          </ConfigContextProvider >
       </>
    )
