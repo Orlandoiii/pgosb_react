@@ -129,7 +129,7 @@ export function Select<T>({
   }, [setFocus]);
 
   return (
-    <div className={`${description ? 'pt-7 pb-3' : ''} w-full`}>
+    <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`}>
       <div className="relative">
         <button
           disabled={disable}

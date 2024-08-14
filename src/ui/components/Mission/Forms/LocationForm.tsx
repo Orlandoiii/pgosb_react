@@ -27,6 +27,7 @@ import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 import { useLocation } from '../../../core/hooks/useLocation.tsx'
 import { LocationSchemaType } from '../../../../domain/models/location/location.ts'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
+import TextInput from '../../../alter/components/inputs/text_input.tsx'
 
 interface LocationFormProps {
     serviceId: string
@@ -70,8 +71,18 @@ const LocationForm = ({
         initValue?.sector
     )
     const [loading, setLoading] = useState(false)
+    const [address, setAddress] = useState(initValue ? initValue?.address : '')
 
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
+
+    console.log(
+        'states',
+        states,
+        'state',
+        state,
+        'municipalitys',
+        municipalitys
+    )
 
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
@@ -107,7 +118,11 @@ const LocationForm = ({
 
     return (
         <>
-            <ModalLayout title={'Registro de Ubicación'} onClose={handleClose}>
+            <ModalLayout
+                title={'Registro de Ubicación'}
+                onClose={handleClose}
+                className="max-h-[90vh] min-w-[54rem] max-w-[85vw]"
+            >
                 <CustomForm
                     schema={VehicleInvolvedSchema}
                     initValue={{ ...initValue, serviceId: serviceId }}
@@ -123,7 +138,7 @@ const LocationForm = ({
                             />
 
                             <SelectWithSearch
-                                disable={state || state == ''}
+                                disable={state && state == ''}
                                 description="Municipio"
                                 options={municipalitys}
                                 selectedOption={municipality}
@@ -134,8 +149,8 @@ const LocationForm = ({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <SelectWithSearch
                                 disable={
-                                    (state || state == '') &&
-                                    (municipality || municipality == '')
+                                    (state && state == '') ||
+                                    (municipality && municipality == '')
                                 }
                                 description="Parroquia"
                                 options={parishs}
@@ -145,9 +160,9 @@ const LocationForm = ({
 
                             <SelectWithSearch
                                 disable={
-                                    (state || state == '') &&
-                                    (municipality || municipality == '') &&
-                                    (parish || parish == '')
+                                    (state && state == '') ||
+                                    (municipality && municipality == '') ||
+                                    (parish && parish == '')
                                 }
                                 description="Sector"
                                 options={sectores}
@@ -155,6 +170,12 @@ const LocationForm = ({
                                 selectionChange={(e) => setSector(e)}
                             />
                         </div>
+
+                        <TextInput
+                            description="Dirección"
+                            value={address}
+                            onChange={(e) => setAddress(e.currentTarget.value)}
+                        ></TextInput>
                     </div>
                     <div className="h-8"></div>
 

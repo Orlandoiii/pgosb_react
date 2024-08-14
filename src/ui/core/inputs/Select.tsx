@@ -1,10 +1,20 @@
-
-import React, { useState, useMemo, useEffect, useRef, MutableRefObject, Dispatch, SetStateAction } from 'react'
+import React, {
+    useState,
+    useMemo,
+    useEffect,
+    useRef,
+    MutableRefObject,
+    Dispatch,
+    SetStateAction,
+} from 'react'
 import Input, { InputProps } from './Input'
-import logger from '../../../logic/Logger/logger';
+import logger from '../../../logic/Logger/logger'
 
-
-function OptionContainerButton({ option, onClick }) {
+function OptionContainerButton({
+    option,
+    color = 'bg-slate-100 hover:bg-slate-200',
+    onClick,
+}) {
     function handleOnClick() {
         if (onClick) onClick(option?.toString())
     }
@@ -14,7 +24,7 @@ function OptionContainerButton({ option, onClick }) {
             type="button"
             role="option"
             className={`px-4 py-2 w-full h-full text-center 
-          cursor-pointer bg-white text-neutral-600 hover:bg-neutral-300`}
+          cursor-pointer ${color} text-neutral-600 `}
             onClick={handleOnClick}
         >
             {option}
@@ -23,13 +33,18 @@ function OptionContainerButton({ option, onClick }) {
 }
 
 interface OptionSelectorButtonProps {
-    open: boolean,
-    setOpen: Dispatch<SetStateAction<boolean>>,
-    buttonRef?: MutableRefObject<SVGSVGElement> | undefined,
+    open: boolean
+    setOpen: Dispatch<SetStateAction<boolean>>
+    buttonRef?: MutableRefObject<SVGSVGElement> | undefined
     openUp: boolean
 }
 
-export function OptionSelectorButton({ open, setOpen, buttonRef, openUp }: OptionSelectorButtonProps) {
+export function OptionSelectorButton({
+    open,
+    setOpen,
+    buttonRef,
+    openUp,
+}: OptionSelectorButtonProps) {
     return (
         <button
             type="button"
@@ -37,11 +52,12 @@ export function OptionSelectorButton({ open, setOpen, buttonRef, openUp }: Optio
             onMouseDown={(e) => {
                 e.stopPropagation()
                 setOpen((o) => !o)
-            }}>
+            }}
+        >
             <svg
                 ref={buttonRef}
-                className={`${!open ? 'fill-gray-400' : ''} hover:fill-blue-400 w-4 ${openUp ? "rotate-180" : ""}
-          ${open ? `fill-blue-400  ${openUp ? "rotate-0" : "rotate-180"}  transition-transform duration-200 ease-in-out` : 'transition-transform duration-200 ease-in-out'}`}
+                className={`${!open ? 'fill-gray-400' : ''} hover:fill-blue-400 w-4 ${openUp ? 'rotate-180' : ''}
+          ${open ? `fill-blue-400  ${openUp ? 'rotate-0' : 'rotate-180'}  transition-transform duration-200 ease-in-out` : 'transition-transform duration-200 ease-in-out'}`}
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 80 80"
             >
@@ -55,29 +71,24 @@ export function OptionSelectorButton({ open, setOpen, buttonRef, openUp }: Optio
     )
 }
 
-
-
-
 interface OptionsProps {
     options: Array<string> | (() => Promise<string[]>)
     value?: string
+    selectedOption?: string
     onSelected: (v: string) => void | undefined
-    setOpen: Dispatch<SetStateAction<boolean>>,
+    setOpen: Dispatch<SetStateAction<boolean>>
     autoCompleted?: boolean
 }
 
 export function Options({
     options,
-    value = "",
+    value = '',
+    selectedOption = '',
     onSelected,
     setOpen,
     autoCompleted = false,
 }: OptionsProps) {
-
-
-    if (!options || !Array.isArray(options))
-        return <></>
-
+    if (!options || !Array.isArray(options)) return <></>
 
     // const justOneMacht = useRef("");
 
@@ -88,13 +99,13 @@ export function Options({
 
     const OPTIONS = autoCompleted
         ? options?.filter(
-            (o) =>
-                o
-                    .toString()
-                    .toLowerCase()
-                    .indexOf(value?.toString().toLowerCase()) !== -1
-        )
-        : options;
+              (o) =>
+                  o
+                      .toString()
+                      .toLowerCase()
+                      .indexOf(value?.toString().toLowerCase()) !== -1
+          )
+        : options
 
     // if (OPTIONS?.length === 1) {
     //     justOneMacht.current = OPTIONS[0];
@@ -111,59 +122,53 @@ export function Options({
 
     return useMemo(() => {
         return OPTIONS?.length > 0
-            ?
-            OPTIONS?.map((o, i) => (
-                <OptionContainerButton
-                    option={o}
-                    key={i}
-                    onClick={handleOnClick}
-
-                />
-            ))
+            ? OPTIONS?.map((o, i) => (
+                  <OptionContainerButton
+                      option={o}
+                      key={i}
+                      onClick={handleOnClick}
+                  />
+              ))
             : [
-                <OptionContainerButton
-                    option={'Sin resultados'}
-                    key={'not-found'}
-                    onClick={() => {
-                        if (onSelected) onSelected(options[0])
-                        setOpen(false)
-                    }}
-
-                />,
-            ]
+                  <OptionContainerButton
+                      option={'Sin resultados'}
+                      key={'not-found'}
+                      onClick={() => {
+                          if (onSelected) onSelected(options[0])
+                          setOpen(false)
+                      }}
+                  />,
+              ]
     }, [options, value])
 }
 
 export function OptionsContainer({
     open,
     openUp,
-    bottomSeparation = "bottom-12",
+    bottomSeparation = 'bottom-12',
     children,
 }) {
     return (
         <div
             id="options"
-            className={`absolute w-full  ${openUp ? bottomSeparation : "top-18"} z-10 border-[#3B82F6]  
+            className={`absolute w-full  ${openUp ? bottomSeparation : 'top-18'} z-10 border-[#3B82F6]  
             rounded-md overflow-auto transition-all duration-300  
             text-black translate-y-3",
-            ${open ? 'max-h-52 border' : 'max-h-0 border-0'}`}>
+            ${open ? 'max-h-52 border opacity-100' : 'max-h-0 border-0 opacity-0'}`}
+        >
             {children}
         </div>
     )
 }
 
-
-
 export interface SelectProps extends InputProps {
     options: Array<string> | (() => Promise<string[]>)
-    openUp?: boolean,
+    openUp?: boolean
     onOpenChange?: (openState: boolean) => void | undefined
     onSelected?: (selectedValue: string) => void | undefined
-    onFocus?: React.FocusEventHandler<HTMLInputElement> | undefined,
+    onFocus?: React.FocusEventHandler<HTMLInputElement> | undefined
     controlled?: boolean
 }
-
-
 
 export default function Select({
     inputName,
@@ -177,15 +182,12 @@ export default function Select({
     refCallback,
     ...rest
     //controlled = false,
-
 }: SelectProps) {
-
-    logger.log("Renderizo new Select")
+    logger.log('Renderizo new Select')
 
     const [open, setOpen] = useState(false)
 
     const ref: MutableRefObject<HTMLDivElement | null> = useRef(null)
-
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -199,30 +201,25 @@ export default function Select({
         }
     }, [open, setOpen])
 
-
     function handleOnSelected(selectValue) {
-
         setOpen(false)
-        if (onSelected && selectValue !== '')
-            onSelected(selectValue)
-
+        if (onSelected && selectValue !== '') onSelected(selectValue)
     }
 
     function handleOnFocus(e) {
-        setOpen(true);
-        if (onFocus)
-            onFocus(e);
+        setOpen(true)
+        if (onFocus) onFocus(e)
     }
 
-
     useEffect(() => {
-        if (onOpenChange)
-            onOpenChange(open);
+        if (onOpenChange) onOpenChange(open)
     }, [open])
 
     return (
-        <div ref={ref} className="relative space-y-1 text-left bg-inherit w-full">
-
+        <div
+            ref={ref}
+            className="relative space-y-1 text-left bg-inherit w-full"
+        >
             <Input
                 label={label}
                 inputName={inputName}
@@ -232,9 +229,13 @@ export default function Select({
                 refCallback={refCallback}
                 readOnly={true}
                 onFocus={handleOnFocus}
-                icons={<OptionSelectorButton open={open} setOpen={setOpen} openUp={openUp}
-
-                />}
+                icons={
+                    <OptionSelectorButton
+                        open={open}
+                        setOpen={setOpen}
+                        openUp={openUp}
+                    />
+                }
                 {...rest}
             />
 
@@ -249,4 +250,3 @@ export default function Select({
         </div>
     )
 }
-

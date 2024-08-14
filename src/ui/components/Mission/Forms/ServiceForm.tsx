@@ -262,7 +262,7 @@ const ServiceForm = ({
     return (
         <>
             <ModalLayout
-                className="max-h-[90vh] min-w-[70vw] max-w-[85vw]"
+                className="max-h-[90vh] min-w-[80vw] max-w-[85vw]"
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
@@ -273,6 +273,24 @@ const ServiceForm = ({
                         selectedOption={antares}
                         selectionChange={(e) => setAntares(e)}
                     />
+
+                    <div className=" w-64 flex-none">
+                        <SelectWithSearch
+                            description="Ubicación Origen"
+                            options={antaresNames}
+                            selectedOption={antares}
+                            selectionChange={(e) => setAntares(e)}
+                        />
+                    </div>
+
+                    <div className=" w-64 flex-none">
+                        <SelectWithSearch
+                            description="Ubicación Destino"
+                            options={antaresNames}
+                            selectedOption={antares}
+                            selectionChange={(e) => setAntares(e)}
+                        />
+                    </div>
 
                     <div className="mt-8 h-11 mb-2.5">
                         <Button

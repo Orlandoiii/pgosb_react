@@ -15,11 +15,13 @@ const OverlayProvider: React.FC = () => {
     return (
         <>
             <OverlayController
+                key={'modalController'}
                 items={modals}
                 onItemDismounted={modalService.removeModal}
                 closeOverlay={modalService.closeModal}
             />
             <OverlayController
+                key={'notificationController'}
                 type="Top-Stack"
                 items={toasts}
                 onItemDismounted={modalService.removeToast}

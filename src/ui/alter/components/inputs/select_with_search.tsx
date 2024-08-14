@@ -27,7 +27,12 @@ interface SelectWithSearchProps<T>
     selectionChange?: (option: string) => void
 }
 
-const optionsModalConfig = new OverlayModalConfig('Modal', '', 'FadeIn', true)
+const optionsModalConfig = new OverlayModalConfig(
+    'Modal',
+    'black',
+    'FadeIn',
+    true
+)
 
 export function SelectWithSearch<T>({
     options,
@@ -103,6 +108,8 @@ export function SelectWithSearch<T>({
                     }))
                 }
             )
+            console.log('modal', modal)
+
             textInput.current?.focus()
             setOptionsModal(modal)
             setCloseOptions(() => closeModal)
@@ -164,10 +171,12 @@ export function SelectWithSearch<T>({
     }
 
     return (
-        <div className={`${description ? 'pt-7 pb-3' : ''} w-full`}>
+        <div
+            className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`}
+        >
             <div className="relative">
                 <button
-                    type='button'
+                    type="button"
                     tabIndex={-1}
                     disabled={disable}
                     className={`${isLoading || disable ? ' pointer-events-none' : ''} h-11 w-full cursor-pointer outline-none`}
@@ -210,8 +219,8 @@ export function SelectWithSearch<T>({
                         (!controlled && innerSelectedOption != '')) &&
                         addClearButton && (
                             <button
-                            type='button'    
-                            onClick={() => selectedOptionChangedHandler('')}
+                                type="button"
+                                onClick={() => selectedOptionChangedHandler('')}
                                 className="h-7 w-7 duration-150 aspect-square hover:text-blue-500 rounded-full text-gray-400 flex items-center justify-center text-xs font-semibold pointer-events-auto"
                             >
                                 ✕
