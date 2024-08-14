@@ -123,6 +123,8 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
         fuel_type: "GASOLINA"
     }
 
+console.log("modelo", modelo)
+
     return (
         <CustomForm
             schema={UnitSchemaBasicData}
@@ -165,7 +167,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             openUp={false}
 
                         />
-                        <SelectSearch
+                        {/* <SelectSearch
 
                             inputName={"model"}
                             label={"Modelo"}
@@ -175,16 +177,19 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             setSearhValue={setModelo}
 
                             openUp={false}
-                        />
-
-                        {/* <SelectWithSearch
-                         options={modelos ?? []}
-                         //selectedOption={modelo}
-                         description='Modelo'
-                         controlled={false}
-                         //selectionChange={(e)=>setModelo(e)}
-                        
                         /> */}
+
+                        <SelectWithSearch
+                         options={modelos ?? []}
+                         selectedOption={modelo}
+                         description='Modelo'
+                         controlled={true}
+                         selectionChange={(e)=>{
+                            setModelo(e)
+                            console.log("Cambio de valor a",e)
+                         }}
+                        
+                        />
                     </div>
 
                     <div className="">

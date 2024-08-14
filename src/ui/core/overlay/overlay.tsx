@@ -3,6 +3,7 @@ import React, { ReactElement, ReactNode } from 'react'
 
 import { OverlayContext } from './overlay_context'
 import { isFunction } from '@tanstack/react-table'
+import { CreateElementFunction } from './models/overlay_item'
 
 export type Position =
     | 'Top-Left'
@@ -25,7 +26,7 @@ interface OverlayProps {
     background?: string
     closeOnClickOut?: boolean
     onClosed?: () => void
-    children?: ReactNode
+    children?: ReactNode | (() => ReactElement)
     isVisible: boolean
     closeOverlay?: () => void
 }
@@ -74,7 +75,7 @@ function Overlay({
                         transition={{ duration: 0.12 }}
                         onClick={clickOutside}
                         aria-modal="true"
-                        className={`z-10 absolute top-0 left-0 h-full w-full ${background}`}
+                        className={`z-50 absolute top-0 left-0 h-full w-full ${background}`}
                     >
                         {type === 'Modal' && animation === 'Bounce' && (
                             <motion.div
@@ -84,7 +85,7 @@ function Overlay({
                                     duration: 0.2,
                                     ease: 'easeInOut',
                                 }}
-                                className={`${className} ${positionClass()} relative h-full w-full flex pointer-events-none`}
+                                className={`${className} ${positionClass()} z-50 relative h-full w-full flex pointer-events-none`}
                             >
                                 <div className=" pointer-events-auto">
                                     {isFunction(children)
@@ -95,7 +96,7 @@ function Overlay({
                         )}
                         {type === 'Modal' && animation === 'FadeIn' && (
                             <motion.div
-                                className={`${className} ${positionClass()} relative h-full w-full flex pointer-events-none`}
+                                className={`${className} ${positionClass()} z-50 relative h-full w-full flex pointer-events-none`}
                             >
                                 <div className=" pointer-events-auto">
                                     {isFunction(children)
@@ -107,7 +108,7 @@ function Overlay({
 
                         {type === 'Loader' && (
                             <div
-                                className={`${className} ${positionClass()} h-full w-full flex`}
+                                className={`${className} ${positionClass()} z-50 h-full w-full flex`}
                             >
                                 <svg
                                     className="w-32 fill-gray-600 animate-spin"

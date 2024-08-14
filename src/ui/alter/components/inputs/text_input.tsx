@@ -3,8 +3,6 @@ import { InputType } from './masks_and_validations/format_and_validation'
 import TextInputBase from './text_input_base'
 import InputController from './input_controller'
 
-
-
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     type?: InputType
     description?: string
@@ -37,7 +35,9 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         }
 
         return (
-            <div className={`${description ? 'pt-7 pb-3' : ''} w-full`}>
+            <div
+                className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`}
+            >
                 <div className="relative">
                     <TextInputBase
                         type={type}

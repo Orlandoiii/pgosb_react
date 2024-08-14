@@ -121,7 +121,7 @@ const TextInputBase = forwardRef<HTMLInputElement, TextInputBaseProps>(
                 onBlur={onBlurHandler}
                 onMouseEnter={onMouseEnterHandler}
                 onMouseLeave={onMouseLeaveHandler}
-                className={`${rest.className} ${textPositionClass()} ${!disabled ? '' : 'opacity-50 pointer-events-none bg-gray-300'} bg-slate-100 flex h-11 w-full items-center rounded-md px-3 outline-none`}
+                className={`${rest.className} ${textPositionClass()} ${!disabled ? '' : 'opacity-50 pointer-events-none bg-gray-300'} bg-transparent flex h-11 w-full items-center rounded-md px-3 outline-none`}
             />
         )
     }
