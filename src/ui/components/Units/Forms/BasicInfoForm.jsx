@@ -16,7 +16,7 @@ import FormSelect from '../../../core/inputs/FormSelect'
 import { FuelTypes } from '../../../../domain/abstractions/enums/fuel_types'
 import { useConfig } from '../../../core/context/ConfigContext'
 
-
+import { SelectWithSearch } from "../../../alter/components/inputs/select_with_search"
 
 
 const unitPropertiesMask = {
@@ -165,7 +165,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             openUp={false}
 
                         />
-                        <SelectSearch
+                        {/* <SelectSearch
 
                             inputName={"model"}
                             label={"Modelo"}
@@ -175,10 +175,15 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             setSearhValue={setModelo}
 
                             openUp={false}
+                        /> */}
 
-
-
-
+                        <SelectWithSearch
+                         options={modelos}
+                         selectedOption={modelo}
+                         description='Modelo'
+                         controlled={true}
+                         selectionChange={(e)=>setModelo(e)}
+                        
                         />
                     </div>
 

@@ -79,7 +79,7 @@ export function Options({
         return <></>
 
 
-    const justOneMacht = useRef("");
+    // const justOneMacht = useRef("");
 
     function handleOnClick(v) {
         if (onSelected) onSelected(v)
@@ -96,18 +96,18 @@ export function Options({
         )
         : options;
 
-    if (OPTIONS?.length === 1) {
-        justOneMacht.current = OPTIONS[0];
-    } else {
-        justOneMacht.current = "";
-    }
+    // if (OPTIONS?.length === 1) {
+    //     justOneMacht.current = OPTIONS[0];
+    // } else {
+    //     justOneMacht.current = "";
+    // }
 
-    useEffect(() => {
-        if (justOneMacht.current != "") {
-            setOpen(false);
-            onSelected(justOneMacht.current)
-        }
-    }, [options, value])
+    // useEffect(() => {
+    //     if (justOneMacht.current != "") {
+    //         setOpen(false);
+    //         onSelected(justOneMacht.current)
+    //     }
+    // }, [options, value])
 
     return useMemo(() => {
         return OPTIONS?.length > 0
