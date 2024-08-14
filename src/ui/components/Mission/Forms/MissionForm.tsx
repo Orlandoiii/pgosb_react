@@ -10,6 +10,11 @@ import {
     serviceCrud,
     serviceNameConverter,
 } from '../../../../domain/models/service/service'
+import LocationForm from './LocationForm'
+import {
+    LocationCrud,
+    LocationNameConverter,
+} from '../../../../domain/models/location/location'
 
 interface MissionFormProps {
     missionId: string
@@ -31,6 +36,13 @@ const MissionForm = ({
         missionId
     )
 
+    const [locationActions, locations] = useActionModalAndCollection(
+        LocationForm,
+        LocationCrud,
+        { serviceId: '' },
+        missionId
+    )
+
     return (
         <>
             <ModalLayout
@@ -40,14 +52,14 @@ const MissionForm = ({
             >
                 <AddableTable
                     title="Ubicaciones"
-                    data={services}
-                    defaultSort={'id'}
-                    idPropertyName="id"
-                    addButtonText="Agregar un servicio"
-                    nameConverter={serviceNameConverter}
-                    onAddButtonClick={serviceActions.add}
-                    onEditButtonClick={serviceActions.edit}
-                    onDeleteButtonClick={serviceActions.delete}
+                    data={locations}
+                    defaultSort={'state'}
+                    idPropertyName="state"
+                    addButtonText="Agregar una ubicación"
+                    nameConverter={LocationNameConverter}
+                    onAddButtonClick={locationActions.add}
+                    onEditButtonClick={locationActions.edit}
+                    onDeleteButtonClick={locationActions.delete}
                 ></AddableTable>
 
                 <div className="h-8"></div>

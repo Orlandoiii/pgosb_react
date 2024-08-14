@@ -19,7 +19,10 @@ interface AddableTableProps<T> {
     onEditButtonClick?: (id: string) => void
     onDeleteButtonClick?: (id: string) => void
     options?: string[]
-    onAddOption?: (data: any) => void
+    optionsDescription?: string
+    options2?: string[]
+    optionsDescription2?: string
+    onAddOption?: (data: any, data2: any) => void
 }
 
 export function AddableTable<T>({
@@ -34,6 +37,9 @@ export function AddableTable<T>({
     onEditButtonClick,
     onDeleteButtonClick,
     options,
+    options2,
+    optionsDescription,
+    optionsDescription2,
     onAddOption,
 }: AddableTableProps<T>) {
     const [internalData, setInternalData] = useState(data)
@@ -42,6 +48,7 @@ export function AddableTable<T>({
     const [sort, setSort] = useState(defaultSort ? defaultSort : idPropertyName)
 
     const [selectedOption, setSelectedOption] = useState('')
+    const [selectedOption2, setSelectedOption2] = useState('')
     const [showInnerAdd, setShowInnerAdd] = useState(false)
 
     useEffect(() => {
@@ -246,13 +253,14 @@ export function AddableTable<T>({
                             </tr>
                         ))}
                     <tr
-                        className={`relative h-12 ${enable ? 'cursor-pointer' : ''} duration-200 hover:bg-slate-300 overflow-x-hidden`}
+                        className={`relative ${showInnerAdd ? 'h-24' : 'h-12'}  ${enable ? 'cursor-pointer' : ''} duration-200 hover:bg-slate-300 overflow-x-hidden`}
                     >
                         <td>
                             <div
                                 className={`${showInnerAdd && options ? '' : '-translate-x-full opacity-0 pointer-events-none'} absolute left-0 top-0 flex h-full w-full items-center bg-slate-200 space-x-4 px-2`}
                             >
                                 <SelectWithSearch
+                                    description={optionsDescription}
                                     options={options}
                                     controlled={true}
                                     selectedOption={selectedOption}
@@ -260,6 +268,18 @@ export function AddableTable<T>({
                                         setSelectedOption(e)
                                     }
                                 ></SelectWithSearch>
+
+                                {options2 && options2.length > 0 && (
+                                    <SelectWithSearch
+                                        description={optionsDescription2}
+                                        options={options2}
+                                        controlled={true}
+                                        selectedOption={selectedOption2}
+                                        selectionChange={(e) =>
+                                            setSelectedOption2(e)
+                                        }
+                                    ></SelectWithSearch>
+                                )}
 
                                 {/* <SelectSearch
                                     tabIndex={showInnerAdd ? undefined : -1}
@@ -271,29 +291,34 @@ export function AddableTable<T>({
                                     openUp={false}
                                 /> */}
 
-                                <Button
-                                    enable={selectedOption != ''}
-                                    colorType="bg-[#3C50E0]"
-                                    onClick={() => {
-                                        onAddOption
-                                            ? onAddOption(selectedOption)
-                                            : undefined
-                                        setShowInnerAdd(false)
-                                        setSelectedOption('')
-                                    }}
-                                    children={'Guardar'}
-                                ></Button>
+                                <div className="h-full flex space-x-4 items-center pt-4">
+                                    <Button
+                                        enable={selectedOption != ''}
+                                        colorType="bg-[#3C50E0]"
+                                        onClick={() => {
+                                            onAddOption
+                                                ? onAddOption(
+                                                      selectedOption,
+                                                      selectedOption2
+                                                  )
+                                                : undefined
+                                            setShowInnerAdd(false)
+                                            setSelectedOption('')
+                                        }}
+                                        children={'Guardar'}
+                                    ></Button>
 
-                                <button
-                                    onClick={(e) => {
-                                        setShowInnerAdd(false)
-                                        setSelectedOption('')
-                                        e.stopPropagation()
-                                    }}
-                                    className="pointer-events-auto h-7 aspect-square flex items-center text-lg justify-center bg-slate-400 border-2 border-white rounded-md text-white hover:bg-rose-500 duration-200"
-                                >
-                                    X
-                                </button>
+                                    <button
+                                        onClick={(e) => {
+                                            setShowInnerAdd(false)
+                                            setSelectedOption('')
+                                            e.stopPropagation()
+                                        }}
+                                        className="pointer-events-auto h-7 aspect-square flex items-center text-lg justify-center bg-slate-400 border-2 border-white rounded-md text-white hover:bg-rose-500 duration-200"
+                                    >
+                                        X
+                                    </button>
+                                </div>
                             </div>
 
                             <button
