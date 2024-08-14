@@ -323,7 +323,7 @@ export function useLocation(
             : ['Miranda']
     )
 
-    const [estado, setEstado] = useState(initEstado ?? 'Miranda')
+    const [estado, setEstado] = useState(initEstado ?? 'MIRANDA')
 
     const [estadoId, setEstadoId] = useState<string | number | undefined>(0)
 
