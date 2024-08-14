@@ -1,8 +1,9 @@
 import React, { forwardRef, useState } from 'react'
-
 import { InputType } from './masks_and_validations/format_and_validation'
 import TextInputBase from './text_input_base'
 import InputController from './input_controller'
+
+
 
 interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     type?: InputType

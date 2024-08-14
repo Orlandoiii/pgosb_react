@@ -43,6 +43,9 @@ import { UnitSimple } from '../../../../domain/models/unit/unit'
 import LocationIcon from '../../../core/icons/LocationIcon'
 import { get } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
+import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
+import { Roles } from '../../../../domain/abstractions/enums/roles'
+import TextInput from '../../../alter/components/inputs/text_input'
 
 const alertController = new AlertController()
 
@@ -60,6 +63,11 @@ const ServiceForm = ({
     const antaresCollection = useCollection('mission/antares', AntaresFromApi)
     const usersCollection: UserSimple[] = useSimpleCollection('user')
     const unitsCollection: UnitSimple[] = useSimpleCollection('unit')
+
+    const [unharmed, setUnharmed] = useState('')
+    const [injured, setInjured] = useState('')
+    const [transferred, setTransferred] = useState('')
+    const [deceased, setDeceased] = useState('')
 
     const [serviceUsers, setServiceUsers] = useState<UserSimple[]>([])
     const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
@@ -99,21 +107,23 @@ const ServiceForm = ({
     )
 
     const [ubicationSaved, setUbicationSaved] = useState(false)
+    const roles = EnumToStringArray(Roles)
+
     console.log('antares', antares)
 
     useEffect(() => {
         if (!setIt && initValue && antaresCollection.length > 0) {
             const description = antaresCollection.filter(
                 (item) => item.id == initValue.antaresId
-            )[0].description
-            setSavedAntares(description)
-            setAntares(description)
+            )[0]
+            setSavedAntares(`${description.id} - ${description.description}`)
+            setAntares(`${description.id} - ${description.description}`)
             setSetIt(true)
 
             updateUnits()
             updateUsers()
         }
-    }, [])
+    }, [antaresCollection])
 
     async function updateUnits() {
         const result = await get<UnitSimple[]>(
@@ -209,7 +219,7 @@ const ServiceForm = ({
         }
     }
 
-    async function addUnitHandler(unit: string) {
+    async function addUnitHandler(unit: string, ignore: any) {
         const selected = unitsCollection.filter(
             (items) => items.plate === unit
         )[0]
@@ -227,7 +237,7 @@ const ServiceForm = ({
         }
     }
 
-    async function addUserHandler(unit: string) {
+    async function addUserHandler(unit: string, rol: string) {
         const selected = usersCollection.filter(
             (items) => items.user_name === unit
         )[0]
@@ -258,36 +268,11 @@ const ServiceForm = ({
             >
                 <div className="flex space-x-4 w-full">
                     <SelectWithSearch
-                        description="Prueba"
+                        description="Antares"
                         options={antaresNames}
-                        controlled={true}
                         selectedOption={antares}
                         selectionChange={(e) => setAntares(e)}
-                    ></SelectWithSearch>
-                    {/* <SelectSearch
-                        inputName={'model'}
-                        label={'Modelo'}
-                        options={antaresNames}
-                        searhValue={antares}
-                        setSearhValue={setAntares}
-                        onBlur={AntaresBlurHandler}
-                        openUp={false}
-                    /> */}
-                    {/* 
-                    <div className="mt-8 h-11 mb-2.5">
-                        <Button
-                            enable={antares != ''}
-                            colorType="bg-[#3C50E0]"
-                            onClick={() => {
-                                console.log('ubicacion')
-                            }}
-                            children={
-                                <div className="h-6 w-6">
-                                    <LocationIcon />
-                                </div>
-                            }
-                        ></Button>
-                    </div> */}
+                    />
 
                     <div className="mt-8 h-11 mb-2.5">
                         <Button
@@ -306,21 +291,25 @@ const ServiceForm = ({
                                 enable={formIsEnable()}
                                 title="Unidades"
                                 data={serviceUnits}
+                                optionsDescription={'Placa'}
                                 options={unitsCollection.map(
                                     (item) => item.plate
                                 )}
                                 onAddOption={addUnitHandler}
                                 idPropertyName="id"
                                 addButtonText="Agregar una unidad"
-                            />
+                            ></AddableTable>
 
                             <AddableTable
                                 enable={formIsEnable()}
                                 title="Bomberos"
                                 data={serviceUsers}
+                                optionsDescription={'Usuario'}
                                 options={usersCollection.map(
                                     (item) => item.user_name
                                 )}
+                                optionsDescription2={'Rol'}
+                                options2={roles}
                                 onAddOption={addUserHandler}
                                 defaultSort={'id'}
                                 idPropertyName="id"
@@ -368,11 +357,59 @@ const ServiceForm = ({
                     </div>
 
                     <div
-                        className={`w-1/2 space-y-4 pb-8 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
+                        className={`flex flex-col w-1/2 space-y-4  ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
                     >
+                        <div className="w-full space-y-4">
+                            <span className="text-xl font-semibold text-slate-700">
+                                Personas sin documetación
+                            </span>
+
+                            <div className="w-full">
+                                <div className="flex items-center space-x-4">
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Ilesos'}
+                                        value={unharmed}
+                                        onChange={(e) =>
+                                            setUnharmed(e.currentTarget.value)
+                                        }
+                                    ></TextInput>
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Lesionados'}
+                                        value={injured}
+                                        onChange={(e) =>
+                                            setInjured(e.currentTarget.value)
+                                        }
+                                    ></TextInput>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Trasladados'}
+                                        value={transferred}
+                                        onChange={(e) =>
+                                            setTransferred(
+                                                e.currentTarget.value
+                                            )
+                                        }
+                                    ></TextInput>
+                                    <TextInput
+                                        type={'Integer'}
+                                        description={'Fallecidos'}
+                                        value={deceased}
+                                        onChange={(e) =>
+                                            setDeceased(e.currentTarget.value)
+                                        }
+                                    ></TextInput>
+                                </div>
+                            </div>
+                        </div>
+
                         <span className="text-xl font-semibold text-slate-700">
                             Descripción / Bitacora
                         </span>
+
                         <TextArea
                             tabIndex={formIsEnable() ? undefined : -1}
                             disabled={!formIsEnable()}
