@@ -16,7 +16,6 @@ import AddInput from "../../../core/inputs/AddInput";
 export default function StationForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const [regions, setRegions] = useState(currentData?.regions ?? []);
 
     const [phones, setPhones] = useState(currentData?.phones ?? []);
 
@@ -30,11 +29,10 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
     }
 
     const initialData = currentData ? currentData : {
-        institution: "",
         name: "",
         description: "",
         phones: phones,
-        regions: regions,
+        region_id: "",
         code: "",
         abbreviation: ""
 
@@ -49,7 +47,7 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                 (data) => {
                     logger.info(data);
 
-                    const newData = { ...data, regions: regions, phones: phones }
+                    const newData = { ...data, phones: phones }
 
                     handleSubmitInternal(newData)
                 }}
@@ -61,12 +59,12 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
 
                 <div className="w-full space-y-3  px-2 max-w-[860px]">
 
-                    <FormInput
+                    {/* <FormInput
                         fieldName="institution"
                         description={"Institución"}
                         placeholder="Nombre de la Institución..."
 
-                    />
+                    /> */}
 
                     <FormInput
                         description={"Nombre de la Estación"}
@@ -109,41 +107,31 @@ export default function StationForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <div className="md:w-[30%]">
-                            <FormInput
-                                description={"Código"}
-                                fieldName={"code"}
-                                placeholder="01"
+                        <FormInput
+                            description={"Código"}
+                            fieldName={"id"}
+                            placeholder="01"
 
-                            />
-                        </div>
-
-                        <div className="md:w-[30%]">
-
-                            <FormInput
-                                description={"Siglas"}
-                                fieldName={"abbreviation"}
-                                placeholder="M01"
-
-                            />
-                        </div>
-
-                        <AddInput
-
-                            label={"Regiones"}
-                            inputName={"regions"}
-                            placeHolder="Región Operativa Ejem:01M"
-
-                            items={regions}
-                            setItems={setRegions}
                         />
+
+
+                        <FormInput
+                            description={"Siglas"}
+                            fieldName={"abbreviation"}
+                            placeholder="M01"
+
+                        />
+
 
                     </div>
 
 
+                    <FormInput
+                        description={"Region Operativa"}
+                        fieldName={"region_id"}
+                        placeholder="010"
 
-
-
+                    />
                 </div>
 
             </div>

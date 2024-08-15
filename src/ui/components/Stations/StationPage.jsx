@@ -1,7 +1,8 @@
 import LayoutContexProvider from "../../core/context/LayoutContext";
 import ModuleComponent from "../Module/ModuleComponent";
 import StationForm from "./Forms/StationForm"
-import LocationStationForm from "./Forms/LocationStationForm";
+import Loca from "./Forms/LocationStationForm";
+import LocationForm from "../Locations/Forms/LocationForm";
 
 
 function StationCreateActionData(config) {
@@ -56,7 +57,7 @@ const stepsObjects = [
    },
    {
       title: "Ubicación",
-      content: <LocationStationForm />
+      content: <LocationForm addPlaya={false} />
    }
 ]
 

@@ -16,7 +16,7 @@ import { LocationSchema } from "../../../../domain/models/location/location";
 
 
 
-export default function LocationForm({ clickSubmitRef, onSubmit }) {
+export default function LocationForm({ clickSubmitRef, onSubmit, addPlaya = true }) {
 
 
 
@@ -68,9 +68,22 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                 logger.log("LocationForm", data)
 
                 const newData = {
-                    ...data, "state": state,
-                    "municipality": municipality, "parish": parish,
-                    "state_id": estadoId, "municipality_id": municipioId, "parish_id": parroquiaId
+                    ...data, 
+
+                    "state_id": estadoId,
+                    "state": state,
+
+                    "municipality_id": municipioId,
+                    "municipality": municipality,
+
+                    "parish_id": parroquiaId,
+                    "parish": parish,
+
+                    "sector_id": sectorId,
+                    "sector": sector,
+
+                    "urb_id": String(urbanizationId),
+                    "urb": urbanizacion
                 }
 
                 handleSubmitInternal(newData)
@@ -177,12 +190,14 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                         />
 
-                        <FormInput
+                        {addPlaya && <FormInput
                             description={"Playa/Río/Quebrada"}
                             fieldName={"beach"}
                             placeholder="Playa/Río/Quebrada"
 
-                        />
+                        />}
+
+
 
                     </div>
 
