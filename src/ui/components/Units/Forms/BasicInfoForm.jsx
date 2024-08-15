@@ -78,12 +78,14 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
     }, [])
 
 
+    const hasData = marca && marca != "" && modelo && modelo != ""
 
 
 
     useEffect(() => {
 
         logger.log("MARCA MODELO", marca, modelo);
+
 
         const marcaSeleccionada = marca != null && marca != "";
 
@@ -96,7 +98,8 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
         if (marcaSeleccionada && carsCache.current.has(marca)) {
             const getModels = carsCache.current.get(marca);
             setModelos(getModels);
-            setModelo(getModels[0] ?? "");
+            if (!hasData)
+                setModelo(getModels[0] ?? "");
             return;
         }
 
@@ -108,7 +111,11 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
             carsCache.current.set(marca, modelsResult);
 
             setModelos(modelsResult);
-            setModelo(modelsResult[0] ?? "");
+
+            if (!hasData) {
+                setModelo(modelsResult[0] ?? "");
+            }
+
 
 
         })
@@ -123,7 +130,6 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
         fuel_type: "GASOLINA"
     }
 
-console.log("modelo", modelo)
 
     return (
         <CustomForm
@@ -180,15 +186,15 @@ console.log("modelo", modelo)
                         /> */}
 
                         <SelectWithSearch
-                         options={modelos ?? []}
-                         selectedOption={modelo}
-                         description='Modelo'
-                         controlled={true}
-                         selectionChange={(e)=>{
-                            setModelo(e)
-                            console.log("Cambio de valor a",e)
-                         }}
-                        
+                            options={modelos}
+                            selectedOption={modelo}
+                            description='Modelo'
+                            selectionChange={(e) => {
+                                if (e && e != "")
+                                    setModelo(e)
+                                console.log("Cambio de valor a", e)
+                            }}
+
                         />
                     </div>
 

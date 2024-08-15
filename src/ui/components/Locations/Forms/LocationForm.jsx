@@ -16,7 +16,7 @@ import { LocationSchema } from "../../../../domain/models/location/location";
 
 
 
-export default function LocationForm({ clickSubmitRef, onSubmit }) {
+export default function LocationForm({ clickSubmitRef, onSubmit, addPlaya = true }) {
 
 
 
@@ -38,12 +38,18 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
     logger.log("CURRENT DATA:", initialData);
 
 
-    const { states, state, municipalitys, municipality,
-        parishs, parish, sectores, sector, setState, setMunicipality, setParish, setSector,
-        estadoId, municipioId, parroquiaId, sectorId } = useLocation(currentData?.state,
+    const {
+        states, state,
+        municipalitys, municipality,
+        parishs, parish,
+        sectores, sector,
+        urbanizaciones, urbanizacion,
+        setState, setMunicipality, setParish, setSector, setUrbanizacion,
+        estadoId, municipioId, parroquiaId, sectorId, urbanizationId } = useLocation(currentData?.state,
             currentData?.municipality,
             currentData?.parish,
-            currentData?.sector
+            currentData?.sector,
+            currentData?.urbanization
         );
 
 
@@ -62,9 +68,22 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
                 logger.log("LocationForm", data)
 
                 const newData = {
-                    ...data, "state": state,
-                    "municipality": municipality, "parish": parish,
-                    "state_id": estadoId, "municipality_id": municipioId, "parish_id": parroquiaId
+                    ...data, 
+
+                    "state_id": estadoId,
+                    "state": state,
+
+                    "municipality_id": municipioId,
+                    "municipality": municipality,
+
+                    "parish_id": parroquiaId,
+                    "parish": parish,
+
+                    "sector_id": sectorId,
+                    "sector": sector,
+
+                    "urb_id": String(urbanizationId),
+                    "urb": urbanizacion
                 }
 
                 handleSubmitInternal(newData)
@@ -141,12 +160,25 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                     />
 
-                    <FormInput
+                    <SelectSearch
+
+                        inputName="urbanization"
+                        label={"Urbanizacion"}
+                        options={urbanizaciones}
+                        searhValue={urbanizacion}
+                        setSearhValue={setUrbanizacion}
+                        openUp={false}
+
+
+
+                    />
+
+                    {/* <FormInput
                         description={"Urbanización/Comunidad/Barrio"}
                         fieldName={"community"}
                         placeholder="Urbanización..."
 
-                    />
+                    /> */}
 
                     <div className="md:flex md:space-x-2">
 
@@ -158,12 +190,14 @@ export default function LocationForm({ clickSubmitRef, onSubmit }) {
 
                         />
 
-                        <FormInput
+                        {addPlaya && <FormInput
                             description={"Playa/Río/Quebrada"}
                             fieldName={"beach"}
                             placeholder="Playa/Río/Quebrada"
 
-                        />
+                        />}
+
+
 
                     </div>
 

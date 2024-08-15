@@ -27,6 +27,12 @@ class Sector {
     name?: string | undefined
 }
 
+class Urbanization {
+    id?: string | number | undefined
+    sector_id?: string | number | undefined
+    name?: string | undefined
+}
+
 class LocationRawDataClass {
     States: Array<State> | undefined
     StatesIsLoad: boolean
@@ -39,6 +45,10 @@ class LocationRawDataClass {
 
     Sector: Array<Sector> | undefined
     SectorIsLoad: boolean
+
+
+    Urbanization: Array<Urbanization> | undefined
+    UrbanizationIsLoad: boolean
 
     constructor() {
         this.States = new Array()
@@ -75,6 +85,11 @@ function SetPerish(data: Parish[] | undefined) {
 function SetSector(data: Sector[] | undefined) {
     LocationRawData.Sector = data
     LocationRawData.SectorIsLoad = true
+}
+
+function SetUrbanization(data: Urbanization[] | undefined) {
+    LocationRawData.Urbanization = data
+    LocationRawData.UrbanizationIsLoad = true
 }
 
 function getEstadoId(estado) {
@@ -125,6 +140,20 @@ function getSectorId(estado, municipio, parroquia, sector) {
 
     return LocationRawData?.Sector?.find(
         (s) => s.parish_id == parishId && s.name == sector
+    )?.id
+}
+
+function getUrbanizationId(estado, municipio, parroquia, sector, urbanization) {
+    const sectorId = getSectorId(estado, municipio, parroquia, sector)
+
+    if (!sectorId || sectorId == 0) return 0
+
+    if (!LocationRawData?.UrbanizationIsLoad) {
+        return 0
+    }
+
+    return LocationRawData?.Urbanization?.find(
+        (s) => s.sector_id == sectorId && s.name == urbanization
     )?.id
 }
 
@@ -240,6 +269,30 @@ function getSectores(estado, municipio, parroquia) {
     return result.map((result) => result.name)
 }
 
+function getUrbanizations(estado, municipio, parroquia, sector) {
+
+
+    const sectorId = getSectorId(estado, municipio, parroquia, sector)
+
+    if (!sectorId)
+        return []
+
+    if (!LocationRawData.UrbanizationIsLoad)
+        return []
+
+
+    const result = LocationRawData.Urbanization?.filter(
+        (m) => m.sector_id == sectorId
+    )
+
+    if (!result || result.length == 0) {
+        return ['N/A']
+    }
+
+    return result.map((result) => result.name)
+}
+
+
 async function makeRequest(endpoint, token, setData) {
     axios
         .get(endpoint, {
@@ -260,7 +313,8 @@ export function useLocation(
     initEstado,
     initMunicipio,
     initParroquia,
-    initSector
+    initSector,
+    initUrbanization
 ) {
 
     const [states, setStates] = useState(
@@ -269,7 +323,7 @@ export function useLocation(
             : ['Miranda']
     )
 
-    const [estado, setEstado] = useState(initEstado ?? 'Miranda')
+    const [estado, setEstado] = useState(initEstado ?? 'MIRANDA')
 
     const [estadoId, setEstadoId] = useState<string | number | undefined>(0)
 
@@ -317,7 +371,26 @@ export function useLocation(
 
     const [sectorId, setSectorId] = useState<string | number | undefined>(0)
 
+
+    const canLoadUrbanizaciones =
+        canLoadSectores &&
+        LocationRawData.UrbanizationIsLoad &&
+        sector &&
+        sector != ''
+
+    const [urbanizaciones, setUrbanizaciones] = useState(
+        canLoadUrbanizaciones ? getUrbanizations(estado, municipio, parroquia, sector) : []
+    )
+    const [urbanizacion, setUrbanizacion] = useState(initUrbanization ?? '')
+
+    const [urbanizationId, setUrbanizationId] = useState<string | number | undefined>(0)
+
+
     const { config } = useConfig()
+
+
+
+
 
     function SetStatesLocally(data) {
         if (!LocationRawData.StatesIsLoad) {
@@ -360,6 +433,21 @@ export function useLocation(
             LocationRawData.SectorIsLoad
         )
             setSectores(getSectores(estado, municipio, parroquia))
+    }
+
+    function SetUrbanizationLocally(data) {
+        if (!LocationRawData.UrbanizationIsLoad) {
+            SetUrbanization(data)
+        }
+
+        if (
+            LocationRawData.StatesIsLoad &&
+            LocationRawData.MunicipalitysIsLoad &&
+            LocationRawData.ParishIsLoad &&
+            LocationRawData.SectorIsLoad &&
+            LocationRawData.UrbanizationIsLoad
+        )
+            setUrbanizaciones(getUrbanizations(estado, municipio, parroquia, sector))
     }
 
     logger.log(
@@ -414,6 +502,16 @@ export function useLocation(
                 SetSectorLocally
             )
 
+        const endpointUrbanization =
+            `${config.back_url}` + '/api/v1/location/urbanization/all'
+
+        if (!LocationRawData.UrbanizationIsLoad)
+            makeRequest(
+                endpointUrbanization,
+                cancelTokenSource.token,
+                SetUrbanizationLocally
+            )
+
         return () => {
             cancelTokenSource.cancel('unmonted')
         }
@@ -466,6 +564,23 @@ export function useLocation(
     }, [estado, municipio, parroquia])
 
     useEffect(() => {
+
+        if (!sector || sector == "") {
+            setUrbanizacion("")
+            setUrbanizaciones([])
+            return
+
+        }
+
+        let urb = getUrbanizations(estado, municipio, parroquia, sector)
+
+        setSectorId(getSectorId(estado, municipio, parroquia, sector))
+
+        setUrbanizaciones(urb)
+    }, [estado, municipio, parroquia, sector])
+
+
+    useEffect(() => {
         if (
             !estado ||
             estado == '' ||
@@ -474,11 +589,13 @@ export function useLocation(
             !parroquia ||
             parroquia == '' ||
             !sector ||
-            sector == ''
+            sector == '' ||
+            urbanizacion ||
+            urbanizacion == ''
         )
             return
 
-        setSectorId(getSectorId(estado, municipio, parroquia, sector) ?? 0)
+        setUrbanizationId(getUrbanizationId(estado, municipio, parroquia, sector, urbanizacion) ?? 0)
     }, [estado, municipio, parroquia, sector])
 
     return {
@@ -494,14 +611,20 @@ export function useLocation(
         sectores: sectores,
         sector: sector,
 
+        urbanizaciones: urbanizaciones,
+        urbanizacion: urbanizacion,
+
+
         setState: setEstado,
         setMunicipality: setMunicipio,
         setParish: setParroquia,
         setSector: setSector,
+        setUrbanizacion: setUrbanizacion,
 
         estadoId,
         municipioId,
         parroquiaId,
         sectorId,
+        urbanizationId
     }
 }

@@ -60,7 +60,7 @@ export function SelectWithSearch<T>({
     })
     const [optionsModal, setOptionsModal] = useState<OverlayItem<any>>()
     const [closeOptions, setCloseOptions] = useState<() => void>()
-    const [search, setSearch] = useState('')
+    const [search, setSearch] = useState(selectedOption)
 
     const setFocus = useCallback((isFocused: boolean) => {
         setState((prevState) => ({ ...prevState, isFocus: isFocused }))
