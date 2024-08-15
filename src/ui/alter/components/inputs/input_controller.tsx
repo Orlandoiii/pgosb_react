@@ -20,7 +20,7 @@ function InputController({
     isSubmited = false,
 }: InputControllerProps) {
     const descriptionPosition =
-        true || !isEmpty || isFocus ? '-translate-y-10' : ''
+        true || !isEmpty || isFocus ? '-translate-y-7' : ''
 
     const borderColor = disable
         ? 'text-slate-400'
@@ -38,7 +38,7 @@ function InputController({
         <>
             {description && (
                 <span
-                    className={`${descriptionPosition} z-10  pointer-events-none absolute left-0 top-0 flex h-full w-auto select-none items-center text-[0.9rem] duration-150 whitespace-nowrap`}
+                    className={`${descriptionPosition} z-10  pointer-events-none absolute left-0 top-0 flex w-auto select-none items-center text-[0.9rem] duration-150 whitespace-nowrap`}
                 >
                     {description}:
                 </span>

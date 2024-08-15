@@ -137,10 +137,10 @@ export function AddableTable<T>({
 
     return (
         <div
-            className={`space-y-2 ${enable ? 'opacity-100' : 'opacity-50'} w-full`}
+            className={`space-y-2 ${enable ? 'opacity-100' : 'opacity-50'} w-full `}
         >
             <div className="text-xl text-slate-700 font-semibold">{title}</div>
-            <table className="w-full select-none rounded-lg ">
+            <table className="w-full select-none rounded-lg overflow-hidden">
                 <thead className=" rounded-t-lg">
                     <tr
                         key={'headers'}

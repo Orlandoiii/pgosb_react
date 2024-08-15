@@ -22,7 +22,7 @@ import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types.ts'
-import { get, getAll } from '../../../../services/http.tsx'
+import { get, getAll, post } from '../../../../services/http.tsx'
 import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 
 interface VehicleFormProps {
@@ -44,26 +44,65 @@ const VehicleForm = ({
     const [brands, setBrands] = useState<string[]>([])
     const [models, setModels] = useState<string[]>([])
 
+    const [selectedBrand, setSelectedBrand] = useState(
+        initValue ? initValue.brand : ''
+    )
+
     useEffect(() => {
-        const getBrands = async () => {
-            const result = await get<any>('vehicles/types')
-            if (result.success) 
-                return setBrands(result.result)
-            return []
+        if (initValue) {
+            const getBrands = async () => {
+                const result = await get<any>('vehicles/types')
+                if (result.success) return setBrands(result.result)
+                return []
+            }
+
+            const models = async () => {
+                const result = await getModels(selectedBrand)
+                if (result.length > 0) {
+                    const options = result.map((x) => (x as any).model)
+                    setModels(options)
+                } else setModels(result)
+            }
+            models()
+            getBrands()
+        } else {
+            const getBrands = async () => {
+                const result = await get<any>('vehicles/types')
+                if (result.success) return setBrands(result.result)
+                return []
+            }
+            getBrands()
         }
-        getBrands()
     }, [])
 
-    async function getBrands(): Promise<string []>{
+    useEffect(() => {
+        const models = async () => {
+            const result = await getModels(selectedBrand)
+            if (result.length > 0) {
+                const options = result.map((x) => (x as any).model)
+                setModels(options)
+            } else setModels(result)
+        }
+        models()
+    }, [selectedBrand])
+
+    async function getBrands(): Promise<string[]> {
         const result = await get<any>('vehicles/types')
-        if (result.success) 
-            return result.result
+        if (result.success) return result.result
+        return []
+    }
+
+    async function getModels(selectedBrandInternal: string): Promise<string[]> {
+        const response = await post<any>('vehicles/types', {
+            model: selectedBrandInternal,
+        })
+        if (response.success) return response.result
         return []
     }
 
     console.log(
         'brands',
-        brands,
+        initValue,
         typeof brands,
         brands.length > 0 && brands[0],
         brands.length > 0 && typeof brands[0]
@@ -148,18 +187,22 @@ const VehicleForm = ({
                                 fieldName={'type'}
                                 description={'Tipo:'}
                                 options={unitTypes}
+                                initialValue={initValue ? initValue.type : ''}
                             />
 
                             <FormSelectSearch<TVehicleInvolved>
                                 fieldName={'brand'}
                                 description={'Marca:'}
                                 options={getBrands}
+                                initialValue={initValue ? initValue.brand : ''}
+                                selectedChanged={(e) => setSelectedBrand(e)}
                             />
 
                             <FormSelectSearch<TVehicleInvolved>
                                 fieldName={'model'}
                                 description={'Modelo:'}
                                 options={models}
+                                initialValue={initValue ? initValue.model : ''}
                             />
                         </div>
 

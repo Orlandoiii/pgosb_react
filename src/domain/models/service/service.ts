@@ -12,6 +12,10 @@ export const ServiceSchema = z.object({
     units: z.array(z.string()).default([]),
     firefighter: z.array(z.string()).default([]),
     summary: zodEmptyOrGreaterThan(3),
+    unharmed: zodEmptyOrGreaterThan(3),
+    injured: zodEmptyOrGreaterThan(3),
+    transported: zodEmptyOrGreaterThan(3),
+    deceased: zodEmptyOrGreaterThan(3),
     description: zodEmptyOrGreaterThan(3),
 })
 
@@ -22,6 +26,10 @@ export const ApiServiceSchema = z.object({
     units: z.array(z.string()).default([]),
     bombers: z.array(z.string()).default([]),
     summary: zodEmptyOrGreaterThan(0),
+    unharmed: zodEmptyOrGreaterThan(3),
+    injured: zodEmptyOrGreaterThan(3),
+    transported: zodEmptyOrGreaterThan(3),
+    deceased: zodEmptyOrGreaterThan(3),
     description: zodEmptyOrGreaterThan(0),
 })
 
@@ -36,6 +44,10 @@ function fromApiInternal(data: TApiService): TService {
         units: data.units,
         firefighter: data.bombers,
         summary: data.summary,
+        unharmed: data.unharmed,
+        injured: data.injured,
+        transported: data.transported,
+        deceased: data.deceased,
         description: data.description,
     }
 }
@@ -48,6 +60,10 @@ function toApiInternal(data: TService): TApiService {
         units: data.units,
         bombers: data.firefighter,
         summary: data.summary,
+        unharmed: data.unharmed,
+        injured: data.injured,
+        transported: data.transported,
+        deceased: data.deceased,
         description: data.description,
     }
 }
