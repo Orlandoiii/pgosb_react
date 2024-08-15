@@ -200,34 +200,39 @@ export default function TableDataGrid({
     logger.log('DATA GRID DATA:', rawData)
 
     logger.log('DATA GRID PERMISSION:', permissions)
+
     const COLUMNS = []
 
     COLUMNS.push(checkBoxHeader)
 
-    Object.entries(rawData[0]).forEach(([value, keyName]) => {
-        if (layout != null) {
-            const config = layout?.find((v) => v.column_name == value)
-            if (config) {
-                logger.log('Table Grid Config:', config)
-                logger.log('Table Grid value:', value)
-                logger.log('Visibilidad:', config.visibility)
-                if (config.visibility)
-                    COLUMNS.push({
-                        header: config.display_name,
-                        accessorKey: value,
-                        //footer: key,
-                    })
+    if (Array.isArray(rawData) && rawData[0]) {
+        Object.entries(rawData[0]).forEach(([value, keyName]) => {
+            if (layout != null) {
+                const config = layout?.find((v) => v.column_name == value)
+                if (config) {
+                    logger.log('Table Grid Config:', config)
+                    logger.log('Table Grid value:', value)
+                    logger.log('Visibilidad:', config.visibility)
+                    if (config.visibility)
+                        COLUMNS.push({
+                            header: config.display_name,
+                            accessorKey: value,
+                            //footer: key,
+                        })
+                } else {
+                    logger.log('DATO FALTANTE:', value)
+                }
             } else {
-                logger.log('DATO FALTANTE:', value)
+                COLUMNS.push({
+                    header: keyName,
+                    accessorKey: value,
+                    //footer: key,
+                })
             }
-        } else {
-            COLUMNS.push({
-                header: keyName,
-                accessorKey: value,
-                //footer: key,
-            })
-        }
-    })
+        })
+    }
+
+
 
     const columns = useMemo(() => COLUMNS, [rawData])
     const data = useMemo(() => rawData, [rawData])
@@ -324,12 +329,11 @@ export default function TableDataGrid({
 
                                 table.toggleAllRowsSelected(false)
                             }}
-                            className={`w-[40px] h-[40px] p-1.5 ${
-                                getTotalSelectedRows() === 1 &&
+                            className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 &&
                                 permissions['update']
-                                    ? 'bg-slate-200'
-                                    : 'bg-slate-50'
-                            } bg-slate-200 rounded-full flex 
+                                ? 'bg-slate-200'
+                                : 'bg-slate-50'
+                                } bg-slate-200 rounded-full flex 
                                 justify-center items-center shadow-md`}
                         >
                             <ModifyIcon
