@@ -12,6 +12,7 @@ export const LocationSchema = z.object({
     street: z.string().optional(),
     beach: z.string().optional(),
     address: z.string().optional(),
+    urb: z.string().optional(),
 })
 
 const FromApiInternal = (data: LocationSchemaType): LocationSchemaType => {

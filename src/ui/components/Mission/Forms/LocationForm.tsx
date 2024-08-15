@@ -70,7 +70,8 @@ const LocationForm = ({
         initValue?.state,
         initValue?.municipality,
         initValue?.parish,
-        initValue?.sector
+        initValue?.sector,
+        initValue?.urb
     )
     const [loading, setLoading] = useState(false)
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
