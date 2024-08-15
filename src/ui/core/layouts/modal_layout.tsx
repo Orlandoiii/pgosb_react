@@ -16,15 +16,13 @@ function ModalLayout({
 }: ModalLayoutProps) {
     return (
         <div
-            className={`${className} flex flex-col relative rounded-xl bg-slate-100 shadow-lg shadow-gray-400`}
+            className={`${className} flex flex-col relative rounded-xl bg-slate-100 shadow-lg shadow-gray-400 overflow-hidden`}
         >
             <CloseXSimbol onClose={onClose} />
-            <h2 className="w-full bg-[#0A2F4E] rounded-t-xl flex justify-center items-center text-[whitesmoke] text-lg h-11 p-2 shadow-lg">
+            <h2 className="w-full bg-[#0A2F4E] flex justify-center items-center text-[whitesmoke] text-lg h-11 p-2 shadow-lg">
                 {title}
             </h2>
-            <div className="w-full h-full p-5 bg-slate-100 overflow-y-auto">
-                {children}
-            </div>
+            <div className="w-full h-full p-5 verflow-y-auto">{children}</div>
             <span className="h-0 md:block md:bg-[#0A2F4E] md:h-[7px] md:w-full md:shadow-md "></span>
         </div>
     )

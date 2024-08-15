@@ -46,6 +46,8 @@ import { SelectWithSearch } from '../../../alter/components/inputs/select_with_s
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { Roles } from '../../../../domain/abstractions/enums/roles'
 import TextInput from '../../../alter/components/inputs/text_input'
+import LocationForm from './LocationForm'
+import { LocationCrud } from '../../../../domain/models/location/location'
 
 const alertController = new AlertController()
 
@@ -60,19 +62,23 @@ const ServiceForm = ({
     initValue,
     closeOverlay,
 }: ServiceFormProps) => {
-    const antaresCollection = useCollection('mission/antares', AntaresFromApi)
-    const usersCollection: UserSimple[] = useSimpleCollection('user')
-    const unitsCollection: UnitSimple[] = useSimpleCollection('unit')
-
-    const [unharmed, setUnharmed] = useState('')
-    const [injured, setInjured] = useState('')
-    const [transferred, setTransferred] = useState('')
-    const [deceased, setDeceased] = useState('')
-
-    const [serviceUsers, setServiceUsers] = useState<UserSimple[]>([])
-    const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
-
     const [serviceId, setServiceId] = useState(initValue ? initValue.id : '-1')
+
+    const antaresCollection = useCollection('mission/antares', AntaresFromApi)
+    const stationCollection = useCollection('station', (data: any) => {
+        return { success: true, result: data }
+    })
+    const careCenterCollection = useCollection(
+        'mission/antares',
+        AntaresFromApi
+    )
+
+    const [locationActions, locations] = useActionModalAndCollection(
+        LocationForm,
+        LocationCrud,
+        { serviceId: '' },
+        missionId
+    )
 
     const [infrastructureActions, infrastructures] =
         useActionModalAndCollection(
@@ -94,6 +100,23 @@ const ServiceForm = ({
         serviceId
     )
 
+    const usersCollection: UserSimple[] = useSimpleCollection('user')
+    const unitsCollection: UnitSimple[] = useSimpleCollection('unit')
+
+    const [unharmed, setUnharmed] = useState(
+        initValue ? initValue.unharmed : ''
+    )
+    const [injured, setInjured] = useState(initValue ? initValue.injured : '')
+    const [transferred, setTransferred] = useState(
+        initValue ? initValue.transported : ''
+    )
+    const [deceased, setDeceased] = useState(
+        initValue ? initValue.deceased : ''
+    )
+
+    const [serviceUsers, setServiceUsers] = useState<UserSimple[]>([])
+    const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
+
     const [loading, setLoading] = useState(false)
     const [antares, setAntares] = useState('')
     const [savedAntares, setSavedAntares] = useState('')
@@ -105,11 +128,11 @@ const ServiceForm = ({
     const [savedDetails, setSavedDetails] = useState(
         initValue ? initValue.description : ''
     )
+    const [station, setStation] = useState('')
+    const [serviceLocation, setServiceLocation] = useState('')
+    const [careCenter, setCareCenter] = useState('')
 
-    const [ubicationSaved, setUbicationSaved] = useState(false)
     const roles = EnumToStringArray(Roles)
-
-    console.log('antares', antares)
 
     useEffect(() => {
         if (!setIt && initValue && antaresCollection.length > 0) {
@@ -141,18 +164,6 @@ const ServiceForm = ({
         console.log(result)
     }
 
-    function AntaresBlurHandler() {
-        const selectedAntares = antaresCollection.filter(
-            (item) => item.description === antares
-        )[0]
-        console.log('blur', antares)
-
-        if (selectedAntares) {
-            if (savedAntares != '') return
-            safeOrUpdateService(selectedAntares.id)
-        } else setAntares('')
-    }
-
     function antaresButtonClicked() {
         safeOrUpdateService(antares.split(' - ')[0])
     }
@@ -170,12 +181,22 @@ const ServiceForm = ({
                 defaultValue.missionId = missionId
                 defaultValue.antaresId = antaresId
 
+                defaultValue.unharmed = unharmed
+                defaultValue.injured = injured
+                defaultValue.transported = transferred
+                defaultValue.deceased = deceased
+
                 resultService = await serviceCrud.insert(defaultValue)
             } else {
                 const service = await serviceCrud.getById(serviceId)
 
                 if (service.success && service.result) {
                     service.result.antaresId = antaresId
+
+                    service.result.unharmed = unharmed
+                    service.result.injured = injured
+                    service.result.transported = transferred
+                    service.result.deceased = deceased
 
                     resultService = await serviceCrud.update(service.result)
                 }
@@ -239,7 +260,7 @@ const ServiceForm = ({
 
     async function addUserHandler(unit: string, rol: string) {
         const selected = usersCollection.filter(
-            (items) => items.user_name === unit
+            (items) => items.code === unit.split(' - ')[0]
         )[0]
 
         const service = await serviceCrud.getById(serviceId)
@@ -262,39 +283,68 @@ const ServiceForm = ({
     return (
         <>
             <ModalLayout
-                className="max-h-[90vh] min-w-[80vw] max-w-[85vw]"
+                className="max-h-[90vh] min-w-[80vw] max-w-[85vw] overflow-y-auto"
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex space-x-4 w-full">
-                    <SelectWithSearch
-                        description="Antares"
-                        options={antaresNames}
-                        selectedOption={antares}
-                        selectionChange={(e) => setAntares(e)}
-                    />
-
-                    <div className=" w-64 flex-none">
+                <div className="flex xl:space-x-6 space-x-4 w-full">
+                    <div className="w-64">
                         <SelectWithSearch
-                            description="Ubicación Origen"
+                            description="Antares"
                             options={antaresNames}
                             selectedOption={antares}
                             selectionChange={(e) => setAntares(e)}
                         />
                     </div>
 
-                    <div className=" w-64 flex-none">
+                    <div className=" w-64">
                         <SelectWithSearch
-                            description="Ubicación Destino"
-                            options={antaresNames}
-                            selectedOption={antares}
-                            selectionChange={(e) => setAntares(e)}
+                            description="Estación"
+                            options={stationCollection.map(
+                                (x) => `${x.abbreviation} - ${x.name}`
+                            )}
+                            selectedOption={station}
+                            selectionChange={(e) => setStation(e)}
                         />
                     </div>
 
-                    <div className="mt-8 h-11 mb-2.5">
+                    <div className="flex w-72 space-x-1">
+                        <SelectWithSearch
+                            description="Ubicación del servicio"
+                            options={antaresNames}
+                            selectedOption={serviceLocation}
+                            selectionChange={(e) => setServiceLocation(e)}
+                        />
+
+                        <div className="pt-8 h-11 flex-none">
+                            <Button
+                                colorType="bg-[#3C50E0]"
+                                onClick={locationActions.add}
+                                children={'+'}
+                                width="w-10"
+                            ></Button>
+                        </div>
+                    </div>
+
+                    <div className=" w-64 ">
+                        <SelectWithSearch
+                            description="Centro asistencial"
+                            options={careCenterCollection}
+                            selectedOption={careCenter}
+                            selectionChange={(e) => setCareCenter(e)}
+                        />
+                    </div>
+
+                    <div className="w-1 flex-1"></div>
+
+                    <div className="mt-8 h-11 mb-2.5 flex-none">
                         <Button
-                            enable={antares != '' && antares != savedAntares}
+                            enable={
+                                antares != '' &&
+                                antares != savedAntares &&
+                                station != '' &&
+                                serviceLocation != ''
+                            }
                             colorType="bg-[#3C50E0]"
                             onClick={antaresButtonClicked}
                             children={'Guardar'}
@@ -324,7 +374,7 @@ const ServiceForm = ({
                                 data={serviceUsers}
                                 optionsDescription={'Usuario'}
                                 options={usersCollection.map(
-                                    (item) => item.user_name
+                                    (item) => `${item.code} - ${item.user_name}`
                                 )}
                                 optionsDescription2={'Rol'}
                                 options2={roles}

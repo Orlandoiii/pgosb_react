@@ -138,6 +138,13 @@ export async function insert<T>(
     return await requestInternal('POST', `${endpoint}/create`, data)
 }
 
+export async function post<T>(
+    endpoint: string,
+    data: any
+): Promise<ResultErr<T>> {
+    return await requestInternal('POST', `${endpoint}`, data)
+}
+
 export async function update<T>(
     endpoint: string,
     data: any

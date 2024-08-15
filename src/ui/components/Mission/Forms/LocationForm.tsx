@@ -28,6 +28,7 @@ import { useLocation } from '../../../core/hooks/useLocation.tsx'
 import { LocationSchemaType } from '../../../../domain/models/location/location.ts'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
+import TextArea from '../../../alter/components/inputs/text_area.tsx'
 
 interface LocationFormProps {
     serviceId: string
@@ -44,6 +45,7 @@ const LocationForm = ({
     closeOverlay,
     add = true,
 }: LocationFormProps) => {
+    const [alias, setAlias] = useState('')
     const {
         states,
         state,
@@ -68,7 +70,8 @@ const LocationForm = ({
         initValue?.state,
         initValue?.municipality,
         initValue?.parish,
-        initValue?.sector
+        initValue?.sector,
+        initValue?.urb
     )
     const [loading, setLoading] = useState(false)
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
@@ -130,6 +133,13 @@ const LocationForm = ({
                 >
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
+                            <TextInput
+                                description="Alias"
+                                value={alias}
+                                onChange={(e) =>
+                                    setAlias(e.currentTarget.value)
+                                }
+                            ></TextInput>
                             <SelectWithSearch
                                 description="Estado"
                                 options={states}
@@ -171,11 +181,15 @@ const LocationForm = ({
                             />
                         </div>
 
-                        <TextInput
-                            description="Dirección"
-                            value={address}
-                            onChange={(e) => setAddress(e.currentTarget.value)}
-                        ></TextInput>
+                        <div className={`h-40 w-full`}>
+                            <TextArea
+                                description="Dirección"
+                                value={address}
+                                onChange={(e) =>
+                                    setAddress(e.currentTarget.value)
+                                }
+                            ></TextArea>
+                        </div>
                     </div>
                     <div className="h-8"></div>
 

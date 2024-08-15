@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod'
 
 export const StationSchemaBasicData = z.object({
 
@@ -31,16 +31,6 @@ export const LocationStationSchema = z.object({
 
 })
 
-
-
 export type LocationStationSchemaType = z.infer<typeof LocationStationSchema>
 
-
-
-
-
 export type StationSchemaBasicDataType = z.infer<typeof StationSchemaBasicData>
-
-
-
-

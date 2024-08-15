@@ -28,7 +28,7 @@ function SelectOptions({
                     <div
                         key={`${index}-${option}`}
                         onClick={() => onSelect(option)}
-                        className={`${optionBackground(option)} w-full px-6 py-2`}
+                        className={`${optionBackground(option)} w-full px-6 py-2 cursor-pointer`}
                     >
                         {option}
                     </div>
