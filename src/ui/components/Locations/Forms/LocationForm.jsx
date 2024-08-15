@@ -162,7 +162,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit, addPlaya = true
 
                     <SelectSearch
 
-                        inputName="urbanization"
+                        inputName="urb"
                         label={"Urbanizacion"}
                         options={urbanizaciones}
                         searhValue={urbanizacion}

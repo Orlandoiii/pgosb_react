@@ -1,25 +1,22 @@
-import React from "react";
 import { useContext, useState } from "react";
 import { StepContext } from "../../Stepper/Stepper";
+import FormInput from "../../../core/inputs/FormInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import CustomForm from "../../../core/context/CustomFormContext";
-import FormSelectSearch from "../../../core/inputs/FormSelectSearch";
-import FormInput from "../../../core/inputs/FormInput";
+import React from "react";
+import { StationSchemaBasicData } from "../../../../domain/models/stations/station";
+import logger from "../../../../logic/Logger/logger";
 import AddInput from "../../../core/inputs/AddInput";
 
 
-
-const institutions = ["Plataforma de Gestion de Operaciones y Servicios Para Bomberos 21",
-    "Plataforma de Gestion de Operaciones y Servicios Para Bomberos"]
 
 
 
 export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
     const { clickNextRef, currentData, Next } = useContext(StepContext);
 
-    const [regions, setRegions] = useState([]);
 
-    const [phones, setPhones] = useState([]);
+    const [phones, setPhones] = useState(currentData?.phones ?? []);
 
     function handleSubmitInternal(data) {
 
@@ -29,19 +26,29 @@ export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
         if (Next)
             Next(data);
     }
+
+    const initialData = currentData ? currentData : {
+        name: "",
+        description: "",
+        phones: phones,
+        region_id: "",
+        code: "",
+        abbreviation: ""
+
+    }
     return (
 
         <CustomForm
-            initValue={currentData}
+
+            schema={StationSchemaBasicData}
+            initValue={initialData}
             onSubmit={
                 (data) => {
+                    logger.info(data);
 
-                    // if (institutionErr)
-                    //     return;
+                    const newData = { ...data, phones: phones }
 
-                    // const newData = { ...data, "institution": institution, "regions": regions, "phones": phones }
-
-                    handleSubmitInternal(data)
+                    handleSubmitInternal(newData)
                 }}
 
             classStyle="mx-auto my-4 w-full max-w-[500px] md:max-w-[100%]">
@@ -49,34 +56,28 @@ export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
 
             <div className="space-y-2 md:space-y-0 md:flex md:justify-around md:items-baseline">
 
-                <div className="w-full space-y-4 px-2 max-w-[720px]">
+                <div className="w-full space-y-3  px-2 max-w-[860px]">
 
-                    <FormSelectSearch
-                        fieldName="instituion"
+                    {/* <FormInput
+                        fieldName="institution"
                         description={"Institución"}
-                        options={institutions}
-                        openUp={false}
-                    />
+                        placeholder="Nombre de la Institución..."
+
+                    /> */}
 
                     <FormInput
-
-                        description={"Nombre de la Estación"}
-                        fieldName={"station_name"}
+                        description={"Nombre del Centro Asistencial"}
+                        fieldName={"name"}
                         placeholder="Nombre de la Estación..."
 
                     />
 
 
-
-
                     <div className="md:flex md:space-x-2">
 
                         <FormInput
-
-
                             description={"Descripción"}
                             fieldName={"description"}
-
                             placeholder="Descripción...."
 
                         />
@@ -89,10 +90,12 @@ export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
 
                                 label={"Teléfonos"}
                                 inputName={"phones"}
-                                useDotLabel={true}
                                 placeHolder="0212-9855489"
+                                //useStrongErrColor={isSubmitted}
                                 items={phones}
                                 setItems={setPhones}
+                                mask={Number}
+
                             />
 
                         </div>
@@ -103,41 +106,25 @@ export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
                     <div className="md:flex md:space-x-2">
 
 
-                        <div className="md:w-[30%]">
-                            <FormInput
+                        <FormInput
+                            description={"Código"}
+                            fieldName={"id"}
+                            placeholder="01"
 
-
-
-                                description={"Código"}
-                                fieldName={"code"}
-                                placeholder="01"
-
-                            />
-                        </div>
-
-                        <div className="md:w-[30%]">
-
-                            <FormInput
-
-
-                                description={"Siglas"}
-                                fieldName={"initials"}
-                                placeholder="M01"
-
-                            />
-                        </div>
-
-                        <AddInput
-
-                            label={"Regiones"}
-                            inputName={"regions"}
-                            useDotLabel={true}
-                            placeHolder="Region Operativa Ejem:01M"
-                            items={regions}
-                            setItems={setRegions}
                         />
 
+
+                        <FormInput
+                            description={"Siglas"}
+                            fieldName={"abbreviation"}
+                            placeholder="M01"
+
+                        />
+
+
                     </div>
+
+
 
                 </div>
 
