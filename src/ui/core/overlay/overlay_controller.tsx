@@ -38,10 +38,15 @@ function OverlayController({
                             }}
                         >
                             {'closeOverlay' in item.props
-                                ? item.element({
-                                      ...item.props,
-                                      closeOverlay: () => closeOverlay(item.id),
-                                  })
+                                ? () => {
+                                      return item.element({
+                                          ...item.props,
+                                          closeOverlay: () => {
+                                              item.onClosed && item.onClosed()
+                                              closeOverlay(item.id)
+                                          },
+                                      })
+                                  }
                                 : item.element(item.props)}
                         </Overlay>
                     </>
