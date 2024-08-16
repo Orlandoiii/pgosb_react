@@ -4,9 +4,9 @@ import FormInput from "../../../core/inputs/FormInput";
 import FormHiddenButton from "../../../core/buttons/FormHiddenButton";
 import CustomForm from "../../../core/context/CustomFormContext";
 import React from "react";
-import { StationSchemaBasicData } from "../../../../domain/models/stations/station";
 import logger from "../../../../logic/Logger/logger";
 import AddInput from "../../../core/inputs/AddInput";
+import { HealthCareCenterSchemaBasicData } from "../../../../domain/models/healthcare_center/healthcare_center";
 
 
 
@@ -31,8 +31,7 @@ export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
         name: "",
         description: "",
         phones: phones,
-        region_id: "",
-        code: "",
+      
         abbreviation: ""
 
     }
@@ -40,7 +39,7 @@ export default function HealthcareCenterForm({ clickSubmitRef, onSubmit }) {
 
         <CustomForm
 
-            schema={StationSchemaBasicData}
+            schema={HealthCareCenterSchemaBasicData}
             initValue={initialData}
             onSubmit={
                 (data) => {

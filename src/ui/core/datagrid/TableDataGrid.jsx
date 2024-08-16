@@ -203,12 +203,10 @@ export default function TableDataGrid({
 
     const COLUMNS = []
 
-    let thereIsData = false
 
     COLUMNS.push(checkBoxHeader)
 
-    if ( Array.isArray(rawData) && rawData.length > 0 && rawData[0]) {
-        thereIsData = true;
+    if (Array.isArray(rawData) && rawData.length > 0 && rawData[0]) {
         Object.entries(rawData[0]).forEach(([value, keyName]) => {
             if (layout != null) {
                 const config = layout?.find((v) => v.column_name == value)
@@ -233,10 +231,10 @@ export default function TableDataGrid({
                 })
             }
         })
-    }else{
+    } else {
         COLUMNS.push({
-            header: "Sin Datos",
-            accessorKey: "Sin Datos",
+            header: "SIN DATOS",
+            accessorKey: "SIN DATOS",
             //footer: key,
         })
     }
@@ -429,8 +427,8 @@ export default function TableDataGrid({
                         </p>
                     </div>
                 </header>
-{thereIsData && <>
-    <div className="max-h-[600px] overflow-auto">
+
+                <div className="max-h-[600px] overflow-auto">
                     <table className="border-collapse w-full mt-2">
                         <thead>
                             {table.getHeaderGroups().map((headerGroup) => (
@@ -594,10 +592,10 @@ export default function TableDataGrid({
                     <div>Registros: {table.getRowCount()}</div>
                 </footer>
 
-</>}
-              
-           
-           
+
+
+
+
             </div>
         </>
     )

@@ -56,14 +56,7 @@ const router = createBrowserRouter([
             path: "assist/",
             element: <HealthcareCenterPage />
          }
-         // {
-         //    path: "missions/",
-         //    element: <MissionPage />
-         // },
-         // {
-         //    path: "test/",
-         //    element: <Testing />
-         // }
+       
 
       ]
    },
