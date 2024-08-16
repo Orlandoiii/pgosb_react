@@ -25,21 +25,27 @@ import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types.ts'
 import { get, getAll } from '../../../../services/http.tsx'
 import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 import { useLocation } from '../../../core/hooks/useLocation.tsx'
-import { LocationSchemaType } from '../../../../domain/models/location/location.ts'
+import {
+    LocationCrud,
+    LocationSchemaType,
+    ServiceLocationSchema,
+    ServiceLocationSchemaType,
+} from '../../../../domain/models/location/location.ts'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
 import TextArea from '../../../alter/components/inputs/text_area.tsx'
+import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection.ts'
 
 interface LocationFormProps {
-    serviceId: string
-    initValue?: LocationSchemaType | null
+    missionId: string
+    initValue?: ServiceLocationSchemaType | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
     add?: boolean
 }
 
 const LocationForm = ({
-    serviceId,
+    missionId,
     initValue,
     onClose,
     closeOverlay,
@@ -76,36 +82,29 @@ const LocationForm = ({
     const [loading, setLoading] = useState(false)
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
 
-    const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
-    console.log(
-        'states',
-        states,
-        'state',
-        state,
-        'municipalitys',
-        municipalitys
-    )
+
+    const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
 
         try {
-            const parsed = VehicleInvolvedSchema.parse(data)
+            const parsed = ServiceLocationSchema.parse(data)
 
-            var result: ResultErr<TVehicleInvolved>
+            var result: ResultErr<ServiceLocationSchemaType>
 
-            if (add) result = await vehicleCrud.insert(parsed)
-            else result = await vehicleCrud.update(parsed)
+            if (add) result = await LocationCrud.insert(parsed)
+            else result = await LocationCrud.update(parsed)
 
             if (result.success) {
                 modalService.toastSuccess(
-                    `Vehiculo ${buttonText.replace('dar', 'dado')}`
+                    `Ubicación ${buttonText.replace('dar', 'dada')}`
                 )
                 handleClose()
             } else
                 modalService.toastError(
-                    `No se pudo guardar el vehiculo por: ${result.result}`
+                    `No se pudo guardar la ubicación por: ${result.result}`
                 )
         } catch (error) {
             modalService.toastError(`Error inesperado por: ${error.message}`)
@@ -127,8 +126,8 @@ const LocationForm = ({
                 className="max-h-[90vh] min-w-[54rem] max-w-[85vw]"
             >
                 <CustomForm
-                    schema={VehicleInvolvedSchema}
-                    initValue={{ ...initValue, serviceId: serviceId }}
+                    schema={ServiceLocationSchema}
+                    initValue={{ ...initValue, missionId: missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
