@@ -49,7 +49,7 @@ export default function LocationForm({ clickSubmitRef, onSubmit, addPlaya = true
             currentData?.municipality,
             currentData?.parish,
             currentData?.sector,
-            currentData?.urbanization
+            currentData?.urb
         );
 
 
@@ -70,16 +70,16 @@ export default function LocationForm({ clickSubmitRef, onSubmit, addPlaya = true
                 const newData = {
                     ...data, 
 
-                    "state_id": estadoId,
+                    "state_id": String(estadoId),
                     "state": state,
 
-                    "municipality_id": municipioId,
+                    "municipality_id": String(municipioId),
                     "municipality": municipality,
 
-                    "parish_id": parroquiaId,
+                    "parish_id": String(parroquiaId),
                     "parish": parish,
 
-                    "sector_id": sectorId,
+                    "sector_id": String(sectorId),
                     "sector": sector,
 
                     "urb_id": String(urbanizationId),

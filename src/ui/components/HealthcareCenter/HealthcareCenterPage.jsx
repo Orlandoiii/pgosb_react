@@ -9,7 +9,7 @@ function HealthCreateActionData(config) {
       message: "Esta seguro que desea registrar el Centro Asistencial con los datos antes mostrados ?",
       successMessage: "Centro Asistencial guardado exitosamente",
       errMessage: "No se pudo guardar el Centro Asistencial",
-      endpoint: `${config.back_url}/api/v1/location/station/create`,
+      endpoint: `${config.back_url}/api/v1/center/create`,
       method: "post"
    }
 }
@@ -20,19 +20,19 @@ function HealthUpdateActionData(config) {
       message: "Esta seguro que desea actualizar el Centro Asistencial con los datos antes mostrados ?",
       successMessage: "Centro Asistencial actualizado Exitosamente",
       errMessage: "No se pudo actualizar el Centro Asistencial",
-      endpoint: `${config.back_url}/api/v1/location/station/update`,
+      endpoint: `${config.back_url}/api/v1/center/update`,
       method: "put"
    }
 }
 
-const getAllDataEndpoint = '/api/v1/location/station/all';
+const getAllDataEndpoint = '/api/v1/center/all';
 
 const deleteConfig = {
    singleDeleteTitle: 'Eliminar Centro Asistencial',
    multipleDeleteTitles: 'Eliminar Centros Asistenciales',
    successMessage: 'Centro Asistencial eliminado exitosamente:',
    failMessage: 'Error al eliminar el Centro Asistencial.',
-   endpoint: '/api/v1/station/',
+   endpoint: '/api/v1/center/',
    showPropertyName: 'id',
 };
 const addConfig = {
@@ -49,24 +49,25 @@ const detailTitle = "Detalles del Centro Asistencial";
 
 const stepsObjects = [
    {
-      title: "Datos Básicos",
+      title: "Datos básicos",
       content: <HealthcareCenterForm />,
 
    },
    {
       title: "Ubicación",
-      content: <LocationForm />
+      content: <LocationForm  addPlaya={false}/>
    }
 ]
 
 
 
 
-export default function StationPage({ }) {
+export default function HealthcareCenterPage({ }) {
    return (
       <>
          <LayoutContexProvider layoutName={"station_layout"}>
             <ModuleComponent
+               moduleName={"assistential_centers"}
                getAllDataEndpoint={getAllDataEndpoint}
                deleteConfig={deleteConfig}
                updateConfig={updateConfig}
