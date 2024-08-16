@@ -11,7 +11,9 @@ import {
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter.tsx'
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes.ts'
 
-import CustomForm from '../../../core/context/CustomFormContext.tsx'
+import CustomForm, {
+    getDefaults,
+} from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
@@ -51,7 +53,7 @@ const LocationForm = ({
     closeOverlay,
     add = true,
 }: LocationFormProps) => {
-    const [alias, setAlias] = useState('')
+    const [alias, setAlias] = useState(initValue ? initValue?.alias : '')
     const {
         states,
         state,
@@ -72,6 +74,11 @@ const LocationForm = ({
         sector,
         sectorId,
         setSector,
+
+        urbanizaciones,
+        urbanizacion,
+        urbanizationId,
+        setUrbanizacion,
     } = useLocation(
         initValue?.state,
         initValue?.municipality,
@@ -82,20 +89,41 @@ const LocationForm = ({
     const [loading, setLoading] = useState(false)
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
 
-
-
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
 
         try {
-            const parsed = ServiceLocationSchema.parse(data)
+            const defaultValue = getDefaults<ServiceLocationSchemaType>(
+                ServiceLocationSchema
+            )
 
-            var result: ResultErr<ServiceLocationSchemaType>
+            defaultValue.address = address
+            defaultValue.state = state
+            defaultValue.state_id = String(estadoId)
+            defaultValue.municipality = municipality
+            defaultValue.municipality_id = String(municipioId)
+            defaultValue.parish = parish
+            defaultValue.parish_id = String(parroquiaId)
+            defaultValue.sector = sector
+            defaultValue.sector_id = String(sectorId)
+            defaultValue.urb = urbanizacion
+            defaultValue.urb_id = String(urbanizationId)
+            defaultValue.alias = alias
+            defaultValue.mission_id = missionId
+            
+            if (!add){
 
-            if (add) result = await LocationCrud.insert(parsed)
-            else result = await LocationCrud.update(parsed)
+                defaultValue.mission_id = initValue?.mission_id
+                defaultValue.id = initValue?.id
+            }
+
+            let result: ResultErr<ServiceLocationSchemaType>
+            console.log('Result', defaultValue)
+
+            if (add) result = await LocationCrud.insert(defaultValue)
+            else result = await LocationCrud.update(defaultValue)
 
             if (result.success) {
                 modalService.toastSuccess(
@@ -178,16 +206,38 @@ const LocationForm = ({
                                 selectedOption={sector}
                                 selectionChange={(e) => setSector(e)}
                             />
+
+                            <SelectWithSearch
+                                disable={
+                                    (state && state == '') ||
+                                    (municipality && municipality == '') ||
+                                    (parish && parish == '')
+                                }
+                                description="Urbanización"
+                                options={urbanizaciones}
+                                selectedOption={urbanizacion}
+                                selectionChange={(e) => setUrbanizacion(e)}
+                            />
                         </div>
 
-                        <div className={`h-40 w-full`}>
-                            <TextArea
+                        <div className={` w-full`}>
+                            <TextInput
                                 description="Dirección"
                                 value={address}
                                 onChange={(e) =>
                                     setAddress(e.currentTarget.value)
                                 }
-                            ></TextArea>
+                            ></TextInput>
+
+                            {/* <TextArea
+                                description="Dirección"
+                                value={address}
+                                onChange={(e) => {
+                                    console.log('aksjdhsjkadh', e)
+
+                                    setAddress(e.currentTarget.value)
+                                }}
+                            ></TextArea> */}
                         </div>
                     </div>
                     <div className="h-8"></div>
@@ -204,7 +254,6 @@ const LocationForm = ({
                                     )
                                 }
                                 colorType="bg-[#3C50E0]"
-                                onClick={() => {}}
                                 children={buttonText}
                             ></Button>
                         </div>

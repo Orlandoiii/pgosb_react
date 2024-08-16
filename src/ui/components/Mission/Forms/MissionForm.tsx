@@ -39,7 +39,7 @@ const MissionForm = ({
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
         LocationCrud,
-        { missionId: '' },
+        { missionId: missionId },
         missionId
     )
 
@@ -54,7 +54,7 @@ const MissionForm = ({
                     title="Ubicaciones"
                     data={locations}
                     defaultSort={'state'}
-                    idPropertyName="state"
+                    idPropertyName="id"
                     addButtonText="Agregar una ubicación"
                     nameConverter={LocationNameConverter}
                     onAddButtonClick={locationActions.add}

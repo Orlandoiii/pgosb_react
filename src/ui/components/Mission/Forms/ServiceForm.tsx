@@ -75,7 +75,7 @@ const ServiceForm = ({
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
         LocationCrud,
-        { missionId: '' },
+        { missionId: missionId },
         missionId
     )
 
@@ -157,6 +157,13 @@ const ServiceForm = ({
     }, [stationCollection])
 
     useEffect(() => {
+        if (initValue && locations && locations.length > 0) {
+            const x = locations.filter((x) => x.id == initValue!.locationId)[0]
+            setStation(`${x.id} - ${x.alias}`)
+        }
+    }, [locations])
+
+    useEffect(() => {
         if (
             initValue &&
             careCenterCollection &&
@@ -218,6 +225,12 @@ const ServiceForm = ({
                         (x) => `${x.id} - ${x.name}` == careCenter
                     )[0].id
 
+                if (locations && locations.length > 0)
+                    defaultValue.locationId =
+                        locations.filter(
+                            (x) => `${x.id} - ${x.alias}` == serviceLocation
+                        )[0].id ?? '0'
+
                 resultService = await serviceCrud.insert(defaultValue)
             } else {
                 const service = await serviceCrud.getById(serviceId)
@@ -239,6 +252,12 @@ const ServiceForm = ({
                         service.result.centerId = careCenterCollection.filter(
                             (x) => `${x.id} - ${x.name}` == careCenter
                         )[0].id
+
+                    if (locations && locations.length > 0)
+                        service.result.locationId =
+                            locations.filter(
+                                (x) => `${x.id} - ${x.alias}` == serviceLocation
+                            )[0].id ?? '0'
 
                     resultService = await serviceCrud.update(service.result)
                 }
@@ -388,7 +407,9 @@ const ServiceForm = ({
                     <div className="flex w-72 space-x-1">
                         <SelectWithSearch
                             description="Ubicación del servicio"
-                            options={antaresNames}
+                            options={locations.map(
+                                (x) => `${x.id} - ${x.alias}`
+                            )}
                             selectedOption={serviceLocation}
                             selectionChange={(e) => setServiceLocation(e)}
                         />

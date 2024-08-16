@@ -16,20 +16,20 @@ export const LocationSchema = z.object({
 })
 
 export const ServiceLocationSchema = z.object({
-    id: z.string(),
-    alias: z.string(),
-    state_id: z.string(),
-    state: z.string(),
-    mission_id: z.string(),
-    municipality_id: z.string(),
-    municipality: z.string(),
-    parish_id: z.string(),
-    parish: z.string(),
-    sector_id: z.string(),
-    sector: z.string(),
-    urb_id: z.string(),
-    urb: z.string(),
-    address: z.string(),
+    id: z.string().optional(),
+    alias: z.string().optional(),
+    state_id: z.string().optional(),
+    state: z.string().optional(),
+    mission_id: z.string().optional(),
+    municipality_id: z.string().optional(),
+    municipality: z.string().optional(),
+    parish_id: z.string().optional(),
+    parish: z.string().optional(),
+    sector_id: z.string().optional(),
+    sector: z.string().optional(),
+    urb_id: z.string().optional(),
+    urb: z.string().optional(),
+    address: z.string().optional(),
 })
 
 export type LocationSchemaType = z.infer<typeof LocationSchema>
@@ -48,8 +48,8 @@ export const LocationFromApi = (
 ): ResultErr<ServiceLocationSchemaType> =>
     mapEntity<ServiceLocationSchemaType, ServiceLocationSchemaType>(
         data,
-        LocationSchema as any,
-        LocationSchema as any,
+        ServiceLocationSchema as any,
+        ServiceLocationSchema as any,
         FromApiInternal
     )
 export const LocationToApi = (
@@ -57,8 +57,8 @@ export const LocationToApi = (
 ): ResultErr<ServiceLocationSchemaType> =>
     mapEntity<ServiceLocationSchemaType, ServiceLocationSchemaType>(
         data,
-        LocationSchema as any,
-        LocationSchema as any,
+        ServiceLocationSchema as any,
+        ServiceLocationSchema as any,
         ToApiInternal
     )
 
