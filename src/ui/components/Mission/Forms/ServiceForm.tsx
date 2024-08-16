@@ -68,15 +68,14 @@ const ServiceForm = ({
     const stationCollection = useCollection('station', (data: any) => {
         return { success: true, result: data }
     })
-    const careCenterCollection = useCollection(
-        'mission/antares',
-        AntaresFromApi
-    )
+    const careCenterCollection = useCollection('center', (data: any) => {
+        return { success: true, result: data }
+    })
 
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
         LocationCrud,
-        { serviceId: '' },
+        { missionId: '' },
         missionId
     )
 
@@ -148,6 +147,28 @@ const ServiceForm = ({
         }
     }, [antaresCollection])
 
+    useEffect(() => {
+        if (initValue && stationCollection && stationCollection.length > 0) {
+            const x = stationCollection.filter(
+                (x) => x.id == initValue!.stationId
+            )[0]
+            setStation(`${x.abbreviation} - ${x.name}`)
+        }
+    }, [stationCollection])
+
+    useEffect(() => {
+        if (
+            initValue &&
+            careCenterCollection &&
+            careCenterCollection.length > 0
+        ) {
+            const x = careCenterCollection.filter(
+                (x) => x.id == initValue!.centerId
+            )[0]
+            setCareCenter(`${x.id} - ${x.name}`)
+        }
+    }, [careCenterCollection])
+
     async function updateUnits() {
         const result = await get<UnitSimple[]>(
             `mission/service/unit/${serviceId}`
@@ -176,6 +197,7 @@ const ServiceForm = ({
         try {
             setLoading(true)
             var resultService: ResultErr<TService>
+
             if (add) {
                 const defaultValue = getDefaults<TService>(ServiceSchema)
                 defaultValue.missionId = missionId
@@ -185,6 +207,16 @@ const ServiceForm = ({
                 defaultValue.injured = injured
                 defaultValue.transported = transferred
                 defaultValue.deceased = deceased
+                defaultValue.description = details
+
+                if (stationCollection && stationCollection.length > 0)
+                    defaultValue.stationId = stationCollection.filter(
+                        (x) => `${x.abbreviation} - ${x.name}` == station
+                    )[0].id
+                if (careCenterCollection && careCenterCollection.length > 0)
+                    defaultValue.centerId = careCenterCollection.filter(
+                        (x) => `${x.id} - ${x.name}` == careCenter
+                    )[0].id
 
                 resultService = await serviceCrud.insert(defaultValue)
             } else {
@@ -197,6 +229,16 @@ const ServiceForm = ({
                     service.result.injured = injured
                     service.result.transported = transferred
                     service.result.deceased = deceased
+                    service.result.description = details
+
+                    if (stationCollection && stationCollection.length > 0)
+                        service.result.stationId = stationCollection.filter(
+                            (x) => `${x.abbreviation} - ${x.name}` == station
+                        )[0].id
+                    if (careCenterCollection && careCenterCollection.length > 0)
+                        service.result.centerId = careCenterCollection.filter(
+                            (x) => `${x.id} - ${x.name}` == careCenter
+                        )[0].id
 
                     resultService = await serviceCrud.update(service.result)
                 }
@@ -206,7 +248,7 @@ const ServiceForm = ({
                     add ? 'Servicio guardado' : 'Servicio actualizado'
                 )
 
-                setServiceId(resultService.result?.id)
+                if (add) setServiceId(resultService.result?.id)
                 setSavedAntares(antares)
                 return
             } else if (!resultService!.success)
@@ -235,6 +277,11 @@ const ServiceForm = ({
         if (service.success && service.result) {
             service.result.description = details
 
+            service.result.unharmed = unharmed
+            service.result.injured = injured
+            service.result.transported = transferred
+            service.result.deceased = deceased
+
             const resultService = await serviceCrud.update(service.result)
             if (resultService.success) setSavedDetails(details)
         }
@@ -258,6 +305,20 @@ const ServiceForm = ({
         }
     }
 
+    async function deleteUnitHandler(unit: string) {
+        const service = await serviceCrud.getById(serviceId)
+
+        if (service.success && service.result) {
+            service.result.units = service.result.units.filter((x) => x != unit)
+
+            const resultService = await serviceCrud.update(service.result)
+            if (resultService.success) {
+                alertController.notifySuccess('Unidad eliminada')
+                updateUnits()
+            }
+        }
+    }
+
     async function addUserHandler(unit: string, rol: string) {
         const selected = usersCollection.filter(
             (items) => items.code === unit.split(' - ')[0]
@@ -271,6 +332,22 @@ const ServiceForm = ({
             const resultService = await serviceCrud.update(service.result)
             if (resultService.success) {
                 alertController.notifySuccess('Usuario guardada')
+                updateUsers()
+            }
+        }
+    }
+
+    async function deleteUserHandler(unit: string) {
+        const service = await serviceCrud.getById(serviceId)
+
+        if (service.success && service.result) {
+            service.result.firefighter = service.result.firefighter.filter(
+                (x) => x != unit
+            )
+
+            const resultService = await serviceCrud.update(service.result)
+            if (resultService.success) {
+                alertController.notifySuccess('Usuario eliminado')
                 updateUsers()
             }
         }
@@ -329,7 +406,9 @@ const ServiceForm = ({
                     <div className=" w-64 ">
                         <SelectWithSearch
                             description="Centro asistencial"
-                            options={careCenterCollection}
+                            options={careCenterCollection.map(
+                                (x) => `${x.id} - ${x.name}`
+                            )}
                             selectedOption={careCenter}
                             selectionChange={(e) => setCareCenter(e)}
                         />
@@ -339,12 +418,12 @@ const ServiceForm = ({
 
                     <div className="mt-8 h-11 mb-2.5 flex-none">
                         <Button
-                            enable={
-                                antares != '' &&
-                                antares != savedAntares &&
-                                station != '' &&
-                                serviceLocation != ''
-                            }
+                            // enable={
+                            //     antares != '' &&
+                            //     antares != savedAntares &&
+                            //     station != '' &&
+                            //     serviceLocation != ''
+                            // }
                             colorType="bg-[#3C50E0]"
                             onClick={antaresButtonClicked}
                             children={'Guardar'}
@@ -364,6 +443,7 @@ const ServiceForm = ({
                                     (item) => item.plate
                                 )}
                                 onAddOption={addUnitHandler}
+                                onDeleteButtonClick={deleteUnitHandler}
                                 idPropertyName="id"
                                 addButtonText="Agregar una unidad"
                             ></AddableTable>
@@ -379,6 +459,7 @@ const ServiceForm = ({
                                 optionsDescription2={'Rol'}
                                 options2={roles}
                                 onAddOption={addUserHandler}
+                                onDeleteButtonClick={deleteUserHandler}
                                 defaultSort={'id'}
                                 idPropertyName="id"
                                 addButtonText="Agregar un bombero"
@@ -483,7 +564,6 @@ const ServiceForm = ({
                             disabled={!formIsEnable()}
                             inputName="description"
                             value={details}
-                            onBlur={updateServiceDetails}
                             onChange={(e) => setDetails(e.currentTarget.value)}
                         />
                     </div>

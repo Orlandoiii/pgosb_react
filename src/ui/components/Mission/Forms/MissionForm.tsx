@@ -39,7 +39,7 @@ const MissionForm = ({
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
         LocationCrud,
-        { serviceId: '' },
+        { missionId: '' },
         missionId
     )
 

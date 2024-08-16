@@ -79,22 +79,20 @@ const MissionPage = () => {
 
     return (
         <LayoutContexProvider layoutName={'service_layout'}>
-            {data.length > 0 && (
-                <TableDataGrid
-                    rawData={data}
-                    onAdd={addNewMission}
-                    onDoubleClickRow={() => {}}
-                    permissions={{
-                        add: true,
-                        delete: true,
-                        export: true,
-                        print: true,
-                        update: true,
-                    }}
-                    onDelete={() => {}}
-                    onUpdate={onUpdate}
-                />
-            )}
+            <TableDataGrid
+                rawData={data}
+                onAdd={addNewMission}
+                onDoubleClickRow={() => {}}
+                permissions={{
+                    add: true,
+                    delete: true,
+                    export: true,
+                    print: true,
+                    update: true,
+                }}
+                onDelete={() => {}}
+                onUpdate={onUpdate}
+            />
 
             <LoadingModal initOpen={loading} children={null} />
         </LayoutContexProvider>
