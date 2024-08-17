@@ -153,8 +153,17 @@ export type UserSimple  = {
 	name: string
 	user_name: string
 	rank: string
-	code: string
+	personal_code: string
 	legal_id: string
+}
+
+export const userNameConverter: { [K in keyof UserSimple]?: string } = {
+    id: 'Id',
+    name: 'Nombre',
+    user_name: 'Usuario',
+    rank: 'Rango',
+    personal_code: 'Código',
+    legal_id: 'Documento',
 }
 
 export const UserSimpleFromApi = (
@@ -168,3 +177,4 @@ export const UserSimpleToApi = (
 ): ResultErr<UserSimple> => {
     return {success: true, result : data, error: ''}
 }
+

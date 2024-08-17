@@ -75,13 +75,36 @@ const MissionPage = () => {
         if (errorMessage != '') modalService.pushAlert('Error', errorMessage)
     }
 
-    function onUpdate() {}
+    async function openMission(service: any) {
+        console.log('service', service)
+
+        const result = await missionCrud.getById(service.mission_id)
+
+        if (result.success && result.result) {
+            modalService.pushModal(
+                MissionForm,
+                {
+                    initValue: result.result,
+                    missionId: result.result?.id,
+                    closeOverlay: undefined,
+                },
+                new OverlayModalConfig(),
+                updateServices
+            )
+        } else {
+            modalService.pushAlert(
+                'Error',
+                `No se pudo abrir la missión por: ${result.error}`
+            )
+        }
+    }
 
     return (
         <LayoutContexProvider layoutName={'service_layout'}>
             <TableDataGrid
                 rawData={data}
                 onAdd={addNewMission}
+                onUpdate={openMission}
                 onDoubleClickRow={() => {}}
                 permissions={{
                     add: true,
@@ -91,7 +114,6 @@ const MissionPage = () => {
                     update: true,
                 }}
                 onDelete={() => {}}
-                onUpdate={onUpdate}
             />
 
             <LoadingModal initOpen={loading} children={null} />

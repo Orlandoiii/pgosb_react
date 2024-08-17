@@ -44,6 +44,7 @@ class ModalService {
         config: OverlayModalConfig = new OverlayModalConfig(),
         onClosed?: () => void
     ): { modal: OverlayItem<P>; closeModal: () => void } {
+        config.closeOnClickOut = false
         console.log(`Mount new one`)
         const newModal = new OverlayItem(content, props, config, true, onClosed)
         this.modals.push(newModal)

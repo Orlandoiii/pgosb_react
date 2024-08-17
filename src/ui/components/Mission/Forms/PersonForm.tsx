@@ -30,6 +30,10 @@ import InfrastructureForm from './InfrastructureForm.tsx'
 import { infrastructureCrud } from '../../../../domain/models/infrastructure/infrastructure.ts'
 import VehicleForm from './VehicleForm.tsx'
 import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved.ts'
+import { UnitSimple } from '../../../../domain/models/unit/unit.ts'
+import { get } from '../../../../services/http.tsx'
+import { useSimpleCollection } from '../../../core/hooks/useCollection.ts'
+import { Condition } from '../../../../domain/abstractions/enums/condition.ts'
 
 interface PersonFormProps {
     serviceId: string
@@ -46,8 +50,8 @@ const PersonForm = ({
     closeOverlay,
     add = true,
 }: PersonFormProps) => {
+    const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
     const [loading, setLoading] = useState(false)
-
     const [infrastructureActions, infrastructures] =
         useActionModalAndCollection(
             InfrastructureForm,
@@ -62,8 +66,46 @@ const PersonForm = ({
         serviceId
     )
 
+    const [unit, setUnit] = useState('')
+    const [infrastructure, setInfrastructure] = useState('')
+    const [vehicle, setVehicle] = useState('')
+
+    useEffect(() => {
+        updateUnits()
+    }, [])
+
+    useEffect(() => {
+        if (initValue && serviceUnits && serviceUnits.length > 0) {
+            const x = serviceUnits.filter((x) => x.id == initValue!.unitId)[0]
+            setUnit(`${x.plate}`)
+        }
+    }, [serviceUnits])
+    useEffect(() => {
+        if (initValue && infrastructures && infrastructures.length > 0) {
+            const x = infrastructures.filter(
+                (x) => x.id == initValue!.infrastructureId
+            )[0]
+            setInfrastructure(`${x.id}`)
+        }
+    }, [infrastructures])
+    useEffect(() => {
+        if (initValue && vehicles && vehicles.length > 0) {
+            const x = vehicles.filter((x) => x.id == initValue!.vehicleId)[0]
+            setVehicle(`${x.id} - ${x.licensePlate}`)
+        }
+    }, [vehicles])
+
     const areaCodes = EnumToStringArray(AreaCodes)
+    const condition = EnumToStringArray(Condition)
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
+
+    async function updateUnits() {
+        const result = await get<UnitSimple[]>(
+            `mission/service/unit/${serviceId}`
+        )
+        if (result.success && result.result) setServiceUnits(result.result)
+        console.log(result)
+    }
 
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
@@ -98,7 +140,11 @@ const PersonForm = ({
 
     return (
         <>
-            <ModalLayout className='max-h-[90vh] max-w-[85vw]' title={'Registro de Persona'} onClose={handleClose}>
+            <ModalLayout
+                className="max-h-[90vh] max-w-[85vw] overflow-y-auto"
+                title={'Registro de Persona'}
+                onClose={handleClose}
+            >
                 <CustomForm
                     schema={PersonInvolvedSchema}
                     initValue={{ ...initValue, serviceId: serviceId }}
@@ -108,7 +154,9 @@ const PersonForm = ({
                         <FormSelectSearch<TPersonInvolved>
                             fieldName={'vehicleId'}
                             description={'Vehiculo Involucrado:'}
-                            options={vehicles.map((x) => String(x.id))}
+                            options={vehicles.map(
+                                (x) => `${x.id} - ${x.licensePlate}`
+                            )}
                         />
                         <FormSelectSearch<TPersonInvolved>
                             fieldName={'infrastructureId'}
@@ -118,7 +166,7 @@ const PersonForm = ({
                         <FormSelectSearch<TPersonInvolved>
                             fieldName={'unitId'}
                             description={'Vehiculo de Traslado:'}
-                            options={areaCodes}
+                            options={serviceUnits.map((x) => x.plate)}
                         />
                     </div>
 
@@ -167,7 +215,7 @@ const PersonForm = ({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TPersonInvolved>
                                 fieldName={'employmentStatus'}
-                                description="Estado:"
+                                description="Estado físico:"
                             />
 
                             <FormInput<TPersonInvolved>
@@ -175,9 +223,11 @@ const PersonForm = ({
                                 description="Patología:"
                             />
                         </div>
-                        <FormInput<TPersonInvolved>
+
+                        <FormSelect<TPersonInvolved>
                             fieldName={'condition'}
-                            description="Condición:"
+                            description={'Condición:'}
+                            options={EnumToStringArray(Condition)}
                         />
 
                         <div className="h-4"></div>
@@ -195,10 +245,10 @@ const PersonForm = ({
                     <FormTitle title="Dirección de Domicilio" />
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
-                        <div className="md:flex md:md:items-start md:space-x-2">
+                        {/* <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TPersonInvolved>
                                 fieldName={'state'}
-                                description="Estado físico:"
+                                description="Estado:"
                             />
 
                             <FormInput<TPersonInvolved>
@@ -210,7 +260,7 @@ const PersonForm = ({
                                 fieldName={'parish'}
                                 description="Parroquia:"
                             />
-                        </div>
+                        </div> */}
 
                         <FormInput<TPersonInvolved>
                             fieldName={'description'}

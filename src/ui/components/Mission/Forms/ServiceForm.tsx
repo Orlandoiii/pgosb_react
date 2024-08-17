@@ -12,6 +12,7 @@ import { AddableTable } from '../../Temp/AddableTable'
 import Button from '../../../core/buttons/Button'
 import {
     serviceCrud,
+    serviceNameConverter,
     ServiceSchema,
     TService,
 } from '../../../../domain/models/service/service'
@@ -37,9 +38,15 @@ import {
 } from '../../../../domain/models/person/person_involved'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr'
 import AlertController from '../../../core/alerts/AlertController'
-import { UserSimple } from '../../../../domain/models/user/user'
+import {
+    userNameConverter,
+    UserSimple,
+} from '../../../../domain/models/user/user'
 import TextArea from '../../../core/inputs/TextArea'
-import { UnitSimple } from '../../../../domain/models/unit/unit'
+import {
+    unitNameConverter,
+    UnitSimple,
+} from '../../../../domain/models/unit/unit'
 import LocationIcon from '../../../core/icons/LocationIcon'
 import { get } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
@@ -159,7 +166,7 @@ const ServiceForm = ({
     useEffect(() => {
         if (initValue && locations && locations.length > 0) {
             const x = locations.filter((x) => x.id == initValue!.locationId)[0]
-            setStation(`${x.id} - ${x.alias}`)
+            setServiceLocation(`${x.id} - ${x.alias}`)
         }
     }, [locations])
 
@@ -308,7 +315,7 @@ const ServiceForm = ({
 
     async function addUnitHandler(unit: string, ignore: any) {
         const selected = unitsCollection.filter(
-            (items) => items.plate === unit
+            (item) => `${item.plate} - ${item.unit_type}` === unit
         )[0]
 
         const service = await serviceCrud.getById(serviceId)
@@ -340,7 +347,7 @@ const ServiceForm = ({
 
     async function addUserHandler(unit: string, rol: string) {
         const selected = usersCollection.filter(
-            (items) => items.code === unit.split(' - ')[0]
+            (items) => items.personal_code === unit.split(' - ')[0]
         )[0]
 
         const service = await serviceCrud.getById(serviceId)
@@ -383,56 +390,63 @@ const ServiceForm = ({
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex xl:space-x-6 space-x-4 w-full">
-                    <div className="w-64">
-                        <SelectWithSearch
-                            description="Antares"
-                            options={antaresNames}
-                            selectedOption={antares}
-                            selectionChange={(e) => setAntares(e)}
-                        />
-                    </div>
+                <div className="flex xl:space-x-6 space-x-8 w-full items-center">
+                    <div className="w-full">
+                        <div className="flex space-x-4 w-full">
+                            <div className="flex-1 w-64">
+                                <SelectWithSearch
+                                    description="Antares"
+                                    options={antaresNames}
+                                    selectedOption={antares}
+                                    selectionChange={(e) => setAntares(e)}
+                                />
+                            </div>
 
-                    <div className=" w-64">
-                        <SelectWithSearch
-                            description="Estación"
-                            options={stationCollection.map(
-                                (x) => `${x.abbreviation} - ${x.name}`
-                            )}
-                            selectedOption={station}
-                            selectionChange={(e) => setStation(e)}
-                        />
-                    </div>
+                            <div className="flex w-72 space-x-1">
+                                <SelectWithSearch
+                                    description="Ubicación del servicio"
+                                    options={locations.map(
+                                        (x) => `${x.id} - ${x.alias}`
+                                    )}
+                                    selectedOption={serviceLocation}
+                                    selectionChange={(e) =>
+                                        setServiceLocation(e)
+                                    }
+                                />
 
-                    <div className="flex w-72 space-x-1">
-                        <SelectWithSearch
-                            description="Ubicación del servicio"
-                            options={locations.map(
-                                (x) => `${x.id} - ${x.alias}`
-                            )}
-                            selectedOption={serviceLocation}
-                            selectionChange={(e) => setServiceLocation(e)}
-                        />
-
-                        <div className="pt-8 h-11 flex-none">
-                            <Button
-                                colorType="bg-[#3C50E0]"
-                                onClick={locationActions.add}
-                                children={'+'}
-                                width="w-10"
-                            ></Button>
+                                <div className="pt-8 h-11 flex-none">
+                                    <Button
+                                        colorType="bg-[#3C50E0]"
+                                        onClick={locationActions.add}
+                                        children={'+'}
+                                        width="w-10"
+                                    ></Button>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                        <div className="flex  space-x-4">
+                            <div className="flex-1 w-64">
+                                <SelectWithSearch
+                                    description="Estación"
+                                    options={stationCollection.map(
+                                        (x) => `${x.abbreviation} - ${x.name}`
+                                    )}
+                                    selectedOption={station}
+                                    selectionChange={(e) => setStation(e)}
+                                />
+                            </div>
 
-                    <div className=" w-64 ">
-                        <SelectWithSearch
-                            description="Centro asistencial"
-                            options={careCenterCollection.map(
-                                (x) => `${x.id} - ${x.name}`
-                            )}
-                            selectedOption={careCenter}
-                            selectionChange={(e) => setCareCenter(e)}
-                        />
+                            <div className=" w-72 ">
+                                <SelectWithSearch
+                                    description="Centro asistencial"
+                                    options={careCenterCollection.map(
+                                        (x) => `${x.id} - ${x.name}`
+                                    )}
+                                    selectedOption={careCenter}
+                                    selectionChange={(e) => setCareCenter(e)}
+                                />
+                            </div>
+                        </div>
                     </div>
 
                     <div className="w-1 flex-1"></div>
@@ -461,8 +475,9 @@ const ServiceForm = ({
                                 data={serviceUnits}
                                 optionsDescription={'Placa'}
                                 options={unitsCollection.map(
-                                    (item) => item.plate
+                                    (item) => `${item.plate} - ${item.unit_type}`
                                 )}
+                                nameConverter={unitNameConverter}
                                 onAddOption={addUnitHandler}
                                 onDeleteButtonClick={deleteUnitHandler}
                                 idPropertyName="id"
@@ -474,8 +489,10 @@ const ServiceForm = ({
                                 title="Bomberos"
                                 data={serviceUsers}
                                 optionsDescription={'Usuario'}
+                                nameConverter={userNameConverter}
                                 options={usersCollection.map(
-                                    (item) => `${item.code} - ${item.user_name}`
+                                    (item) =>
+                                        `${item.personal_code} - ${item.user_name}`
                                 )}
                                 optionsDescription2={'Rol'}
                                 options2={roles}

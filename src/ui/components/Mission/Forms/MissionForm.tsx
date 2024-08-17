@@ -15,9 +15,11 @@ import {
     LocationCrud,
     LocationNameConverter,
 } from '../../../../domain/models/location/location'
+import { TMission } from '../../../../domain/models/mission/mission'
 
 interface MissionFormProps {
     missionId: string
+    initValue?: TMission
     onClose?: () => void
     closeOverlay?: () => void
 }
@@ -25,6 +27,7 @@ interface MissionFormProps {
 const MissionForm = ({
     missionId,
     onClose,
+    initValue,
     closeOverlay,
 }: MissionFormProps) => {
     const [loading, setLoading] = useState(false)

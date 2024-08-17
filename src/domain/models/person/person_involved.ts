@@ -8,29 +8,29 @@ import { zodPhoneNumber } from '../../../utilities/zod/validators/phone_validato
 import { zodIdDocument } from '../../../utilities/zod/validators/document_validators'
 
 export const PersonInvolvedSchema = z.object({
-    id: zodEmptyOrGreaterThan(0),
-    unitId: zodEmptyOrGreaterThan(0),
-    serviceId: zodEmptyOrGreaterThan(0),
-    vehicleId: zodEmptyOrGreaterThan(0),
-    infrastructureId: zodEmptyOrGreaterThan(0),
-    condition: zodEmptyOrGreaterThan(3),
-    observations: zodEmptyOrGreaterThan(3),
+    id: z.string().default(''),
+    unitId: z.string().default(''),
+    serviceId: z.string().default(''),
+    vehicleId: z.string().default(''),
+    infrastructureId: z.string().default(''),
+    condition: z.string().default(''),
+    observations: z.string().default(''),
 
-    firstName: zodEmptyOrGreaterThan(3),
-    lastName: zodEmptyOrGreaterThan(3),
-    age: zodEmptyOrGreaterThan(3),
-    gender: zodEmptyOrGreaterThan(3),
+    firstName: z.string().default(''),
+    lastName: z.string().default(''),
+    age: z.string().default(''),
+    gender: z.string().default(''),
 
-    idDocument: zodIdDocument(),
-    phoneNumber: zodPhoneNumber(),
+    idDocument: z.string().default(''),
+    phoneNumber: z.string().default(''),
 
-    state: zodEmptyOrGreaterThan(3),
-    municipality: zodEmptyOrGreaterThan(3),
-    parish: zodEmptyOrGreaterThan(3),
-    description: zodEmptyOrGreaterThan(3),
+    state: z.string().default(''),
+    municipality: z.string().default(''),
+    parish: z.string().default(''),
+    description: z.string().default(''),
 
-    employmentStatus: zodEmptyOrGreaterThan(3),
-    pathology: zodEmptyOrGreaterThan(3),
+    employmentStatus: z.string().default(''),
+    pathology: z.string().default(''),
 })
 
 export const ApiPersonInvolvedSchema = z.object({
@@ -69,7 +69,7 @@ function fromApiInternal(data: TApiPersonInvolved): TPersonInvolved {
         observations: data.observations,
         firstName: data.first_name,
         lastName: data.last_name,
-        age: Number(data.age),
+        age: data.age,
         gender: data.gender,
         idDocument: data.legal_id,
         phoneNumber: data.phone,

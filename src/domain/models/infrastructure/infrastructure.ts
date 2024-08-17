@@ -6,20 +6,20 @@ import { CRUD } from '../../../utilities/crud'
 import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 
 export const InfrastructureSchema = z.object({
-    id: z.coerce.number().default(0),
-    serviceId: zodEmptyOrGreaterThan(0),
-    buildType: zodEmptyOrGreaterThan(3),
-    buildOccupation: zodEmptyOrGreaterThan(3),
-    buildArea: zodEmptyOrGreaterThan(3),
-    buildAccess: zodEmptyOrGreaterThan(3),
-    levels: z.coerce.number().default(0),
-    people: z.coerce.number().default(0),
-    goodsType: zodEmptyOrGreaterThan(3),
-    buildRoof: zodEmptyOrGreaterThan(3),
-    buildWall: zodEmptyOrGreaterThan(3),
-    buildFloor: zodEmptyOrGreaterThan(3),
-    buildRoomType: zodEmptyOrGreaterThan(3),
-    observations: zodEmptyOrGreaterThan(2),
+    id: z.string().default(''),
+    serviceId: z.string().default(''),
+    buildType: z.string().default(''),
+    buildOccupation: z.string().default(''),
+    buildArea: z.string().default(''),
+    buildAccess: z.string().default(''),
+    levels: z.string().default(''),
+    people: z.string().default(''),
+    goodsType: z.string().default(''),
+    buildRoof: z.string().default(''),
+    buildWall: z.string().default(''),
+    buildFloor: z.string().default(''),
+    buildRoomType: z.string().default(''),
+    observations: z.string().default(''),
 })
 
 export const ApiInfrastructureSchema = z.object({
@@ -44,14 +44,14 @@ export type TApiInfrastructure = z.infer<typeof ApiInfrastructureSchema>
 
 function fromApiInternal(data: TApiInfrastructure): TInfrastructure {
     return {
-        id: Number(data.id),
+        id: data.id,
         serviceId: data.service_id,
         buildType: data.build_type,
         buildOccupation: data.build_occupation,
         buildArea: data.build_area,
         buildAccess: data.build_access,
-        levels: Number(data.levels),
-        people: Number(data.people),
+        levels: data.levels,
+        people: data.people,
         goodsType: data.goods_type,
         buildRoof: data.build_roof,
         buildWall: data.build_wall,

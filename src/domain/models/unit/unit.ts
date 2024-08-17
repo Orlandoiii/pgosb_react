@@ -218,6 +218,14 @@ export type UnitSimple = {
 	alias: string,
 }
 
+export const unitNameConverter: { [K in keyof UnitSimple]?: string } = {
+    id: 'Id',
+    plate: 'Placa',
+    station: 'Estación',
+    unit_type: 'Tipo',
+    alias: 'Alias'
+}
+
 export const UnitSimpleFromApi = (data: UnitSimple): ResultErr<UnitSimple> => {
     return { success: true, result: data, error: '' }
 }

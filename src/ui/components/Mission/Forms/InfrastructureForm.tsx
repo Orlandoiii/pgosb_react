@@ -100,16 +100,26 @@ const InfrastructureForm = ({
                                 description={'Tipo de infrastructura:'}
                                 options={EnumToStringArray(InfrastructureType)}
                             />
-                            <FormSelect<TInfrastructure>
+                            {/* <FormSelect<TInfrastructure>
                                 fieldName={'buildOccupation'}
                                 description={'Ocupación:'}
                                 options={areaCodes}
+                            /> */}
+                            <FormInput<TInfrastructure>
+                                fieldName={'buildOccupation'}
+                                description="Ocupación:"
                             />
-                            <FormSelect<TInfrastructure>
+
+                            {/* <FormSelect<TInfrastructure>
                                 fieldName={'buildArea'}
                                 description={'Area de ubicación:'}
                                 options={areaCodes}
+                            /> */}
+                            <FormInput<TInfrastructure>
+                                fieldName={'buildArea'}
+                                description="Area de ubicación:"
                             />
+
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildAccess'}
                                 description={'Acceso:'}
@@ -134,11 +144,16 @@ const InfrastructureForm = ({
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormSelect<TInfrastructure>
+                            {/* <FormSelect<TInfrastructure>
                                 fieldName={'buildRoomType'}
                                 description={'Tipo de habitación:'}
                                 options={areaCodes}
+                            /> */}
+                            <FormInput<TInfrastructure>
+                                fieldName={'buildRoomType'}
+                                description="Tipo de habitación:"
                             />
+
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildFloor'}
                                 description={'Pisos:'}
@@ -156,14 +171,12 @@ const InfrastructureForm = ({
                             />
                         </div>
 
-                        <div className="h-8"></div>
-
-                        <FormTitle title="Dirección de Domicilio" />
+                        <div className="h-4"></div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TInfrastructure>
                                 fieldName={'observations'}
-                                description="Observaciones:"
+                                description="Dirección:"
                             />
                         </div>
                     </div>
