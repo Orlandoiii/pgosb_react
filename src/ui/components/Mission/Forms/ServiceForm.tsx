@@ -90,20 +90,20 @@ const ServiceForm = ({
         useActionModalAndCollection(
             InfrastructureForm,
             infrastructureCrud,
-            { serviceId: serviceId },
-            serviceId
+            { serviceId: serviceId ?? '' },
+            serviceId ?? ''
         )
     const [vehicleActions, vehicles] = useActionModalAndCollection(
         VehicleForm,
         vehicleCrud,
-        { serviceId: serviceId },
-        serviceId
+        { serviceId: serviceId ?? '' },
+        serviceId ?? ''
     )
     const [personActions, people] = useActionModalAndCollection(
         PersonForm,
         personCrud,
-        { serviceId: serviceId },
-        serviceId
+        { serviceId: serviceId ?? '' },
+        serviceId ?? ''
     )
 
     const usersCollection: UserSimple[] = useSimpleCollection('user')
@@ -164,7 +164,13 @@ const ServiceForm = ({
     }, [stationCollection])
 
     useEffect(() => {
-        if (initValue && locations && locations.length > 0) {
+        if (
+            initValue &&
+            initValue.locationId != '' &&
+            initValue.locationId != '0' &&
+            locations &&
+            locations.length > 0
+        ) {
             const x = locations.filter((x) => x.id == initValue!.locationId)[0]
             setServiceLocation(`${x.id} - ${x.alias}`)
         }
@@ -173,12 +179,16 @@ const ServiceForm = ({
     useEffect(() => {
         if (
             initValue &&
+            initValue.centerId != '' &&
+            initValue.centerId != '0' &&
             careCenterCollection &&
             careCenterCollection.length > 0
         ) {
             const x = careCenterCollection.filter(
                 (x) => x.id == initValue!.centerId
             )[0]
+            console.log('CareCenter', x, initValue.centerId)
+
             setCareCenter(`${x.id} - ${x.name}`)
         }
     }, [careCenterCollection])
@@ -223,16 +233,24 @@ const ServiceForm = ({
                 defaultValue.deceased = deceased
                 defaultValue.description = details
 
-                if (stationCollection && stationCollection.length > 0)
+                if (
+                    stationCollection &&
+                    stationCollection.length > 0 &&
+                    station
+                )
                     defaultValue.stationId = stationCollection.filter(
                         (x) => `${x.abbreviation} - ${x.name}` == station
                     )[0].id
-                if (careCenterCollection && careCenterCollection.length > 0)
+                if (
+                    careCenterCollection &&
+                    careCenterCollection.length > 0 &&
+                    careCenter
+                )
                     defaultValue.centerId = careCenterCollection.filter(
                         (x) => `${x.id} - ${x.name}` == careCenter
                     )[0].id
 
-                if (locations && locations.length > 0)
+                if (locations && locations.length > 0 && serviceLocation)
                     defaultValue.locationId =
                         locations.filter(
                             (x) => `${x.id} - ${x.alias}` == serviceLocation
@@ -240,7 +258,7 @@ const ServiceForm = ({
 
                 resultService = await serviceCrud.insert(defaultValue)
             } else {
-                const service = await serviceCrud.getById(serviceId)
+                const service = await serviceCrud.getById(serviceId ?? '')
 
                 if (service.success && service.result) {
                     service.result.antaresId = antaresId
@@ -251,16 +269,24 @@ const ServiceForm = ({
                     service.result.deceased = deceased
                     service.result.description = details
 
-                    if (stationCollection && stationCollection.length > 0)
+                    if (
+                        stationCollection &&
+                        stationCollection.length > 0 &&
+                        station
+                    )
                         service.result.stationId = stationCollection.filter(
                             (x) => `${x.abbreviation} - ${x.name}` == station
                         )[0].id
-                    if (careCenterCollection && careCenterCollection.length > 0)
+                    if (
+                        careCenterCollection &&
+                        careCenterCollection.length > 0 &&
+                        careCenter
+                    )
                         service.result.centerId = careCenterCollection.filter(
                             (x) => `${x.id} - ${x.name}` == careCenter
                         )[0].id
 
-                    if (locations && locations.length > 0)
+                    if (locations && locations.length > 0 && serviceLocation)
                         service.result.locationId =
                             locations.filter(
                                 (x) => `${x.id} - ${x.alias}` == serviceLocation
@@ -298,7 +324,7 @@ const ServiceForm = ({
     async function updateServiceDetails() {
         if (details == savedDetails) return
 
-        const service = await serviceCrud.getById(serviceId)
+        const service = await serviceCrud.getById(serviceId ?? '')
 
         if (service.success && service.result) {
             service.result.description = details
@@ -318,9 +344,9 @@ const ServiceForm = ({
             (item) => `${item.plate} - ${item.unit_type}` === unit
         )[0]
 
-        const service = await serviceCrud.getById(serviceId)
+        const service = await serviceCrud.getById(serviceId ?? '')
 
-        if (service.success && service.result) {
+        if (service.success && service.result && service.result.units) {
             service.result.units.push(selected.id)
 
             const resultService = await serviceCrud.update(service.result)
@@ -332,9 +358,9 @@ const ServiceForm = ({
     }
 
     async function deleteUnitHandler(unit: string) {
-        const service = await serviceCrud.getById(serviceId)
+        const service = await serviceCrud.getById(serviceId ?? '')
 
-        if (service.success && service.result) {
+        if (service.success && service.result && service.result.units) {
             service.result.units = service.result.units.filter((x) => x != unit)
 
             const resultService = await serviceCrud.update(service.result)
@@ -350,9 +376,9 @@ const ServiceForm = ({
             (items) => items.personal_code === unit.split(' - ')[0]
         )[0]
 
-        const service = await serviceCrud.getById(serviceId)
+        const service = await serviceCrud.getById(serviceId ?? '')
 
-        if (service.success && service.result) {
+        if (service.success && service.result && service.result.firefighter) {
             service.result.firefighter.push(selected.id)
 
             const resultService = await serviceCrud.update(service.result)
@@ -364,9 +390,9 @@ const ServiceForm = ({
     }
 
     async function deleteUserHandler(unit: string) {
-        const service = await serviceCrud.getById(serviceId)
+        const service = await serviceCrud.getById(serviceId ?? '')
 
-        if (service.success && service.result) {
+        if (service.success && service.result && service.result.firefighter) {
             service.result.firefighter = service.result.firefighter.filter(
                 (x) => x != unit
             )
@@ -393,7 +419,7 @@ const ServiceForm = ({
                 <div className="flex xl:space-x-6 space-x-8 w-full items-center">
                     <div className="w-full">
                         <div className="flex space-x-4 w-full">
-                            <div className="flex-1 w-64">
+                            <div className="w-64 flex-auto">
                                 <SelectWithSearch
                                     description="Antares"
                                     options={antaresNames}
@@ -402,7 +428,7 @@ const ServiceForm = ({
                                 />
                             </div>
 
-                            <div className="flex w-72 space-x-1">
+                            <div className="flex w-24 space-x-1 flex-auto">
                                 <SelectWithSearch
                                     description="Ubicación del servicio"
                                     options={locations.map(
@@ -425,7 +451,7 @@ const ServiceForm = ({
                             </div>
                         </div>
                         <div className="flex  space-x-4">
-                            <div className="flex-1 w-64">
+                            <div className="w-64 flex-auto">
                                 <SelectWithSearch
                                     description="Estación"
                                     options={stationCollection.map(
@@ -436,7 +462,7 @@ const ServiceForm = ({
                                 />
                             </div>
 
-                            <div className=" w-72 ">
+                            <div className="w-24 flex-auto">
                                 <SelectWithSearch
                                     description="Centro asistencial"
                                     options={careCenterCollection.map(
@@ -446,6 +472,16 @@ const ServiceForm = ({
                                     selectionChange={(e) => setCareCenter(e)}
                                 />
                             </div>
+
+                            {/* <div className="w-24 flex-auto">
+                                <TextInput
+                                    description="Fecha"
+                                    value={alias}
+                                    onChange={(e) =>
+                                        setAlias(e.currentTarget.value)
+                                    }
+                                ></TextInput>
+                            </div> */}
                         </div>
                     </div>
 
@@ -453,12 +489,7 @@ const ServiceForm = ({
 
                     <div className="mt-8 h-11 mb-2.5 flex-none">
                         <Button
-                            // enable={
-                            //     antares != '' &&
-                            //     antares != savedAntares &&
-                            //     station != '' &&
-                            //     serviceLocation != ''
-                            // }
+                            enable={antares != '' && station != ''}
                             colorType="bg-[#3C50E0]"
                             onClick={antaresButtonClicked}
                             children={'Guardar'}
@@ -475,7 +506,8 @@ const ServiceForm = ({
                                 data={serviceUnits}
                                 optionsDescription={'Placa'}
                                 options={unitsCollection.map(
-                                    (item) => `${item.plate} - ${item.unit_type}`
+                                    (item) =>
+                                        `${item.plate} - ${item.unit_type}`
                                 )}
                                 nameConverter={unitNameConverter}
                                 onAddOption={addUnitHandler}
@@ -492,7 +524,7 @@ const ServiceForm = ({
                                 nameConverter={userNameConverter}
                                 options={usersCollection.map(
                                     (item) =>
-                                        `${item.personal_code} - ${item.user_name}`
+                                        `${item.personal_code} - ${item.legal_id}`
                                 )}
                                 optionsDescription2={'Rol'}
                                 options2={roles}

@@ -54,6 +54,7 @@ const TextInputBase = forwardRef<HTMLInputElement, TextInputBaseProps>(
 
         function onChangeHandler(event: React.FocusEvent<HTMLInputElement>) {
             const { selectionStart } = event.currentTarget
+            event.currentTarget.value = event.currentTarget.value.toUpperCase()
             const startLength = event.currentTarget.value.length
             console.log('Changed')
 

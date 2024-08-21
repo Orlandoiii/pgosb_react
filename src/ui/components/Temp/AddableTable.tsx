@@ -135,6 +135,8 @@ export function AddableTable<T>({
         setSelectedOption(selected)
     }
 
+    console.log('Table', internalData, idPropertyName, nameConverter)
+
     return (
         <div
             className={`space-y-2 ${enable ? 'opacity-100' : 'opacity-50'} w-full `}
@@ -222,13 +224,22 @@ export function AddableTable<T>({
                                                 key={`${title}-${property[0]}-cell`}
                                                 className="px-4 whitespace-nowrap "
                                             >
-                                                {typeof property[1] === 'object'
-                                                    ? Object.entries(
-                                                          property[1] as any
-                                                      )
-                                                          .map((x) => x[1])
-                                                          .join(',')
-                                                    : (property[1] as any)}
+                                                {
+                                                    (property[1] = null
+                                                        ? ''
+                                                        : typeof property[1] ===
+                                                            'object'
+                                                          ? Object?.entries(
+                                                                (property[1] as any) ??
+                                                                    {}
+                                                            )
+                                                                ?.map(
+                                                                    (x) => x[1]
+                                                                )
+                                                                ?.join(',') ??
+                                                            ''
+                                                          : (property[1] as any))
+                                                }
                                             </td>
                                         ) : (
                                             <></>
