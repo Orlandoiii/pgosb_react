@@ -112,9 +112,8 @@ const LocationForm = ({
             defaultValue.urb_id = String(urbanizationId)
             defaultValue.alias = alias
             defaultValue.mission_id = missionId
-            
-            if (!add){
 
+            if (!add) {
                 defaultValue.mission_id = initValue?.mission_id
                 defaultValue.id = initValue?.id
             }
@@ -146,6 +145,8 @@ const LocationForm = ({
         if (onClose) onClose(false)
     }
 
+    console.log('states', states)
+
     return (
         <>
             <ModalLayout
@@ -168,6 +169,7 @@ const LocationForm = ({
                                 }
                             ></TextInput>
                             <SelectWithSearch
+                                isLoading={(states?.length ?? 0) < 2}
                                 description="Estado"
                                 options={states}
                                 selectedOption={state}
@@ -176,6 +178,7 @@ const LocationForm = ({
 
                             <SelectWithSearch
                                 disable={state && state == ''}
+                                isLoading={(states?.length ?? 0) < 2}
                                 description="Municipio"
                                 options={municipalitys}
                                 selectedOption={municipality}
@@ -189,6 +192,7 @@ const LocationForm = ({
                                     (state && state == '') ||
                                     (municipality && municipality == '')
                                 }
+                                isLoading={(states?.length ?? 0) < 2}
                                 description="Parroquia"
                                 options={parishs}
                                 selectedOption={parish}
@@ -201,6 +205,7 @@ const LocationForm = ({
                                     (municipality && municipality == '') ||
                                     (parish && parish == '')
                                 }
+                                isLoading={(states?.length ?? 0) < 2}
                                 description="Sector"
                                 options={sectores}
                                 selectedOption={sector}
@@ -213,6 +218,7 @@ const LocationForm = ({
                                     (municipality && municipality == '') ||
                                     (parish && parish == '')
                                 }
+                                isLoading={(states?.length ?? 0) < 2}
                                 description="Urbanización"
                                 options={urbanizaciones}
                                 selectedOption={urbanizacion}

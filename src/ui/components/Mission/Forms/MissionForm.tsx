@@ -19,6 +19,7 @@ import { TMission } from '../../../../domain/models/mission/mission'
 
 interface MissionFormProps {
     missionId: string
+    missionCode: string
     initValue?: TMission
     onClose?: () => void
     closeOverlay?: () => void
@@ -26,6 +27,7 @@ interface MissionFormProps {
 
 const MissionForm = ({
     missionId,
+    missionCode,
     onClose,
     initValue,
     closeOverlay,
@@ -53,6 +55,17 @@ const MissionForm = ({
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
+                <div className="flex space-x-4 items-center">
+                    <div className="text-xl text-slate-700 font-semibold">
+                        Código:
+                    </div>
+                    <div className="h-10 py-2 px-4 bg-white rounded-md">
+                        {missionCode}
+                    </div>
+                </div>
+
+                <div className="h-8"></div>
+
                 <AddableTable
                     title="Ubicaciones"
                     data={locations}

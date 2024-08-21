@@ -54,6 +54,7 @@ const MissionPage = () => {
                     MissionForm,
                     {
                         missionId: missionResult.result?.id,
+                        missionCode: missionResult.result.code,
                         closeOverlay: undefined,
                     },
                     new OverlayModalConfig(),
@@ -86,6 +87,7 @@ const MissionPage = () => {
                 {
                     initValue: result.result,
                     missionId: result.result?.id,
+                    missionCode: result.result.code,
                     closeOverlay: undefined,
                 },
                 new OverlayModalConfig(),
