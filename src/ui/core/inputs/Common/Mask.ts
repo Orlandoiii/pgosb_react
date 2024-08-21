@@ -64,7 +64,7 @@ export const documentIdMask = {
 };
 
 export const numberMask = {
-    mask: /^[1-9][0-9]{0,9}$/,
+    mask: /^0?[0-9]{0,10}$/,
     lazy: false,
     prepare: function (str) {
         return str.toUpperCase();
@@ -84,8 +84,24 @@ export const heightMask = {
     mask: "0.00",
     definitions: {
         D: {
-            mask: IMask.MaskedEnum,
-            enum: allowedLetters,
+            mask: IMask.MaskedNumber,
+         
+        }
+    },
+    lazy: true,
+    overwrite: false,
+    // prepare: function (str) {
+    //     return str.toUpperCase();
+    // },
+};
+
+
+export const EquipoMask = {
+    mask: "00-000",
+    definitions: {
+        D: {
+            mask: IMask.MaskedNumber,
+            
         }
     },
     lazy: false,
@@ -97,7 +113,7 @@ export const heightMask = {
 
 
 export const nameMask = {
-    mask: /^[A-Za-z]{1,32}$/,
+    mask: /^[A-Za-z ]{1,32}$/,
     prepareChar: function (str, masked) {
         //logger.log("MASK PREPARE:", str, masked);
         if (masked._value.length == 0)

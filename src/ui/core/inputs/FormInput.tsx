@@ -14,7 +14,8 @@ interface FormInputProps<
     fieldName: TFieldName
     description: string
     mask?: {}
-    placeholder?: string
+    placeholder?: string,
+    useUppercase?:boolean,
     icons?: ReactNode
 }
 
@@ -24,6 +25,8 @@ function FormInput<T extends FieldValues>({
     mask,
     placeholder,
     icons,
+    useUppercase = true,
+
     ...rest
 }: FormInputProps<T>) {
     const { register, isSubmitted, resetCount, errors } =
@@ -46,6 +49,7 @@ function FormInput<T extends FieldValues>({
             refCallback={ref}
             resetCount={resetCount}
             icons={icons}
+            useUppercase={useUppercase}
             {...registerField}
             {...rest}
         />

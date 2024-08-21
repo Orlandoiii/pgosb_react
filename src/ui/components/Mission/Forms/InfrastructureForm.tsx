@@ -32,7 +32,7 @@ interface InfrastructureFormProps {
     add?: boolean
 }
 
-const areaCodes = ['0212', '0412', '0414', '0424']
+const areaCodes = ['N/A','Sin Pavimento', 'Inestable']
 
 const InfrastructureForm = ({
     serviceId,

@@ -1,7 +1,6 @@
-import { string, z } from 'zod'
+import {  z } from 'zod'
 import { MartialStatusTypes } from '../../abstractions/enums/martial_status_type'
 import { Genders } from '../../abstractions/enums/genders'
-import { mapEntity } from '../../../services/mapper'
 import { ResultErr } from '../../abstractions/types/resulterr'
 
 export const UserSchemaBasicData = z
@@ -29,18 +28,23 @@ export const UserSchemaBasicData = z
             .or(z.string().length(0)),
         phone: z
             .string()
-            .refine(
-                (value) => {
-                    return !value || !value.startsWith('0')
-                },
-                { message: 'No debe iniciar con 0' }
-            )
-            .refine(
-                (value) => {
-                    return !value || value.length != 12
-                },
-                { message: 'Debe tener 12 caracteres' }
-            )
+            // .refine((value) => {
+            //     return !value && value.slice(0,1) != '0' ||  value.length != 11
+            // },{
+            //     message: 'Debe tener 13 caracteres contando el 0'
+            // })
+            // // .refine(
+            // //     (value) => {
+            // //         return !value || !value.startsWith('0')
+            // //     },
+            // //     { message: 'No debe iniciar con 0' }
+            // // )
+            // .refine(
+            //     (value) => {
+            //         return !value || value.length != 13
+            //     },
+            //     { message: 'Debe tener 12 o caracteres' }
+            // )
             .optional(),
         // zip_code: z
         //     .string()
@@ -78,7 +82,12 @@ export const CharacteristicsSchema = z.object({
         .string()
         .refine(
             (value) => {
-                return !value || Number(value) >= 0.30
+                
+                let numberValue = 0;
+                if(value)
+                    numberValue = Number(value)
+                
+                return !value || numberValue >= 0.30
             },
             { message: 'Debe ser mayor o igual a 0.30' }
         )
@@ -119,7 +128,7 @@ export const UserIntutionalDataSchema = z.object({
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),
 
-    code: z
+    personal_code: z
         .string()
         .min(3, 'Debe ser mayor o igual a 3 caracteres')
         .or(z.string().length(0)),

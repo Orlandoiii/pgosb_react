@@ -15,7 +15,8 @@ export interface InputProps extends ComponentPropsWithoutRef<'input'> {
     inputRef?: React.MutableRefObject<HTMLInputElement | null> | undefined
     refCallback?: React.RefCallback<HTMLInputElement> | undefined
     resetCount?: number
-    maskDefinition?: any
+    maskDefinition?: any,
+    useUppercase?:boolean
 }
 
 export default function Input({
@@ -28,6 +29,7 @@ export default function Input({
     refCallback,
     maskDefinition = null,
     resetCount = 0,
+    useUppercase = true,
     ...rest
 }: InputProps) {
     const mergedRef = useCallback((node: HTMLInputElement) => {
@@ -71,7 +73,7 @@ export default function Input({
             >
                 <input
                     ref={mergedRef}
-                    className="w-full h-full outline-none px-2 my-auto border-0 bg-transparent"
+                    className={`w-full h-full outline-none px-2 my-auto border-0 bg-transparent ${useUppercase ? "uppercase": ""}`}
                     id={inputName}
                     autoComplete="off"
                     name={inputName}

@@ -68,7 +68,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
             setMarcas(r.data)
         })
 
-        axios.get(config.back_url + "/api/v1/location/station/all").then(r => {
+        axios.get(config.back_url + "/api/v1/station/all").then(r => {
             logger.log("Stations: GET", r)
             setStations(r.data.map(v => v.name))
         }).catch(err => {

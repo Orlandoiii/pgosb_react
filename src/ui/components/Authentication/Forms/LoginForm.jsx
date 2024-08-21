@@ -106,8 +106,9 @@ export default function LoginForm({ onSubmit }) {
                             fieldName="user_name"
                             description="Usuario:"
                             placeholder="jondoe"
+                            useUppercase={false}
                             icons={<MessageIcon />}
-                           
+
                         />
 
                         <FormInput
@@ -115,6 +116,7 @@ export default function LoginForm({ onSubmit }) {
                             description="Contraseña:"
                             placeholder="********"
                             type="password"
+                            useUppercase={false}
                             icons={<LockIcon />}
                         />
                     </div>

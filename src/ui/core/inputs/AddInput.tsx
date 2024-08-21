@@ -232,7 +232,7 @@ export default function AddInput({
                              has-[:focus]:border-3.5 has-[:focus]:${common.borderColor(errMessage, useStrongErrColor)} `}
                 >
                     <input
-                        className="w-full h-full outline-none p-2 my-auto border-0 bg-transparent"
+                        className="w-full h-full outline-none p-2 my-auto border-0 bg-transparent uppercase"
                         ref={inputRef}
                         id={inputName}
                         onChange={handleOnChange}

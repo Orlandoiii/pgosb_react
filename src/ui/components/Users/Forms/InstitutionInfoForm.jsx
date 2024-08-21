@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import FormInput from "../../../core/inputs/FormInput";
 
 
@@ -18,7 +18,7 @@ import { ProfessionTypes } from "../../../../domain/abstractions/enums/professio
 import { useConfig } from "../../../core/context/ConfigContext";
 import FormToggle from "../../../core/inputs/FormToggle";
 
-
+import { EquipoMask } from "../../../core/inputs/Common/Mask";
 
 
 
@@ -32,6 +32,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
     const [rolList, setRolsList] = useState([])
 
     const [stations, setStations] = useState([])
+
 
     const { config } = useConfig()
 
@@ -48,6 +49,19 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const rolNameList = rolList.map(rol => rol.role_name)
 
+    // let stationField = stations && allStations.length > 0 ? allStations?.find(x => x?.abbreviation == currentData?.abbreviation) : ""
+
+    // const stationFieldRef = useRef(stationField)
+
+    // const [station, setStation] = useState(stationField.abbreviation + " " + stationField.name ?? "")
+
+    const initialData = !currentData ? {
+
+
+
+        "user_system": false,
+    } : { ...currentData, user_system: Boolean(currentData?.user_system) }
+
     useEffect(() => {
 
 
@@ -63,7 +77,8 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
         axios.get(config.back_url + "/api/v1/station/all").then((r) => {
             if (r.status > 199 && r.status < 300) {
-                setStations(r.data.map(s => s.name));
+                setStations(r.data.map(s => s.abbreviation + " "+ s.name));
+                // allStations.current = r.data;
                 return;
             }
         }).catch(err => {
@@ -72,11 +87,15 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     }, [])
 
+    // useEffect(() => {
+    //     stationFieldRef.current = allStations && allStations.current?.length > 0 ? 
+    //     allStations?.current?.find(x => x?.abbreviation == currentData?.abbreviation) : "";
+    // }, [station, stations])
 
-    const initialData = !currentData ? {
 
-        "user_system": false,
-    } : { ...currentData, user_system: Boolean(currentData?.user_system) }
+
+
+
 
     return (
 
@@ -114,13 +133,15 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                             description={"Usuario"}
                             fieldName={"user_name"}
                             placeholder="Jondoe"
+                            useUppercase={false}
                         />
 
                         <FormInput
 
                             description={"Equipo"}
-                            fieldName={"code"}
+                            fieldName={"personal_code"}
                             placeholder="600"
+                            mask={EquipoMask}
 
                         />
 
@@ -147,17 +168,20 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                     </div>
 
 
-
-                    <FormSelectSearch
+                     <FormSelectSearch
                         description={"Estación"}
                         fieldName={"station"}
                         options={stations}
                         openUp={false}
                         initialValue={initialData?.station ?? ""}
-                    />
+                    /> 
 
 
 
+                 
+
+
+                    
 
                     <div className="md:flex md:space-x-2">
 

@@ -59,7 +59,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                 <div className="w-full  px-2 max-w-[860px]">
 
 
-                    <div className="md:flex  md:space-x-2 mt-4">
+                    <div className="md:flex md:space-x-2 mt-4 mb-4">
 
 
                         <FormInput
@@ -82,7 +82,9 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                     <FormInput
                         description={"Email"}
                         fieldName={"email"}
-                        placeholder="jondoe@example.com" />
+                        placeholder="jondoe@example.com" 
+                        useUppercase={false}
+                        />
 
 
 
@@ -101,7 +103,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
                         <FormInput
                             description={"Teléfono"}
                             fieldName={"phone"}
-                            placeholder="2129998877"
+                            placeholder="02129998877"
                             mask={numberMask}
                         />
 
