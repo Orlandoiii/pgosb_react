@@ -20,6 +20,9 @@ export const ServiceSchema = z.object({
     transported: z.string().optional(),
     deceased: z.string().optional(),
     description: z.string().optional(),
+    serviceDate: z.string().optional(),
+    manualServiceDate: z.string().optional(),
+    isImportant: z.boolean(),
 })
 
 export const ApiServiceSchema = z.object({
@@ -37,6 +40,9 @@ export const ApiServiceSchema = z.object({
     transported: z.string().optional(),
     deceased: z.string().optional(),
     description: z.string().optional(),
+    service_date: z.string().optional(),
+    manual_service_date: z.string().optional(),
+    is_important: z.boolean(),
 })
 
 export type TService = z.infer<typeof ServiceSchema>
@@ -58,6 +64,9 @@ function fromApiInternal(data: TApiService): TService {
         transported: data.transported,
         deceased: data.deceased,
         description: data.description,
+        serviceDate: data.service_date,
+        manualServiceDate: data.manual_service_date,
+        isImportant: data.is_important,
     }
 }
 
@@ -77,6 +86,9 @@ function toApiInternal(data: TService): TApiService {
         transported: data.transported,
         deceased: data.deceased,
         description: data.description,
+        service_date: data.serviceDate,
+        manual_service_date: data.manualServiceDate,
+        is_important: data.isImportant,
     }
 }
 

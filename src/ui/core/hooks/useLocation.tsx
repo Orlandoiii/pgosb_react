@@ -46,7 +46,6 @@ class LocationRawDataClass {
     Sector: Array<Sector> | undefined
     SectorIsLoad: boolean
 
-
     Urbanization: Array<Urbanization> | undefined
     UrbanizationIsLoad: boolean
 
@@ -270,16 +269,11 @@ function getSectores(estado, municipio, parroquia) {
 }
 
 function getUrbanizations(estado, municipio, parroquia, sector) {
-
-
     const sectorId = getSectorId(estado, municipio, parroquia, sector)
 
-    if (!sectorId)
-        return []
+    if (!sectorId) return []
 
-    if (!LocationRawData.UrbanizationIsLoad)
-        return []
-
+    if (!LocationRawData.UrbanizationIsLoad) return []
 
     const result = LocationRawData.Urbanization?.filter(
         (m) => m.sector_id == sectorId
@@ -291,7 +285,6 @@ function getUrbanizations(estado, municipio, parroquia, sector) {
 
     return result.map((result) => result.name)
 }
-
 
 async function makeRequest(endpoint, token, setData) {
     axios
@@ -316,7 +309,6 @@ export function useLocation(
     initSector,
     initUrbanization
 ) {
-
     const [states, setStates] = useState(
         LocationRawData.StatesIsLoad
             ? LocationRawData?.States?.map((s) => s.name)
@@ -371,7 +363,6 @@ export function useLocation(
 
     const [sectorId, setSectorId] = useState<string | number | undefined>(0)
 
-
     const canLoadUrbanizaciones =
         canLoadSectores &&
         LocationRawData.UrbanizationIsLoad &&
@@ -379,18 +370,17 @@ export function useLocation(
         sector != ''
 
     const [urbanizaciones, setUrbanizaciones] = useState(
-        canLoadUrbanizaciones ? getUrbanizations(estado, municipio, parroquia, sector) : []
+        canLoadUrbanizaciones
+            ? getUrbanizations(estado, municipio, parroquia, sector)
+            : []
     )
     const [urbanizacion, setUrbanizacion] = useState(initUrbanization ?? '')
 
-    const [urbanizationId, setUrbanizationId] = useState<string | number | undefined>(0)
-
+    const [urbanizationId, setUrbanizationId] = useState<
+        string | number | undefined
+    >(0)
 
     const { config } = useConfig()
-
-
-
-
 
     function SetStatesLocally(data) {
         if (!LocationRawData.StatesIsLoad) {
@@ -447,7 +437,9 @@ export function useLocation(
             LocationRawData.SectorIsLoad &&
             LocationRawData.UrbanizationIsLoad
         )
-            setUrbanizaciones(getUrbanizations(estado, municipio, parroquia, sector))
+            setUrbanizaciones(
+                getUrbanizations(estado, municipio, parroquia, sector)
+            )
     }
 
     logger.log(
@@ -564,12 +556,10 @@ export function useLocation(
     }, [estado, municipio, parroquia])
 
     useEffect(() => {
-
-        if (!sector || sector == "") {
-            setUrbanizacion("")
+        if (!sector || sector == '') {
+            setUrbanizacion('')
             setUrbanizaciones([])
             return
-
         }
 
         let urb = getUrbanizations(estado, municipio, parroquia, sector)
@@ -578,7 +568,6 @@ export function useLocation(
 
         setUrbanizaciones(urb)
     }, [estado, municipio, parroquia, sector])
-
 
     useEffect(() => {
         if (
@@ -595,7 +584,15 @@ export function useLocation(
         )
             return
 
-        setUrbanizationId(getUrbanizationId(estado, municipio, parroquia, sector, urbanizacion) ?? 0)
+        setUrbanizationId(
+            getUrbanizationId(
+                estado,
+                municipio,
+                parroquia,
+                sector,
+                urbanizacion
+            ) ?? 0
+        )
     }, [estado, municipio, parroquia, sector])
 
     return {
@@ -614,7 +611,6 @@ export function useLocation(
         urbanizaciones: urbanizaciones,
         urbanizacion: urbanizacion,
 
-
         setState: setEstado,
         setMunicipality: setMunicipio,
         setParish: setParroquia,
@@ -625,6 +621,6 @@ export function useLocation(
         municipioId,
         parroquiaId,
         sectorId,
-        urbanizationId
+        urbanizationId,
     }
 }

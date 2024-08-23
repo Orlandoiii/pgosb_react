@@ -15,7 +15,14 @@ import {
     LocationCrud,
     LocationNameConverter,
 } from '../../../../domain/models/location/location'
-import { TMission } from '../../../../domain/models/mission/mission'
+import {
+    missionCrud,
+    MissionSchema,
+    TMission,
+} from '../../../../domain/models/mission/mission'
+import TextInput from '../../../alter/components/inputs/text_input'
+import { getDefaults } from '../../../core/context/CustomFormContext'
+import { modalService } from '../../../core/overlay/overlay_service'
 
 interface MissionFormProps {
     missionId: string
@@ -33,6 +40,7 @@ const MissionForm = ({
     closeOverlay,
 }: MissionFormProps) => {
     const [loading, setLoading] = useState(false)
+    const [alias, setAlias] = useState(initValue ? initValue.alias : '')
 
     const [serviceActions, services] = useActionModalAndCollection(
         ServiceForm,
@@ -48,6 +56,23 @@ const MissionForm = ({
         missionId
     )
 
+    async function updateService() {
+        const missionResult = await missionCrud.getById(missionId)
+
+        if (
+            missionResult.success &&
+            missionResult.result &&
+            missionResult.result?.alias != alias
+        ) {
+            missionResult.result.alias = alias
+            const updateResult = await missionCrud.update(missionResult.result)
+
+            if (updateResult.success)
+                modalService.toastSuccess('Misión actualizada!')
+            else modalService.toastError('No se pudo actualizar la misión!')
+        }
+    }
+
     return (
         <>
             <ModalLayout
@@ -55,12 +80,25 @@ const MissionForm = ({
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
-                <div className="flex space-x-4 items-center">
-                    <div className="text-xl text-slate-700 font-semibold">
-                        Código:
+                <div className="flex w-full justify-between">
+                    <div className="flex space-x-4 items-center">
+                        <div className="text-xl text-slate-700 font-semibold">
+                            Alias:
+                        </div>
+                        <TextInput
+                            value={alias}
+                            onChange={(e) => setAlias(e.currentTarget.value)}
+                            onBlur={updateService}
+                        ></TextInput>
                     </div>
-                    <div className="h-10 py-2 px-4 bg-white rounded-md">
-                        {missionCode}
+
+                    <div className="flex space-x-4 items-center">
+                        <div className="text-xl text-slate-700 font-semibold">
+                            Código:
+                        </div>
+                        <div className="h-10 py-2 px-4 bg-white rounded-md">
+                            {missionCode}
+                        </div>
                     </div>
                 </div>
 

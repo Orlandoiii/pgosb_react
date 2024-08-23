@@ -26,26 +26,14 @@ export const UserSchemaBasicData = z
             .refine((value) => { return !value || !value.toUpperCase().startsWith('E') || (value.toUpperCase().startsWith('E') && value.length == 10) }, { message: 'Debe tener 9 caracteres' })
             .refine((value) => { return !value || !value.toUpperCase().startsWith('P') || (value.toUpperCase().startsWith('P') && value.length == 15) }, { message: 'Debe tener 14 caracteres' })
             .or(z.string().length(0)),
-        phone: z
-            .string()
-            // .refine((value) => {
-            //     return !value && value.slice(0,1) != '0' ||  value.length != 11
-            // },{
-            //     message: 'Debe tener 13 caracteres contando el 0'
-            // })
-            // // .refine(
-            // //     (value) => {
-            // //         return !value || !value.startsWith('0')
-            // //     },
-            // //     { message: 'No debe iniciar con 0' }
-            // // )
-            // .refine(
-            //     (value) => {
-            //         return !value || value.length != 13
-            //     },
-            //     { message: 'Debe tener 12 o caracteres' }
-            // )
-            .optional(),
+        phone:z.string().refine((value) => {
+            if (value.startsWith('0') && value.length !== 11 || !value.startsWith('0') && value.length !== 10) {
+              return false;
+            }
+            return true
+          }, {
+            message: 'Número de teléfono invalido',
+          }),
         // zip_code: z
         //     .string()
         //     .length(4, 'Debe tener 4 caracteres')

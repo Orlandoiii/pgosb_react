@@ -8,12 +8,14 @@ import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 export const MissionSchema = z.object({
     id: zodEmptyOrGreaterThan(0),
     code: zodEmptyOrGreaterThan(0),
+    alias: z.string().default(''),
     createdAt: zodEmptyOrGreaterThan(0),
 })
 
 export const ApiMissionSchema = z.object({
     id: z.string().default(''),
     code: z.string().default(''),
+    alias: z.string().default(''),
     created_at: zodEmptyOrGreaterThan(0),
 })
 
@@ -24,6 +26,7 @@ function fromApiInternal(data: TApiMission): TMission {
     return {
         id: data.id,
         code: data.code,
+        alias: data.alias,
         createdAt: data.created_at,
     }
 }
@@ -32,6 +35,7 @@ function toApiInternal(data: TMission): TApiMission {
     return {
         id: data.id,
         code: data.code,
+        alias: data.alias,
         created_at: data.createdAt,
     }
 }

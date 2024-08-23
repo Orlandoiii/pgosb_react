@@ -55,6 +55,9 @@ import { Roles } from '../../../../domain/abstractions/enums/roles'
 import TextInput from '../../../alter/components/inputs/text_input'
 import LocationForm from './LocationForm'
 import { LocationCrud } from '../../../../domain/models/location/location'
+import { formatDateTime } from '../../../../utilities/formatters/date_formatter'
+import Toggle from '../../../alter/components/buttons/toggle'
+import _ from 'lodash'
 
 const alertController = new AlertController()
 
@@ -78,6 +81,14 @@ const ServiceForm = ({
     const careCenterCollection = useCollection('center', (data: any) => {
         return { success: true, result: data }
     })
+
+    const [date, setDate] = useState(
+        initValue ? initValue.manualServiceDate : formatDateTime(new Date())
+    )
+
+    const [isImportant, setIsImportant] = useState<boolean>(
+        initValue ? initValue.isImportant : false
+    )
 
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
@@ -209,6 +220,18 @@ const ServiceForm = ({
         console.log(result)
     }
 
+    const [count, setCount] = useState(0)
+
+    let debounceUpdate = _.debounce(function () {
+        setCount(count + 1)
+    }, 1000)
+
+    useEffect(() => {
+        console.log('aksdjklasjdklsajdkl', antares, station)
+
+        if (antares != '' && station != '') antaresButtonClicked()
+    }, [count])
+
     function antaresButtonClicked() {
         safeOrUpdateService(antares.split(' - ')[0])
     }
@@ -232,6 +255,8 @@ const ServiceForm = ({
                 defaultValue.transported = transferred
                 defaultValue.deceased = deceased
                 defaultValue.description = details
+                defaultValue.manualServiceDate = date
+                defaultValue.isImportant = isImportant
 
                 if (
                     stationCollection &&
@@ -269,6 +294,9 @@ const ServiceForm = ({
                     service.result.deceased = deceased
                     service.result.description = details
 
+                    service.result.manualServiceDate = date
+                    service.result.isImportant = isImportant
+
                     if (
                         stationCollection &&
                         stationCollection.length > 0 &&
@@ -302,6 +330,7 @@ const ServiceForm = ({
 
                 if (add) setServiceId(resultService.result?.id)
                 setSavedAntares(antares)
+
                 return
             } else if (!resultService!.success)
                 errorMessage = `Lo sentimos tenemos problemas para ${add ? 'agregar' : 'guardar'} el servicio`
@@ -321,23 +350,7 @@ const ServiceForm = ({
         return savedAntares != '' && antares === savedAntares
     }
 
-    async function updateServiceDetails() {
-        if (details == savedDetails) return
-
-        const service = await serviceCrud.getById(serviceId ?? '')
-
-        if (service.success && service.result) {
-            service.result.description = details
-
-            service.result.unharmed = unharmed
-            service.result.injured = injured
-            service.result.transported = transferred
-            service.result.deceased = deceased
-
-            const resultService = await serviceCrud.update(service.result)
-            if (resultService.success) setSavedDetails(details)
-        }
-    }
+    console.log('Saved', savedAntares, antares)
 
     async function addUnitHandler(unit: string, ignore: any) {
         const selected = unitsCollection.filter(
@@ -424,7 +437,10 @@ const ServiceForm = ({
                                     description="Antares"
                                     options={antaresNames}
                                     selectedOption={antares}
-                                    selectionChange={(e) => setAntares(e)}
+                                    selectionChange={(e) => {
+                                        setAntares(e)
+                                        debounceUpdate()
+                                    }}
                                 />
                             </div>
 
@@ -435,9 +451,10 @@ const ServiceForm = ({
                                         (x) => `${x.id} - ${x.alias}`
                                     )}
                                     selectedOption={serviceLocation}
-                                    selectionChange={(e) =>
+                                    selectionChange={(e) => {
                                         setServiceLocation(e)
-                                    }
+                                        debounceUpdate()
+                                    }}
                                 />
 
                                 <div className="pt-8 h-11 flex-none">
@@ -449,6 +466,19 @@ const ServiceForm = ({
                                     ></Button>
                                 </div>
                             </div>
+                            <div className="flex pt-8">
+                                <Toggle
+                                    width="w-44"
+                                    height="h-11"
+                                    toggle={isImportant}
+                                    option1="Importante"
+                                    option2="No importante"
+                                    toggleChanged={() => {
+                                        setIsImportant(!isImportant)
+                                        debounceUpdate()
+                                    }}
+                                ></Toggle>
+                            </div>
                         </div>
                         <div className="flex  space-x-4">
                             <div className="w-64 flex-auto">
@@ -458,7 +488,10 @@ const ServiceForm = ({
                                         (x) => `${x.abbreviation} - ${x.name}`
                                     )}
                                     selectedOption={station}
-                                    selectionChange={(e) => setStation(e)}
+                                    selectionChange={(e) => {
+                                        setStation(e)
+                                        debounceUpdate()
+                                    }}
                                 />
                             </div>
 
@@ -469,32 +502,36 @@ const ServiceForm = ({
                                         (x) => `${x.id} - ${x.name}`
                                     )}
                                     selectedOption={careCenter}
-                                    selectionChange={(e) => setCareCenter(e)}
+                                    selectionChange={(e) => {
+                                        setCareCenter(e)
+                                        debounceUpdate()
+                                    }}
                                 />
                             </div>
 
-                            {/* <div className="w-24 flex-auto">
+                            <div className="w-24 flex-auto">
                                 <TextInput
-                                    description="Fecha"
-                                    value={alias}
+                                    description="Fecha de servicio"
+                                    value={date}
                                     onChange={(e) =>
-                                        setAlias(e.currentTarget.value)
+                                        setDate(e.currentTarget.value)
                                     }
+                                    onBlur={() => debounceUpdate()}
                                 ></TextInput>
-                            </div> */}
+                            </div>
                         </div>
                     </div>
 
                     <div className="w-1 flex-1"></div>
 
-                    <div className="mt-8 h-11 mb-2.5 flex-none">
+                    {/* <div className="mt-8 h-11 mb-2.5 flex-none">
                         <Button
                             enable={antares != '' && station != ''}
                             colorType="bg-[#3C50E0]"
                             onClick={antaresButtonClicked}
                             children={'Guardar'}
                         ></Button>
-                    </div>
+                    </div> */}
                 </div>
 
                 <div className="flex space-x-6 w-full pt-4">
@@ -592,6 +629,7 @@ const ServiceForm = ({
                                         onChange={(e) =>
                                             setUnharmed(e.currentTarget.value)
                                         }
+                                        onBlur={() => debounceUpdate()}
                                     ></TextInput>
                                     <TextInput
                                         type={'Integer'}
@@ -600,6 +638,7 @@ const ServiceForm = ({
                                         onChange={(e) =>
                                             setInjured(e.currentTarget.value)
                                         }
+                                        onBlur={() => debounceUpdate()}
                                     ></TextInput>
                                 </div>
                                 <div className="flex items-center space-x-4">
@@ -612,6 +651,7 @@ const ServiceForm = ({
                                                 e.currentTarget.value
                                             )
                                         }
+                                        onBlur={() => debounceUpdate()}
                                     ></TextInput>
                                     <TextInput
                                         type={'Integer'}
@@ -620,6 +660,7 @@ const ServiceForm = ({
                                         onChange={(e) =>
                                             setDeceased(e.currentTarget.value)
                                         }
+                                        onBlur={() => debounceUpdate()}
                                     ></TextInput>
                                 </div>
                             </div>
@@ -635,6 +676,7 @@ const ServiceForm = ({
                             inputName="description"
                             value={details}
                             onChange={(e) => setDetails(e.currentTarget.value)}
+                            onBlur={() => debounceUpdate()}
                         />
                     </div>
                 </div>
