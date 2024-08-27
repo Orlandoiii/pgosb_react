@@ -336,7 +336,7 @@ export default function ModuleComponent({
     return (
         <>
 
-            <div className={`${dataIsLoad ? "opacity-100" : "opacity-0"}  `}>
+            <div className={`h-full w-full ${dataIsLoad ? "opacity-100" : "opacity-0"}  `}>
                 {data && <TableDataGrid rawData={data}
 
                     onUpdate={handleUpdateAction}

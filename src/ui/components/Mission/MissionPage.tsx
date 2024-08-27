@@ -13,30 +13,38 @@ import { modalService } from '../../core/overlay/overlay_service'
 import MissionForm from './Forms/MissionForm'
 import LoadingModal from '../../core/modal/LoadingModal'
 import LayoutContexProvider from '../../core/context/LayoutContext'
-import {
-    serviceCrud,
-    TApiService,
-    ServiceToApi,
-    TService,
-} from '../../../domain/models/service/service'
 import { OverlayModalConfig } from '../../core/overlay/models/overlay_item'
+import Toggle from '../../alter/components/buttons/toggle'
+import { serviceCrud } from '../../../domain/models/service/service'
 
 const MissionPage = () => {
     const [loading, setLoading] = useState(false)
-    const [data, setData] = useState<TApiService[]>([])
+    const [toggle, setToggle] = useState(true)
+    const [data, setData] = useState<any[]>([])
 
     useEffect(() => {
-        updateServices()
-    }, [])
+        setData([])
+        updateData()
+    }, [toggle])
 
-    async function updateServices() {
+    function updateData() {
+        setLoading(true)
+        if (!toggle) getServices()
+        else getMissions()
+        setLoading(false)
+    }
+
+    async function getMissions() {
+        const result = await missionCrud.getAll()
+        if (result.success && result.result) {
+            setData(result.result)
+        }
+    }
+
+    async function getServices() {
         const result = await serviceCrud.getAll()
         if (result.success && result.result) {
-            const yeee: TApiService[] = result.result.map(
-                (item) => ServiceToApi(item).result!
-            )
-
-            setData(yeee)
+            setData(result.result)
         }
     }
 
@@ -58,7 +66,7 @@ const MissionPage = () => {
                         closeOverlay: undefined,
                     },
                     new OverlayModalConfig(),
-                    updateServices
+                    updateData
                 )
             } else if (!missionResult.success)
                 errorMessage =
@@ -79,7 +87,7 @@ const MissionPage = () => {
     async function openMission(service: any) {
         console.log('service', service)
 
-        const result = await missionCrud.getById(service.mission_id)
+        const result = await missionCrud.getById(service.id)
 
         if (result.success && result.result) {
             modalService.pushModal(
@@ -91,7 +99,7 @@ const MissionPage = () => {
                     closeOverlay: undefined,
                 },
                 new OverlayModalConfig(),
-                updateServices
+                updateData
             )
         } else {
             modalService.pushAlert(
@@ -102,21 +110,69 @@ const MissionPage = () => {
     }
 
     return (
-        <LayoutContexProvider layoutName={'service_layout'}>
-            <TableDataGrid
-                rawData={data}
-                onAdd={addNewMission}
-                onUpdate={openMission}
-                onDoubleClickRow={() => {}}
-                permissions={{
-                    add: true,
-                    delete: true,
-                    export: true,
-                    print: true,
-                    update: true,
-                }}
-                onDelete={() => {}}
-            />
+        <LayoutContexProvider
+            layoutName={!toggle ? 'service_layout' : 'mission_layout'}
+        >
+            <div className="relative flex w-full h-full overflow-hidden">
+                <div
+                    className={`${toggle ? '' : '-translate-x-full opacity-0'} absolute top-0 left-0 h-full w-full duration-200`}
+                >
+                    <TableDataGrid
+                        child={
+                            <Toggle
+                                useActiveColors={false}
+                                toggle={toggle}
+                                toggleChanged={() => setToggle(!toggle)}
+                                option1="Misiones"
+                                option2="Servicios"
+                            />
+                        }
+                        rawData={data}
+                        onAdd={addNewMission}
+                        onUpdate={openMission}
+                        onDoubleClickRow={() => {}}
+                        permissions={{
+                            add: true,
+                            delete: true,
+                            export: true,
+                            print: true,
+                            update: true,
+                        }}
+                        onDelete={() => {}}
+                    />
+                </div>
+
+                <div
+                    className={`${toggle ? 'translate-x-full opacity-0' : ''} absolute top-0 left-0 h-full w-full duration-200`}
+                >
+                    <TableDataGrid
+                        child={
+                            <Toggle
+                                useActiveColors={false}
+                                toggle={toggle}
+                                toggleChanged={() => setToggle(!toggle)}
+                                option1="Misiones"
+                                option2="Servicios"
+                            />
+                        }
+                        showAddButton={false}
+                        showEditButton={false}
+                        showDeleteButton={false}
+                        rawData={data}
+                        onAdd={addNewMission}
+                        onUpdate={openMission}
+                        onDoubleClickRow={() => {}}
+                        permissions={{
+                            add: true,
+                            delete: true,
+                            export: true,
+                            print: true,
+                            update: true,
+                        }}
+                        onDelete={() => {}}
+                    />
+                </div>
+            </div>
 
             <LoadingModal initOpen={loading} children={null} />
         </LayoutContexProvider>
