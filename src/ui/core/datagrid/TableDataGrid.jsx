@@ -14,6 +14,7 @@ import DeleteIcon from '../icons/DeleteIcon'
 import logger from '../../../logic/Logger/logger'
 import { useLayout } from '../context/LayoutContext'
 import AlertController from '../alerts/AlertController'
+import Toggle from '../../alter/components/buttons/toggle'
 
 const alert = new AlertController()
 
@@ -191,12 +192,15 @@ export default function TableDataGrid({
     onUpdate,
     onDelete,
     permissions,
+    onDownload,
+
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
     const { layout } = useLayout()
 
     logger.log('DATA GRID CONFIG:', layout)
+
     logger.log('DATA GRID DATA:', rawData)
 
     logger.log('DATA GRID PERMISSION:', permissions)
@@ -286,6 +290,8 @@ export default function TableDataGrid({
     return (
         <>
             <div className="bg-[white] flex flex-col overflow-hidden ">
+
+
                 <header className="w-full mx-auto flex justify-between  py-4 px-8">
                     {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
                     <div className="flex space-x-4">
@@ -390,6 +396,18 @@ export default function TableDataGrid({
                                 }
                             />
                         </button>
+
+                        {onDownload && <button
+                            onClick={() => {
+                                if (onDownload)
+                                    onDownload(table.
+                                        getFilteredSelectedRowModel().rows.map(r => r.original))
+                            }}
+                            className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md"
+                        >
+                            <DownloadIcon />
+                        </button>}
+
                     </div>
 
                     <div className="w-1/2 pr-2">
@@ -403,6 +421,9 @@ export default function TableDataGrid({
                             }}
                         />
                     </div>
+
+
+
 
                     <div className=" flex items-center justify-end font-medium">
                         <select
