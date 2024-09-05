@@ -14,7 +14,6 @@ import DeleteIcon from '../icons/DeleteIcon'
 import logger from '../../../logic/Logger/logger'
 import { useLayout } from '../context/LayoutContext'
 import AlertController from '../alerts/AlertController'
-import Toggle from '../../alter/components/buttons/toggle'
 
 const alert = new AlertController()
 
@@ -193,19 +192,15 @@ export default function TableDataGrid({
     showEditButton = true,
     showDeleteButton = true,
     permissions,
-<<<<<<< HEAD
-    onDownload,
-
-=======
     child,
->>>>>>> 9d80d72e30e248de1b4253af46a1f1ba440ea38b
+    showDownloadButton = false,
+    onDownload,
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
     const { layout } = useLayout()
 
     logger.log('DATA GRID CONFIG:', layout)
-
     logger.log('DATA GRID DATA:', rawData)
 
     logger.log('DATA GRID PERMISSION:', permissions)
@@ -291,204 +286,6 @@ export default function TableDataGrid({
 
     return (
         <>
-            <div className="bg-[white] flex flex-col overflow-hidden ">
-                <header className="w-full mx-auto flex justify-between  py-4 px-8">
-                    {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
-                    <div className="flex space-x-4">
-                        <button
-                            onClick={(e) => {
-                                if (!permissions['add']) {
-                                    alert.notifyInfo(
-                                        'Usted no tiene permiso para agregar'
-                                    )
-                                    return
-                                }
-
-                                if (onAdd) onAdd()
-                            }}
-                            className="w-[40px] h-[40px] p-1.5 bg-slate-200 rounded-full 
-                            flex justify-center items-center shadow-md"
-                        >
-                            <AddIcon
-                                color={
-                                    permissions['add']
-                                        ? 'fill-[#0A2F4E]'
-                                        : 'fill-gray-300'
-                                }
-                            />
-                        </button>
-                        <button
-                            onClick={(e) => {
-                                if (!(getTotalSelectedRows() === 1)) {
-                                    return
-                                }
-
-                                if (!permissions['update']) {
-                                    alert.notifyInfo(
-                                        'Usted no tiene permiso para editar'
-                                    )
-                                    return
-                                }
-                                const rowModel = table.getSelectedRowModel()
-
-                                if (!rowModel || getTotalSelectedRows() != 1)
-                                    return
-
-                                const selectedRows = rowModel.rows.map(
-                                    (r) => r.original
-                                )
-
-                                if (onUpdate) onUpdate(selectedRows[0])
-
-                                table.toggleAllRowsSelected(false)
-                            }}
-                            className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 &&
-                                permissions['update']
-                                ? 'bg-slate-200'
-                                : 'bg-slate-50'
-                                } bg-slate-200 rounded-full flex 
-                                justify-center items-center shadow-md`}
-                        >
-                            <ModifyIcon
-                                active={
-                                    getTotalSelectedRows() === 1 &&
-                                    permissions['update']
-                                }
-                            />
-                        </button>
-
-                        <button
-                            onClick={() => {
-                                if (getTotalSelectedRows() < 1) return
-
-                                if (!permissions['delete']) {
-                                    alert.notifyInfo(
-                                        'Usted no tiene permiso para eliminar'
-                                    )
-                                    return
-                                }
-
-                                const rowModel = table.getSelectedRowModel()
-
-                                if (!rowModel || getTotalSelectedRows() < 1)
-                                    return
-
-                                const selectedRows = rowModel.rows.map(
-                                    (r) => r.original
-                                )
-
-                                if (onDelete) {
-                                    let r = onDelete(selectedRows)
-                                    if (r) {
-                                        r.then((yes) => {
-                                            if (yes) table.resetRowSelection()
-                                        })
-                                    }
-                                }
-                                table.toggleAllRowsSelected(false)
-                            }}
-                            className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md"
-                        >
-                            <DeleteIcon
-                                active={
-                                    getTotalSelectedRows() >= 1 &&
-                                    permissions['delete']
-                                }
-                            />
-                        </button>
-
-                        {onDownload && <button
-                            onClick={() => {
-                                if (onDownload)
-                                    onDownload(table.
-                                        getFilteredSelectedRowModel().rows.map(r => r.original))
-                            }}
-                            className="w-[40px] h-[40px] p-2 bg-slate-200 rounded-full flex justify-center items-center shadow-md"
-                        >
-                            <DownloadIcon />
-                        </button>}
-
-                    </div>
-                                        if (onDelete) {
-                                            let r = onDelete(selectedRows)
-                                            if (r) {
-                                                r.then((yes) => {
-                                                    if (yes)
-                                                        table.resetRowSelection()
-                                                })
-                                            }
-                                        }
-                                        table.toggleAllRowsSelected(false)
-                                    }}
-                                    className="flex justify-center items-center bg-slate-200 shadow-md p-2 rounded-full w-[40px] h-[40px]"
-                                >
-                                    <DeleteIcon
-                                        active={
-                                            getTotalSelectedRows() >= 1 &&
-                                            permissions['delete']
-                                        }
-                                    />
-                                </button>
-                            )}
-                        </div>
-
-                    <div className="w-1/2 pr-2">
-                        <input
-                            type="text"
-                            className="outline-none p-3 h-12 w-full border border-gray-300 rounded-md"
-                            placeholder="Buscar..."
-                            value={globalFilter}
-                            onChange={(e) => {
-                                setGlobalFilter(e.target.value)
-                            }}
-                        />
-                    </div>
-
-
-
-                        <div className="pr-2 w-1/2">
-                            <input
-                                type="text"
-                                className="border-gray-300 p-3 border rounded-md w-full h-12 outline-none"
-                                placeholder="Buscar..."
-                                value={globalFilter}
-                                onChange={(e) => {
-                                    setGlobalFilter(e.target.value)
-                                }}
-                            />
-                        </div>
-
-                    <div className=" flex items-center justify-end font-medium">
-                        <select
-                            className="bg-transparent pl-2"
-                            value={table.getState().pagination.pageSize}
-                            onChange={(e) => {
-                                const value = e.target.value
-                                table.setPageSize(value)
-                            }}
-                        >
-                            <option>5</option>
-                            <option>10</option>
-                            <option>15</option>
-                            <option>25</option>
-                            <option>50</option>
-                            <option>75</option>
-                            <option>100</option>
-                            <option>500</option>
-                        </select>
-                        <p className="pl-2 text-black text-sm font-medium">
-                            Registros Por Página
-                        </p>
-                    </div>
-                </header>
-
-                <div className="max-h-[600px] overflow-auto">
-                    <table className="border-collapse w-full mt-2">
-                        <thead>
-                            {table.getHeaderGroups().map((headerGroup) => (
-                                <tr
-                                    className="sticky top-0"
-                                    key={headerGroup.id}
             <div className='flex flex-col pb-24 w-full h-full'>
                 <div className="flex flex-col flex-1 bg-[white] h-60 overflow-hidden">
                     <header className="flex justify-between mx-auto px-8 py-4 w-full">
@@ -548,12 +345,11 @@ export default function TableDataGrid({
 
                                         table.toggleAllRowsSelected(false)
                                     }}
-                                    className={`w-[40px] h-[40px] p-1.5 ${
-                                        getTotalSelectedRows() === 1 &&
+                                    className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 &&
                                         permissions['update']
-                                            ? 'bg-slate-200'
-                                            : 'bg-slate-50'
-                                    } bg-slate-200 rounded-full flex 
+                                        ? 'bg-slate-200'
+                                        : 'bg-slate-50'
+                                        } bg-slate-200 rounded-full flex 
                                 justify-center items-center shadow-md`}
                                 >
                                     <ModifyIcon
@@ -609,6 +405,15 @@ export default function TableDataGrid({
                                             permissions['delete']
                                         }
                                     />
+                                </button>
+                            )}
+
+                            {showDownloadButton && (
+                                <button
+                                    onClick={onDownload}
+                                    className="flex justify-center items-center bg-slate-200 shadow-md p-2 rounded-full w-[40px] h-[40px]"
+                                >
+                                    <DownloadIcon />
                                 </button>
                             )}
                         </div>
@@ -789,7 +594,7 @@ export default function TableDataGrid({
                                 number={'Ultima'}
                                 active={
                                     table.getState().pagination.pageIndex +
-                                        1 ===
+                                    1 ===
                                     table.getPageCount()
                                 }
                                 onClick={() => {
