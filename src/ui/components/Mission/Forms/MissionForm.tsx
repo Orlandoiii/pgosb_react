@@ -76,13 +76,13 @@ const MissionForm = ({
     return (
         <>
             <ModalLayout
-                className="max-h-[90vh] min-w-[70vw] max-w-[85vw]"
+                className="min-w-[70vw] max-w-[85vw] max-h-[90vh]"
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
-                <div className="flex w-full justify-between">
-                    <div className="flex space-x-4 items-center">
-                        <div className="text-xl text-slate-700 font-semibold">
+                <div className="flex justify-between w-full">
+                    <div className="flex items-center space-x-4">
+                        <div className="font-semibold text-slate-700 text-xl">
                             Alias:
                         </div>
                         <TextInput
@@ -92,11 +92,11 @@ const MissionForm = ({
                         ></TextInput>
                     </div>
 
-                    <div className="flex space-x-4 items-center">
-                        <div className="text-xl text-slate-700 font-semibold">
+                    <div className="flex items-center space-x-4">
+                        <div className="font-semibold text-slate-700 text-xl">
                             Código:
                         </div>
-                        <div className="h-10 py-2 px-4 bg-white rounded-md">
+                        <div className="bg-white px-4 py-2 rounded-md h-10">
                             {missionCode}
                         </div>
                     </div>

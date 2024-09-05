@@ -48,7 +48,7 @@ import {
     UnitSimple,
 } from '../../../../domain/models/unit/unit'
 import LocationIcon from '../../../core/icons/LocationIcon'
-import { get } from '../../../../services/http'
+import { get, post } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { Roles } from '../../../../domain/abstractions/enums/roles'
@@ -58,6 +58,8 @@ import { LocationCrud } from '../../../../domain/models/location/location'
 import { formatDateTime } from '../../../../utilities/formatters/date_formatter'
 import Toggle from '../../../alter/components/buttons/toggle'
 import _ from 'lodash'
+import Chip from '../../../alter/components/data_presenters/chip'
+import { modalService } from '../../../core/overlay/overlay_service'
 
 const alertController = new AlertController()
 
@@ -89,6 +91,8 @@ const ServiceForm = ({
     const [isImportant, setIsImportant] = useState<boolean>(
         initValue ? initValue.isImportant : false
     )
+
+    const [operativeAreas, setOperativeAreas] = useState<string[]>()
 
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
@@ -257,6 +261,7 @@ const ServiceForm = ({
                 defaultValue.description = details
                 defaultValue.manualServiceDate = date
                 defaultValue.isImportant = isImportant
+                defaultValue.operativeAreas = operativeAreas
 
                 if (
                     stationCollection &&
@@ -296,6 +301,7 @@ const ServiceForm = ({
 
                     service.result.manualServiceDate = date
                     service.result.isImportant = isImportant
+                    service.result.operativeAreas = operativeAreas
 
                     if (
                         stationCollection &&
@@ -389,17 +395,18 @@ const ServiceForm = ({
             (items) => items.personal_code === unit.split(' - ')[0]
         )[0]
 
-        const service = await serviceCrud.getById(serviceId ?? '')
+        const service = await post('mission/firefighter/create', {
+            mission_id: missionId,
+            service_id: serviceId,
+            user_id: selected.id,
+            service_role: rol,
+        })
 
-        if (service.success && service.result && service.result.firefighter) {
-            service.result.firefighter.push(selected.id)
-
-            const resultService = await serviceCrud.update(service.result)
-            if (resultService.success) {
-                alertController.notifySuccess('Usuario guardada')
-                updateUsers()
-            }
-        }
+        if (service.success) modalService.toastSuccess('Bombero guardado!')
+        else
+            modalService.toastError(
+                'Ocurrió un error al intentar guardar el bombero!'
+            )
     }
 
     async function deleteUserHandler(unit: string) {
@@ -422,17 +429,47 @@ const ServiceForm = ({
         (item) => `${item.id} - ${item.description}`
     )
 
+    function addOperativeArea(operativeArea: string) {
+        if (!operativeAreas) {
+            setOperativeAreas([operativeArea])
+            return
+        }
+
+        let newOperativeAreas: string[] = [...operativeAreas, operativeArea]
+        newOperativeAreas = [
+            ...newOperativeAreas.filter(
+                (value, index) => newOperativeAreas.indexOf(value) === index
+            ),
+        ]
+
+        setOperativeAreas(newOperativeAreas)
+        debounceUpdate()
+    }
+
+    function removeOperativeArea(operativeArea: string) {
+        if (!operativeAreas) return
+
+        let newOperativeAreas: string[] = []
+
+        operativeAreas.forEach((element) => {
+            if (element != operativeArea) newOperativeAreas.push(element)
+        })
+
+        setOperativeAreas(newOperativeAreas)
+        debounceUpdate()
+    }
+
     return (
         <>
             <ModalLayout
-                className="max-h-[90vh] min-w-[80vw] max-w-[85vw] overflow-y-auto"
+                className="min-w-[80vw] max-w-[85vw] max-h-[90vh] overflow-y-auto"
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex xl:space-x-6 space-x-8 w-full items-center">
+                <div className="flex items-center space-x-8 xl:space-x-6 w-full">
                     <div className="w-full">
                         <div className="flex space-x-4 w-full">
-                            <div className="w-64 flex-auto">
+                            <div className="flex-auto w-64">
                                 <SelectWithSearch
                                     description="Antares"
                                     options={antaresNames}
@@ -444,7 +481,7 @@ const ServiceForm = ({
                                 />
                             </div>
 
-                            <div className="flex w-24 space-x-1 flex-auto">
+                            <div className="flex flex-auto space-x-1 w-24">
                                 <SelectWithSearch
                                     description="Ubicación del servicio"
                                     options={locations.map(
@@ -457,7 +494,7 @@ const ServiceForm = ({
                                     }}
                                 />
 
-                                <div className="pt-8 h-11 flex-none">
+                                <div className="flex-none pt-8 h-11">
                                     <Button
                                         colorType="bg-[#3C50E0]"
                                         onClick={locationActions.add}
@@ -480,8 +517,8 @@ const ServiceForm = ({
                                 ></Toggle>
                             </div>
                         </div>
-                        <div className="flex  space-x-4">
-                            <div className="w-64 flex-auto">
+                        <div className="flex space-x-4">
+                            <div className="flex-auto w-64">
                                 <SelectWithSearch
                                     description="Estación"
                                     options={stationCollection.map(
@@ -495,7 +532,7 @@ const ServiceForm = ({
                                 />
                             </div>
 
-                            <div className="w-24 flex-auto">
+                            <div className="flex-auto w-24">
                                 <SelectWithSearch
                                     description="Centro asistencial"
                                     options={careCenterCollection.map(
@@ -509,7 +546,7 @@ const ServiceForm = ({
                                 />
                             </div>
 
-                            <div className="w-24 flex-auto">
+                            <div className="flex-auto w-24">
                                 <TextInput
                                     description="Fecha de servicio"
                                     value={date}
@@ -521,10 +558,7 @@ const ServiceForm = ({
                             </div>
                         </div>
                     </div>
-
-                    <div className="w-1 flex-1"></div>
-
-                    {/* <div className="mt-8 h-11 mb-2.5 flex-none">
+                    {/* <div className="flex-none mt-8 mb-2.5 h-11">
                         <Button
                             enable={antares != '' && station != ''}
                             colorType="bg-[#3C50E0]"
@@ -534,7 +568,37 @@ const ServiceForm = ({
                     </div> */}
                 </div>
 
-                <div className="flex space-x-6 w-full pt-4">
+                <div className="h-8"></div>
+
+                <div className="flex items-center space-x-6">
+                    <div className="w-64">
+                        <SelectWithSearch
+                            description="Áreas operativas"
+                            options={stationCollection.map(
+                                (x) => `${x.abbreviation} - ${x.name}`
+                            )}
+                            selectedOption={''}
+                            selectionChange={(e) => {
+                                addOperativeArea(e)
+                            }}
+                        />
+                    </div>
+
+                    {operativeAreas && (
+                        <div className="w-full">
+                            {operativeAreas.map((item) => (
+                                <Chip
+                                    text={item}
+                                    onDelete={removeOperativeArea}
+                                ></Chip>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
+                <div className="h-8"></div>
+
+                <div className="flex space-x-6 pt-4 w-full">
                     <div className="w-full">
                         <div className="space-y-10 w-full">
                             <AddableTable
@@ -615,8 +679,8 @@ const ServiceForm = ({
                     <div
                         className={`flex flex-col w-1/2 space-y-4  ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
                     >
-                        <div className="w-full space-y-4">
-                            <span className="text-xl font-semibold text-slate-700">
+                        <div className="space-y-4 w-full">
+                            <span className="font-semibold text-slate-700 text-xl">
                                 Personas sin documetación
                             </span>
 
@@ -666,7 +730,7 @@ const ServiceForm = ({
                             </div>
                         </div>
 
-                        <span className="text-xl font-semibold text-slate-700">
+                        <span className="font-semibold text-slate-700 text-xl">
                             Descripción / Bitacora
                         </span>
 

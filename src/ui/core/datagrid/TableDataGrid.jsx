@@ -133,9 +133,7 @@ function ColumnFilter({ column }) {
                 placeholder={`Search...`}
                 type="text"
                 value={columnFilterValue ?? ''}
-                className="font-light text-sm w-full  focus:border-[#3c50e0]
-                                                    h-[12] rounded-sm border border-stroke px-3 py-1 
-                                                    outline-none border-gray-300 focus:border-primary"
+                className="border-gray-300 border-stroke focus:border-[#3c50e0] focus:border-primary px-3 py-1 border rounded-sm w-full h-[12] font-light text-sm outline-none"
             />
         </span>
     )
@@ -191,9 +189,16 @@ export default function TableDataGrid({
     onDoubleClickRow,
     onUpdate,
     onDelete,
+    showAddButton = true,
+    showEditButton = true,
+    showDeleteButton = true,
     permissions,
+<<<<<<< HEAD
     onDownload,
 
+=======
+    child,
+>>>>>>> 9d80d72e30e248de1b4253af46a1f1ba440ea38b
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
@@ -206,7 +211,6 @@ export default function TableDataGrid({
     logger.log('DATA GRID PERMISSION:', permissions)
 
     const COLUMNS = []
-
 
     COLUMNS.push(checkBoxHeader)
 
@@ -237,13 +241,11 @@ export default function TableDataGrid({
         })
     } else {
         COLUMNS.push({
-            header: "SIN DATOS",
-            accessorKey: "SIN DATOS",
+            header: 'SIN DATOS',
+            accessorKey: 'SIN DATOS',
             //footer: key,
         })
     }
-
-
 
     const columns = useMemo(() => COLUMNS, [rawData])
     const data = useMemo(() => rawData, [rawData])
@@ -290,8 +292,6 @@ export default function TableDataGrid({
     return (
         <>
             <div className="bg-[white] flex flex-col overflow-hidden ">
-
-
                 <header className="w-full mx-auto flex justify-between  py-4 px-8">
                     {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
                     <div className="flex space-x-4">
@@ -409,6 +409,28 @@ export default function TableDataGrid({
                         </button>}
 
                     </div>
+                                        if (onDelete) {
+                                            let r = onDelete(selectedRows)
+                                            if (r) {
+                                                r.then((yes) => {
+                                                    if (yes)
+                                                        table.resetRowSelection()
+                                                })
+                                            }
+                                        }
+                                        table.toggleAllRowsSelected(false)
+                                    }}
+                                    className="flex justify-center items-center bg-slate-200 shadow-md p-2 rounded-full w-[40px] h-[40px]"
+                                >
+                                    <DeleteIcon
+                                        active={
+                                            getTotalSelectedRows() >= 1 &&
+                                            permissions['delete']
+                                        }
+                                    />
+                                </button>
+                            )}
+                        </div>
 
                     <div className="w-1/2 pr-2">
                         <input
@@ -424,6 +446,17 @@ export default function TableDataGrid({
 
 
 
+                        <div className="pr-2 w-1/2">
+                            <input
+                                type="text"
+                                className="border-gray-300 p-3 border rounded-md w-full h-12 outline-none"
+                                placeholder="Buscar..."
+                                value={globalFilter}
+                                onChange={(e) => {
+                                    setGlobalFilter(e.target.value)
+                                }}
+                            />
+                        </div>
 
                     <div className=" flex items-center justify-end font-medium">
                         <select
@@ -456,167 +489,336 @@ export default function TableDataGrid({
                                 <tr
                                     className="sticky top-0"
                                     key={headerGroup.id}
+            <div className='flex flex-col pb-24 w-full h-full'>
+                <div className="flex flex-col flex-1 bg-[white] h-60 overflow-hidden">
+                    <header className="flex justify-between mx-auto px-8 py-4 w-full">
+                        {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
+                        <div className="flex space-x-4">
+                            {showAddButton && (
+                                <button
+                                    onClick={(e) => {
+                                        if (!permissions['add']) {
+                                            alert.notifyInfo(
+                                                'Usted no tiene permiso para agregar'
+                                            )
+                                            return
+                                        }
+
+                                        if (onAdd) onAdd()
+                                    }}
+                                    className="flex justify-center items-center bg-slate-200 shadow-md p-1.5 rounded-full w-[40px] h-[40px]"
                                 >
-                                    {headerGroup.headers.map((header) => (
-                                        <th
-                                            key={header.column?.id}
-                                            className={`border-y bg-white 
+                                    <AddIcon
+                                        color={
+                                            permissions['add']
+                                                ? 'fill-[#0A2F4E]'
+                                                : 'fill-gray-300'
+                                        }
+                                    />
+                                </button>
+                            )}
+
+                            {showEditButton && (
+                                <button
+                                    onClick={(e) => {
+                                        if (!(getTotalSelectedRows() === 1)) {
+                                            return
+                                        }
+
+                                        if (!permissions['update']) {
+                                            alert.notifyInfo(
+                                                'Usted no tiene permiso para editar'
+                                            )
+                                            return
+                                        }
+                                        const rowModel =
+                                            table.getSelectedRowModel()
+
+                                        if (
+                                            !rowModel ||
+                                            getTotalSelectedRows() != 1
+                                        )
+                                            return
+
+                                        const selectedRows = rowModel.rows.map(
+                                            (r) => r.original
+                                        )
+
+                                        if (onUpdate) onUpdate(selectedRows[0])
+
+                                        table.toggleAllRowsSelected(false)
+                                    }}
+                                    className={`w-[40px] h-[40px] p-1.5 ${
+                                        getTotalSelectedRows() === 1 &&
+                                        permissions['update']
+                                            ? 'bg-slate-200'
+                                            : 'bg-slate-50'
+                                    } bg-slate-200 rounded-full flex 
+                                justify-center items-center shadow-md`}
+                                >
+                                    <ModifyIcon
+                                        active={
+                                            getTotalSelectedRows() === 1 &&
+                                            permissions['update']
+                                        }
+                                    />
+                                </button>
+                            )}
+
+                            {showDeleteButton && (
+                                <button
+                                    onClick={() => {
+                                        if (getTotalSelectedRows() < 1) return
+
+                                        if (!permissions['delete']) {
+                                            alert.notifyInfo(
+                                                'Usted no tiene permiso para eliminar'
+                                            )
+                                            return
+                                        }
+
+                                        const rowModel =
+                                            table.getSelectedRowModel()
+
+                                        if (
+                                            !rowModel ||
+                                            getTotalSelectedRows() < 1
+                                        )
+                                            return
+
+                                        const selectedRows = rowModel.rows.map(
+                                            (r) => r.original
+                                        )
+
+                                        if (onDelete) {
+                                            let r = onDelete(selectedRows)
+                                            if (r) {
+                                                r.then((yes) => {
+                                                    if (yes)
+                                                        table.resetRowSelection()
+                                                })
+                                            }
+                                        }
+                                        table.toggleAllRowsSelected(false)
+                                    }}
+                                    className="flex justify-center items-center bg-slate-200 shadow-md p-2 rounded-full w-[40px] h-[40px]"
+                                >
+                                    <DeleteIcon
+                                        active={
+                                            getTotalSelectedRows() >= 1 &&
+                                            permissions['delete']
+                                        }
+                                    />
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="pr-2 w-1/2">
+                            <input
+                                type="text"
+                                className="border-gray-300 p-3 border rounded-md w-full h-12 outline-none"
+                                placeholder="Buscar..."
+                                value={globalFilter}
+                                onChange={(e) => {
+                                    setGlobalFilter(e.target.value)
+                                }}
+                            />
+                        </div>
+
+                        {child}
+
+                        <div className="flex justify-end items-center font-medium">
+                            <select
+                                className="bg-transparent pl-2"
+                                value={table.getState().pagination.pageSize}
+                                onChange={(e) => {
+                                    const value = e.target.value
+                                    table.setPageSize(value)
+                                }}
+                            >
+                                <option>5</option>
+                                <option>10</option>
+                                <option>15</option>
+                                <option>25</option>
+                                <option>50</option>
+                                <option>75</option>
+                                <option>100</option>
+                                <option>500</option>
+                            </select>
+                            <p className="pl-2 font-medium text-black text-sm">
+                                Registros Por Página
+                            </p>
+                        </div>
+                    </header>
+
+                    <div className="overflow-auto">
+                        <table className="border-collapse mt-2 w-full">
+                            <thead>
+                                {table.getHeaderGroups().map((headerGroup) => (
+                                    <tr
+                                        className="top-0 sticky"
+                                        key={headerGroup.id}
+                                    >
+                                        {headerGroup.headers.map((header) => (
+                                            <th
+                                                key={header.column?.id}
+                                                className={`border-y bg-white 
                                             border-gray-200 h-20 px-1 cursor-pointer 
                                              ${header.column.getCanSort() ? 'cursor-pointer' : 'cursor-none'}
                                             `}
-                                            {...{
-                                                onClick:
-                                                    header.column.getToggleSortingHandler(),
-                                            }}
-                                        >
-                                            <div className="flex flex-col justify-center items-center">
-                                                <div
-                                                    className="w-full h-full whitespace-nowrap p-2 text-md  text-center font-medium 
-                                        text-[#64748b] flex justify-center items-center"
-                                                >
-                                                    <p className="px-2">
-                                                        {flexRender(
-                                                            header.column
-                                                                .columnDef
-                                                                .header,
-                                                            header.getContext()
-                                                        )}
-                                                    </p>
+                                                {...{
+                                                    onClick:
+                                                        header.column.getToggleSortingHandler(),
+                                                }}
+                                            >
+                                                <div className="flex flex-col justify-center items-center">
+                                                    <div className="flex justify-center items-center p-2 w-full h-full font-medium text-[#64748b] text-center text-md whitespace-nowrap">
+                                                        <p className="px-2">
+                                                            {flexRender(
+                                                                header.column
+                                                                    .columnDef
+                                                                    .header,
+                                                                header.getContext()
+                                                            )}
+                                                        </p>
 
-                                                    <SortIcon
-                                                        isSorted={header.column.getIsSorted()}
-                                                    />
+                                                        <SortIcon
+                                                            isSorted={header.column.getIsSorted()}
+                                                        />
+                                                    </div>
+                                                    {header.column.getCanFilter() ? (
+                                                        <ColumnFilter
+                                                            column={
+                                                                header.column
+                                                            }
+                                                            table={table}
+                                                        />
+                                                    ) : null}
                                                 </div>
-                                                {header.column.getCanFilter() ? (
-                                                    <ColumnFilter
-                                                        column={header.column}
-                                                        table={table}
-                                                    />
-                                                ) : null}
-                                            </div>
-                                        </th>
-                                    ))}
-                                </tr>
-                            ))}
-                        </thead>
-                        <tbody className=" ">
-                            {table.getRowModel().rows.map((row) => (
-                                <tr
-                                    key={row.id}
-                                    className="even:bg-[rgba(214,234,248,0.31)]  text-[#0A2F4E] 
+                                            </th>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </thead>
+                            <tbody className=" ">
+                                {table.getRowModel().rows.map((row) => (
+                                    <tr
+                                        key={row.id}
+                                        className="even:bg-[rgba(214,234,248,0.31)]  text-[#0A2F4E] 
                                 overflow-auto [&>*:nth-child(2)]:text-[#1D74C1] hover:bg-slate-200"
-                                >
-                                    {row.getVisibleCells().map((cell) => (
-                                        <td
-                                            onDoubleClick={() => {
-                                                if (cell.id.includes('_select'))
-                                                    return
-
-                                                if (onDoubleClickRow)
-                                                    onDoubleClickRow(
-                                                        row.original
+                                    >
+                                        {row.getVisibleCells().map((cell) => (
+                                            <td
+                                                onDoubleClick={() => {
+                                                    if (
+                                                        cell.id.includes(
+                                                            '_select'
+                                                        )
                                                     )
-                                            }}
-                                            key={cell.id}
-                                            className="whitespace-nowrap max-w-[220px] 
-                                        text-ellipsis overflow-x-hidden  h-12 p-2 text-sm text-center 
-                                        font-medium border-b border-gray-200 hover:bg-slate-300"
-                                        >
-                                            {flexRender(
-                                                cell.column.columnDef.cell,
-                                                cell.getContext()
-                                            )}
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                                        return
+
+                                                    if (onDoubleClickRow)
+                                                        onDoubleClickRow(
+                                                            row.original
+                                                        )
+                                                }}
+                                                key={cell.id}
+                                                className="border-gray-200 hover:bg-slate-300 p-2 border-b max-w-[220px] h-12 font-medium text-center text-ellipsis text-sm whitespace-nowrap overflow-x-hidden"
+                                            >
+                                                {flexRender(
+                                                    cell.column.columnDef.cell,
+                                                    cell.getContext()
+                                                )}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <footer className="flex justify-between items-center px-8 py-4 min-h-20">
+                        <div>
+                            <label htmlFor="goToPageInput">Ir a: </label>
+                            <input
+                                ref={inputSetPageRef}
+                                id="goToPageInput"
+                                type="number"
+                                defaultValue={
+                                    table.getState().pagination.pageIndex + 1
+                                }
+                                onChange={(e) => {
+                                    let pageNumber = e.target.value
+                                        ? Number(e.target.value)
+                                        : 0
+
+                                    if (pageNumber < 0) {
+                                        pageNumber = 0
+                                    }
+                                    if (pageNumber >= table.getPageCount()) {
+                                        pageNumber = table.getPageCount()
+                                        inputSetPageRef.current.value =
+                                            pageNumber
+                                    }
+                                    table.setPageIndex(pageNumber - 1)
+                                }}
+                                className="border-gray-400 hover:border-[#3c50e0] focus:border-[#3c50e0] p-1 border rounded-sm max-w-[70px] outline-none"
+                            />
+                        </div>
+
+                        <div className="flex justify-center items-center">
+                            <BackwardButton
+                                onClick={() => {
+                                    if (table.getCanPreviousPage())
+                                        table.previousPage()
+                                }}
+                                disabled={!table.getCanPreviousPage()}
+                            />
+                            <NumberButton
+                                number={'Primera'}
+                                active={
+                                    table.getState().pagination.pageIndex == 0
+                                }
+                                onClick={() => {
+                                    if (table.getCanPreviousPage())
+                                        table.firstPage()
+                                }}
+                            />
+
+                            <NumberButton
+                                number={'Ultima'}
+                                active={
+                                    table.getState().pagination.pageIndex +
+                                        1 ===
+                                    table.getPageCount()
+                                }
+                                onClick={() => {
+                                    if (table.getCanNextPage()) table.lastPage()
+                                }}
+                            />
+                            <ForwardButton
+                                onClick={() => {
+                                    table.nextPage()
+                                }}
+                                disabled={!table.getCanNextPage()}
+                            />
+                        </div>
+
+                        <p className="text-gray-500">
+                            Mostrando{' '}
+                            <strong className="text-black">
+                                {table.getState().pagination.pageIndex + 1}
+                            </strong>{' '}
+                            de
+                            <strong className="text-black">
+                                {' '}
+                                {table.getPageCount().toLocaleString()}
+                            </strong>
+                        </p>
+
+                        <div>Registros: {table.getRowCount()}</div>
+                    </footer>
                 </div>
-
-                <footer className="flex justify-between items-center min-h-20 py-4 px-8">
-                    <div>
-                        <label htmlFor="goToPageInput">Ir a: </label>
-                        <input
-                            ref={inputSetPageRef}
-                            id="goToPageInput"
-                            type="number"
-                            defaultValue={
-                                table.getState().pagination.pageIndex + 1
-                            }
-                            onChange={(e) => {
-                                let pageNumber = e.target.value
-                                    ? Number(e.target.value)
-                                    : 0
-
-                                if (pageNumber < 0) {
-                                    pageNumber = 0
-                                }
-                                if (pageNumber >= table.getPageCount()) {
-                                    pageNumber = table.getPageCount()
-                                    inputSetPageRef.current.value = pageNumber
-                                }
-                                table.setPageIndex(pageNumber - 1)
-                            }}
-                            className="border border-gray-400 outline-none 
-                            rounded-sm p-1 max-w-[70px] focus:border-[#3c50e0] hover:border-[#3c50e0]"
-                        />
-                    </div>
-
-                    <div className="flex justify-center items-center">
-                        <BackwardButton
-                            onClick={() => {
-                                if (table.getCanPreviousPage())
-                                    table.previousPage()
-                            }}
-                            disabled={!table.getCanPreviousPage()}
-                        />
-                        <NumberButton
-                            number={'Primera'}
-                            active={table.getState().pagination.pageIndex == 0}
-                            onClick={() => {
-                                if (table.getCanPreviousPage())
-                                    table.firstPage()
-                            }}
-                        />
-
-                        <NumberButton
-                            number={'Ultima'}
-                            active={
-                                table.getState().pagination.pageIndex + 1 ===
-                                table.getPageCount()
-                            }
-                            onClick={() => {
-                                if (table.getCanNextPage()) table.lastPage()
-                            }}
-                        />
-                        <ForwardButton
-                            onClick={() => {
-                                table.nextPage()
-                            }}
-                            disabled={!table.getCanNextPage()}
-                        />
-                    </div>
-
-                    <p className="text-gray-500">
-                        Mostrando{' '}
-                        <strong className="text-black">
-                            {table.getState().pagination.pageIndex + 1}
-                        </strong>{' '}
-                        de
-                        <strong className="text-black">
-                            {' '}
-                            {table.getPageCount().toLocaleString()}
-                        </strong>
-                    </p>
-
-                    <div>Registros: {table.getRowCount()}</div>
-                </footer>
-
-
-
-
-
             </div>
         </>
     )

@@ -141,12 +141,12 @@ export function AddableTable<T>({
         <div
             className={`space-y-2 ${enable ? 'opacity-100' : 'opacity-50'} w-full `}
         >
-            <div className="text-xl text-slate-700 font-semibold">{title}</div>
-            <table className="w-full select-none rounded-lg overflow-hidden">
-                <thead className=" rounded-t-lg">
+            <div className="font-semibold text-slate-700 text-xl">{title}</div>
+            <table className="rounded-lg w-full overflow-hidden select-none">
+                <thead className="rounded-t-lg">
                     <tr
                         key={'headers'}
-                        className="relative h-10 w-full border-b rounded-t-lg border-[#0A2F4E] text-sm text-slate-200 bg-[#0A2F4E]"
+                        className="relative border-[#0A2F4E] bg-[#0A2F4E] border-b rounded-t-lg w-full h-10 text-slate-200 text-sm"
                     >
                         {anyElement() &&
                             Object.entries(internalData[0] as any).map(
@@ -200,7 +200,7 @@ export function AddableTable<T>({
                                     </>
                                 )
                             )}
-                        <td className="absolute top-0 left-0  pointer-events-none"></td>
+                        <td className="top-0 left-0 absolute pointer-events-none"></td>
                     </tr>
                 </thead>
                 <tbody>
@@ -222,7 +222,7 @@ export function AddableTable<T>({
                                         ) ? (
                                             <td
                                                 key={`${title}-${property[0]}-cell`}
-                                                className="px-4 whitespace-nowrap "
+                                                className="px-4 whitespace-nowrap"
                                             >
                                                 {
                                                     (property[1] = null
@@ -245,8 +245,8 @@ export function AddableTable<T>({
                                             <></>
                                         )
                                 )}
-                                <td className="absolute z-10 top-0 left-0 flex h-full w-full select-none justify-end pointer-events-none">
-                                    <div className="sticky flex right-0 h-full w-fit space-x-1 items-center px-8 opacity-0 duration-200 group-hover/row:opacity-100">
+                                <td className="top-0 left-0 z-10 absolute flex justify-end w-full h-full pointer-events-none select-none">
+                                    <div className="right-0 sticky flex items-center space-x-1 opacity-0 group-hover/row:opacity-100 px-8 w-fit h-full duration-200">
                                         <button
                                             onClick={(e) => {
                                                 onDeleteButtonClick &&
@@ -255,7 +255,7 @@ export function AddableTable<T>({
                                                     )
                                                 e.stopPropagation()
                                             }}
-                                            className="pointer-events-auto h-7 aspect-square flex items-center text-lg justify-center bg-slate-400 border-2 border-white rounded-md text-white hover:bg-rose-500 duration-200"
+                                            className="flex justify-center items-center border-2 border-white bg-slate-400 hover:bg-rose-500 rounded-md h-7 text-lg text-white duration-200 pointer-events-auto aspect-square"
                                         >
                                             X
                                         </button>
@@ -302,7 +302,7 @@ export function AddableTable<T>({
                                     openUp={false}
                                 /> */}
 
-                                <div className="h-full flex space-x-4 items-center pt-4">
+                                <div className="flex items-center space-x-4 pt-4 h-full">
                                     <Button
                                         enable={selectedOption != ''}
                                         colorType="bg-[#3C50E0]"
@@ -315,6 +315,7 @@ export function AddableTable<T>({
                                                 : undefined
                                             setShowInnerAdd(false)
                                             setSelectedOption('')
+                                            setSelectedOption2('')
                                         }}
                                         children={'Guardar'}
                                     ></Button>
@@ -323,9 +324,10 @@ export function AddableTable<T>({
                                         onClick={(e) => {
                                             setShowInnerAdd(false)
                                             setSelectedOption('')
+                                            setSelectedOption2('')
                                             e.stopPropagation()
                                         }}
-                                        className="pointer-events-auto h-7 aspect-square flex items-center text-lg justify-center bg-slate-400 border-2 border-white rounded-md text-white hover:bg-rose-500 duration-200"
+                                        className="flex justify-center items-center border-2 border-white bg-slate-400 hover:bg-rose-500 rounded-md h-7 text-lg text-white duration-200 pointer-events-auto aspect-square"
                                     >
                                         X
                                     </button>
