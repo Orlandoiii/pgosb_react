@@ -348,9 +348,7 @@ export default function ModuleComponent({
                     }}
                     permissions={permissions}
                     showDownloadButton={true}
-                    onDownload={()=>{
-                        console.log("DOWNLOAD")
-                    }}
+                    exportFileName={moduleName}
 
                 />
 
