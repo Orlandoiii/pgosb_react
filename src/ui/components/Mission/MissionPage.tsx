@@ -128,6 +128,7 @@ const MissionPage = () => {
                                 option2="Servicios"
                             />
                         }
+                        showDownloadButton={true}
                         rawData={data}
                         onAdd={addNewMission}
                         onUpdate={openMission}
@@ -159,6 +160,8 @@ const MissionPage = () => {
                         showAddButton={false}
                         showEditButton={false}
                         showDeleteButton={false}
+                        showDownloadButton={true}
+                        
                         rawData={data}
                         onAdd={addNewMission}
                         onUpdate={openMission}
