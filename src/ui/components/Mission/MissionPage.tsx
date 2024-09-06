@@ -16,6 +16,7 @@ import LayoutContexProvider from '../../core/context/LayoutContext'
 import { OverlayModalConfig } from '../../core/overlay/models/overlay_item'
 import Toggle from '../../alter/components/buttons/toggle'
 import { serviceCrud } from '../../../domain/models/service/service'
+import { get, getSummary } from '../../../services/http'
 
 const MissionPage = () => {
     const [loading, setLoading] = useState(false)
@@ -42,7 +43,7 @@ const MissionPage = () => {
     }
 
     async function getServices() {
-        const result = await serviceCrud.getAll()
+        const result = await getSummary('mission/service')
         if (result.success && result.result) {
             setData(result.result)
         }

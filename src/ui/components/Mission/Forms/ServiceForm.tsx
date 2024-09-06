@@ -48,7 +48,7 @@ import {
     UnitSimple,
 } from '../../../../domain/models/unit/unit'
 import LocationIcon from '../../../core/icons/LocationIcon'
-import { get, post } from '../../../../services/http'
+import { get, post, remove } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { Roles } from '../../../../domain/abstractions/enums/roles'
@@ -402,27 +402,21 @@ const ServiceForm = ({
             service_role: rol,
         })
 
-        if (service.success) modalService.toastSuccess('Bombero guardado!')
-        else
+        if (service.success) {
+            modalService.toastSuccess('Bombero guardado!')
+            updateUsers()
+        } else
             modalService.toastError(
                 'Ocurrió un error al intentar guardar el bombero!'
             )
     }
 
     async function deleteUserHandler(unit: string) {
-        const service = await serviceCrud.getById(serviceId ?? '')
-
-        if (service.success && service.result && service.result.firefighter) {
-            service.result.firefighter = service.result.firefighter.filter(
-                (x) => x != unit
-            )
-
-            const resultService = await serviceCrud.update(service.result)
-            if (resultService.success) {
-                alertController.notifySuccess('Usuario eliminado')
-                updateUsers()
-            }
-        }
+        const result = await remove('mission/firefighter', unit)
+        if (result.success) {
+            alertController.notifySuccess('Usuario eliminado')
+            updateUsers()
+        } else alertController.notifyError('No se pudo eliminar el usuario ...')
     }
 
     const antaresNames = antaresCollection.map(
@@ -568,11 +562,12 @@ const ServiceForm = ({
                     </div> */}
                 </div>
 
-                <div className="h-8"></div>
+                <div className="h-4"></div>
 
                 <div className="flex items-center space-x-6">
-                    <div className="w-64">
+                    <div className="flex-none w-64">
                         <SelectWithSearch
+                            disable={!formIsEnable()}
                             description="Áreas operativas"
                             options={stationCollection.map(
                                 (x) => `${x.abbreviation} - ${x.name}`
@@ -585,7 +580,7 @@ const ServiceForm = ({
                     </div>
 
                     {operativeAreas && (
-                        <div className="w-full">
+                        <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
                             {operativeAreas.map((item) => (
                                 <Chip
                                     text={item}
@@ -596,7 +591,7 @@ const ServiceForm = ({
                     )}
                 </div>
 
-                <div className="h-8"></div>
+                <div className="h-4"></div>
 
                 <div className="flex space-x-6 pt-4 w-full">
                     <div className="w-full">
@@ -687,6 +682,7 @@ const ServiceForm = ({
                             <div className="w-full">
                                 <div className="flex items-center space-x-4">
                                     <TextInput
+                                        disable={!formIsEnable()}
                                         type={'Integer'}
                                         description={'Ilesos'}
                                         value={unharmed}
@@ -696,6 +692,7 @@ const ServiceForm = ({
                                         onBlur={() => debounceUpdate()}
                                     ></TextInput>
                                     <TextInput
+                                        disable={!formIsEnable()}
                                         type={'Integer'}
                                         description={'Lesionados'}
                                         value={injured}
@@ -707,6 +704,7 @@ const ServiceForm = ({
                                 </div>
                                 <div className="flex items-center space-x-4">
                                     <TextInput
+                                        disable={!formIsEnable()}
                                         type={'Integer'}
                                         description={'Trasladados'}
                                         value={transferred}
@@ -718,6 +716,7 @@ const ServiceForm = ({
                                         onBlur={() => debounceUpdate()}
                                     ></TextInput>
                                     <TextInput
+                                        disable={!formIsEnable()}
                                         type={'Integer'}
                                         description={'Fallecidos'}
                                         value={deceased}

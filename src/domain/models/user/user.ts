@@ -152,6 +152,7 @@ export type UserSimple  = {
 	rank: string
 	personal_code: string
 	legal_id: string
+	service_role: string
 }
 
 export const userNameConverter: { [K in keyof UserSimple]?: string } = {
@@ -161,6 +162,7 @@ export const userNameConverter: { [K in keyof UserSimple]?: string } = {
     rank: 'Rango',
     personal_code: 'Código',
     legal_id: 'Documento',
+    service_role: 'Rol',
 }
 
 export const UserSimpleFromApi = (

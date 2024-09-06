@@ -188,6 +188,7 @@ export function SelectWithSearch<T>({
                     <TextInputBase
                         type={'Any' as any}
                         {...rest}
+                        tabIndex={disable ? -1 : undefined}
                         ref={textInput}
                         disabled={disable}
                         value={
@@ -205,23 +206,23 @@ export function SelectWithSearch<T>({
                         className="pointer-events-none"
                     />
 
-                    <div className="absolute h-full w-full flex items-center justify-end top-0 left-0 pointer-events-none pr-2.5">
+                    <div className="top-0 left-0 absolute flex justify-end items-center pr-2.5 w-full h-full pointer-events-none">
                         <div
-                            className={`${state.optionsOpen ? 'rotate-180' : ''} inset-0 pointer-events-auto duration-200`}
+                            className={`${state.optionsOpen ? 'rotate-180' : ''} ${disable ? 'pointer-events-none' : 'pointer-events-auto'} inset-0 duration-200`}
                         >
                             <ArrowDownIcon />
                         </div>
                     </div>
                 </button>
 
-                <div className="absolute h-full w-full flex items-center justify-end top-0 left-0 pointer-events-none pr-7">
+                <div className="top-0 left-0 absolute flex justify-end items-center pr-7 w-full h-full pointer-events-none">
                     {((controlled && selectedOption != '') ||
                         (!controlled && innerSelectedOption != '')) &&
                         addClearButton && (
                             <button
                                 type="button"
                                 onClick={() => selectedOptionChangedHandler('')}
-                                className="h-7 w-7 duration-150 aspect-square hover:text-blue-500 rounded-full text-gray-400 flex items-center justify-center text-xs font-semibold pointer-events-auto"
+                                className="flex justify-center items-center rounded-full w-7 h-7 font-semibold text-gray-400 text-xs hover:text-blue-500 duration-150 pointer-events-auto aspect-square"
                             >
                                 ✕
                             </button>
