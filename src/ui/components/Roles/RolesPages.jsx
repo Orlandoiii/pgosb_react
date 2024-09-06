@@ -479,6 +479,7 @@ function RolesPageInternal({ }) {
                 {rolData && <TableDataGrid rawData={rolData}
 
                     showDownloadButton={true}
+                    exportFileName={"roles"}
                     onUpdate={onUpdate}
                     onAdd={onAdd}
                     onDelete={onDelete}

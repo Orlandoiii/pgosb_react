@@ -196,6 +196,7 @@ export default function TableDataGrid({
     permissions,
     child,
     showDownloadButton = false,
+    exportFileName = 'data'
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
@@ -244,6 +245,7 @@ export default function TableDataGrid({
     }
 
     const columns = useMemo(() => COLUMNS, [rawData])
+    
     const data = useMemo(() => rawData, [rawData])
 
     const [rowSelection, setRowSelection] = useState({})
@@ -311,7 +313,13 @@ export default function TableDataGrid({
             })
         );
 
-        const csv = new CsvBuilder("test-1.csv")
+
+        const currentDate = new Date();
+        const formattedDate = currentDate.toISOString().replace(/[:.]/g, '-').slice(0, 19);
+        const exportName = `${exportFileName}_${formattedDate}.csv`;
+
+
+        const csv = new CsvBuilder(exportName)
             .setDelimeter(";")
             .setColumns(visibleColumns.map(c => c.header))
             .addRows(rowsToExportArray);
