@@ -14,6 +14,8 @@ import DeleteIcon from '../icons/DeleteIcon'
 import logger from '../../../logic/Logger/logger'
 import { useLayout } from '../context/LayoutContext'
 import AlertController from '../alerts/AlertController'
+import DownloadIcon from '../icons/DownloadIcon'
+import { CsvBuilder } from 'filefy';
 
 const alert = new AlertController()
 
@@ -194,7 +196,6 @@ export default function TableDataGrid({
     permissions,
     child,
     showDownloadButton = false,
-    onDownload,
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
@@ -255,6 +256,8 @@ export default function TableDataGrid({
 
     const [globalFilter, setGlobalFilter] = useState('')
 
+
+
     const table = useReactTable({
         data,
         columns,
@@ -283,6 +286,40 @@ export default function TableDataGrid({
 
         return rowModel.rows.length
     }
+
+
+    function handleDownload() {
+
+        logger.log("DOWNLOAD")
+
+        const rowsToExport = table.getSortedRowModel()
+            .rows.map(row => row.original);
+
+
+        logger.log("ROWS EN EXPORTACION", rowsToExport)
+
+        const visibleColumns = COLUMNS.filter(column => column.id != 'select' && column.accessorKey);
+
+
+        const rowsToExportArray = rowsToExport.map(row =>
+            visibleColumns.map(column => {
+                const value = row[column.accessorKey];
+                // Convert value to string, replace newlines with spaces, and trim
+                return value !== undefined && value !== null
+                    ? value.toString().replace(/\n/g, ' ').trim()
+                    : '';
+            })
+        );
+
+        const csv = new CsvBuilder("test-1.csv")
+            .setDelimeter(";")
+            .setColumns(visibleColumns.map(c => c.header))
+            .addRows(rowsToExportArray);
+
+        csv.exportFile();
+
+    }
+
 
     return (
         <>
@@ -410,10 +447,11 @@ export default function TableDataGrid({
 
                             {showDownloadButton && (
                                 <button
-                                    onClick={onDownload}
-                                    className="flex justify-center items-center bg-slate-200 shadow-md p-2 rounded-full w-[40px] h-[40px]"
+                                    onClick={handleDownload}
+                                    className="flex justify-center items-center bg-slate-200 shadow-md p-0.5 rounded-full w-[40px] h-[40px]"
                                 >
-                                    <DownloadIcon />
+                                    <DownloadIcon color='#BE123C' />
+
                                 </button>
                             )}
                         </div>

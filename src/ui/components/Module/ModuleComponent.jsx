@@ -347,6 +347,11 @@ export default function ModuleComponent({
                         setOpenDetailModal(true);
                     }}
                     permissions={permissions}
+                    showDownloadButton={true}
+                    onDownload={()=>{
+                        console.log("DOWNLOAD")
+                    }}
+
                 />
 
                 }
