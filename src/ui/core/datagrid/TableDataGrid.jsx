@@ -14,6 +14,8 @@ import DeleteIcon from '../icons/DeleteIcon'
 import logger from '../../../logic/Logger/logger'
 import { useLayout } from '../context/LayoutContext'
 import AlertController from '../alerts/AlertController'
+import DownloadIcon from '../icons/DownloadIcon'
+import { CsvBuilder } from 'filefy';
 
 const alert = new AlertController()
 
@@ -193,6 +195,7 @@ export default function TableDataGrid({
     showDeleteButton = true,
     permissions,
     child,
+    showDownloadButton = false,
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
@@ -253,6 +256,8 @@ export default function TableDataGrid({
 
     const [globalFilter, setGlobalFilter] = useState('')
 
+
+
     const table = useReactTable({
         data,
         columns,
@@ -281,6 +286,40 @@ export default function TableDataGrid({
 
         return rowModel.rows.length
     }
+
+
+    function handleDownload() {
+
+        logger.log("DOWNLOAD")
+
+        const rowsToExport = table.getSortedRowModel()
+            .rows.map(row => row.original);
+
+
+        logger.log("ROWS EN EXPORTACION", rowsToExport)
+
+        const visibleColumns = COLUMNS.filter(column => column.id != 'select' && column.accessorKey);
+
+
+        const rowsToExportArray = rowsToExport.map(row =>
+            visibleColumns.map(column => {
+                const value = row[column.accessorKey];
+                // Convert value to string, replace newlines with spaces, and trim
+                return value !== undefined && value !== null
+                    ? value.toString().replace(/\n/g, ' ').trim()
+                    : '';
+            })
+        );
+
+        const csv = new CsvBuilder("test-1.csv")
+            .setDelimeter(";")
+            .setColumns(visibleColumns.map(c => c.header))
+            .addRows(rowsToExportArray);
+
+        csv.exportFile();
+
+    }
+
 
     return (
         <>
@@ -343,12 +382,11 @@ export default function TableDataGrid({
 
                                         table.toggleAllRowsSelected(false)
                                     }}
-                                    className={`w-[40px] h-[40px] p-1.5 ${
-                                        getTotalSelectedRows() === 1 &&
+                                    className={`w-[40px] h-[40px] p-1.5 ${getTotalSelectedRows() === 1 &&
                                         permissions['update']
-                                            ? 'bg-slate-200'
-                                            : 'bg-slate-50'
-                                    } bg-slate-200 rounded-full flex 
+                                        ? 'bg-slate-200'
+                                        : 'bg-slate-50'
+                                        } bg-slate-200 rounded-full flex 
                                 justify-center items-center shadow-md`}
                                 >
                                     <ModifyIcon
@@ -404,6 +442,16 @@ export default function TableDataGrid({
                                             permissions['delete']
                                         }
                                     />
+                                </button>
+                            )}
+
+                            {showDownloadButton && (
+                                <button
+                                    onClick={handleDownload}
+                                    className="flex justify-center items-center bg-slate-200 shadow-md p-0.5 rounded-full w-[40px] h-[40px]"
+                                >
+                                    <DownloadIcon color='#BE123C' />
+
                                 </button>
                             )}
                         </div>
@@ -584,7 +632,7 @@ export default function TableDataGrid({
                                 number={'Ultima'}
                                 active={
                                     table.getState().pagination.pageIndex +
-                                        1 ===
+                                    1 ===
                                     table.getPageCount()
                                 }
                                 onClick={() => {

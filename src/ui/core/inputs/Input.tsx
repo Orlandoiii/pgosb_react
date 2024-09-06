@@ -16,7 +16,7 @@ export interface InputProps extends ComponentPropsWithoutRef<'input'> {
     refCallback?: React.RefCallback<HTMLInputElement> | undefined
     resetCount?: number
     maskDefinition?: any,
-    useUppercase?:boolean
+    useUppercase?: boolean
 }
 
 export default function Input({
@@ -61,25 +61,27 @@ export default function Input({
             <div
                 className={`relative h-11 w-full  p-1 rounded-md shadow-sm
                              border-2 
-                             ${
-                                 !common.isErr(errMessage)
-                                     ? CommonLogic.neutralColor
-                                     : useStrongErrColor
-                                       ? CommonLogic.errColor
-                                       : CommonLogic.errSoftColor
-                             }  
+                             ${!common.isErr(errMessage)
+                        ? CommonLogic.neutralColor
+                        : useStrongErrColor
+                            ? CommonLogic.errColor
+                            : CommonLogic.errSoftColor
+                    }  
                              hover:border-3.5  hover:${common.borderColor(errMessage, useStrongErrColor)} 
                              has-[:focus]:border-3.5 has-[:focus]:${common.borderColor(errMessage, useStrongErrColor)} `}
             >
                 <input
                     ref={mergedRef}
-                    className={`w-full h-full outline-none px-2 my-auto border-0 bg-transparent ${useUppercase ? "uppercase": ""}`}
+                    className={`w-full h-full outline-none px-2 my-auto border-0 bg-transparent ${useUppercase ? "uppercase" : ""}`}
                     id={inputName}
                     autoComplete="off"
                     name={inputName}
                     {...rest}
                 />
-                {icons}
+                <div className='absolute right-2 top-1/2 -translate-y-1/2'>
+                    {icons}
+                </div>
+
             </div>
 
             <span

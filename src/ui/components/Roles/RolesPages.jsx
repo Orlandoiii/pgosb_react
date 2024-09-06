@@ -478,6 +478,7 @@ function RolesPageInternal({ }) {
             <div className="">
                 {rolData && <TableDataGrid rawData={rolData}
 
+                    showDownloadButton={true}
                     onUpdate={onUpdate}
                     onAdd={onAdd}
                     onDelete={onDelete}
