@@ -12,6 +12,10 @@ export const MissionSchema = z.object({
     numServices: zodEmptyOrGreaterThan(0),
     numFirefighters: zodEmptyOrGreaterThan(0),
     numVehicles: zodEmptyOrGreaterThan(0),
+    unharmed: zodEmptyOrGreaterThan(0),
+    injured: zodEmptyOrGreaterThan(0),
+    transported: zodEmptyOrGreaterThan(0),
+    deceased: zodEmptyOrGreaterThan(0),
     code: zodEmptyOrGreaterThan(0),
 })
 
@@ -22,6 +26,10 @@ export const ApiMissionSchema = z.object({
     num_services: zodEmptyOrGreaterThan(0),
     num_firefighters: zodEmptyOrGreaterThan(0),
     num_vehicles: zodEmptyOrGreaterThan(0),
+    unharmed: zodEmptyOrGreaterThan(0),
+    injured: zodEmptyOrGreaterThan(0),
+    transported: zodEmptyOrGreaterThan(0),
+    deceased: zodEmptyOrGreaterThan(0),
     code: zodEmptyOrGreaterThan(0),
 })
 
@@ -37,6 +45,10 @@ function fromApiInternal(data: TApiMission): TMission {
         alias: data.alias,
         createdAt: data.created_at,
         code: data.code,
+        unharmed: data.unharmed,
+        injured: data.injured,
+        transported: data.transported,
+        deceased: data.deceased,
     }
 }
 
@@ -49,6 +61,10 @@ function toApiInternal(data: TMission): TApiMission {
         alias: data.alias,
         created_at: data.createdAt,
         code: data.code,
+        unharmed: data.unharmed,
+        injured: data.injured,
+        transported: data.transported,
+        deceased: data.deceased,
     }
 }
 

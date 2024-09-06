@@ -7,11 +7,14 @@ interface ChipProps {
 
 function chip({ text, onDelete }: ChipProps) {
     return (
-        <div className="py-2 px-4 rounded-full space-x-2 bg-[#0A2F4E]">
-            {text}
+        <div className="flex justify-normal items-center bg-slate-200 pr-1 pl-4 rounded-full w-fit h-10 text-slate-600 text-sm">
+            <span className="max-w-44 text-ellipsis whitespace-nowrap overflow-hidden">
+                {text}
+            </span>
+            <div className="w-1"></div>
             <button
                 onClick={() => onDelete(text)}
-                className="h-full aspect-square rounded-full bg-white hover:bg-opacity-40 bg-opacity-0 flex items-center justify-center"
+                className="flex flex-none justify-center items-center bg-white bg-opacity-0 hover:bg-opacity-40 rounded-full w-9 h-9"
             >
                 ✖
             </button>

@@ -68,6 +68,17 @@ export async function getAllSimple<T>(
     }
 }
 
+export async function getSummary<T>(endpoint: string): Promise<ResultErr<T[]>> {
+    const response = await requestInternal('GET', `${endpoint}/summary`)
+    console.log('response', response)
+
+    if (response.success && response.result) {
+        return { success: true, result: response.result }
+    } else {
+        return response
+    }
+}
+
 export async function getAll<T>(
     endpoint: string,
     fromJson?: (json: any) => ResultErr<T>

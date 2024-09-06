@@ -40,6 +40,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             >
                 <div className="relative">
                     <TextInputBase
+                        tabIndex={disable ? -1 : undefined}
                         type={type}
                         {...rest}
                         ref={ref}
