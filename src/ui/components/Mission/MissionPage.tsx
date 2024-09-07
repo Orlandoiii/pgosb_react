@@ -129,6 +129,7 @@ const MissionPage = () => {
                             />
                         }
                         showDownloadButton={true}
+                        exportFileName="Missiones"
                         rawData={data}
                         onAdd={addNewMission}
                         onUpdate={openMission}
@@ -161,7 +162,7 @@ const MissionPage = () => {
                         showEditButton={false}
                         showDeleteButton={false}
                         showDownloadButton={true}
-                        
+                        exportFileName="Servicios"
                         rawData={data}
                         onAdd={addNewMission}
                         onUpdate={openMission}

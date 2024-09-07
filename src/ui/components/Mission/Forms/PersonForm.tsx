@@ -34,6 +34,8 @@ import { UnitSimple } from '../../../../domain/models/unit/unit.ts'
 import { get } from '../../../../services/http.tsx'
 import { useSimpleCollection } from '../../../core/hooks/useCollection.ts'
 import { Condition } from '../../../../domain/abstractions/enums/condition.ts'
+import { PersonState } from '../../../../domain/abstractions/enums/person_state.ts'
+import { documentIdMask } from '../../../core/inputs/Common/Mask.ts'
 
 interface PersonFormProps {
     serviceId: string
@@ -141,7 +143,7 @@ const PersonForm = ({
     return (
         <>
             <ModalLayout
-                className="max-h-[90vh] max-w-[85vw] overflow-y-auto"
+                className="max-w-[85vw] max-h-[90vh] overflow-y-auto"
                 title={'Registro de Persona'}
                 onClose={handleClose}
             >
@@ -172,7 +174,7 @@ const PersonForm = ({
 
                     <FormTitle title="Datos de la persona" />
 
-                    <div className="w-full space-y-3 px-2 max-w-[820px]">
+                    <div className="space-y-3 px-2 w-full max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TPersonInvolved>
                                 fieldName={'firstName'}
@@ -184,7 +186,7 @@ const PersonForm = ({
                                 description="Apellido:"
                             />
 
-                            <div className=" w-96">
+                            <div className="w-[30rem]">
                                 <FormSelect<TPersonInvolved>
                                     fieldName={'gender'}
                                     description={'Genero:'}
@@ -192,10 +194,12 @@ const PersonForm = ({
                                 />
                             </div>
 
-                            <FormInput<TPersonInvolved>
-                                fieldName={'age'}
-                                description="Edad:"
-                            />
+                            <div className="w-44">
+                                <FormInput<TPersonInvolved>
+                                    fieldName={'age'}
+                                    description="Edad:"
+                                />
+                            </div>
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
@@ -203,6 +207,7 @@ const PersonForm = ({
                                 <FormInput<TPersonInvolved>
                                     fieldName={'idDocument'}
                                     description="Documento de Identidad:"
+                                    mask={documentIdMask}
                                 />
                             </div>
 
@@ -213,9 +218,10 @@ const PersonForm = ({
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormInput<TPersonInvolved>
+                            <FormSelect<TPersonInvolved>
                                 fieldName={'employmentStatus'}
-                                description="Estado físico:"
+                                description={'Estado físico:'}
+                                options={EnumToStringArray(PersonState)}
                             />
 
                             <FormInput<TPersonInvolved>
@@ -244,7 +250,7 @@ const PersonForm = ({
 
                     <FormTitle title="Dirección de Domicilio" />
 
-                    <div className="w-full space-y-3 px-2 max-w-[820px]">
+                    <div className="space-y-3 px-2 w-full max-w-[820px]">
                         {/* <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TPersonInvolved>
                                 fieldName={'state'}

@@ -219,7 +219,7 @@ export type UnitSimple = {
 }
 
 export const unitNameConverter: { [K in keyof UnitSimple]?: string } = {
-    id: 'Id',
+    // id: 'Id',
     plate: 'Placa',
     station: 'Estación',
     unit_type: 'Tipo',

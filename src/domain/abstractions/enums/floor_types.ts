@@ -1,7 +1,7 @@
 export enum FloorTypes {
-    Concrete = 'Concreto',
-    Earth = 'Tierra',
-    Slab = 'Loza',
-    Granite = 'Granito',
-    Parquet = 'Parquet',
-}
+    Concrete = 'CONCRETO',
+    Earth = 'TIERRA',
+    Slab = 'LOZA',
+    Granite = 'GRANITO',
+    Parquet = 'PARQUET',
+  }

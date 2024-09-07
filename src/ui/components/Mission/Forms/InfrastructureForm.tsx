@@ -23,6 +23,7 @@ import { Goods } from '../../../../domain/abstractions/enums/goods.ts'
 import { FloorTypes } from '../../../../domain/abstractions/enums/floor_types.ts'
 import { WallTypes } from '../../../../domain/abstractions/enums/wall_types.ts'
 import { CeilingTypes } from '../../../../domain/abstractions/enums/ceiling_types.ts'
+import { numberMask } from '../../../core/inputs/Common/Mask.ts'
 
 interface InfrastructureFormProps {
     serviceId: string
@@ -93,7 +94,7 @@ const InfrastructureForm = ({
                 >
                     <FormTitle title="Datos de la Infraestructura" />
 
-                    <div className="w-full space-y-3 px-2 max-w-[820px]">
+                    <div className="space-y-3 px-2 w-full max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormSelect<TInfrastructure>
                                 fieldName={'buildType'}
@@ -136,10 +137,12 @@ const InfrastructureForm = ({
                             <FormInput<TInfrastructure>
                                 fieldName={'levels'}
                                 description="N° Niveles:"
+                                mask={numberMask}
                             />
                             <FormInput<TInfrastructure>
                                 fieldName={'people'}
                                 description="N° personas:"
+                                mask={numberMask}
                             />
                         </div>
 

@@ -222,7 +222,7 @@ export function SelectWithSearch<T>({
                             <button
                                 type="button"
                                 onClick={() => selectedOptionChangedHandler('')}
-                                className="flex justify-center items-center rounded-full w-7 h-7 font-semibold text-gray-400 text-xs hover:text-blue-500 duration-150 pointer-events-auto aspect-square"
+                                className="flex justify-center items-center rounded-full w-7 h-7 font-semibold text-gray-400 text-xs hover:text-rose-600 duration-150 pointer-events-auto aspect-square"
                             >
                                 ✕
                             </button>
