@@ -52,6 +52,7 @@ import { get, post, remove } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { Roles } from '../../../../domain/abstractions/enums/roles'
+import { OperativeAreas } from '../../../../domain/abstractions/enums/operative_areas'
 import TextInput from '../../../alter/components/inputs/text_input'
 import LocationForm from './LocationForm'
 import { LocationCrud } from '../../../../domain/models/location/location'
@@ -92,7 +93,9 @@ const ServiceForm = ({
         initValue ? initValue.isImportant : false
     )
 
-    const [operativeAreas, setOperativeAreas] = useState<string[]>()
+    const [operativeAreas, setOperativeAreas] = useState<string[]>(
+        initValue ? initValue.operativeAreas ?? [] : []
+    )
 
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
@@ -154,6 +157,7 @@ const ServiceForm = ({
     const [careCenter, setCareCenter] = useState('')
 
     const roles = EnumToStringArray(Roles)
+    const operativeAreasCollection = EnumToStringArray(OperativeAreas)
 
     useEffect(() => {
         if (!setIt && initValue && antaresCollection.length > 0) {
@@ -187,7 +191,8 @@ const ServiceForm = ({
             locations.length > 0
         ) {
             const x = locations.filter((x) => x.id == initValue!.locationId)[0]
-            setServiceLocation(`${x.id} - ${x.alias}`)
+            if (x) setServiceLocation(`${x.id} - ${x.alias}`)
+            else setServiceLocation('')
         }
     }, [locations])
 
@@ -366,13 +371,18 @@ const ServiceForm = ({
         const service = await serviceCrud.getById(serviceId ?? '')
 
         if (service.success && service.result && service.result.units) {
-            service.result.units.push(selected.id)
+            if (!service.result.units.includes(selected.id)) {
+                service.result.units.push(selected.id)
 
-            const resultService = await serviceCrud.update(service.result)
-            if (resultService.success) {
-                alertController.notifySuccess('Unidad guardada')
-                updateUnits()
-            }
+                const resultService = await serviceCrud.update(service.result)
+                if (resultService.success) {
+                    alertController.notifySuccess('Unidad guardada')
+                    updateUnits()
+                }
+            } else
+                alertController.notifyInfo(
+                    'La unidad ya se encuentra registrada en el servicio'
+                )
         }
     }
 
@@ -394,6 +404,16 @@ const ServiceForm = ({
         const selected = usersCollection.filter(
             (items) => items.personal_code === unit.split(' - ')[0]
         )[0]
+
+        if (
+            serviceUsers.filter((x) => x.user_name == selected.user_name)
+                .length > 0
+        ) {
+            alertController.notifyInfo(
+                'El bombero ya se encuentra registrado en el servicio'
+            )
+            return
+        }
 
         const service = await post('mission/firefighter/create', {
             mission_id: missionId,
@@ -532,6 +552,7 @@ const ServiceForm = ({
                                     options={careCenterCollection.map(
                                         (x) => `${x.id} - ${x.name}`
                                     )}
+                                    addClearButton={true}
                                     selectedOption={careCenter}
                                     selectionChange={(e) => {
                                         setCareCenter(e)
@@ -542,6 +563,7 @@ const ServiceForm = ({
 
                             <div className="flex-auto w-24">
                                 <TextInput
+                                    type={'DateTime'}
                                     description="Fecha de servicio"
                                     value={date}
                                     onChange={(e) =>
@@ -569,9 +591,7 @@ const ServiceForm = ({
                         <SelectWithSearch
                             disable={!formIsEnable()}
                             description="Áreas operativas"
-                            options={stationCollection.map(
-                                (x) => `${x.abbreviation} - ${x.name}`
-                            )}
+                            options={operativeAreasCollection}
                             selectedOption={''}
                             selectionChange={(e) => {
                                 addOperativeArea(e)

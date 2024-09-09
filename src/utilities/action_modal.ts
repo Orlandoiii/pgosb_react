@@ -29,16 +29,16 @@ export class ActionModal<T, P> {
         const result = await this.crud.getById(id)
         if (result.success) {
             if (result.result) this.openModal(false, result.result)
-            else modalService.alertError(`El registro retorno sin datos`)
-        } else modalService.alertError(`No se pudo encontrar el registro`)
+            else modalService.toastError(`El registro retorno sin datos`)
+        } else modalService.toastError(`No se pudo encontrar el registro`)
     }
 
     async delete(id: string) {
         const result = await this.crud.remove(id)
         if (result.success) {
-            modalService.alertSuccess(`Registro eliminado!`)
+            modalService.toastSuccess(`Registro eliminado!`)
             this.updateCollection()
-        } else modalService.alertError(`No se pudo eliminar el registro`)
+        } else modalService.toastSuccess(`No se pudo eliminar el registro`)
     }
 
     private openModal(add: boolean = true, props?: Partial<P>) {

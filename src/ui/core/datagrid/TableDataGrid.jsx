@@ -505,6 +505,7 @@ export default function TableDataGrid({
                     <div className="overflow-auto">
                         <table className="border-collapse mt-2 w-full">
                             <thead>
+                                {/* {table.column} */}
                                 {table.getHeaderGroups().map((headerGroup) => (
                                     <tr
                                         className="top-0 sticky"

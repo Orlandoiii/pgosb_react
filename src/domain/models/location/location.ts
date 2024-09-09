@@ -73,7 +73,7 @@ export const LocationCrud = new CRUD<ServiceLocationSchemaType>(
 export const LocationNameConverter: {
     [K in keyof ServiceLocationSchemaType]?: string
 } = {
-    id: 'Id',
+    // id: 'Id',
     alias: 'Alias',
     state: 'Estado',
     municipality: 'Municipio',

@@ -156,11 +156,11 @@ export type UserSimple  = {
 }
 
 export const userNameConverter: { [K in keyof UserSimple]?: string } = {
-    id: 'Id',
+    // id: 'Id',
     name: 'Nombre',
-    user_name: 'Usuario',
+    // user_name: 'Usuario',
     rank: 'Rango',
-    personal_code: 'Código',
+    personal_code: 'Equipo',
     legal_id: 'Documento',
     service_role: 'Rol',
 }

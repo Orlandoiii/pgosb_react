@@ -1,11 +1,11 @@
-export enum Condition{
-    Companion = 'Acompañante',
-    Driver = 'Conductor',
-    PublicServant = 'Funcionario',
-    Firefighter = 'Funcionario Bomberil',
-    Patient = 'Paciente',
-    Parent = 'Progenitor',
-    Owner = 'Propietario',
-    SeasonalWorker = 'Temporadista',
-    Passerby = 'Transeunte',
-}
+export enum Condition {
+    Companion = 'ACOMPAÑANTE',
+    Driver = 'CONDUCTOR',
+    PublicServant = 'FUNCIONARIO',
+    Firefighter = 'FUNCIONARIO BOMBERIL',
+    Patient = 'PACIENTE',
+    Parent = 'PROGENITOR',
+    Owner = 'PROPIETARIO',
+    SeasonalWorker = 'TEMPORADISTA',
+    Passerby = 'TRANSEUNTE',
+  }
