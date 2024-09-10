@@ -54,8 +54,6 @@ func main() {
 		return
 	}
 
-	fmt.Println("AQUI")
-
 	err := router.Run(fmt.Sprintf("0.0.0.0:%d",
 		config.GetConfig().ServiceInfo.HttpPort))
 

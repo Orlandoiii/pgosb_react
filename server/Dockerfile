@@ -30,8 +30,8 @@ WORKDIR /app
 # Copy the binary from the builder stage
 COPY --from=builder /app/pgosb_web_app .
 COPY config/appsettings.json /app/config/appsettings.json 
-COPY config/gres.local.net.pem /app/config/gres.local.net.pem 
-COPY config/gres.local.net-key.pem /app/config/gres.local.net-key.pem
+#COPY config/gres.local.net.pem /app/config/gres.local.net.pem 
+#COPY config/gres.local.net-key.pem /app/config/gres.local.net-key.pem
 
 
 # (Optional) Copy any static files or configuration if needed
@@ -39,7 +39,7 @@ COPY config/gres.local.net-key.pem /app/config/gres.local.net-key.pem
 # COPY config.json ./config.json
 
 # Expose the port your server listens on (replace with your actual port)
-EXPOSE 3000
+EXPOSE 8083
 
 # Define the command to run your application
 CMD ["./pgosb_web_app"]

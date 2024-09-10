@@ -2,7 +2,7 @@ version: '3.8' # Specify Docker Compose version
 
 services:
   pgosb_web_app:
-    image: orlandoiii/pgosb_web_app:0.8.2 # Your Docker image name
+    image: orlandoiii/pgosb_web_app:0.8.3 # Your Docker image name
     container_name: pgosb_web_app # (Optional) Custom container name
     ports:
       - "8083:8083"  # Expose port 8080 (adjust if your app uses a different port)
