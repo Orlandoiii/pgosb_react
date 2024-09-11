@@ -15,8 +15,10 @@ import LoadingModal from '../../core/modal/LoadingModal'
 import LayoutContexProvider from '../../core/context/LayoutContext'
 import { OverlayModalConfig } from '../../core/overlay/models/overlay_item'
 import Toggle from '../../alter/components/buttons/toggle'
-import { serviceCrud } from '../../../domain/models/service/service'
+import { serviceCrud, TService } from '../../../domain/models/service/service'
 import { get, getSummary } from '../../../services/http'
+import { DetailServicesSummaryPrint } from './Print/DetailServicesSummaryPrint'
+import { RelevantServicesReportPrint } from './Print/RelevantServicesReportPrint'
 
 const MissionPage = () => {
     const [loading, setLoading] = useState(false)
@@ -111,77 +113,102 @@ const MissionPage = () => {
     }
 
     return (
-        <LayoutContexProvider
-            layoutName={!toggle ? 'service_layout' : 'mission_layout'}
-        >
-            <div className="relative flex w-full h-full overflow-hidden">
-                <div
-                    className={`${toggle ? '' : '-translate-x-full opacity-0'} absolute top-0 left-0 h-full w-full duration-200`}
-                >
-                    <TableDataGrid
-                        child={
-                            <Toggle
-                                useActiveColors={false}
-                                toggle={toggle}
-                                toggleChanged={() => setToggle(!toggle)}
-                                option1="Misiones"
-                                option2="Servicios"
-                            />
-                        }
-                        showDownloadButton={true}
-                        exportFileName="Missiones"
-                        rawData={data}
-                        onAdd={addNewMission}
-                        onUpdate={openMission}
-                        onDoubleClickRow={() => {}}
-                        permissions={{
-                            add: true,
-                            delete: true,
-                            export: true,
-                            print: true,
-                            update: true,
-                        }}
-                        onDelete={() => {}}
-                    />
-                </div>
+        // <LayoutContexProvider
+        //     layoutName={!toggle ? 'service_layout' : 'mission_layout'}
+        // >
+        //     <div className="relative flex w-full h-full overflow-hidden">
+        //         <div
+        //             className={`${toggle ? '' : '-translate-x-full opacity-0'} absolute top-0 left-0 h-full w-full duration-200`}
+        //         >
+        //             <TableDataGrid
+        //                 child={
+        //                     <Toggle
+        //                         useActiveColors={false}
+        //                         toggle={toggle}
+        //                         toggleChanged={() => setToggle(!toggle)}
+        //                         option1="Misiones"
+        //                         option2="Servicios"
+        //                     />
+        //                 }
+        //                 showDownloadButton={true}
+        //                 exportFileName="Missiones"
+        //                 rawData={data}
+        //                 onAdd={addNewMission}
+        //                 onUpdate={openMission}
+        //                 onDoubleClickRow={() => {}}
+        //                 permissions={{
+        //                     add: true,
+        //                     delete: true,
+        //                     export: true,
+        //                     print: true,
+        //                     update: true,
+        //                 }}
+        //                 onDelete={() => {}}
+        //             />
+        //         </div>
 
-                <div
-                    className={`${toggle ? 'translate-x-full opacity-0' : ''} absolute top-0 left-0 h-full w-full duration-200`}
-                >
-                    <TableDataGrid
-                        child={
-                            <Toggle
-                                useActiveColors={false}
-                                toggle={toggle}
-                                toggleChanged={() => setToggle(!toggle)}
-                                option1="Misiones"
-                                option2="Servicios"
-                            />
-                        }
-                        showAddButton={false}
-                        showEditButton={false}
-                        showDeleteButton={false}
-                        showDownloadButton={true}
-                        exportFileName="Servicios"
-                        rawData={data}
-                        onAdd={addNewMission}
-                        onUpdate={openMission}
-                        onDoubleClickRow={() => {}}
-                        permissions={{
-                            add: true,
-                            delete: true,
-                            export: true,
-                            print: true,
-                            update: true,
-                        }}
-                        onDelete={() => {}}
-                    />
-                </div>
-            </div>
+        //         <div
+        //             className={`${toggle ? 'translate-x-full opacity-0' : ''} absolute top-0 left-0 h-full w-full duration-200`}
+        //         >
+        //             <TableDataGrid
+        //                 child={
+        //                     <Toggle
+        //                         useActiveColors={false}
+        //                         toggle={toggle}
+        //                         toggleChanged={() => setToggle(!toggle)}
+        //                         option1="Misiones"
+        //                         option2="Servicios"
+        //                     />
+        //                 }
+        //                 showAddButton={false}
+        //                 showEditButton={false}
+        //                 showDeleteButton={false}
+        //                 showDownloadButton={true}
+        //                 exportFileName="Servicios"
+        //                 rawData={data}
+        //                 onAdd={addNewMission}
+        //                 onUpdate={openMission}
+        //                 onDoubleClickRow={() => {}}
+        //                 permissions={{
+        //                     add: true,
+        //                     delete: true,
+        //                     export: true,
+        //                     print: true,
+        //                     update: true,
+        //                 }}
+        //                 onDelete={() => {}}
+        //             />
+        //         </div>
+        //     </div>
 
-            <LoadingModal initOpen={loading} children={null} />
-        </LayoutContexProvider>
+        //     <LoadingModal initOpen={loading} children={null} />
+        // </LayoutContexProvider>
+
+         <>
+             {/* <DetailServicesSummaryPrint services={services} groupBy={"Antares"} /> */}
+             {/* <DetailServicesSummaryPrint services={services} groupBy={"Stations"} /> */}
+             <RelevantServicesReportPrint services={services} missions={data}/>
+         </>
     )
 }
 
 export default MissionPage
+
+
+
+const services : TService[] = [
+    {
+        id: "1",
+        missionId: "1",
+        antaresId: "3",
+        stationId: "1",
+        units: ["A321" , "AS565"],
+        firefighter: ["001", "002"],
+        unharmed: "5",
+        injured: "2",
+        transported: "0",
+        deceased: "0",
+        isImportant: true,
+        operativeAreas: [""]
+    }
+]
