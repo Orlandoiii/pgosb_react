@@ -18,7 +18,7 @@ import DownloadIcon from '../icons/DownloadIcon'
 import { CsvBuilder } from 'filefy';
 import PrintIcon from '../icons/PrintIcon'
 import DateTimePickerRange from '../datetime_picker/DateTimePickerRange'
-import { parse, parseISO, isAfter, isBefore, isEqual } from 'date-fns';
+import { parse, isAfter, isBefore, isEqual } from 'date-fns';
 
 
 const alert = new AlertController()
@@ -543,6 +543,19 @@ export default function TableDataGrid({
     }
 
 
+    function handlePrint() {
+
+        logger.log("PRINT")
+
+        const rowsToPrint = table.getSortedRowModel()
+        .rows.map(row => row.original);
+
+        logger.log("ROWS TO PRINT", rowsToPrint)
+
+        onPrint(rowsToPrint)
+    }
+
+
     return (
         <>
             <div className='flex flex-col pb-24 w-full h-full'>
@@ -669,7 +682,7 @@ export default function TableDataGrid({
 
                             {showPrintButton && (
                                 <button
-                                    onClick={onPrint}
+                                    onClick={handlePrint}
                                     className="flex justify-center items-center bg-slate-200 shadow-md p-0.5 rounded-full w-[40px] h-[40px]"
                                 >
                                     <PrintIcon />
