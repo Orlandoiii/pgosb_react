@@ -56,11 +56,14 @@ export default function ModuleComponent({
 
     const navigate = useNavigate();
 
-    const { modulesPermissions, userDataIsLoad } = useUser();
+    const { modulesPermissions, userDataIsLoad, userRolData } = useUser();
 
     const permissions = userDataIsLoad &&
         modulesPermissions.hasOwnProperty(moduleName) ?
         modulesPermissions[moduleName] : []
+
+
+    logger.log("PERMISOS:", permissions)
 
     const [openAddForm, setOpenAddForm] = useState(false);
 
@@ -150,11 +153,20 @@ export default function ModuleComponent({
 
     useEffect(() => {
 
+
+
         if (!userDataIsLoad || !modulesPermissions.hasOwnProperty(moduleName)) {
             alertController.notifyInfo(`Usted no tiene permiso para ${moduleName}`);
             navigate("/");
         }
-    }, [modulesPermissions, userDataIsLoad])
+
+        if (userDataIsLoad && !userRolData.st_role) {
+            alertController.notifyInfo(`Lo sentimos pero su rol se encuentra inactivo`);
+            navigate("/");
+        }
+
+
+    }, [modulesPermissions, userDataIsLoad, userRolData])
 
     function resetFormData() {
         setShowAccordion(false)
