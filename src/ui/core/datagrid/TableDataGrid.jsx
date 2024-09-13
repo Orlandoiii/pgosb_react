@@ -506,13 +506,11 @@ export default function TableDataGrid({
 
     function handleDownload() {
 
-        logger.log("DOWNLOAD")
 
         const rowsToExport = table.getSortedRowModel()
             .rows.map(row => row.original);
 
 
-        logger.log("ROWS EN EXPORTACION", rowsToExport)
 
         const visibleColumns = COLUMNS.filter(column => column.id != 'select' && column.accessorKey);
 
@@ -545,12 +543,10 @@ export default function TableDataGrid({
 
     function handlePrint() {
 
-        logger.log("PRINT")
 
         const rowsToPrint = table.getSortedRowModel()
         .rows.map(row => row.original);
 
-        logger.log("ROWS TO PRINT", rowsToPrint)
 
         onPrint(rowsToPrint)
     }
