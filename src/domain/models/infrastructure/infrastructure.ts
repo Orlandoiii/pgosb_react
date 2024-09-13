@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
-import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 
 export const InfrastructureSchema = z.object({
     id: z.string().default(''),
