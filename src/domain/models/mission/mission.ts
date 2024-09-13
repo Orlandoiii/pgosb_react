@@ -39,16 +39,17 @@ export type TApiMission = z.infer<typeof ApiMissionSchema>
 function fromApiInternal(data: TApiMission): TMission {
     return {
         id: data.id,
+        code: data.code,
+        alias: data.alias,
+        createdAt: data.created_at,
         numServices: data.num_services,
         numFirefighters: data.num_firefighters,
         numVehicles: data.num_vehicles,
-        alias: data.alias,
-        createdAt: data.created_at,
-        code: data.code,
         unharmed: data.unharmed,
         injured: data.injured,
         transported: data.transported,
         deceased: data.deceased,
+
     }
 }
 

@@ -24,6 +24,7 @@ import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types.ts'
 import { get, getAll, post } from '../../../../services/http.tsx'
 import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
+import { Colors } from '../../../../domain/abstractions/colors/colors.ts'
 
 interface VehicleFormProps {
     serviceId: string
@@ -217,9 +218,12 @@ const VehicleForm = ({
                                 description="Año"
                             />
 
-                            <FormInput<TVehicleInvolved>
+                            <FormSelectSearch<TVehicleInvolved>
                                 fieldName={'color'}
                                 description="Color"
+                                options={Colors}
+                                initialValue={initValue ? initValue.color : ''}
+                                
                             />
                         </div>
                         <div className="h-4"></div>

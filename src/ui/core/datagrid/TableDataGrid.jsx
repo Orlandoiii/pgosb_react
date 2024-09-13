@@ -17,8 +17,107 @@ import AlertController from '../alerts/AlertController'
 import DownloadIcon from '../icons/DownloadIcon'
 import { CsvBuilder } from 'filefy';
 import PrintIcon from '../icons/PrintIcon'
+import DateTimePickerRange from '../datetime_picker/DateTimePickerRange'
+import { parse, parseISO, isAfter, isBefore, isEqual } from 'date-fns';
+
 
 const alert = new AlertController()
+
+function dateRangeFilter(row, columnId, filterValue) {
+
+    const cellValue = row.getValue(columnId);
+
+    if (!cellValue) return false;
+
+
+
+    const [start, end] = filterValue;
+
+
+    let date;
+    try {
+        // First, try parsing as ISO string
+        date = parse(cellValue, 'dd-MM-yyyy HH:mm:ss', new Date());
+        // If parsing results in an invalid date, try a more flexible approach
+        if (isNaN(date.getTime())) {
+            date = new Date(cellValue);
+        }
+    } catch (error) {
+        console.error("Error parsing date:", error);
+        return false;
+    }
+
+    // Check if the parsed date is valid
+    if (isNaN(date.getTime())) {
+        console.error("Invalid date:", cellValue);
+        return false;
+    }
+    logger.log("DATE FILTER EVALUATED DATE START END", date, start, end)
+
+
+    if (start && end) {
+
+        const isAfterStart = isAfter(date, start)
+        const isBeforeEnd = isBefore(date, end)
+        const isEqualStart = isEqual(date, start)
+        const isEqualEnd = isEqual(date, end)
+
+        logger.log("DATE FILTER EVALUATED", isAfterStart, isBeforeEnd, isEqualStart, isEqualEnd)
+
+        return isEqualStart || isEqualEnd || (isBeforeEnd && isAfterStart);
+
+    } else if (start) {
+        return isAfter(date, start) || isEqual(date, start);
+    } else if (end) {
+        return isBefore(date, end) || isEqual(date, end);
+    }
+    return true;
+}
+
+function defaultFilter(row, columnId, filterValue) {
+
+    const cellValue = row.getValue(columnId);
+
+    if (!cellValue) return false;
+
+    const search = filterValue.toLowerCase();
+
+    return cellValue.toString().toLowerCase().includes(search);
+}
+
+
+function formatDate(date) {
+
+    if (date == null) {
+        return ""
+    }
+
+    const pad = (num) => num.toString().padStart(2, '0');
+
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1); // getMonth() returns 0-11
+    const year = date.getFullYear();
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+
+    return `${day}/${month}/${year} ${hours}:${minutes}`;
+}
+function formatDateForFilter(date) {
+    if (!date) return null;
+
+    const pad = (num) => num.toString().padStart(2, '0');
+
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1);
+    const year = date.getFullYear();
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+    const seconds = pad(date.getSeconds());
+
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+}
+
+
 
 function SortIcon({ isSorted }) {
     return (
@@ -119,7 +218,7 @@ function NumberButton({ number = 1, active = false, onClick }) {
     )
 }
 
-function ColumnFilter({ column }) {
+function DefaultColumnFilter({ column }) {
     const columnFilterValue = column.getFilterValue()
 
     return (
@@ -135,10 +234,118 @@ function ColumnFilter({ column }) {
                 placeholder={`Search...`}
                 type="text"
                 value={columnFilterValue ?? ''}
-                className="border-gray-300 border-stroke focus:border-[#3c50e0] focus:border-primary px-3 py-1 border rounded-sm w-full h-[12] font-light text-sm outline-none"
+                className="border-gray-300 border-stroke focus:border-[#3c50e0] focus:border-primary px-3 py-1 border rounded-sm w-full h-auto font-light text-sm outline-none"
             />
         </span>
     )
+}
+
+function DateColumnFilter({ column }) {
+
+    const [open, setOpen] = useState(false)
+
+
+
+    const [visualStartDate, setVisualStartDate] = useState("");
+    const [visualEndDate, setVisualEndDate] = useState("");
+
+    const [startDate, setStartDate] = useState(null);
+    const [endDate, setEndDate] = useState(null);
+
+    const handleDateChange = (date) => {
+
+        logger.log("STARTDATE", date)
+
+        setStartDate(date ?? null);
+        setEndDate(date ?? null)
+
+        if (date != null) {
+            setVisualStartDate(formatDate(date));
+            setVisualEndDate(formatDate(date));
+        }
+    };
+
+    const handleEndDateChange = (date) => {
+
+        logger.log("END DATE", date)
+
+        setEndDate(date ?? null);
+
+        if (date != null) {
+            setVisualEndDate(formatDate(date));
+        }
+    };
+
+    const clearFilter = () => {
+        setStartDate(null);
+        setEndDate(null);
+        setVisualStartDate("");
+        setVisualEndDate("");
+    };
+
+    const applyFilter = () => {
+
+
+        const startDateString = startDate ? startDate : null;
+        const endDateString = endDate ? endDate : null;
+
+
+        logger.log("APPLY FILTER", startDateString, endDateString)
+
+        column?.setFilterValue([
+            startDateString,
+            endDateString
+        ]);
+
+
+
+    };
+
+    return (
+        <>
+            <button className='w-full text-xs space-y-1 border border-gray-300 rounded-sm p-0.25' type='button' onClick={(e) => {
+                e.stopPropagation()
+                setOpen(true)
+            }}>
+                <p className='text-xs font-medium'>Desde: {visualStartDate}</p>
+                <p className='text-xs font-medium'>Hasta: {visualEndDate}</p>
+
+
+
+            </button>
+            <DateTimePickerRange
+                open={open}
+                onClose={() => { setOpen(false) }}
+                startDate={startDate}
+                endDate={endDate}
+                handleDateChange={handleDateChange}
+                handleEndDateChange={handleEndDateChange}
+                onClear={() => {
+                    setOpen(false)
+                    clearFilter()
+                    column.setFilterValue([Date.Min_VALUE, Date.Max_VALUE])
+                }}
+                onConfirm={() => {
+                    setOpen(false)
+                    applyFilter()
+                }}
+            />
+
+        </>
+    )
+}
+
+function ColumnFilter({ column, layoutColumn = null }) {
+
+    //logger.log("LAYOUT COLUMN", column)
+    if (layoutColumn == null || (layoutColumn?.type != 'date' && layoutColumn?.type != 'datetime')) {
+        return <DefaultColumnFilter column={column} />
+    }
+
+
+    return <DateColumnFilter column={column} layoutColumn={layoutColumn} />
+
+
 }
 
 function Checkbox({ indeterminate, className = '', ...rest }) {
@@ -219,13 +426,12 @@ export default function TableDataGrid({
             if (layout != null) {
                 const config = layout?.find((v) => v.column_name == value)
                 if (config) {
-                    logger.log('Table Grid Config:', config)
-                    logger.log('Table Grid value:', value)
-                    logger.log('Visibilidad:', config.visibility)
+
                     if (config.visibility)
                         COLUMNS.push({
                             header: config.display_name,
                             accessorKey: value,
+                            filterFn: config.type == 'date' || config.type == 'datetime' ? 'dateRange' : 'default',
                             //footer: key,
                         })
                 } else {
@@ -235,6 +441,7 @@ export default function TableDataGrid({
                 COLUMNS.push({
                     header: keyName,
                     accessorKey: value,
+
                     //footer: key,
                 })
             }
@@ -248,6 +455,7 @@ export default function TableDataGrid({
     }
 
     const columns = useMemo(() => COLUMNS, [rawData])
+
 
     const data = useMemo(() => rawData, [rawData])
 
@@ -271,7 +479,10 @@ export default function TableDataGrid({
         getSortedRowModel: getSortedRowModel(),
         getFilteredRowModel: getFilteredRowModel(),
         onPaginationChange: setPagination,
-
+        filterFns: {
+            dateRange: dateRangeFilter,
+            default: defaultFilter
+        },
         state: {
             pagination: pagination,
             sorting: sorting,
@@ -319,7 +530,7 @@ export default function TableDataGrid({
 
         const currentDate = new Date();
         const formattedDate = currentDate.toISOString().replace(/[:.]/g, '-').slice(0, 19);
-        const exportName = `${exportFileName}_${formattedDate}.csv`;
+        const exportName = `${exportFileName}-${formattedDate}.csv`;
 
 
         const csv = new CsvBuilder(exportName)
@@ -557,6 +768,12 @@ export default function TableDataGrid({
                                                                 header.column
                                                             }
                                                             table={table}
+                                                            layoutColumn={
+                                                                layout?.find(
+
+                                                                    (v) => v.column_name == header.column?.columnDef?.accessorKey
+                                                                )
+                                                            }
                                                         />
                                                     ) : null}
                                                 </div>

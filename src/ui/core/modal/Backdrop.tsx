@@ -26,6 +26,9 @@ export default function Backdrop({ children, outRef, backGround = "bg-white/60" 
     return (
         <>
             <motion.div
+                onClick={(e) => {
+                    e.stopPropagation()
+                }}
                 variants={backDropAnimation}
                 initial={"hidden"}
                 animate={"visible"}
