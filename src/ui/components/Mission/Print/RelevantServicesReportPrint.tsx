@@ -8,12 +8,11 @@ import { get } from "../../../../services/http";
 import { modalService } from "../../../core/overlay/overlay_service";
 
 interface ServicePrintProps {
-    from: string,
-    to: string
+    services: string
 }
 
 
-export function RelevantServicesReportPrint({ from, to }: ServicePrintProps) {
+export function RelevantServicesReportPrint({ services }: ServicePrintProps) {
     const [relevantServices, setRelevantServices] = useState<TRelevantServiceDetail[]>([]);
 
     useEffect(() => {
@@ -21,7 +20,7 @@ export function RelevantServicesReportPrint({ from, to }: ServicePrintProps) {
     }, [])
 
     async function updateRelevantServices() {
-        const result = await get<TApiRelevantServiceDetail[]>(`mission/service/relevant/${from}/${to}`)
+        const result = await get<TApiRelevantServiceDetail[]>(`mission/service/relevant/${services}`)
 
         if (result.success && result.result) {
             const newRelevantServices: TRelevantServiceDetail[] = []
