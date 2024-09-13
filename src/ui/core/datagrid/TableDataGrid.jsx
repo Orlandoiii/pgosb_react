@@ -16,6 +16,7 @@ import { useLayout } from '../context/LayoutContext'
 import AlertController from '../alerts/AlertController'
 import DownloadIcon from '../icons/DownloadIcon'
 import { CsvBuilder } from 'filefy';
+import PrintIcon from '../icons/PrintIcon'
 
 const alert = new AlertController()
 
@@ -190,9 +191,11 @@ export default function TableDataGrid({
     onDoubleClickRow,
     onUpdate,
     onDelete,
+    onPrint,
     showAddButton = true,
     showEditButton = true,
     showDeleteButton = true,
+    showPrintButton = false,
     permissions,
     child,
     showDownloadButton = false,
@@ -245,7 +248,7 @@ export default function TableDataGrid({
     }
 
     const columns = useMemo(() => COLUMNS, [rawData])
-    
+
     const data = useMemo(() => rawData, [rawData])
 
     const [rowSelection, setRowSelection] = useState({})
@@ -453,6 +456,16 @@ export default function TableDataGrid({
                                 </button>
                             )}
 
+                            {showPrintButton && (
+                                <button
+                                    onClick={onPrint}
+                                    className="flex justify-center items-center bg-slate-200 shadow-md p-0.5 rounded-full w-[40px] h-[40px]"
+                                >
+                                    <PrintIcon />
+
+                                </button>
+                            )}
+
                             {showDownloadButton && (
                                 <button
                                     onClick={handleDownload}
@@ -464,7 +477,7 @@ export default function TableDataGrid({
                             )}
                         </div>
 
-                        <div className="pr-2 w-1/2">
+                        <div className="px-4 w-1 flex-1">
                             <input
                                 type="text"
                                 className="border-gray-300 p-3 border rounded-md w-full h-12 outline-none"

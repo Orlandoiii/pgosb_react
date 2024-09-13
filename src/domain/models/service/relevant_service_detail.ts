@@ -167,65 +167,64 @@ export const ApiRelevantServiceDetail = z.object({
 export type TRelevantServiceDetail = z.infer<typeof RelevantServiceDetail>
 export type TApiRelevantServiceDetail = z.infer<typeof ApiRelevantServiceDetail>
 
-function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetail {
+function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetail {    
     return {
         regionAreaId: data.id,
         regionAreaName: data.region_area,
-        stations: [{
-            abbreviation: data.service_stations[0]?.abbreviation || '',
-            name: data.service_stations[0]?.name || '',
+        stations: (data.service_stations || []).map(station => ({
+            abbreviation: station.abbreviation || '',
+            name: station.name || '',
             location: {
-                state: data.service_stations[0]?.state || '',
-                municipality: data.service_stations[0]?.municipality || '',
-                parish: data.service_stations[0]?.parish || '',
-                sector: data.service_stations[0]?.sector || '',
-                urb: data.service_stations[0]?.urb || '',
+                state: station.state || '',
+                municipality: station.municipality || '',
+                parish: station.parish || '',
+                sector: station.sector || '',
+                urb: station.urb || '',
             },
             services: [{
-                missionCode: data.mission_code,
-                serviceId: data.service_id,
-                serviceDescription: data.service_description,
-                serviceDate: data.service_date,
-                antaresId : data.antares_id,
-                antaresType : data.antares_type,
-                antaresDescription : data.antares_description,
+                missionCode: data.mission_code || '',
+                serviceId: data.service_id || '',
+                serviceDescription: data.service_description || '',
+                serviceDate: data.service_date || '',
+                antaresId: data.antares_id || '',
+                antaresType: data.antares_type || '',
+                antaresDescription: data.antares_description || '',
                 location: data.service_locations[0] || undefined,
-                operativeAreas: data.operative_area_name,
-                careCenter: data.centers.length > 0 ? [{
-                    name: data.centers[0].name,
-                    abbreviation: data.centers[0].abbreviation,
+                operativeAreas: data.operative_area_name || [],
+                careCenter: (data.centers || []).map(center => ({
+                    name: center.name || '',
+                    abbreviation: center.abbreviation || '',
                     location: {
-                        state: data.centers[0].state,
-                        municipality: data.centers[0].municipality,
-                        parish: data.centers[0].parish,
-                        sector: data.centers[0].sector,
-                        urb: data.centers[0].urb,
+                        state: center.state || '',
+                        municipality: center.municipality || '',
+                        parish: center.parish || '',
+                        sector: center.sector || '',
+                        urb: center.urb || '',
                     }
-                }] : [],
-                units: data.units,
-                firefighters: data.firefighters,
-                vehicles: data.vehicles,
-                infrastructures: data.infrastructures,
-                people: data.people.map(person => ({
+                })),
+                units: data.units || [],
+                firefighters: data.firefighters || [],
+                vehicles: data.vehicles || [],
+                infrastructures: data.infrastructures || [],
+                people: (data.people || []).map(person => ({
                     ...person,
-                    personCondition: person.person_condition,
+                    personCondition: person.person_condition || '',
                 })),
             }]
-        }]
+        }))
     }
 }
 
 function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail {
-    const firstRegion = data[0] || {};
-    const firstStation = firstRegion.stations?.[0] || {};
+    const firstStation = data.stations[0] || {};
     const firstService = firstStation.services?.[0] || {};
 
     return {
-        id: firstRegion.regionAreaId,
-        region_area: firstRegion.regionAreaName,
+        id: data.regionAreaId,
+        region_area: data.regionAreaName,
         mission_code: firstService.missionCode,
         service_id: firstService.serviceId,
-        operative_area_name: firstStation.name,
+        operative_area_name: firstService.operativeAreas,
         service_description: firstService.serviceDescription,
         service_date: firstService.serviceDate,
         antares_id: firstService.antaresId,
@@ -240,11 +239,11 @@ function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail 
         infrastructures: firstService.infrastructures || [],
         vehicles: firstService.vehicles || [],
         service_locations: firstService.location ? [firstService.location] : [],
-        service_stations: [{
-            name: firstStation.name,
-            abbreviation: firstStation.abbreviation,
-            ...firstStation.location,
-        }],
+        service_stations: data.stations.map(station => ({
+            name: station.name,
+            abbreviation: station.abbreviation,
+            ...station.location,
+        })),
         centers: firstService.careCenter?.map(center => ({
             name: center.name,
             abbreviation: center.abbreviation,
@@ -253,8 +252,7 @@ function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail 
     }
 }
 
-
-export const ServiceFromApi = (data: TApiRelevantServiceDetail): ResultErr<TRelevantServiceDetail> =>
+export const RelevantServiceFromApi = (data: TApiRelevantServiceDetail): ResultErr<TRelevantServiceDetail> =>
     mapEntity<TApiRelevantServiceDetail, TRelevantServiceDetail>(
         data,
         RelevantServiceDetail as any,
@@ -262,7 +260,7 @@ export const ServiceFromApi = (data: TApiRelevantServiceDetail): ResultErr<TRele
         fromApiInternal
     )
 
-export const ServiceToApi = (data: TRelevantServiceDetail): ResultErr<TApiRelevantServiceDetail> =>
+export const RelevantServiceToApi = (data: TRelevantServiceDetail): ResultErr<TApiRelevantServiceDetail> =>
     mapEntity<TRelevantServiceDetail, TApiRelevantServiceDetail>(
         data,
         RelevantServiceDetail as any,
@@ -270,8 +268,8 @@ export const ServiceToApi = (data: TRelevantServiceDetail): ResultErr<TApiReleva
         toApiInternal
     )
 
-export const serviceCrud = new CRUD<TRelevantServiceDetail>(
+export const relevantServiceCrud = new CRUD<TRelevantServiceDetail>(
     'mission/service',
-    ServiceToApi,
-    ServiceFromApi
+    RelevantServiceToApi,
+    RelevantServiceFromApi
 )

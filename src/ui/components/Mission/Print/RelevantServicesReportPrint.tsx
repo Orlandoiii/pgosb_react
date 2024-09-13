@@ -1,118 +1,169 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { PrintLayout } from "./PrintLayout";
 import { TService } from "../../../../domain/models/service/service";
-import { useCollection } from "../../../core/hooks/useCollection";
-import { AntaresFromApi } from "../../../../domain/models/antares/antares";
-import { StationSchemaBasicDataType } from "../../../../domain/models/stations/station";
-import { missionCrud, TMission } from "../../../../domain/models/mission/mission";
-import { TRelevantServiceDetail } from "../../../../domain/models/service/relevant_service_detail";
-
-function getServiceData(services: TService[]): {
-    stationsDetail: StationsDetail[]
-} {
-    const stationsDetail = detailByStation(services)
-
-    return { stationsDetail }
-}
-
-type StationsDetail = {
-    stationId: string
-    details: TService[]
-}
-function detailByStation(services: TService[]): StationsDetail[] {
-    const stationDetail: StationsDetail[] = []
-    let servicesCount = 0
-
-    services.forEach((service) => {
-        const antaresId = service.antaresId
-        const stationId = service.stationId
-        const stationItem = stationDetail.find(
-            (item) => item.stationId === stationId
-        )
-
-        if (stationItem) {
-            stationItem.details.push(service)
-        } else if (stationId && antaresId) {
-            stationDetail.push({
-                stationId,
-                details: [
-                    service
-                ]
-            })
-        }
-
-        servicesCount++
-    })
-
-    return stationDetail
-}
+import { TMission } from "../../../../domain/models/mission/mission";
+import { ApiRelevantServiceDetail, RelevantServiceDetail, RelevantServiceFromApi, TApiRelevantServiceDetail, TRelevantServiceDetail } from "../../../../domain/models/service/relevant_service_detail";
+import { get } from "../../../../services/http";
+import { modalService } from "../../../core/overlay/overlay_service";
 
 interface ServicePrintProps {
-    services: TService[]
-    missions: TMission[]
+    from: string,
+    to: string
 }
 
 
-export function RelevantServicesReportPrint({ services, missions }: ServicePrintProps) {
-    const antaresCollection = useCollection('mission/antares', AntaresFromApi)
-    const stationCollection = useCollection('station', (data: StationSchemaBasicDataType) => {
-        return { success: true, result: data }
-    })
-    const { stationsDetail } = getServiceData(services);
+export function RelevantServicesReportPrint({ from, to }: ServicePrintProps) {
+    const [relevantServices, setRelevantServices] = useState<TRelevantServiceDetail[]>([]);
 
-    function getMissionFrom(id: string): TMission | undefined {
-        const station = missions.filter(x => x.id == id)[0]
-        if (station) return station
-        return undefined
+    useEffect(() => {
+        updateRelevantServices()
+    }, [])
+
+    async function updateRelevantServices() {
+        const result = await get<TApiRelevantServiceDetail[]>(`mission/service/relevant/${from}/${to}`)
+
+        if (result.success && result.result) {
+            const newRelevantServices: TRelevantServiceDetail[] = []
+
+            result.result.forEach(item => {
+                const first = ApiRelevantServiceDetail.safeParse(item)
+                const data = first.data!
+
+                const a =
+                {
+                    regionAreaId: data.id,
+                    regionAreaName: data.region_area,
+                    stations: (data.service_stations || []).map(station => ({
+                        abbreviation: station.abbreviation || '',
+                        name: station.name || '',
+                        location: {
+                            state: station.state || '',
+                            municipality: station.municipality || '',
+                            parish: station.parish || '',
+                            sector: station.sector || '',
+                            urb: station.urb || '',
+                        },
+                        services: [{
+                            missionCode: data.mission_code || '',
+                            serviceId: data.service_id || '',
+                            serviceDescription: data.service_description || '',
+                            serviceDate: data.service_date || '',
+                            antaresId: data.antares_id || '',
+                            antaresType: data.antares_type || '',
+                            antaresDescription: data.antares_description || '',
+                            location: data.service_locations[0] || undefined,
+                            operativeAreas: data.operative_area_name || [],
+                            careCenter: (data.centers || []).map(center => ({
+                                name: center.name || '',
+                                abbreviation: center.abbreviation || '',
+                                location: {
+                                    state: center.state || '',
+                                    municipality: center.municipality || '',
+                                    parish: center.parish || '',
+                                    sector: center.sector || '',
+                                    urb: center.urb || '',
+                                }
+                            })),
+                            units: data.units || [],
+                            firefighters: data.firefighters || [],
+                            vehicles: data.vehicles || [],
+                            infrastructures: data.infrastructures || [],
+                            people: (data.people || []).map(person => ({
+                                ...person,
+                                personCondition: person.person_condition || '',
+                            })),
+                        }]
+                    }))
+                }
+
+                if (first.success && first.data) {
+                    const parset = RelevantServiceDetail.safeParse(a)
+
+                    if (parset.success && parset.data) {
+                        const regionIndex = newRelevantServices.findIndex(x => x?.regionAreaId && x.regionAreaId === parset.data.regionAreaId);
+                        if (regionIndex === -1) {
+                            newRelevantServices.push(parset.data);
+                        } else {
+                            const region = newRelevantServices[regionIndex];
+                            const stationIndex = region.stations.findIndex(x => x?.abbreviation && x.abbreviation === parset.data.stations[0].abbreviation);
+
+                            if (stationIndex === -1) {
+                                region.stations.push(parset.data.stations[0]);
+                            } else {
+                                const station = region.stations[stationIndex];
+                                const newService = parset.data.stations[0].services[0];
+                                const serviceIndex = station.services.findIndex(x => x?.serviceId && x.serviceId === newService.serviceId);
+
+                                if (serviceIndex === -1) {
+                                    station.services.push(newService);
+                                } else {
+                                    // Merge existing service with new service data
+                                    const existingService = station.services[serviceIndex];
+                                    Object.keys(newService).forEach(key => {
+                                        if (Array.isArray(newService[key])) {
+                                            existingService[key] = [...new Set([...existingService[key], ...newService[key]])];
+                                        } else if (typeof newService[key] === 'object' && newService[key] !== null) {
+                                            existingService[key] = { ...existingService[key], ...newService[key] };
+                                        } else {
+                                            existingService[key] = newService[key];
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    } else {
+                        modalService.toastError(`No se pudo parsear un elemento ${parset?.error}`);
+                        return;
+                    }
+                } else {
+                    console.log("Falla", first);
+                }
+            })
+
+
+
+
+            setRelevantServices(newRelevantServices)
+        }
+        else modalService.toastError("No se pudo cargar la data de los servicios relevantes")
+
     }
-
-    function getAntaresDescriptionFor(id: string): string {
-        const antares = antaresCollection.filter(x => x.id == id)[0]
-        if (antares) return antares.description
-        return ""
-    }
-
-    function getStationDescriptionFor(id: string) {
-        const station = stationCollection.filter(x => x.id == id)[0]
-        if (station) return station.description
-        return ""
-    }
-
-    function getStationNameFor(id: string) {
-        const station = stationCollection.filter(x => x.id == id)[0]
-        if (station) return station.name
-        return ""
-    }
-
-    let relevantServices: TRelevantServiceDetail[] = []
-
 
     return <PrintLayout title={"INFORME DE SERVICIOS RELEVANTES POR REGIONES OPERATIVAS"} subtitle={"12/05/2024 00:00:00 - 12/05/2024 12:00:00"}>
         <div className="text-sm">
             {relevantServices.map(relevantService => (
-                relevantService && <div>
+                relevantService && <div className="pb-16">
+
+                    <div className="font-bold text-2xl w-full text-center pb-6">{relevantService.regionAreaName}</div>
 
                     {relevantService.stations.map(station => (
                         <>
-                            <span className="font-semibold text-[#1C2434]"><span>ESTACIÓN N°{station.abbreviation.replace("M", "")} : {station.abbreviation}</span> ( {station.name?.toUpperCase()} )</span>
+                            <div className="w-full text-lg flex items-center justify-center pb-4">
+                                <span className="font-semibold text-[#1C2434]"><span>ESTACIÓN N°{station.abbreviation.replace("M", "")} : {station.abbreviation}</span> ( {station.name?.toUpperCase()} )</span>
 
-                            {station.services.map(service => (
+                            </div>
+                            {station.services.map((service, index) => (
                                 <>
-                                    <div className="flex justify-between pt-2">
+
+                                    {index != 0 && <div className="py-6 px-4 opacity-50">
+                                        <div className="w-full h-0.5 bg-[#1C2434] rounded-full"></div>
+                                    </div>}
+
+                                    <div className="flex justify-between">
                                         <div>
                                             <span>FECHA:</span>
-                                            <span className="font-semibold">{service.serviceDate?.split(" ")[0] ?? ""}</span>
+                                            <span className="font-semibold">{service?.serviceDate?.split(" ")[0] ?? ""}</span>
                                         </div>
 
                                         <div>
                                             <span>HORA:</span>
-                                            <span className="font-semibold">{service.serviceDate?.split(" ")[1] ?? ""}</span>
+                                            <span className="font-semibold">{service?.serviceDate?.split(" ")[1] ?? ""}</span>
                                         </div>
 
                                         <div>
                                             <span>CÓDIGO:</span>
-                                            <span className="font-semibold">{service.missionCode}</span>
+                                            <span className="font-semibold">{service?.missionCode}</span>
                                         </div>
 
                                         <div>
@@ -121,54 +172,154 @@ export function RelevantServicesReportPrint({ services, missions }: ServicePrint
                                         </div>
                                     </div>
 
-                                    <span className="font-semibold"> {service.antaresId!} - {service.antaresDescription} </span>
+                                    <div className="pt-2">
+                                        <span className="font-semibold text-base"> {service?.antaresId!} - {service?.antaresDescription} </span>
+                                    </div>
 
                                     <div>
-                                        <p>
-                                            <span className="font-semibold">Dirección de origen:</span>
-                                            {service.location?.address}
+                                        <p className="pt-2">
+                                            <span className="font-semibold pr-2">DIRECCIÓN DE ORIGEN:</span>
+                                            <span className="text-xs">
+                                                {station?.location?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${station?.location?.urb},`}</span></span>}
+                                                {station?.location?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${station?.location?.sector},`}</span></span>}
+                                                {station?.location?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${station?.location?.parish},`}</span></span>}
+                                                {station?.location?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${station?.location?.municipality},`}</span></span>}
+                                                {station?.location?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${station?.location?.state}`}`</span></span>}
+                                            </span>
                                         </p>
 
-                                        <p>
-                                            <span className="font-semibold">Dirección de destino:</span>
-                                            {service.location?.address}
+                                        <p className="pt-2">
+                                            <span className="font-semibold pr-2">DIRECCIÓN DEL SERVICIO:</span>
+                                            <span className="text-xs">
+                                                {service?.location?.address && `${service?.location?.address},`}
+                                                {service?.location?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${service?.location?.urb},`}</span></span>}
+                                                {service?.location?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${service?.location?.sector},`}</span></span>}
+                                                {service?.location?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${service?.location?.parish},`}</span></span>}
+                                                {service?.location?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${service?.location?.municipality},`}</span></span>}
+                                                {service?.location?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${service?.location?.state}`}`</span></span>}
+                                            </span>
                                         </p>
 
-                                        {service.serviceDescription &&
-                                            <p>
-                                                <span className="font-semibold">Nota:</span>
-                                                {service.serviceDescription}
+                                        {service.careCenter[0] &&
+                                            <p className="pt-2">
+                                                <span className="font-semibold pr-2">DIRECCIÓN DEL CENTRO DE ATENCIÓN:</span>
+                                                <span className="text-xs">
+                                                    {service.careCenter[0]?.location?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${service?.location?.urb},`}</span></span>}
+                                                    {service.careCenter[0]?.location?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${service?.location?.sector},`}</span></span>}
+                                                    {service.careCenter[0]?.location?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${service?.location?.parish},`}</span></span>}
+                                                    {service.careCenter[0]?.location?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${service?.location?.municipality},`}</span></span>}
+                                                    {service.careCenter[0]?.location?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${service?.location?.state}`}`</span></span>}
+                                                </span>
+                                            </p>
+                                        }
+
+                                        {service?.serviceDescription &&
+                                            <p className="pt-2">
+                                                <span className="font-semibold pr-1">Nota:</span>
+                                                {service?.serviceDescription}
                                             </p>
                                         }
                                     </div>
 
 
-                                    <div className="pt-6">
-                                        <span className="font-semibold">Resumen:</span>
-                                    </div>
+
+                                    {service.people.length > 0 &&
+                                        <div className="pt-6">
+                                            <span className="text-base font-semibold">PERSONAS:</span>
+
+                                            <div className="pl-8">
+                                                {service.people.map(person => (
+                                                    <>
+                                                        <span>{`${person.condition ? `${person.condition}: ` : ""}${person.name},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">GENERO: </span> {`${person.gender},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">EDAD: </span> {`${person.age},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">CI: </span> {`${person.document},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">CONDICIÓN: </span> {`${person.condition},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">TELÉFONO: </span> {`${person.phone},`}</span>
+
+                                                        {person.unit &&
+                                                            <div className="pl-8">
+                                                                <span className="pl-2"><span className="font-semibold pr-1">VEHÍCULO DE TRASLADO: </span> {`${person.unit},`}</span>
+                                                            </div>
+                                                        }
+                                                    </>
+                                                ))
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    {service.vehicles.length > 0 &&
+                                        <div className="pt-6">
+                                            <span className="text-base font-semibold">VEHÍCULOS:</span>
+
+                                            <div className="pl-8">
+                                                {service.vehicles.map(vehicle => (
+
+                                                    <div>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">TIPO: </span> {`${vehicle.type},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">MARCA: </span> {`${vehicle.make},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">MODELO: </span> {`${vehicle.model},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">PLACA: </span> {`${vehicle.plate},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">AÑO: </span> {`${vehicle.year},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">COLOR: </span> {`${vehicle.color},`}</span>
+                                                    </div>
+
+                                                ))
+                                                }
+                                            </div>
+                                        </div>
+                                    }
+
+                                    {service.infrastructures.length > 0 &&
+                                        <div className="pt-6">
+                                            <span className="text-base font-semibold">INFRAESTRUCTURAS:</span>
+
+                                            <div className="pl-8">
+                                                {service.infrastructures.map(infrastructures => (
+                                                    <>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">TIPO: </span> {`${infrastructures.type},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">OCUPACIÓN: </span> {`${infrastructures.occupation},`}</span>
+                                                        <span className="pl-2"><span className="font-semibold pr-1">NIVELES: </span> {`${infrastructures.levels},`}</span>
+                                                    </>
+                                                ))
+                                                }
+                                            </div>
+                                        </div>
+                                    }
 
 
-                                    <div className="pt-6">
+
+
+                                    <div className="pt-5">
                                         <span className="font-semibold">Resumen:</span>
-                                        <span className="px-2">Áreas operativas:<span className="font-semibold pl-1">{service.operativeAreas?.filter(x => x)?.length}</span></span>
-                                        <span className="px-2">Unidades:<span className="font-semibold pl-1">{service.units?.filter(x => x)?.length}</span></span>
-                                        <span className="px-2">Funcionarios presentes:<span className="font-semibold pl-1">{service.firefighters?.length}</span></span>
+                                        <span className="px-2">Áreas operativas:<span className="font-semibold pl-1">{service?.operativeAreas?.filter(x => x)?.length}</span></span>
+                                        <span className="px-2">Unidades:<span className="font-semibold pl-1">{service?.units?.filter(x => x)?.length}</span></span>
+                                        <span className="px-2">Funcionarios presentes:<span className="font-semibold pl-1">{service?.firefighters?.length}</span></span>
                                     </div>
 
                                     <div className="pt-2">
                                         <div className="space-x-2">
                                             <span className="font-semibold">Áreas operativas:</span>
-                                            <span>{service.operativeAreas?.join(" , ")}</span>
+                                            <span>{service?.operativeAreas?.join(" , ")}</span>
                                         </div>
 
                                         <div className="space-x-2">
                                             <span className="font-semibold">Unidades:</span>
-                                            <span>{service.units?.join(" , ")}</span>
+                                            <span>{service?.units?.join(" , ")}</span>
                                         </div>
 
                                         <div className="space-x-2">
                                             <span className="font-semibold">Funcionarios:</span>
-                                            <span>{service.firefighters?.join(" , ")}</span>
+                                            <span>{service?.firefighters.map(firefighter => (
+                                                <div className="pl-8">
+                                                    <span><span className="font-semibold pr-1">RANGO:</span>{`${firefighter.rank},`}</span>
+                                                    <span className="pl-2"><span className="font-semibold pr-1">NOMBRE:</span>{`${firefighter.name},`}</span>
+                                                    <span className="pl-2"><span className="font-semibold pr-1">CI:</span>{`${firefighter.document},`}</span>
+                                                    <span className="pl-2"><span className="font-semibold pr-1">ROL:</span>{`${firefighter.role},`}</span>
+                                                    <span className="pl-2"><span className="font-semibold pr-1">EQUIPO:</span>{`${firefighter.team}`}</span>
+                                                </div>
+                                            ))}</span>
                                         </div>
                                     </div>
                                 </>

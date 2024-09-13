@@ -11,7 +11,7 @@ interface PrintLayoutProps {
 export function PrintLayout({ title, subtitle, children }: PrintLayoutProps) {
     return (
         <>
-            <div className="flex flex-col">
+            <div className="flex flex-col p-4">
 
                 <div className="space-y-4 bg-white px-4 w-full">
                     <div className="flex justify-between items-center">
