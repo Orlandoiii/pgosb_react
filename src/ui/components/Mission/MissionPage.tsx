@@ -251,4 +251,4 @@ const services: TService[] = [
         isImportant: true,
         operativeAreas: [""]
     }
-]
+]  
