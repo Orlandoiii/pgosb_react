@@ -222,6 +222,21 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
     logger.log("CurrentStep:", currentStep);
     logger.log("CurrentData:", currentData);
 
+    function handleKeyDown(e) {
+        if (e.key === 'ArrowRight') {
+            clickNextRef.current?.click();
+        } else if (e.key === 'ArrowLeft') {
+            Previous();
+        }
+    }
+
+    useEffect(() => {
+        window.addEventListener('keydown', handleKeyDown);
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [stepCounter]);
+
 
     return (
         <StepContext.Provider
@@ -233,7 +248,8 @@ export default function Stepper({ steps, onFinish, onClose, initialStep = 0, dat
                 Next
             }}
         >
-            <div className="h-full  w-full md:w-[1000px] md:h-[720px] flex flex-col justify-between p-1.5 space-y-4">
+            <div className="h-full  w-full md:w-[1000px] md:h-[720px] flex flex-col justify-between p-1.5 space-y-4"
+            >
 
                 <div className=" py-2 px-4 border border-gray-200 rounded-md shadow-md bg-slate-50">
                     <StepperTracker steps={steps} stepCounter={stepCounter} />

@@ -21,11 +21,26 @@ import { DetailServicesSummaryPrint } from './Print/DetailServicesSummaryPrint'
 import { RelevantServicesReportPrint } from './Print/RelevantServicesReportPrint'
 import { PrintView } from './Print/PrintView'
 import { MissionReports } from './Print/MissionReports'
+import { useUser } from '../../core/context/UserDataContext'
+
+import { useNavigate } from 'react-router-dom'
+import AlertController from '../../core/alerts/AlertController'
+
+const alertController = new AlertController();
+
 
 const MissionPage = () => {
+    const navigate = useNavigate();
     const [loading, setLoading] = useState(false)
     const [toggle, setToggle] = useState(true)
     const [data, setData] = useState<any[]>([])
+
+
+    const { modulesPermissions, userDataIsLoad , userRolData} = useUser();
+
+    const permissions = userDataIsLoad &&
+    modulesPermissions.hasOwnProperty("services") ?
+    modulesPermissions["services"] : []
 
     useEffect(() => {
         setData([])
@@ -127,6 +142,24 @@ const MissionPage = () => {
         )
     }
 
+    useEffect(() => {
+
+        if (!userDataIsLoad || !modulesPermissions.hasOwnProperty("services")) {
+            alertController.notifyInfo("Usted no tiene permiso para el modulo Roles");
+            navigate("/");
+            return;
+        }
+
+
+        if (userDataIsLoad && !userRolData.st_role) {
+            alertController.notifyInfo(`Lo sentimos pero su rol se encuentra inactivo`);
+            navigate("/");
+            return;
+        }
+
+    }, [modulesPermissions, userDataIsLoad])
+
+
     return (
         <LayoutContexProvider
             layoutName={!toggle ? 'service_layout' : 'mission_layout'}
@@ -153,13 +186,7 @@ const MissionPage = () => {
                         showPrintButton={false}
                         onPrint={openPrintModal}
                         onDoubleClickRow={() => { }}
-                        permissions={{
-                            add: true,
-                            delete: true,
-                            export: true,
-                            print: true,
-                            update: true,
-                        }}
+                        permissions={permissions}
                         onDelete={() => { }}
                     />
                 </div>
@@ -188,13 +215,7 @@ const MissionPage = () => {
                         showPrintButton={true}
                         onPrint={openPrintModal}
                         onDoubleClickRow={() => { }}
-                        permissions={{
-                            add: true,
-                            delete: true,
-                            export: true,
-                            print: true,
-                            update: true,
-                        }}
+                        permissions={permissions}
                         onDelete={() => { }}
                     />
                 </div>

@@ -142,7 +142,7 @@ async function deleteRols(rols, config, getAllRols) {
 
 function RolesPageInternal({ }) {
 
-    const { modulesPermissions, userDataIsLoad } = useUser();
+    const { modulesPermissions, userDataIsLoad , userRolData} = useUser();
 
     const navigate = useNavigate();
 
@@ -468,7 +468,16 @@ function RolesPageInternal({ }) {
         if (!userDataIsLoad || !modulesPermissions.hasOwnProperty("roles")) {
             alertController.notifyInfo("Usted no tiene permiso para el modulo Roles");
             navigate("/");
+            return;
         }
+
+
+        if (userDataIsLoad && !userRolData.st_role) {
+            alertController.notifyInfo(`Lo sentimos pero su rol se encuentra inactivo`);
+            navigate("/");
+            return;
+        }
+
     }, [modulesPermissions, userDataIsLoad])
 
 

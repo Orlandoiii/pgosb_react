@@ -1,26 +1,96 @@
-import { IdDocument, IdDocumentValidator } from '../id_document/id_document'
+import { mapEntity } from '../../../services/mapper'
+import { CRUD } from '../../../utilities/crud'
+import { ResultErr } from '../../abstractions/types/resulterr'
 import { z } from 'zod'
 
-export class Authority {
-    idDocument: IdDocument
-    type: string
-    firstName: string
-    lastName: string
-    position: string
-    idPlate: string
-    vehicles: string
-    auxiliaryQuantity: number
-    vehicleQuantity: number
+export const AuthoritySchema = z.object({
+
+    id: z.string().default(''),
+    type: z.string().default(''),
+    name: z.string().default(''),
+    last_name: z.string().default(''),
+
+    identification: z.string().default(''),
+    rank: z.string().default(''),
+    //idPlate: string
+    phone: z.string().default(''),
+    vehicles: z.string().default(''),
+    details_vehicles: z.string().default(''),
+})
+
+
+
+export const ApiAuthoritySchema = z.object({
+
+    id: z.string().default(''),
+    type: z.string().default(''),
+    name: z.string().default(''),
+    last_name: z.string().default(''),
+
+    identification: z.string().default(''),
+    rank: z.string().default(''),
+    //idPlate: string
+    phone: z.string().default(''),
+    vehicles: z.string().default(''),
+    details_vehicles: z.string().default(''),
+})
+
+
+export type TAuthority = z.infer<typeof AuthoritySchema>
+export type TApiAuthority = z.infer<typeof ApiAuthoritySchema>
+
+
+function fromApiInternal(data: TApiAuthority): TAuthority {
+    return {
+        id: data.id,
+        type: data.type,
+        name: data.name,
+        last_name: data.last_name,
+        identification: data.identification,
+        rank: data.rank,
+        phone: data.phone,
+        vehicles: data.vehicles,
+        details_vehicles: data.details_vehicles,
+    }
 }
 
-export const AuthorityValidator = z.object({
-    idDocument: IdDocumentValidator,
-    type: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
-    position: z.string(),
-    idPlate: z.string(),
-    vehicles: z.string(),
-    auxiliaryQuantity: z.number(),
-    vehicleQuantity: z.number(),
-})
+function toApiInternal(data: TAuthority): TApiAuthority {
+    return {
+        id: String(data.id),
+        type: data.type,
+        name: data.name,
+        last_name: data.last_name,
+        identification: data.identification,
+        rank: data.rank,
+        phone: data.phone,
+        vehicles: data.vehicles,
+        details_vehicles: data.details_vehicles,
+    }
+}
+
+
+export const AuthorityFromApi = (
+    data: TApiAuthority
+): ResultErr<TAuthority> =>
+    mapEntity<TApiAuthority, TAuthority>(
+        data,
+        ApiAuthoritySchema as any,
+        AuthoritySchema as any,
+        fromApiInternal
+    )
+
+export const AuthorityToApi = (
+    data: TAuthority
+): ResultErr<TApiAuthority> =>
+    mapEntity<TAuthority, TApiAuthority>(
+        data,
+        AuthoritySchema as any,
+        ApiAuthoritySchema as any,
+        toApiInternal
+    )
+
+export const authorityCrud = new CRUD<TAuthority>(
+    'mission/authority',
+    AuthorityToApi,
+    AuthorityFromApi
+)

@@ -506,13 +506,17 @@ export default function TableDataGrid({
 
     function handleDownload() {
 
-        logger.log("DOWNLOAD")
+        if (!permissions['export']) {
+            alert.notifyInfo(
+                'Usted no tiene permiso para exportar'
+            )
+            return
+        }
 
         const rowsToExport = table.getSortedRowModel()
             .rows.map(row => row.original);
 
 
-        logger.log("ROWS EN EXPORTACION", rowsToExport)
 
         const visibleColumns = COLUMNS.filter(column => column.id != 'select' && column.accessorKey);
 
@@ -545,12 +549,16 @@ export default function TableDataGrid({
 
     function handlePrint() {
 
-        logger.log("PRINT")
+        if (!permissions['print']) {
+            alert.notifyInfo(
+                'Usted no tiene permiso para imprimir'
+            )
+            return
+        }
 
         const rowsToPrint = table.getSortedRowModel()
-        .rows.map(row => row.original);
+            .rows.map(row => row.original);
 
-        logger.log("ROWS TO PRINT", rowsToPrint)
 
         onPrint(rowsToPrint)
     }
@@ -590,16 +598,19 @@ export default function TableDataGrid({
                             {showEditButton && (
                                 <button
                                     onClick={(e) => {
-                                        if (!(getTotalSelectedRows() === 1)) {
-                                            return
-                                        }
-
+                                        
                                         if (!permissions['update']) {
                                             alert.notifyInfo(
                                                 'Usted no tiene permiso para editar'
                                             )
                                             return
                                         }
+                                        
+                                        if (!(getTotalSelectedRows() === 1)) {
+                                            return
+                                        }
+
+                                      
                                         const rowModel =
                                             table.getSelectedRowModel()
 
@@ -636,14 +647,17 @@ export default function TableDataGrid({
                             {showDeleteButton && (
                                 <button
                                     onClick={() => {
-                                        if (getTotalSelectedRows() < 1) return
-
+                                        
                                         if (!permissions['delete']) {
                                             alert.notifyInfo(
                                                 'Usted no tiene permiso para eliminar'
                                             )
                                             return
                                         }
+                                        
+                                        if (getTotalSelectedRows() < 1) return
+
+                                      
 
                                         const rowModel =
                                             table.getSelectedRowModel()
@@ -685,7 +699,7 @@ export default function TableDataGrid({
                                     onClick={handlePrint}
                                     className="flex justify-center items-center bg-slate-200 shadow-md p-0.5 rounded-full w-[40px] h-[40px]"
                                 >
-                                    <PrintIcon />
+                                    <PrintIcon color={permissions['print'] ? 'black' : 'gray'} />
 
                                 </button>
                             )}
@@ -695,7 +709,7 @@ export default function TableDataGrid({
                                     onClick={handleDownload}
                                     className="flex justify-center items-center bg-slate-200 shadow-md p-0.5 rounded-full w-[40px] h-[40px]"
                                 >
-                                    <DownloadIcon color='#BE123C' />
+                                    <DownloadIcon color={permissions['export'] ? '#BE123C' : 'gray'} />
 
                                 </button>
                             )}
