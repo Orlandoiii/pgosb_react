@@ -1,4 +1,4 @@
-import React, { ComponentPropsWithoutRef, useState } from 'react'
+import React, { ComponentPropsWithoutRef, useEffect, useState } from 'react'
 import { FieldPath, FieldValues } from 'react-hook-form'
 import {
     getFieldError,
@@ -55,6 +55,11 @@ function FormSelectSearch<
     const [searhValue, setSearhValue] = useState(initialValue ?? '')
 
     //logger.error("ERROR EN SELECT:", fieldError?.message)
+
+    useEffect(() => {
+        setSearhValue(initialValue ?? '')
+    }, [initialValue])
+
 
     return (
         <SelectSearch

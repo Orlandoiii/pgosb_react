@@ -36,6 +36,7 @@ import { useSimpleCollection } from '../../../core/hooks/useCollection.ts'
 import { Condition } from '../../../../domain/abstractions/enums/condition.ts'
 import { PersonState } from '../../../../domain/abstractions/enums/person_state.ts'
 import { documentIdMask } from '../../../core/inputs/Common/Mask.ts'
+import logger from '../../../../logic/Logger/logger.js'
 
 interface PersonFormProps {
     serviceId: string
@@ -54,6 +55,7 @@ const PersonForm = ({
 }: PersonFormProps) => {
     const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
     const [loading, setLoading] = useState(false)
+
     const [infrastructureActions, infrastructures] =
         useActionModalAndCollection(
             InfrastructureForm,
@@ -61,6 +63,7 @@ const PersonForm = ({
             { serviceId: serviceId },
             serviceId
         )
+
     const [vehicleActions, vehicles] = useActionModalAndCollection(
         VehicleForm,
         vehicleCrud,
@@ -78,27 +81,34 @@ const PersonForm = ({
 
     useEffect(() => {
         if (initValue && serviceUnits && serviceUnits.length > 0) {
-            const x = serviceUnits.filter((x) => x.id == initValue!.unitId)[0]
-            setUnit(`${x.plate}`)
+            const x = serviceUnits.filter((x) =>
+                x.id == initValue!.unitId)[0];
+
+            if (x)
+                setUnit(`${x.plate}`)
         }
     }, [serviceUnits])
+
     useEffect(() => {
         if (initValue && infrastructures && infrastructures.length > 0) {
             const x = infrastructures.filter(
                 (x) => x.id == initValue!.infrastructureId
             )[0]
-            setInfrastructure(`${x.id}`)
+
+            if (x)
+                setInfrastructure(`${x.id}`)
         }
     }, [infrastructures])
+
     useEffect(() => {
         if (initValue && vehicles && vehicles.length > 0) {
             const x = vehicles.filter((x) => x.id == initValue!.vehicleId)[0]
-            setVehicle(`${x.id} - ${x.licensePlate}`)
+            if (x)
+                setVehicle(`${x.id} - ${x.licensePlate}`)
         }
     }, [vehicles])
 
-    const areaCodes = EnumToStringArray(AreaCodes)
-    const condition = EnumToStringArray(Condition)
+
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function updateUnits() {
@@ -109,11 +119,27 @@ const PersonForm = ({
         console.log(result)
     }
 
+
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
 
         try {
             const parsed = PersonInvolvedSchema.parse(data)
+
+            //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
+            if (parsed.vehicleId && parsed.vehicleId != "") {
+                parsed.vehicleId = parsed.vehicleId.split(" - ")[0].trim()
+            }
+
+            //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
+            if (parsed.unitId && parsed.unitId != "") {
+                parsed.unitId = serviceUnits.filter(x => x.plate == parsed.unitId)[0].id
+            }
+
+            //SIN CAMBIOS PORQUE ES EL ID
+            parsed.infrastructureId = parsed.infrastructureId;
+
+
             var result: ResultErr<TPersonInvolved>
 
             if (add) result = await personCrud.insert(parsed)
@@ -156,6 +182,7 @@ const PersonForm = ({
                         <FormSelectSearch<TPersonInvolved>
                             fieldName={'vehicleId'}
                             description={'Vehiculo Involucrado:'}
+                            initialValue={vehicle ?? ""}
                             options={vehicles.map(
                                 (x) => `${x.id} - ${x.licensePlate}`
                             )}
@@ -163,11 +190,13 @@ const PersonForm = ({
                         <FormSelectSearch<TPersonInvolved>
                             fieldName={'infrastructureId'}
                             description={'Infraestructura Involucrada:'}
+                            initialValue={infrastructure ?? ""}
                             options={infrastructures.map((x) => String(x.id))}
                         />
                         <FormSelectSearch<TPersonInvolved>
                             fieldName={'unitId'}
                             description={'Vehiculo de Traslado:'}
+                            initialValue={unit ?? ""}
                             options={serviceUnits.map((x) => x.plate)}
                         />
                     </div>
@@ -280,7 +309,7 @@ const PersonForm = ({
                         <div className="flex justify-end space-x-8">
                             <Button
                                 colorType="bg-[#3C50E0]"
-                                onClick={() => {}}
+                                onClick={() => { }}
                                 children={buttonText}
                             ></Button>
                         </div>
