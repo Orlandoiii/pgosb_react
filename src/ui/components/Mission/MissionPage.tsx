@@ -20,6 +20,7 @@ import { get, getSummary } from '../../../services/http'
 import { DetailServicesSummaryPrint } from './Print/DetailServicesSummaryPrint'
 import { RelevantServicesReportPrint } from './Print/RelevantServicesReportPrint'
 import { PrintView } from './Print/PrintView'
+import { MissionReports } from './Print/MissionReports'
 
 const MissionPage = () => {
     const [loading, setLoading] = useState(false)
@@ -113,11 +114,12 @@ const MissionPage = () => {
         }
     }
 
-    function openPrintModal() {
+    function openPrintModal(service: Array<any>) {
+        const list = service.map(s => s.id)
         modalService.pushModal(
-            PrintView,
+            MissionReports,
             {
-                children: <RelevantServicesReportPrint from={"2023-01-01"} to={"2025-01-01"}/>,
+                servicesIds: list,
                 closeOverlay: undefined,
             },
             new OverlayModalConfig(),

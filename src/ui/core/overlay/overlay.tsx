@@ -108,10 +108,10 @@ function Overlay({
 
                         {type === 'Loader' && (
                             <div
-                                className={`${className} ${positionClass()} h-full w-full flex`}
+                                className={`${className} ${positionClass()} h-full w-full flex items-center justify-center`}
                             >
                                 <svg
-                                    className="h-full aspect-square fill-gray-600 animate-spin"
+                                    className="h-full max-h-40 aspect-square fill-gray-600 animate-spin"
                                     xmlns="http://www.w3.org/2000/svg"
                                     viewBox="0 0 80 80"
                                 >
