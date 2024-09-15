@@ -411,7 +411,7 @@ export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
                     <div className="font-semibold">Total Servicios: <span className="font-normal">{services.length}</span></div>
 
                     <div className="pt-8">
-                        {servicesByAntares.map(antares => (
+                        {getServicesByAntares(services).sort((a,b) => b.count - a.count).map(antares => (
                             <>
                                 {antares.count > 0 &&
                                     <div className="font-semibold">{antares.count}<span className="font-normal"> - {antares.antaresDescription}</span></div>
