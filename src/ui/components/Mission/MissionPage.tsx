@@ -181,6 +181,7 @@ const MissionPage = () => {
                         showDownloadButton={true}
                         exportFileName="Missiones"
                         rawData={data}
+                        showDeleteButton={false}
                         onAdd={addNewMission}
                         onUpdate={openMission}
                         showPrintButton={false}
