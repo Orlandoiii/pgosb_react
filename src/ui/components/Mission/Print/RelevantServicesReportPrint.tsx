@@ -236,20 +236,20 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
 
                                                 <div className="pl-8">
                                                     {service.people.map(person => (
-                                                        <>
-                                                            <span>{`${person.condition ? `${person.condition}: ` : ""}${person.name},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">GENERO: </span> {`${person.gender},`}</span>
+                                                        <div>
+                                                            <span className="font-semibold pr-1">{`${person.condition ? `${person.condition}: ` : ""}`}<span className="font-normal">{`${person.name},`}</span></span>
+                                                            <span className="pl-2"><span className="font-semibold pr-1">GÉNERO: </span> {`${person.gender},`}</span>
                                                             <span className="pl-2"><span className="font-semibold pr-1">EDAD: </span> {`${person.age},`}</span>
                                                             <span className="pl-2"><span className="font-semibold pr-1">CI: </span> {`${person.document},`}</span>
                                                             <span className="pl-2"><span className="font-semibold pr-1">CONDICIÓN: </span> {`${person.condition},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">TELÉFONO: </span> {`${person.phone},`}</span>
+                                                            <span className="pl-2"><span className="font-semibold pr-1">TELÉFONO: </span> {`${person.phone}`}</span>
 
                                                             {person.unit &&
                                                                 <div className="pl-8">
-                                                                    <span className="pl-2"><span className="font-semibold pr-1">VEHÍCULO DE TRASLADO: </span> {`${person.unit},`}</span>
+                                                                    <span className="pl-2"><span className="font-semibold pr-1">VEHÍCULO DE TRASLADO: </span> {`, ${person.unit},`}</span>
                                                                 </div>
                                                             }
-                                                        </>
+                                                        </div>
                                                     ))
                                                     }
                                                 </div>
