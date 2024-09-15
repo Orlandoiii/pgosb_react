@@ -137,7 +137,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
     }
 
     return <div id={'PrintThis'} className='h-full w-full'>
-        <PrintLayout loading={loading} title={"INFORME DE SERVICIOS RELEVANTES POR REGIONES OPERATIVAS"} subtitle={"12/05/2024 00:00:00 - 12/05/2024 12:00:00"}>
+        <PrintLayout loading={loading} title={"INFORME DE SERVICIOS POR REGIONES OPERATIVAS"} subtitle={"12/05/2024 00:00:00 - 12/05/2024 12:00:00"}>
             <div className="text-sm">
                 {relevantServices.map(relevantService => (
                     relevantService && <div className="pb-16">
@@ -180,7 +180,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                                         </div>
 
                                         <div className="pt-2">
-                                            <span className="font-semibold text-base"> {service?.antaresId!} - {service?.antaresDescription} </span>
+                                            <span className="font-semibold text-base"> {service?.antaresId!} - {service?.antaresDescription} {service.isImportant ? "( Relevante )" : ""}</span>
                                         </div>
 
                                         <div>
@@ -316,7 +316,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                                         <div className="pt-2">
                                             <div className="space-x-2">
                                                 <span className="font-semibold">ÁREAS OPERATIVAS:</span>
-                                                <span>{service?.operativeAreas?.join(" , ")}</span>
+                                                <span>{service?.operativeAreas?.filter(x => x)?.join(" , ")}</span>
                                             </div>
 
                                             <div className="space-x-2">
