@@ -563,7 +563,7 @@ const ServiceForm = ({
 
                             <div className="flex-auto w-24">
                                 <TextInput
-                                    type={'DateTime'}
+                                    type={'Any'}
                                     description="Fecha de servicio"
                                     value={date}
                                     onChange={(e) =>

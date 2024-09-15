@@ -165,7 +165,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
 
                                             <div>
                                                 <span>CÓDIGO:</span>
-                                                <span className="font-semibold">{service?.missionCode}</span>
+                                                <span className="font-semibold">{service?.missionCode?.split("-")[0]}</span>
                                             </div>
 
                                             <div>
