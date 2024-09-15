@@ -238,7 +238,7 @@ export function AddableTable<T>({
                                                                 )
                                                                 ?.join(',') ??
                                                             ''
-                                                          : (property[1] as any))
+                                                          : (typeof property[1] === 'boolean' ? (property[1] ? "Verdadero" : "Falso") : (property[1] as any)))
                                                 }
                                             </td>
                                         ) : (

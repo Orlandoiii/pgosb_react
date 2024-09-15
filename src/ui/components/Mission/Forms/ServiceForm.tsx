@@ -522,8 +522,8 @@ const ServiceForm = ({
                                     width="w-44"
                                     height="h-11"
                                     toggle={isImportant}
-                                    option1="Importante"
-                                    option2="No importante"
+                                    option1="Relevante"
+                                    option2="No Relevante"
                                     toggleChanged={() => {
                                         setIsImportant(!isImportant)
                                         debounceUpdate()
