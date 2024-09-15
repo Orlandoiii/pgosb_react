@@ -119,7 +119,7 @@ function PrintContent(title: string) {
 
             setTimeout(() => {
                 printIFrame.contentWindow?.print();
-            }, 500);
+            }, 1000);
 
             setTimeout(() => {
                 if (titleElement) {

@@ -31,7 +31,8 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                 result.result.forEach(item => {
                     const first = ApiRelevantServiceDetail.safeParse(item)
                     const data = first.data!
-                    console.log(item.unharmed, first.data?.unharmed);
+                    console.log(item.unharmed, first.data);
+                    console.log(first.error);
                     
                     const a =
                     {
@@ -59,6 +60,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                                 injured: data.injured || '',
                                 transported: data.transported || '',
                                 deceased: data.deceased || '',
+                                isImportant: data.is_important,
                                 location: data.service_locations[0] || undefined,
                                 operativeAreas: data.operative_area_name || [],
                                 careCenter: (data.centers || []).map(center => ({
@@ -83,7 +85,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                             }]
                         }))
                     }
-
+                    
                     if (first.success && first.data) {
                         const parset = RelevantServiceDetail.safeParse(a)
 
