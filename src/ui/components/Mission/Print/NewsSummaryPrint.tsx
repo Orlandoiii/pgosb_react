@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react"
-import { ServiceFromApi, TService } from "../../../../domain/models/service/service"
+import { ServiceFromApi, TService, TServiceSummary } from "../../../../domain/models/service/service"
 import { useCollection } from "../../../core/hooks/useCollection"
-import { getById } from "../../../../services/http"
+import { getAll, getById, getGroup, getSummary } from "../../../../services/http"
 import { StationSchemaBasicDataType } from "../../../../domain/models/stations/station"
 import { AntaresFromApi } from "../../../../domain/models/antares/antares"
 import React from "react"
+import { LocationFromApi, ServiceLocationSchemaType } from "../../../../domain/models/location/location"
+import Overlay from "../../../core/overlay/overlay"
 
 function getServiceData(services: TService[]): {
     antaresSummary: AnteresSummary[]
@@ -283,7 +285,10 @@ export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
         return { success: true, result: data }
     })
 
-    const [services, setServices] = useState<TService[]>([])
+
+
+    const [services, setServices] = useState<NewsSummary[]>([])
+    const [servicesByAntares, setServicesByAntares] = useState<{ antaresId: string, antaresDescription: string, count: number }[]>([])
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
@@ -297,8 +302,14 @@ export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
 
         try {
             setLoading(true)
-            const servicesList: TService[] = await getServicesList()
+            const servicesList: NewsSummary[] = await getServicesList()
+            let ServicesByAntares = getServicesByAntares(servicesList)
+            ServicesByAntares = ServicesByAntares.sort((a, b) => b.count - a.count)
             setServices(servicesList)
+            console.log(ServicesByAntares.length);
+
+            setServicesByAntares(ServicesByAntares)
+
         }
         catch (error) {
             console.log(error);
@@ -309,17 +320,39 @@ export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
         }
     }
 
-    async function getServicesList(): Promise<TService[]> {
+    type NewsSummary = TServiceSummary & {
+        stationDescription: string;
+        serviceLocation: string;
+    }
 
-        const servicesList: TService[] = []
+    async function getServicesList(): Promise<NewsSummary[]> {
 
-        for (const serviceId of servicesIds) {
-            const request = await getById<TService>("mission/service", serviceId, ServiceFromApi)
-            if (request.success && request.result) {
-                servicesList.push(request.result)
+        const servicesList: NewsSummary[] = []
+        const servicesSummaryRequest = await await getSummary<TServiceSummary>("mission/service")
+
+        let serviceLocations: ServiceLocationSchemaType[] = []
+        let locationsSet = false;
+
+        if (servicesSummaryRequest.success && servicesSummaryRequest.result) {
+
+            for (const serviceId of servicesIds) {
+                const serviceSummary = servicesSummaryRequest.result.filter(x => x.id == serviceId)[0]
+                if (!locationsSet) {
+                    serviceLocations = (await getAll<ServiceLocationSchemaType>('mission/location', LocationFromApi)).result ?? []
+                    locationsSet = true
+                }
+                if (serviceSummary) {
+                    const servicesRequest = await getById<TService>("mission/service", serviceId, ServiceFromApi)
+
+                    const serviceLocation = serviceLocations?.filter(x => x.id == servicesRequest.result?.locationId)[0]
+                    servicesList.push({
+                        ...serviceSummary,
+                        stationDescription: stationCollection.filter(x => x.id == serviceSummary.station_name.replace("M", ""))[0]?.description ?? "",
+                        serviceLocation: `${serviceLocation?.address ? `${serviceLocation.address}, ` : ''}${serviceLocation?.urb ? `URBANIZACIÓN: ${serviceLocation.urb}, ` : ''}${serviceLocation?.sector ? `SECTOR: ${serviceLocation.sector}, ` : ''}${serviceLocation?.parish ? `PARROQUIA: ${serviceLocation.parish}, ` : ''}${serviceLocation?.municipality ? `MUNICIPIO: ${serviceLocation.municipality}, ` : ''}${serviceLocation?.state ? `ESTADO: ${serviceLocation.state}` : ''}`.trim().replace(/,\s*$/, '')
+                    })
+                }
             }
         }
-
         return servicesList
     }
 
@@ -341,37 +374,58 @@ export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
         return ""
     }
 
-    const { antaresSummary, stationsSummary, antaresDetail, stationsDetail } = getServiceData(services);
+    function getServicesByAntares(services: NewsSummary[]): { antaresId: string, antaresDescription: string, count: number }[] {
+        return antaresCollection.map(antares => (
+            { antaresId: antares.id, antaresDescription: antares.description, count: services.filter(service => service.antares_id == antares.id).length }
+        ))
+    }
 
-    return <div className="bg-white">
-        <div className="font-semibold">DIRECCIÓN GENERAL NACIONAL DE BOMBEROS</div>
-        <div className="font-semibold">REDAN CAPITAL - ZOEDAN MIRANDA</div>
-        <div className="py-2">-------------------------------------------------------------------------</div>
-        <div className="font-semibold">RESUMEN DE NOVEDADES</div>
-        <div className="py-2">-------------------------------------------------------------------------</div>
-        <div className="font-semibold">EVENTOS DE IMPORTANCIA: <span className="font-normal">Pendiente</span></div>
 
-        <div className="pt-8">
-            <div className="font-semibold">EVENTO: <span className="font-normal">Pendiente</span></div>
-            <div className="font-semibold">HORA: <span className="font-normal">Pendiente</span></div>
-            <div className="font-semibold">CODIGO: <span className="font-normal">Pendiente</span></div>
-            <div className="font-semibold">ESTACION: <span className="font-normal">Pendiente</span></div>
-            <div className="font-semibold">EVENTO: <span className="font-normal">Pendiente</span></div>
-            <div className="font-semibold">TIPO DE EVENTO: <span className="font-normal">Pendiente</span></div>
-            <div className="font-semibold">DIRECCION: <span className="font-normal">Pendiente</span></div>
-        </div>
-        <div className="py-2">-------------------------------------------------------------------------</div>
+    return <div className="relative min-h-[20rem] h-full w-full bg-white">
 
-        <div className="font-semibold">Total Servicios Operaciones: <span className="font-normal">Pendiente</span></div>
+        {loading ?
+            (<Overlay background={""} isVisible={true} type={'Loader'} />) : (
 
-        <div className="pt-8">
-            <div className="font-semibold">0<span className="font-normal"> - Pendiente</span></div>
-        </div>
+                <>
 
-        <div className="py-2">-------------------------------------------------------------------------</div>
-        <div className="">CENTRO DE OPERACIONES DE EMERGENCIA</div>
-        <div className="">TELÉFONO: 0414-9254769</div>
-        <div className="">GENERAL (B). LAURA GERARDI</div>
-        <div className="">DIRECTORA-PRESIDENTE</div>
+
+                    <div className="font-semibold">DIRECCIÓN GENERAL NACIONAL DE BOMBEROS</div>
+                    <div className="font-semibold">REDAN CAPITAL - ZOEDAN MIRANDA</div>
+                    <div className="py-2">-------------------------------------------------------------------------</div>
+                    <div className="font-semibold">RESUMEN DE NOVEDADES</div>
+                    <div className="py-2">-------------------------------------------------------------------------</div>
+                    <div className="font-semibold">EVENTOS DE IMPORTANCIA: <span className="font-normal">{services.filter(x => x.is_important).length}</span></div>
+
+                    {services.filter(x => x.is_important).map(importantService => (
+                        <div className="pt-8">
+                            <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {importantService.description}</span></div>
+                            <div className="font-semibold">HORA: <span className="font-normal">{importantService.manual_service_date}</span></div>
+                            <div className="font-semibold">CODIGO: <span className="font-normal">{importantService.mission_id.split("-")[0]}</span></div>
+                            <div className="font-semibold">ESTACION: <span className="font-normal">{importantService.station_name} - {importantService.stationDescription}</span></div>
+                            <div className="font-semibold">DIRECCION: <span className="font-normal">{importantService.serviceLocation}</span></div>
+                        </div>
+                    ))}
+
+                    <div className="py-2">-------------------------------------------------------------------------</div>
+
+                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.length}</span></div>
+
+                    <div className="pt-8">
+                        {servicesByAntares.map(antares => (
+                            <>
+                                {antares.count > 0 &&
+                                    <div className="font-semibold">{antares.count}<span className="font-normal"> - {antares.antaresDescription}</span></div>
+                                }
+                            </>
+                        ))}
+                    </div>
+
+                    <div className="py-2">-------------------------------------------------------------------------</div>
+                    <div className="">CENTRO DE OPERACIONES DE EMERGENCIA</div>
+                    <div className="">TELÉFONO: 0414-9254769</div>
+                    <div className="">GENERAL (B). LAURA GERARDI</div>
+                    <div className="">DIRECTORA-PRESIDENTE</div></>
+            )}
     </div>
 }
+

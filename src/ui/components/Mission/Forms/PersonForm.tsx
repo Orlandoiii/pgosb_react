@@ -35,7 +35,7 @@ import { get } from '../../../../services/http.tsx'
 import { useSimpleCollection } from '../../../core/hooks/useCollection.ts'
 import { Condition } from '../../../../domain/abstractions/enums/condition.ts'
 import { PersonState } from '../../../../domain/abstractions/enums/person_state.ts'
-import { documentIdMask } from '../../../core/inputs/Common/Mask.ts'
+import { documentIdMask, numberMask } from '../../../core/inputs/Common/Mask.ts'
 import logger from '../../../../logic/Logger/logger.js'
 
 interface PersonFormProps {
@@ -241,6 +241,7 @@ const PersonForm = ({
                             </div>
 
                             <FormInput<TPersonInvolved>
+                                mask={numberMask}
                                 fieldName={'phoneNumber'}
                                 description="Número de Teléfono:"
                             />
