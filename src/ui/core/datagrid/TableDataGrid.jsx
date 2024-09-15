@@ -564,7 +564,7 @@ export default function TableDataGrid({
 
     const [rowSelection, setRowSelection] = useState({})
 
-    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 25 })
+    const [pagination, setPagination] = useState({ pageIndex: 0, pageSize: 50 })
 
     const inputSetPageRef = useRef(null)
 
