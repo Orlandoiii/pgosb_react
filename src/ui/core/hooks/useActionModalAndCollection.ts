@@ -9,7 +9,7 @@ export function useActionModalAndCollection<T, P>(
     modal: CreateElementFunction<P>,
     crud: CRUD<T>,
     baseProps: P,
-    groupId: string
+    groupId: string,
 ): [ActionModal<T, P>, T[]] {
     const [collection, setCollection] = useState<T[]>([])
 

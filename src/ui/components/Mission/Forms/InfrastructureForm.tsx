@@ -118,7 +118,7 @@ const InfrastructureForm = ({
                             /> */}
                             <FormInput<TInfrastructure>
                                 fieldName={'buildArea'}
-                                description="Area de ubicación:"
+                                description="Área de ubicación:"
                             />
 
                             <FormSelect<TInfrastructure>

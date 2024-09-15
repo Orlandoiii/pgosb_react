@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection'
 import ModalLayout from '../../../core/layouts/modal_layout'
@@ -23,6 +23,7 @@ import {
 import TextInput from '../../../alter/components/inputs/text_input'
 import { getDefaults } from '../../../core/context/CustomFormContext'
 import { modalService } from '../../../core/overlay/overlay_service'
+import { getSummary } from '../../../../services/http'
 
 interface MissionFormProps {
     missionId: string
@@ -55,6 +56,27 @@ const MissionForm = ({
         { missionId: missionId },
         missionId
     )
+
+    const [innerServices, setInnerServices] = useState<any[]>()
+
+    useEffect(() => {
+        UpdateInnerServices()
+    }, [services])
+
+    async function UpdateInnerServices() {
+        const result = await getSummary<any>('mission/service')
+        if (result.success && result.result) {
+            const newInnerServices: any[] = []
+
+            result.result.forEach(element => {
+                if (element['id'] && services.filter(x => x.id == element['id']).length > 0) newInnerServices.push(element)
+            });
+        console.log(newInnerServices,);
+        
+
+            setInnerServices(newInnerServices.length == 0 ? [] : newInnerServices)
+        }
+    }
 
     async function updateService() {
         const missionResult = await missionCrud.getById(missionId)
@@ -120,7 +142,7 @@ const MissionForm = ({
 
                 <AddableTable
                     title="Servicios"
-                    data={services}
+                    data={innerServices ?? []}
                     defaultSort={'id'}
                     idPropertyName="id"
                     addButtonText="Agregar un servicio"

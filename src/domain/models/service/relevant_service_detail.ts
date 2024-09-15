@@ -26,6 +26,10 @@ export const RelevantServiceDetail =
                 serviceId: z.string().optional().default(''),
                 serviceDescription: z.string().optional().default(''),
                 serviceDate: z.string().optional().default(''),
+                unharmed: z.string().optional().default(''),
+                injured: z.string().optional().default(''),
+                transported: z.string().optional().default(''),
+                deceased: z.string().optional().default(''),
                 operativeAreas: z.array(z.string()).optional().default([]),
                 location: z.object({
                     state: z.string().optional().default(''),
@@ -101,6 +105,10 @@ export const ApiRelevantServiceDetail = z.object({
     service_date: z.string().optional().default(''),
     antares_id: z.string().optional().default(''),
     antares_type: z.string().optional().default(''),
+    unharmed: z.string().optional().default(''),
+    injured: z.string().optional().default(''),
+    transported: z.string().optional().default(''),
+    deceased: z.string().optional().default(''),
     antares_description: z.string().optional().default(''),
     units: z.array(z.string()).optional().default([]),
     firefighters: z.array(z.object({
@@ -167,7 +175,7 @@ export const ApiRelevantServiceDetail = z.object({
 export type TRelevantServiceDetail = z.infer<typeof RelevantServiceDetail>
 export type TApiRelevantServiceDetail = z.infer<typeof ApiRelevantServiceDetail>
 
-function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetail {    
+function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetail {
     return {
         regionAreaId: data.id,
         regionAreaName: data.region_area,
@@ -189,6 +197,10 @@ function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetai
                 antaresId: data.antares_id || '',
                 antaresType: data.antares_type || '',
                 antaresDescription: data.antares_description || '',
+                unharmed: data.unharmed || '',
+                injured: data.injured || '',
+                transported: data.transported || '',
+                deceased: data.deceased || '',
                 location: data.service_locations[0] || undefined,
                 operativeAreas: data.operative_area_name || [],
                 careCenter: (data.centers || []).map(center => ({
@@ -230,6 +242,10 @@ function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail 
         antares_id: firstService.antaresId,
         antares_type: firstService.antaresType,
         antares_description: firstService.antaresDescription,
+        unharmed: firstService.unharmed || '',
+        injured: firstService.injured || '',
+        transported: firstService.transported || '',
+        deceased: firstService.deceased || '',
         units: firstService.units || [],
         firefighters: firstService.firefighters || [],
         people: (firstService.people || []).map(person => ({

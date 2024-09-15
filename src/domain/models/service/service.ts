@@ -118,14 +118,14 @@ export const serviceCrud = new CRUD<TService>(
     ServiceFromApi
 )
 
-export const serviceNameConverter: { [K in keyof TService]?: string } = {
+export const serviceNameConverter: { [K in keyof any]?: string } = {
     // id: 'Id',
-    antaresId: 'Antares',
-    isImportant : "Importancia",
-    firefighter: 'Bomberos',
+    antares_id: 'Antares',
+    is_important : "Importancia",
+    num_firefighters: 'Bomberos',
 
 
-    units: 'Unidades',
+    num_units: 'Unidades',
     unharmed: "Ilesos",
     injured: "Lesionados",
     transported: "Transportados",
