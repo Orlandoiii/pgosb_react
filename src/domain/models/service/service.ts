@@ -131,3 +131,25 @@ export const serviceNameConverter: { [K in keyof any]?: string } = {
     transported: "Transportados",
     deceased: "Fallecidos",
 }
+
+export const ApiServiceSummarySchema = z.object({
+    id: z.string().optional().default(""),
+    mission_id: z.string().optional().default(""),
+    alias: z.string().optional().default(""),
+    created_at: z.string().optional().default(""),
+    antares_id: z.string().optional().default(""),
+    description: z.string().optional().default(""),
+    num_firefighters: z.string().optional().default(""),
+    num_units: z.string().optional().default(""),
+    station_name: z.string().optional().default(""),
+    num_vehicles: z.string().optional().default(""),
+    unharmed: z.string().optional().default(""),
+    injured: z.string().optional().default(""),
+    transported: z.string().optional().default(""),
+    deceased: z.string().optional().default(""),
+    service_date: z.string().optional().default(""),
+    is_important: z.boolean().optional().default(false),
+    manual_service_date: z.string().optional().default(""),
+})
+
+export type TServiceSummary = z.infer<typeof ApiServiceSummarySchema>

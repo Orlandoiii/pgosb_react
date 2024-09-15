@@ -31,7 +31,8 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                 result.result.forEach(item => {
                     const first = ApiRelevantServiceDetail.safeParse(item)
                     const data = first.data!
-
+                    console.log(item.unharmed, first.data?.unharmed);
+                    
                     const a =
                     {
                         regionAreaId: data.id,
@@ -54,6 +55,10 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                                 antaresId: data.antares_id || '',
                                 antaresType: data.antares_type || '',
                                 antaresDescription: data.antares_description || '',
+                                unharmed: data.unharmed || '',
+                                injured: data.injured || '',
+                                transported: data.transported || '',
+                                deceased: data.deceased || '',
                                 location: data.service_locations[0] || undefined,
                                 operativeAreas: data.operative_area_name || [],
                                 careCenter: (data.centers || []).map(center => ({
@@ -294,25 +299,33 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
 
 
                                         <div className="pt-5">
-                                            <span className="font-semibold">Resumen:</span>
-                                            <span className="px-2">Áreas operativas:<span className="font-semibold pl-1">{service?.operativeAreas?.filter(x => x)?.length}</span></span>
-                                            <span className="px-2">Unidades:<span className="font-semibold pl-1">{service?.units?.filter(x => x)?.length}</span></span>
-                                            <span className="px-2">Funcionarios presentes:<span className="font-semibold pl-1">{service?.firefighters?.length}</span></span>
+                                            <span className="font-semibold">RESUMEN:</span>
+                                            <span className="px-2">ÁREAS OPERATIVAS:<span className="font-semibold pl-1">{service?.operativeAreas?.filter(x => x)?.length}</span></span>
+                                            <span className="px-2">UNIDADES:<span className="font-semibold pl-1">{service?.units?.filter(x => x)?.length}</span></span>
+                                            <span className="px-2">FUNCIONARIOS PRESENTES:<span className="font-semibold pl-1">{service?.firefighters?.length}</span></span>
+                                        </div>
+
+                                        <div className="pt-5">
+                                            <span className="font-semibold">PERSONAS SIN IDENTIFICACIÓN:</span>
+                                            <span className="px-2">ILESOS:<span className="font-semibold pl-1">{service?.unharmed}</span></span>
+                                            <span className="px-2">HERIDOS:<span className="font-semibold pl-1">{service?.injured}</span></span>
+                                            <span className="px-2">TRANSPORTADOS:<span className="font-semibold pl-1">{service?.transported}</span></span>
+                                            <span className="px-2">FALLECIDOS:<span className="font-semibold pl-1">{service?.deceased}</span></span>
                                         </div>
 
                                         <div className="pt-2">
                                             <div className="space-x-2">
-                                                <span className="font-semibold">Áreas operativas:</span>
+                                                <span className="font-semibold">ÁREAS OPERATIVAS:</span>
                                                 <span>{service?.operativeAreas?.join(" , ")}</span>
                                             </div>
 
                                             <div className="space-x-2">
-                                                <span className="font-semibold">Unidades:</span>
+                                                <span className="font-semibold">UNIDADES:</span>
                                                 <span>{service?.units?.join(" , ")}</span>
                                             </div>
 
                                             <div className="space-x-2">
-                                                <span className="font-semibold">Funcionarios:</span>
+                                                <span className="font-semibold">FUNCIONARIOS:</span>
                                                 <span>{service?.firefighters.map(firefighter => (
                                                     <div className="pl-8">
                                                         <span><span className="font-semibold pr-1">RANGO:</span>{`${firefighter.rank},`}</span>
