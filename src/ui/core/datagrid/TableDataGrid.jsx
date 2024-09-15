@@ -23,6 +23,25 @@ import { parse, isAfter, isBefore, isEqual } from 'date-fns';
 
 const alert = new AlertController()
 
+function formatBooleanValue(value) {
+    if (value === true || value === "true")
+        return "SI"
+
+    return "NO"
+}
+
+function arrayFilter(row, columnId, filterValue) {
+    const cellValue = row.getValue(columnId);
+    
+    if (!cellValue || !Array.isArray(cellValue)) return false;
+    
+    const search = filterValue.toLowerCase().trim();
+    
+
+    return cellValue.sort().join(',').toLowerCase().includes(search);
+}
+
+
 function dateRangeFilter(row, columnId, filterValue) {
 
     const cellValue = row.getValue(columnId);
@@ -78,13 +97,35 @@ function defaultFilter(row, columnId, filterValue) {
 
     const cellValue = row.getValue(columnId);
 
-    if (!cellValue) return false;
+
+    if (cellValue === null || cellValue === undefined) return false;
+
+    if (Array.isArray(cellValue)) {
+        return arrayFilter(row, columnId, filterValue);
+    }
+
+
+    if (typeof cellValue === 'boolean') {
+
+        return booleanFilter(row, columnId, filterValue);
+    }
 
     const search = filterValue.toLowerCase();
 
     return cellValue.toString().toLowerCase().includes(search);
 }
 
+function booleanFilter(row, columnId, filterValue) {
+    const cellValue = row.getValue(columnId);
+
+    if (cellValue === null || cellValue === undefined) return false;
+
+    if (typeof cellValue === 'boolean') {
+        return cellValue === filterValue;
+    }
+
+    return false;
+}
 
 function formatDate(date) {
 
@@ -335,9 +376,51 @@ function DateColumnFilter({ column }) {
     )
 }
 
+function BooleanColumnFilter({ column }) {
+    const [checkboxState, setCheckboxState] = useState('indeterminate');
+
+    const handleChange = (e) => {
+        e.stopPropagation();
+        switch (checkboxState) {
+            case 'indeterminate':
+                setCheckboxState('checked');
+                column.setFilterValue(true);
+                break;
+            case 'checked':
+                setCheckboxState('unchecked');
+                column.setFilterValue(false);
+                break;
+            case 'unchecked':
+                setCheckboxState('indeterminate');
+                column.setFilterValue(undefined);
+                break;
+        }
+    };
+
+    return (
+        <div>
+            <input
+                type="checkbox"
+                ref={(el) => {
+                    if (el) {
+                        el.indeterminate = checkboxState === 'indeterminate';
+                    }
+                }}
+                checked={checkboxState === 'checked'}
+                onChange={handleChange}
+                onClick={(e) => e.stopPropagation()}
+            />
+        </div>
+    );
+}
 function ColumnFilter({ column, layoutColumn = null }) {
 
     //logger.log("LAYOUT COLUMN", column)
+
+    if (layoutColumn?.type == 'bool') {
+        return <BooleanColumnFilter column={column} />
+    }
+
     if (layoutColumn == null || (layoutColumn?.type != 'date' && layoutColumn?.type != 'datetime')) {
         return <DefaultColumnFilter column={column} />
     }
@@ -392,6 +475,7 @@ const checkBoxHeader = {
     ),
 }
 
+
 export default function TableDataGrid({
     rawData,
     onAdd,
@@ -428,10 +512,29 @@ export default function TableDataGrid({
                 if (config) {
 
                     if (config.visibility)
+
                         COLUMNS.push({
+
                             header: config.display_name,
                             accessorKey: value,
+
                             filterFn: config.type == 'date' || config.type == 'datetime' ? 'dateRange' : 'default',
+                            
+                            cell: ({ getValue }) => {
+                                const value = getValue();
+                                if (typeof value === 'boolean') {
+                                
+                                    return formatBooleanValue(value);
+                                
+                                } else if (Array.isArray(value)) {
+                                  
+                                    return value?.sort()?.join(','); // Join array elements with comma and space
+                                } else {
+                                  
+                                    return value;
+                                }
+                            },
+
                             //footer: key,
                         })
                 } else {
@@ -598,19 +701,19 @@ export default function TableDataGrid({
                             {showEditButton && (
                                 <button
                                     onClick={(e) => {
-                                        
+
                                         if (!permissions['update']) {
                                             alert.notifyInfo(
                                                 'Usted no tiene permiso para editar'
                                             )
                                             return
                                         }
-                                        
+
                                         if (!(getTotalSelectedRows() === 1)) {
                                             return
                                         }
 
-                                      
+
                                         const rowModel =
                                             table.getSelectedRowModel()
 
@@ -647,17 +750,17 @@ export default function TableDataGrid({
                             {showDeleteButton && (
                                 <button
                                     onClick={() => {
-                                        
+
                                         if (!permissions['delete']) {
                                             alert.notifyInfo(
                                                 'Usted no tiene permiso para eliminar'
                                             )
                                             return
                                         }
-                                        
+
                                         if (getTotalSelectedRows() < 1) return
 
-                                      
+
 
                                         const rowModel =
                                             table.getSelectedRowModel()
