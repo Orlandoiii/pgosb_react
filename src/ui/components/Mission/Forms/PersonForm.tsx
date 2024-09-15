@@ -127,13 +127,13 @@ const PersonForm = ({
             const parsed = PersonInvolvedSchema.parse(data)
 
             //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
-            if (parsed.vehicleId && parsed.vehicleId != "") {
+            if (parsed.vehicleId && parsed.vehicleId != "" && parsed.vehicleId != initValue?.vehicleId) {
                 parsed.vehicleId = parsed.vehicleId.split(" - ")[0].trim()
             }
 
             //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
-            if (parsed.unitId && parsed.unitId != "") {
-                parsed.unitId = serviceUnits.filter(x => x.plate == parsed.unitId)[0].id
+            if (parsed.unitId && parsed.unitId != "" && parsed.unitId != initValue?.unitId) {
+                parsed.unitId = serviceUnits.filter(x => x.plate == parsed.unitId)?.[0]?.id
             }
 
             //SIN CAMBIOS PORQUE ES EL ID
@@ -299,7 +299,7 @@ const PersonForm = ({
                         </div> */}
 
                         <FormInput<TPersonInvolved>
-                            fieldName={'description'}
+                            fieldName={'address'}
                             description="Dirección:"
                         />
                     </div>
