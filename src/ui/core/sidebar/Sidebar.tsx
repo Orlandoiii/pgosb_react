@@ -17,6 +17,7 @@ import { BiArrowFromRight } from 'react-icons/bi'
 import { useConfirmationModal } from '../modal/ModalConfirmation'
 import FireLogo from '../logo/FireLogo'
 import AmbulanceIcon from '../icons/AmbulanceIcon'
+import AuthorityIcon from '../icons/AuthorityIcon'
 
 const alert = new AlertController();
 
@@ -128,11 +129,12 @@ export default function Sidebar({ }) {
                                 <SideBarLink collpase={collapse} link="/stations" icon={<StationIcon />} name='Estaciones' onClick={(e) => {
                                     handleClick(e, "Estaciones")
                                 }} />
-                             
-                                <SideBarLink collpase={collapse} link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales'  onClick={(e) => {
+
+                                <SideBarLink collpase={collapse} link="/assist" icon={<AmbulanceIcon />} name='Centros Asistenciales' onClick={(e) => {
                                     handleClick(e, "Centros Asistenciales")
-                                }}/>
-                               
+                                }} />
+
+                                
                                 <SideBarLink collpase={collapse} link="/locations" icon={<LocationIcon />} name='Ubicaciones' onClick={(e) => {
                                     handleClick(e, "Ubicaciones")
                                 }} />
