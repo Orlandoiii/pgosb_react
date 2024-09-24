@@ -32,11 +32,11 @@ function formatBooleanValue(value) {
 
 function arrayFilter(row, columnId, filterValue) {
     const cellValue = row.getValue(columnId);
-    
+
     if (!cellValue || !Array.isArray(cellValue)) return false;
-    
+
     const search = filterValue.toLowerCase().trim();
-    
+
 
     return cellValue.sort().join(',').toLowerCase().includes(search);
 }
@@ -501,6 +501,7 @@ export default function TableDataGrid({
 
     logger.log('DATA GRID PERMISSION:', permissions)
 
+
     const COLUMNS = []
 
     COLUMNS.push(checkBoxHeader)
@@ -519,18 +520,18 @@ export default function TableDataGrid({
                             accessorKey: value,
 
                             filterFn: config.type == 'date' || config.type == 'datetime' ? 'dateRange' : 'default',
-                            
+
                             cell: ({ getValue }) => {
                                 const value = getValue();
                                 if (typeof value === 'boolean') {
-                                
+
                                     return formatBooleanValue(value);
-                                
+
                                 } else if (Array.isArray(value)) {
-                                  
+
                                     return value?.sort()?.join(','); // Join array elements with comma and space
                                 } else {
-                                  
+
                                     return value;
                                 }
                             },
@@ -559,7 +560,6 @@ export default function TableDataGrid({
 
     const columns = useMemo(() => COLUMNS, [rawData])
 
-
     const data = useMemo(() => rawData, [rawData])
 
     const [rowSelection, setRowSelection] = useState({})
@@ -571,6 +571,7 @@ export default function TableDataGrid({
     const [sorting, setSorting] = useState([])
 
     const [globalFilter, setGlobalFilter] = useState('')
+
 
 
 
@@ -597,6 +598,60 @@ export default function TableDataGrid({
         enableRowSelection: true,
         onRowSelectionChange: setRowSelection,
     })
+
+
+    const [appliedFilters, setAppliedFilters] = useState({})
+
+
+
+    
+
+    useEffect(() => {
+        const filters = {}
+        
+        if (globalFilter) {
+            filters['Global'] = {
+                value: globalFilter,
+                type: 'global'
+            }
+        }
+        
+        
+        table.getAllColumns().forEach(column => {
+            const filterValue = column.getFilterValue()
+            if (filterValue !== undefined) {
+                const layoutColumn = layout?.find(v => v.column_name === column.id)
+
+                if (layoutColumn?.type == 'date' || layoutColumn?.type == 'datetime') {
+                    
+                    if (Array.isArray(filterValue)) {
+
+                        if (filterValue.some(v => v != null)) {
+                            filters[layoutColumn?.display_name] = {
+                                value: filterValue,
+                                type: layoutColumn?.type || 'default'
+                            }
+                        } else {
+                            //remove the filter
+                            delete filters[layoutColumn?.display_name]
+                        }
+                    }
+                } else {
+                    filters[layoutColumn?.display_name] = {
+                        value: filterValue,
+                        type: layoutColumn?.type || 'default'
+                    }
+                }
+            }
+        })
+        setAppliedFilters(filters)
+    }, [table.getState().columnFilters, layout, globalFilter])
+
+    // Log applied filters whenever they change
+    useEffect(() => {
+        console.log('Applied Filters:', appliedFilters)
+    }, [appliedFilters])
+
 
     function getTotalSelectedRows() {
         const rowModel = table.getSelectedRowModel()
@@ -652,6 +707,9 @@ export default function TableDataGrid({
 
     function handlePrint() {
 
+
+        //
+
         if (!permissions['print']) {
             alert.notifyInfo(
                 'Usted no tiene permiso para imprimir'
@@ -665,6 +723,8 @@ export default function TableDataGrid({
 
         onPrint(rowsToPrint)
     }
+
+
 
 
     return (
