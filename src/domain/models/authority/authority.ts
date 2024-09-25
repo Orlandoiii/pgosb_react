@@ -94,3 +94,20 @@ export const authorityCrud = new CRUD<TAuthority>(
     AuthorityToApi,
     AuthorityFromApi
 )
+
+
+
+
+
+
+
+
+
+export const ApiMissionAuthorityServiceSchema = z.object({
+    id: z.string().optional().default(''),
+    mission_id: z.string().optional().default(''),
+    service_id: z.string().optional().default(''),
+    authority_id: z.string().optional().default(''),
+})
+
+export type ApiMissionAuthorityServiceType = z.infer<typeof ApiMissionAuthorityServiceSchema>

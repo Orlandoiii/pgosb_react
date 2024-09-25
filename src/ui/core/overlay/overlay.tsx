@@ -15,7 +15,7 @@ export type Position =
     | 'Bottom-Left'
     | 'Bottom'
     | 'Bottom-Right'
-export type AnimationType = 'Bounce' | 'FadeIn'
+export type AnimationType = 'Bounce' | 'FadeIn' | "None"
 export type OverlayType = 'Modal' | 'Loader'
 
 interface OverlayProps {
@@ -72,7 +72,7 @@ function Overlay({
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        transition={{ duration: 0.12 }}
+                        transition={{ duration: animation === "None" ? 0 : 0.12 }}
                         onClick={clickOutside}
                         aria-modal="true"
                         className={`z-50 absolute top-0 left-0 h-full w-full ${background}`}
@@ -92,6 +92,19 @@ function Overlay({
                                         ? children()
                                         : children}
                                 </div>
+                            </motion.div>
+                        )}
+                        {type === "Modal" && animation === "None" && (
+                            <motion.div
+                                initial={{ scale: 0.7 }}
+                                animate={{ scale: [1, 1.2, 0.9, 1] }}
+                                transition={{ duration: 0, ease: "easeInOut" }}
+                                className={`${className} ${positionClass()} relative h-full w-full flex pointer-events-none`}
+                            >
+                                <div className=" pointer-events-auto">
+                                    {isFunction(children)
+                                        ? children()
+                                        : children}</div>
                             </motion.div>
                         )}
                         {type === 'Modal' && animation === 'FadeIn' && (

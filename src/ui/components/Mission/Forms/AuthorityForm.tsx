@@ -1,129 +1,106 @@
-import { FieldValues, useForm } from 'react-hook-form'
 import React, { useState } from 'react'
-
-import {
-    TAuthority,
-    AuthoritySchema,
-} from '../../../../domain/models/authority/authority'
-import FormTitle from '../../../core/titles/FormTitle'
-
-import Button from '../../../core/buttons/Button'
 import ModalLayout from '../../../core/layouts/modal_layout'
-import CustomForm from '../../../core/context/CustomFormContext'
-import FormInput from '../../../core/inputs/FormInput.tsx'
-import FormSelect from '../../../core/inputs/FormSelect.tsx'
+import { AddableTable } from '../../Temp/AddableTable.tsx'
+import TextInput from '../../../alter/components/inputs/text_input.tsx'
+import LoadingModal from '../../../core/modal/LoadingModal.tsx'
+import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection.ts'
+import { missionAuthorityPersonCrud, MissionAuthorityPersonNameConverter } from '../../../../domain/models/authority/authority_person.ts'
+import { missionAuthorityVehicleCrud, MissionAuthorityVehicleNameConverter } from '../../../../domain/models/authority/authority_vehicle.ts'
+import { AuthorityPersonForm } from './AuthorityPersonForm.tsx'
+import { AuthorityVehicleForm } from './AuthorityVehicleForm.tsx'
+import { ApiMissionAuthorityType, missionAuthorityCrud } from '../../../../domain/models/authority/mission_authority.ts'
+import { modalService } from '../../../core/overlay/overlay_service.tsx'
 
 
-const AuthorityTypes = [
-    'POLICE',
-    'FIRE',
-    'AMBULANCE',
-    'OTHER'
-]
-
-interface AuthorityFormProps {
-    serviceId: string
-    initValue?: TAuthority | null
-    onClose?: (success: boolean) => void
+interface AutorityFormProps {
+    initValue: ApiMissionAuthorityType | undefined
     closeOverlay?: () => void
-    add?: boolean
 }
 
+export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
+    const [loading, setLoading] = useState(false)
+    const [alias, setAlias] = useState(initValue ? initValue.alias : '')
 
-const AuthorityForm = ({
-    serviceId,
-    initValue,
-    onClose,
-    closeOverlay,
-    add = true
-}: AuthorityFormProps) => {
+    const [authorityVehicleActions, vehicles] = useActionModalAndCollection(
+        AuthorityVehicleForm,
+        missionAuthorityVehicleCrud,
+        { missionId: initValue!.mission_id, authorityId: initValue!.id },
+        initValue!.id
+    )
 
+    const [authorityPersonActions, people] = useActionModalAndCollection(
+        AuthorityPersonForm,
+        missionAuthorityPersonCrud,
+        { missionId: initValue!.mission_id, authorityId: initValue!.id },
+        initValue!.id
+    )
 
-    async function handleSubmitInternal(data: FieldValues) {
+    async function updateService() {
+        const authorityResult = await missionAuthorityCrud.getById(initValue!.id)
 
-    }
+        if (
+            authorityResult.success &&
+            authorityResult.result &&
+            authorityResult.result?.alias != alias
+        ) {
+            authorityResult.result.alias = alias
+            const updateResult = await missionAuthorityCrud.update(authorityResult.result)
 
-    function handleClose() {
-        if (closeOverlay) closeOverlay()
-        if (onClose) onClose(false)
+            if (updateResult.success)
+                modalService.toastSuccess('Autoridad actualizada!')
+            else modalService.toastError('No se pudo actualizar la autoridad!')
+        }
     }
 
     return (
         <>
             <ModalLayout
-                title={'Registro de Infrastructura'}
-                onClose={handleClose}
+                className="min-w-[70vw] max-w-[85vw] max-h-[90vh]"
+                title={'Registro de Autoridad'}
+                onClose={closeOverlay}
             >
-                <CustomForm
-                    schema={AuthoritySchema}
-                    initValue={{ ...initValue, serviceId: serviceId }}
-                    onSubmit={handleSubmitInternal}
-                >
-
-
-                    <FormTitle title="Datos de la Autoridad u Organización" />
-
-                    <div className="space-y-3 px-2 w-full max-w-[820px]">
-                        <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormSelect<TAuthority>
-                                fieldName={'type'}
-                                description={'Tipo de infrastructura:'}
-                                options={AuthorityTypes}
-                            />
-
-                            <FormInput<TAuthority>
-                                fieldName={'name'}
-                                description="Nombre:"
-                            />
-
-
-                            <FormInput<TAuthority>
-                                fieldName={'last_name'}
-                                description="Apellido:"
-                            />
-
-                            <FormInput<TAuthority>
-                                fieldName={'identification'}
-                                description="Nro. Identificación:"
-                            />
-
-                            <FormInput<TAuthority>
-                                fieldName={'rank'}
-                                description="Rango o Cargo:"
-                            />
-
-                            <FormInput<TAuthority>
-                                fieldName={'phone'}
-                                description="Teléfono:"
-                            />
-
-                            <FormInput<TAuthority>
-                                fieldName={'vehicles'}
-                                description="Vehículos:"
-                            />
-
-                            <FormInput<TAuthority>
-                                fieldName={'details_vehicles'}
-                                description="Detalles de los vehículos:"
-                            />
-
+                <div className="flex justify-between w-full">
+                    <div className="flex items-center space-x-4">
+                        <div className="font-semibold text-slate-700 text-xl">
+                            Alias:
                         </div>
-
+                        <TextInput
+                            value={alias}
+                            onChange={(e) => setAlias(e.currentTarget.value)}
+                            onBlur={updateService}
+                        ></TextInput>
                     </div>
-                    <div className="flex flex-col space-y-4">
-                        <div className="flex justify-end space-x-8">
-                            <Button
-                                colorType="bg-[#3C50E0]"
-                                onClick={(e) => { }}
-                                children={'Aceptar'}
-                            ></Button>
-                        </div>
-                    </div>
+                </div>
 
-                </CustomForm>
+                <div className="h-8"></div>
+
+                <AddableTable
+                    title="Vehiculos"
+                    data={vehicles ?? []}
+                    defaultSort={'id'}
+                    idPropertyName="id"
+                    addButtonText="Agregar un vehículo"
+                    nameConverter={MissionAuthorityVehicleNameConverter}
+                    onAddButtonClick={authorityVehicleActions.add}
+                    onEditButtonClick={authorityVehicleActions.edit}
+                    onDeleteButtonClick={authorityVehicleActions.delete}
+                ></AddableTable>
+
+                <div className="h-8"></div>
+
+                <AddableTable
+                    title="Funcionarios"
+                    data={people ?? []}
+                    defaultSort={'id'}
+                    idPropertyName="id"
+                    addButtonText="Agregar un funcionario"
+                    nameConverter={MissionAuthorityPersonNameConverter}
+                    onAddButtonClick={authorityPersonActions.add}
+                    onEditButtonClick={authorityPersonActions.edit}
+                    onDeleteButtonClick={authorityPersonActions.delete}
+                ></AddableTable>
             </ModalLayout>
+            <LoadingModal initOpen={loading} children={null} />
         </>
     )
 }
-
-export default AuthorityForm

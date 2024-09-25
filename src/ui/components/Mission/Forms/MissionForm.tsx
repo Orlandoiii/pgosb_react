@@ -23,7 +23,11 @@ import {
 import TextInput from '../../../alter/components/inputs/text_input'
 import { getDefaults } from '../../../core/context/CustomFormContext'
 import { modalService } from '../../../core/overlay/overlay_service'
-import { getSummary } from '../../../../services/http'
+import { get, getSummary } from '../../../../services/http'
+import { useCollection } from '../../../core/hooks/useCollection'
+import { ApiMissionAuthoritySchema, ApiMissionAuthoritySummaryType, ApiMissionAuthorityType, missionAuthorityCrud, MissionAuthoritySummaryFromToApi, MissionAuthoritySummaryNameConverter } from '../../../../domain/models/authority/mission_authority'
+import { AuthorityForm } from './AuthorityForm'
+import { OverlayModalConfig } from '../../../core/overlay/models/overlay_item'
 
 interface MissionFormProps {
     missionId: string
@@ -43,12 +47,16 @@ const MissionForm = ({
     const [loading, setLoading] = useState(false)
     const [alias, setAlias] = useState(initValue ? initValue.alias : '')
 
+    const autoritiesCollection = useCollection(`mission/authority/summary/${missionId}`, MissionAuthoritySummaryFromToApi)
+
     const [serviceActions, services] = useActionModalAndCollection(
         ServiceForm,
         serviceCrud,
         { missionId: missionId },
         missionId
     )
+
+    const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
 
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
@@ -61,7 +69,12 @@ const MissionForm = ({
 
     useEffect(() => {
         UpdateInnerServices()
+        updateAuthoritiesData()
     }, [services])
+
+    useEffect(()=> {
+        updateAuthoritiesData()
+    },[])
 
     async function UpdateInnerServices() {
         const result = await getSummary<any>('mission/service')
@@ -71,8 +84,8 @@ const MissionForm = ({
             result.result.forEach(element => {
                 if (element['id'] && services.filter(x => x.id == element['id']).length > 0) newInnerServices.push(element)
             });
-        console.log(newInnerServices,);
-        
+            console.log(newInnerServices,);
+
 
             setInnerServices(newInnerServices.length == 0 ? [] : newInnerServices)
         }
@@ -93,6 +106,93 @@ const MissionForm = ({
                 modalService.toastSuccess('Misión actualizada!')
             else modalService.toastError('No se pudo actualizar la misión!')
         }
+    }
+
+    function updateAuthoritiesData() {
+        async function update() {
+            setLoading(true)
+
+            const result = await get<ApiMissionAuthoritySummaryType[]>(`mission/authority/summary/${missionId}`)
+
+            if (result.success && result.result) setAutorities(result.result)
+            else setAutorities([])
+
+            setLoading(false)
+        }
+
+        update();
+    }
+
+    async function addNewAuthority() {
+        var errorMessage: string = ''
+        try {
+            setLoading(true)
+
+            const newAuthority = getDefaults<ApiMissionAuthorityType>(ApiMissionAuthoritySchema)
+            newAuthority.mission_id = missionId
+
+            const authorityResult = await missionAuthorityCrud.insert(
+                newAuthority
+            )
+
+            if (authorityResult.success && authorityResult.result?.id) {
+                modalService.pushModal(
+                    AuthorityForm,
+                    {
+                        initValue: authorityResult.result,
+                        closeOverlay: undefined,
+                    },
+                    new OverlayModalConfig(),
+                    updateAuthoritiesData
+                )
+            } else if (!authorityResult.success)
+                errorMessage =
+                    'Lo sentimos tenemos problemas para agregar la autoridad'
+            else if (!authorityResult.result?.id) {
+                errorMessage = 'El Id no fue retornado en el agregar la autoridad'
+            }
+        } catch (error) {
+            errorMessage =
+                'Lo sentimos ocurrio un error inesperado al agregar la autoridad'
+            console.error(error)
+        } finally {
+            setLoading(false)
+        }
+        if (errorMessage != '') modalService.pushAlert('Error', errorMessage)
+    }
+
+    async function openAuthority(authority: any) {
+        const result = await missionAuthorityCrud.getById(authority)
+
+        if (result.success && result.result) {
+            modalService.pushModal(
+                AuthorityForm,
+                {
+                    initValue: result.result,
+                    closeOverlay: undefined,
+                },
+                new OverlayModalConfig(),
+                updateAuthoritiesData
+            )
+        } else {
+            modalService.pushAlert(
+                'Error',
+                `No se pudo abrir la autoridad por: ${result.error}`
+            )
+        }
+    }
+
+    async function deleteAuthority(authority: any) {
+        const result = await missionAuthorityCrud.remove(authority)
+
+        if (result.success) {
+            modalService.toastSuccess("Autoridad eliminada")
+            updateAuthoritiesData()
+        }
+        else modalService.pushAlert(
+            'Error',
+            `No se pudo abrir la autoridad por: ${result.error}`
+        )
     }
 
     return (
@@ -136,6 +236,20 @@ const MissionForm = ({
                     onAddButtonClick={locationActions.add}
                     onEditButtonClick={locationActions.edit}
                     onDeleteButtonClick={locationActions.delete}
+                ></AddableTable>
+
+                <div className="h-8"></div>
+
+                <AddableTable
+                    title="Autoridades"
+                    data={autorities}
+                    defaultSort={'id'}
+                    idPropertyName="id"
+                    addButtonText="Agregar una autoridad"
+                    nameConverter={MissionAuthoritySummaryNameConverter}
+                    onAddButtonClick={addNewAuthority}
+                    onEditButtonClick={openAuthority}
+                    onDeleteButtonClick={deleteAuthority}
                 ></AddableTable>
 
                 <div className="h-8"></div>

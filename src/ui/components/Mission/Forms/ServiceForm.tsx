@@ -61,6 +61,7 @@ import Toggle from '../../../alter/components/buttons/toggle'
 import _ from 'lodash'
 import Chip from '../../../alter/components/data_presenters/chip'
 import { modalService } from '../../../core/overlay/overlay_service'
+import { ApiMissionAuthoritySummaryType, MissionAuthoritySummaryNameConverter } from '../../../../domain/models/authority/mission_authority'
 
 const alertController = new AlertController()
 
@@ -84,6 +85,9 @@ const ServiceForm = ({
     const careCenterCollection = useCollection('center', (data: any) => {
         return { success: true, result: data }
     })
+
+    const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
+    const [serviceAuthorities, setServiceAuthorities] = useState<ApiMissionAuthoritySummaryType[]>([])
 
     const [date, setDate] = useState(
         initValue ? initValue.manualServiceDate : formatDateTime(new Date())
@@ -213,6 +217,23 @@ const ServiceForm = ({
         }
     }, [careCenterCollection])
 
+
+    function updateAuthoritiesData() {
+        async function update() {
+            setLoading(true)
+
+            const result = await get<ApiMissionAuthoritySummaryType[]>(`mission/authority/summary/${missionId}`)
+
+            if (result.success && result.result) setAutorities(result.result)
+            else setAutorities([])
+
+            setLoading(false)
+        }
+
+        update();
+    }
+
+
     async function updateUnits() {
         const result = await get<UnitSimple[]>(
             `mission/service/unit/${serviceId}`
@@ -241,8 +262,41 @@ const ServiceForm = ({
         if (antares != '' && station != '') antaresButtonClicked()
     }, [count])
 
+    useEffect(() => {
+        updateAuthoritiesData()
+        updateServiceAuthorities()
+    }, [])
+
     function antaresButtonClicked() {
         safeOrUpdateService(antares.split(' - ')[0])
+    }
+
+    async function addAuthority(authority: string) {
+        const authorityResult = await post("mission/authority/service/create", {mission_id: missionId, service_id: serviceId, authority_id :  authority.split(" - ")[0]})
+
+        if (authorityResult.success) {
+            modalService.toastSuccess("Autoridad agregada")
+            updateServiceAuthorities()
+        }
+        else modalService.toastError("No se pudo agregar la autoridad")
+    }
+
+    async function deleteAuthority(authority: string) {
+        const authorityResult = await remove("mission/authority/service", authority.split(" - ")[0])
+
+        if (authorityResult.success) {
+            modalService.toastSuccess("Autoridad eliminada")
+            updateServiceAuthorities()
+        }
+        else modalService.toastError("No se pudo eliminar la autoridad")
+    }
+
+    async function updateServiceAuthorities() {
+        const authorityResult = await get<ApiMissionAuthoritySummaryType[]>(`mission/authority/service/group/${serviceId}`)
+
+        if (authorityResult.success && authorityResult.result) {
+            setServiceAuthorities(authorityResult.result)
+        }
     }
 
     async function safeOrUpdateService(antaresId: string) {
@@ -572,16 +626,28 @@ const ServiceForm = ({
                                     onBlur={() => debounceUpdate()}
                                 ></TextInput>
                             </div>
+
+                            <div className="w-44">
+                                <SelectWithSearch
+                                    description="Nivel"
+                                    options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
+                                    selectedOption={station}
+                                    selectionChange={(e) => {
+                                        setStation(e)
+                                        debounceUpdate()
+                                    }}
+                                />
+                            </div>
                         </div>
                     </div>
-                    {/* <div className="flex-none mt-8 mb-2.5 h-11">
+                    <div className='w-6 flex-none'></div>
+                    <div className="flex-none h-28 mt-2">
                         <Button
-                            enable={antares != '' && station != ''}
                             colorType="bg-[#3C50E0]"
                             onClick={antaresButtonClicked}
                             children={'Guardar'}
                         ></Button>
-                    </div> */}
+                    </div>
                 </div>
 
                 <div className="h-4"></div>
@@ -688,6 +754,19 @@ const ServiceForm = ({
                                 onEditButtonClick={personActions.edit}
                                 onDeleteButtonClick={personActions.delete}
                             />
+
+                            <AddableTable
+                                enable={formIsEnable()}
+                                title="Autoridades"
+                                data={serviceAuthorities}
+                                optionsDescription={'Alias'}
+                                options={autorities.map((item) => `${item.id} - ${item.alias}`)}
+                                nameConverter={MissionAuthoritySummaryNameConverter}
+                                onAddOption={addAuthority}
+                                onDeleteButtonClick={deleteAuthority}
+                                idPropertyName="id"
+                                addButtonText="Agregar una autoridad"
+                            ></AddableTable>
                         </div>
                     </div>
 

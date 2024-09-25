@@ -24,12 +24,13 @@ export class OverlayModalConfig {
 }
 
 export class OverlayItem<P> {
-  constructor(element: CreateElementFunction<P>, props: P, config: OverlayModalConfig, isVisible: boolean = true,onClosed?: ()=>void) {
+  constructor(element: CreateElementFunction<P>, props: P, config: OverlayModalConfig, isVisible: boolean = true,onClosed?: ()=>void,onClickOut?: ()=>void) {
     this.element = element;
     this.props = props;
     this.config = config;
     this.isVisible = isVisible;
     this.onClosed = onClosed;
+    this.onClickOut = onClickOut;
   }
 
   element: CreateElementFunction<P>;
@@ -38,9 +39,16 @@ export class OverlayItem<P> {
   isVisible: boolean;
   config: OverlayModalConfig;
   onClosed?: ()=>void;
+  onClickOut?: ()=>void;
 
   withVisibility(isVisible: boolean): OverlayItem<P> {
     var newOverlay = new OverlayItem(this.element, this.props, this.config, isVisible);
+    newOverlay.id = this.id;
+    return newOverlay;
+  }
+
+  withProps(props: P){
+    var newOverlay = new OverlayItem(this.element, props, this.config, this.isVisible);
     newOverlay.id = this.id;
     return newOverlay;
   }
