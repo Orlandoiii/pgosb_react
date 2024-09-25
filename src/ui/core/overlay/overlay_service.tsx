@@ -42,18 +42,18 @@ class ModalService {
         content: CreateElementFunction<P>,
         props: P,
         config: OverlayModalConfig = new OverlayModalConfig(),
-        onClosed?: () => void
-    ): { modal: OverlayItem<P>; closeModal: () => void } {
-        config.closeOnClickOut = false
-        console.log(`Mount new one`)
-        const newModal = new OverlayItem(content, props, config, true, onClosed)
-        this.modals.push(newModal)
-        this.updateModals()
-        return {
-            modal: newModal,
-            closeModal: () => this.closeModal(newModal.id),
-        }
-    }
+        onClosed?: () => void,
+        onClickOut?: () => void
+      ): { modal: OverlayItem<P>; closeModal: () => void } {
+        const newModal = new OverlayItem(content as any, props, config, true, onClosed, onClickOut);
+        console.log("ModalPush", newModal.id);
+        this.modals.push(newModal);
+        this.updateModals();
+        return { modal: newModal, closeModal: () => {
+          this.closeModal(newModal.id);
+          console.log("called", newModal.id);
+        } };
+      }
 
     updateModal<P>(modal: OverlayItem<P>, props: P) {
         const modalToUpdate = this.modals.find(

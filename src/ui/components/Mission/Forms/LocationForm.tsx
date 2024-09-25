@@ -1,42 +1,27 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
-import FormTitle from '../../../core/titles/FormTitle.tsx'
 import Button from '../../../core/buttons/Button.tsx'
-
-import {
-    TVehicleInvolved,
-    VehicleInvolvedSchema,
-} from '../../../../domain/models/vehicle/vehicle_involved.ts'
-import { EnumToStringArray } from '../../../../utilities/converters/enum_converter.tsx'
-import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes.ts'
 
 import CustomForm, {
     getDefaults,
 } from '../../../core/context/CustomFormContext.tsx'
-import FormInput from '../../../core/inputs/FormInput.tsx'
-import FormSelect from '../../../core/inputs/FormSelect.tsx'
-
-import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved.ts'
 
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
-import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types.ts'
-import { get, getAll } from '../../../../services/http.tsx'
-import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 import { useLocation } from '../../../core/hooks/useLocation.tsx'
 import {
     LocationCrud,
-    LocationSchemaType,
     ServiceLocationSchema,
     ServiceLocationSchemaType,
 } from '../../../../domain/models/location/location.ts'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
-import TextArea from '../../../alter/components/inputs/text_area.tsx'
-import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection.ts'
+import { useCollection } from '../../../core/hooks/useCollection.ts'
+import { ApiStationType } from '../../../../domain/models/stations/station.ts'
+import { ApiHealthCareCenterType } from '../../../../domain/models/healthcare_center/healthcare_center.ts'
 
 interface LocationFormProps {
     missionId: string
@@ -46,6 +31,24 @@ interface LocationFormProps {
     add?: boolean
 }
 
+
+type StaticLocation = {
+    display,
+    state_id,
+    state,
+    municipality_id,
+    municipality,
+    parish_id,
+    parish,
+    sector_id,
+    sector,
+    urb_id,
+    urb,
+    street,
+    address,
+}
+
+
 const LocationForm = ({
     missionId,
     initValue,
@@ -53,6 +56,13 @@ const LocationForm = ({
     closeOverlay,
     add = true,
 }: LocationFormProps) => {
+    const stationCollection = useCollection<ApiStationType>('station', (data: any) => {
+        return { success: true, result: data }
+    })
+    const careCenterCollection = useCollection<ApiHealthCareCenterType>('center', (data: any) => {
+        return { success: true, result: data }
+    })
+
     const [alias, setAlias] = useState(initValue ? initValue?.alias : '')
     const {
         states,
@@ -88,6 +98,86 @@ const LocationForm = ({
     )
     const [loading, setLoading] = useState(false)
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
+
+    const staticLocations = stationCollection.length > 0 && careCenterCollection.length > 0 ? [
+        ...StationsAsStaticLocation(),
+        ...CareCenterAsStaticLocation()
+    ] : []
+
+    function StationsAsStaticLocation(): StaticLocation[] {
+        const newStaticLocations: StaticLocation[] = []
+
+        stationCollection.forEach(element => {
+            newStaticLocations.push(
+                {
+                    display: `${element.abbreviation} - ${element.description}`,
+                    state_id: element.state_id,
+                    state: element.state,
+                    municipality_id: element.municipality_id,
+                    municipality: element.municipality,
+                    parish_id: element.parish_id,
+                    parish: element.parish,
+                    sector_id: element.sector_id,
+                    sector: element.sector,
+                    urb_id: element.urb_id,
+                    urb: element.urb,
+                    street: element.street,
+                    address: element.address,
+                }
+            )
+        });
+
+        return newStaticLocations
+    }
+    function CareCenterAsStaticLocation(): StaticLocation[] {
+        const newStaticLocations: StaticLocation[] = []
+
+        careCenterCollection.forEach(element => {
+            newStaticLocations.push(
+                {
+                    display: `${element.abbreviation} - ${element.description}`,
+                    state_id: element.state_id,
+                    state: element.state,
+                    municipality_id: element.municipality_id,
+                    municipality: element.municipality,
+                    parish_id: element.parish_id,
+                    parish: element.parish,
+                    sector_id: element.sector_id,
+                    sector: element.sector,
+                    urb_id: element.urb_id,
+                    urb: element.urb,
+                    street: element.street,
+                    address: element.address,
+                }
+            )
+        });
+
+        return newStaticLocations
+    }
+
+    function SetAlias(alias: string){
+        const staticLocation = staticLocations.filter(x => x.display === alias)[0]
+        
+        if (staticLocation){
+            setLoading(true)
+
+            setState(staticLocation.state)
+            setMunicipality(staticLocation.municipality)
+            setParish(staticLocation.parish)
+            setSector(staticLocation.sector)
+            setUrbanizacion(staticLocation.urb)
+            setAddress(staticLocation.address)
+
+            setTimeout(() => {
+                setLoading(false)
+            }, 1000);
+        }
+
+        setAlias(alias)
+    }
+
+    console.log(parishs.length);
+    
 
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
@@ -145,8 +235,6 @@ const LocationForm = ({
         if (onClose) onClose(false)
     }
 
-    console.log('states', states)
-
     return (
         <>
             <ModalLayout
@@ -161,24 +249,30 @@ const LocationForm = ({
                 >
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <TextInput
-                                description="Alias"
-                                value={alias}
-                                onChange={(e) =>
-                                    setAlias(e.currentTarget.value)
-                                }
-                            ></TextInput>
                             <SelectWithSearch
-                                isLoading={(states?.length ?? 0) < 2}
+                                description="Alias"
+                                allowNewValue={true}
+                                options={staticLocations}
+                                displayKeys={['display']}
+                                valueKey={'display'}
+                                selectedOption={alias}
+                                selectionChange={(e) => SetAlias(e)}
+                            />
+
+                            <SelectWithSearch
+                                isLoading={loading ||(states?.length ?? 0) < 2}
                                 description="Estado"
                                 options={states}
                                 selectedOption={state}
-                                selectionChange={(e) => setState(e)}
+                                selectionChange={(e) => {
+                                    setState(e)
+                                    console.log(e);
+                                }}
                             />
 
                             <SelectWithSearch
                                 disable={state && state == ''}
-                                isLoading={(states?.length ?? 0) < 2}
+                                isLoading={loading ||(states?.length ?? 0) < 2}
                                 description="Municipio"
                                 options={municipalitys}
                                 selectedOption={municipality}
@@ -192,7 +286,7 @@ const LocationForm = ({
                                     (state && state == '') ||
                                     (municipality && municipality == '')
                                 }
-                                isLoading={(states?.length ?? 0) < 2}
+                                isLoading={loading ||(states?.length ?? 0) < 2}
                                 description="Parroquia"
                                 options={parishs}
                                 selectedOption={parish}
@@ -205,7 +299,7 @@ const LocationForm = ({
                                     (municipality && municipality == '') ||
                                     (parish && parish == '')
                                 }
-                                isLoading={(states?.length ?? 0) < 2}
+                                isLoading={loading ||(states?.length ?? 0) < 2}
                                 description="Sector"
                                 options={sectores}
                                 selectedOption={sector}
@@ -218,7 +312,7 @@ const LocationForm = ({
                                     (municipality && municipality == '') ||
                                     (parish && parish == '')
                                 }
-                                isLoading={(states?.length ?? 0) < 2}
+                                isLoading={loading ||(states?.length ?? 0) < 2}
                                 description="Urbanización"
                                 options={urbanizaciones}
                                 selectedOption={urbanizacion}

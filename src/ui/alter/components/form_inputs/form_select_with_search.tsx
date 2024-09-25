@@ -6,60 +6,64 @@ import { SelectWithSearch } from '../inputs/select_with_search'
 import { useFormFieldContext } from '../form/form_context'
 import React from 'react'
 
-interface FormSelectWithSearchProps<
-    T extends FieldValues,
-    TFieldName extends FieldPath<T> = FieldPath<T>,
-> {
-    fieldName: TFieldName
-    description: string
-    options: string[] | (() => Promise<string[]>)
-    optionsDeps?: any[]
-    placeholder?: string
-    addClearButton?: boolean
-    selectionChange?: (option: string) => void
-}
-
-function FormSelectWithSearch<T extends FieldValues>({
+interface FormSelectWithSearchProps<T extends FieldValues, O, TFieldName extends FieldPath<T> = FieldPath<T>> {
+    fieldName: TFieldName;
+    description: string;
+    options: O[] | (() => Promise<O[]>);
+    displayKeys?: (keyof O)[];
+    valueKey?: keyof O;
+    optionsDeps?: any[];
+    placeholder?: string;
+    fatherLoading?: boolean;
+    allowNewValue?: boolean;
+    addClearButton?: boolean;
+    selectionChange?: (option: string) => void;
+  }
+  
+  function FormSelectWithSearch<T extends FieldValues, O>({
     fieldName,
     description,
     options,
+    displayKeys,
+    valueKey,
     optionsDeps,
     selectionChange,
+    allowNewValue = false,
+    fatherLoading = false,
     addClearButton = false,
-}: FormSelectWithSearchProps<T>) {
-    const { control, fieldError, isSubmitted } =
-        useFormFieldContext<T>(fieldName)
-
-    const selectContainer = useRef<HTMLDivElement>(null)
-    const { value, isLoading } = useValueOrAsyncFunc(options, optionsDeps)
-
-    console.log(value)
+  }: FormSelectWithSearchProps<T, O>) {
+    const { control, fieldError, isSubmitted } = useFormFieldContext<T>(fieldName);
+  
+    const selectContainer = useRef<HTMLDivElement>(null);
+    const { value, isLoading } = useValueOrAsyncFunc(options, optionsDeps);
+  
     return (
-        <div
-            className="relative w-full rounded-md overflow-hidden"
-            ref={selectContainer}
-        >
-            <Controller
-                name={fieldName}
-                control={control}
-                render={({ field }) => (
-                    <SelectWithSearch
-                        description={description}
-                        options={value}
-                        selectedOption={field.value}
-                        selectionChange={(option) => {
-                            field.onChange(option)
-                            selectionChange && selectionChange(option)
-                        }}
-                        error={fieldError}
-                        isSubmited={isSubmitted}
-                        isLoading={isLoading}
-                        addClearButton={addClearButton}
-                    ></SelectWithSearch>
-                )}
-            ></Controller>
-        </div>
-    )
-}
-
-export default FormSelectWithSearch
+      <div className="relative w-full rounded-lg overflow-hidden" ref={selectContainer}>
+        <Controller
+          name={fieldName}
+          control={control}
+          render={({ field }) => (
+            <SelectWithSearch
+              description={description}
+              options={value}
+              displayKeys={displayKeys}
+              valueKey={valueKey}
+              selectedOption={field.value}
+              selectionChange={(option) => {
+                field.onChange(option);
+                selectionChange && selectionChange(option);
+              }}
+              error={fieldError}
+              isSubmited={isSubmitted}
+              isLoading={isLoading || fatherLoading}
+              allowNewValue={allowNewValue}
+              addClearButton={addClearButton}
+            ></SelectWithSearch>
+          )}
+        ></Controller>
+      </div>
+    );
+  }
+  
+  export default FormSelectWithSearch;
+  

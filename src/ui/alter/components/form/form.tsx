@@ -18,7 +18,7 @@ export default function Form<T extends FieldValues>({
   initValue = null,
   onSubmit,
   children,
-  className,
+  className = "flex flex-col",
 }: FormProps<T>) {
   const [resetCount, setResetCount] = useState(0);
 
@@ -48,7 +48,9 @@ export default function Form<T extends FieldValues>({
       }}
     >
       <form
-        onSubmit={methods.handleSubmit((data) => onSubmit(schema.parse(data)))}
+        onSubmit={methods.handleSubmit((data) =>{
+          onSubmit(schema.parse(data))
+        })}
         onReset={formReset}
         className={`${className}`}
       >

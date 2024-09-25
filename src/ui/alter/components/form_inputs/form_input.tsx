@@ -26,7 +26,7 @@ function FormInput<T extends FieldValues>({
         useFormFieldContext<T>(fieldName)
 
     return (
-        <div>
+        <div className='w-full'>
             <TextInput
                 disable={disable}
                 type={type}
