@@ -25,6 +25,7 @@ import { useUser } from '../../core/context/UserDataContext'
 
 import { useNavigate } from 'react-router-dom'
 import AlertController from '../../core/alerts/AlertController'
+import { useConfirmationModal } from '../../core/modal/ModalConfirmation'
 
 const alertController = new AlertController();
 
@@ -36,11 +37,14 @@ const MissionPage = () => {
     const [data, setData] = useState<any[]>([])
 
 
-    const { modulesPermissions, userDataIsLoad , userRolData} = useUser();
+    const { modulesPermissions, userDataIsLoad, userRolData } = useUser();
 
     const permissions = userDataIsLoad &&
-    modulesPermissions.hasOwnProperty("services") ?
-    modulesPermissions["services"] : []
+        modulesPermissions.hasOwnProperty("services") ?
+        modulesPermissions["services"] : []
+
+
+    const { showConfirmationModal } = useConfirmationModal();
 
     useEffect(() => {
         setData([])
@@ -67,6 +71,17 @@ const MissionPage = () => {
             setData(result.result)
         }
     }
+
+    function openAddMissionModal() {
+        showConfirmationModal("Agregar Mision",
+            "¿Estás seguro de que deseas agregar una nueva misión?")
+            .then((result) => {
+                if (result) {
+                    addNewMission();
+                }
+            });
+    }
+
 
     async function addNewMission() {
         var errorMessage: string = ''
@@ -182,7 +197,7 @@ const MissionPage = () => {
                         exportFileName="Missiones"
                         rawData={data}
                         showDeleteButton={false}
-                        onAdd={addNewMission}
+                        onAdd={openAddMissionModal}
                         onUpdate={openMission}
                         showPrintButton={false}
                         onPrint={openPrintModal}

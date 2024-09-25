@@ -18,10 +18,12 @@ import OverlayProvider from './ui/core/overlay/overlay_provider'
 import ComingSoonPage from './ui/core/errors/ComingSoonPage'
 import MissionPage from './ui/components/Mission/MissionPage'
 import ConfigContextProvider from "./ui/core/context/ConfigContext";
+import AuthorityPage from "./ui/components/Authority/AuthorityPage";
 
 
 const router = createBrowserRouter([
    {
+
       path: "/",
       element: <MainLayout />,
       errorElement: <ErrorPage />,
@@ -51,7 +53,8 @@ const router = createBrowserRouter([
             path: "locations/",
             element: <ComingSoonPage />
          },
-         {
+        {
+
             path: "assist/",
             element: <HealthcareCenterPage />
          }
