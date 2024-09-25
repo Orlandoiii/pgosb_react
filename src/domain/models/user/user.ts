@@ -1,4 +1,4 @@
-import {  z } from 'zod'
+import { z } from 'zod'
 import { MartialStatusTypes } from '../../abstractions/enums/martial_status_type'
 import { Genders } from '../../abstractions/enums/genders'
 import { ResultErr } from '../../abstractions/types/resulterr'
@@ -26,14 +26,17 @@ export const UserSchemaBasicData = z
             .refine((value) => { return !value || !value.toUpperCase().startsWith('E') || (value.toUpperCase().startsWith('E') && value.length == 10) }, { message: 'Debe tener 9 caracteres' })
             .refine((value) => { return !value || !value.toUpperCase().startsWith('P') || (value.toUpperCase().startsWith('P') && value.length == 15) }, { message: 'Debe tener 14 caracteres' })
             .or(z.string().length(0)),
-        phone:z.string().refine((value) => {
+        phone: z.string().refine((value) => {
+            if (!value || value.length == 0)
+                return true
+
             if (value.startsWith('0') && value.length !== 11 || !value.startsWith('0') && value.length !== 10) {
-              return false;
+                return false;
             }
             return true
-          }, {
+        }, {
             message: 'Número de teléfono invalido',
-          }),
+        }),
         // zip_code: z
         //     .string()
         //     .length(4, 'Debe tener 4 caracteres')
@@ -70,11 +73,11 @@ export const CharacteristicsSchema = z.object({
         .string()
         .refine(
             (value) => {
-                
+
                 let numberValue = 0;
-                if(value)
+                if (value)
                     numberValue = Number(value)
-                
+
                 return !value || numberValue >= 0.30
             },
             { message: 'Debe ser mayor o igual a 0.30' }
@@ -145,14 +148,14 @@ export const UserIntutionalDataSchema = z.object({
 })
 
 
-export type UserSimple  = {
-	id: string
-	name: string
-	user_name: string
-	rank: string
-	personal_code: string
-	legal_id: string
-	service_role: string
+export type UserSimple = {
+    id: string
+    name: string
+    user_name: string
+    rank: string
+    personal_code: string
+    legal_id: string
+    service_role: string
 }
 
 export const userNameConverter: { [K in keyof UserSimple]?: string } = {
@@ -168,12 +171,12 @@ export const userNameConverter: { [K in keyof UserSimple]?: string } = {
 export const UserSimpleFromApi = (
     data: UserSimple
 ): ResultErr<UserSimple> => {
-    return {success: true, result : data, error: ''}
+    return { success: true, result: data, error: '' }
 }
 
 export const UserSimpleToApi = (
     data: UserSimple
 ): ResultErr<UserSimple> => {
-    return {success: true, result : data, error: ''}
+    return { success: true, result: data, error: '' }
 }
 
