@@ -102,6 +102,9 @@ function onClickOrFocusHandler(options: SelectOption[], selectedOption: SelectOp
 function selectedOptionChangedHandler<T>(state: SelectStoreState<T>, option: SelectOption | string): SelectStoreState<T> {
     const newSelectedOption = getNewSelectedOption(state.options.all, option, state.config.allowNewValue)
 
+    console.log("change to new option", state.options.all, option, newSelectedOption);
+    
+
     return ({
         ...state,
         state: {
@@ -217,6 +220,9 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
             const newOptions = getSelectOptions(action.payload, state.config.valueKey as string | undefined, state.config.displayKeys as string[] | undefined)
             const newFilteredOptions = getFilteredSelectOptions(newOptions, state.state.search)
 
+            console.log("changingOptions", newOptions, state);
+
+
             const selectedOption = newOptions.includes(state.state.innerSelectedOption) ? state.state.innerSelectedOption : { value: '', display: '' }
             const empty = selectedOption.value == "" && selectedOption.display == ''
 
@@ -265,12 +271,14 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
     }, [options])
 
     useEffect(() => {
-        if (!isLoading && state.state.innerSelectedOption.value == '' && state.state.innerSelectedOption.display == '' && selectedOption != "")
-            dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: selectedOption })
+        if (!isLoading && selectedOption != "" && state.options.all.length > 0 && state.options.all[0].display != 'Sin datos')
+        {
+            dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: state.options.all.filter(x => x.value == selectedOption)[0] })
+        }
     }, [state.options.all, isLoading])
 
     useEffect(() => {
-        if (!isLoading) {
+        if (!isLoading && state.options.all.length > 0 && state.options.all[0].display != 'Sin datos') {
             if (state.state.optionsOpen) {
                 state.state.closeOptionsModal?.()
                 dispatch({ type: 'OPTIONS_CLOSED' })
@@ -279,7 +287,7 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
         }
     }, [state.state.innerSelectedOption, state.state.sameOption])
 
-    useEffect(() => {        
+    useEffect(() => {
         if (state.state.optionsOpen) state.refs.selectOptions?.current?.filterOptions(state.state.search, state.options.filtered)
     }, [state.options.filtered, state.state.search])
 

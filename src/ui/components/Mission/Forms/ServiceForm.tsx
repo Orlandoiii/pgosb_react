@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection'
 import {
@@ -17,7 +17,7 @@ import {
     TService,
 } from '../../../../domain/models/service/service'
 import { getDefaults } from '../../../core/context/CustomFormContext'
-import { AntaresFromApi } from '../../../../domain/models/antares/antares'
+import { AntaresFromApi, TAntares } from '../../../../domain/models/antares/antares'
 
 import InfrastructureForm from './InfrastructureForm'
 import {
@@ -48,20 +48,25 @@ import {
     UnitSimple,
 } from '../../../../domain/models/unit/unit'
 import LocationIcon from '../../../core/icons/LocationIcon'
-import { get, post, remove } from '../../../../services/http'
+import { get, getAll, post, remove } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { Roles } from '../../../../domain/abstractions/enums/roles'
 import { OperativeAreas } from '../../../../domain/abstractions/enums/operative_areas'
 import TextInput from '../../../alter/components/inputs/text_input'
 import LocationForm from './LocationForm'
-import { LocationCrud } from '../../../../domain/models/location/location'
+import { LocationCrud, ServiceLocationSchemaType } from '../../../../domain/models/location/location'
 import { formatDateTime } from '../../../../utilities/formatters/date_formatter'
 import Toggle from '../../../alter/components/buttons/toggle'
 import _ from 'lodash'
 import Chip from '../../../alter/components/data_presenters/chip'
 import { modalService } from '../../../core/overlay/overlay_service'
 import { ApiMissionAuthoritySummaryType, MissionAuthoritySummaryNameConverter } from '../../../../domain/models/authority/mission_authority'
+import FormSelectWithSearch from '../../../alter/components/form_inputs/form_select_with_search'
+import Form from '../../../alter/components/form/form'
+import { StationSchemaBasicDataType } from '../../../../domain/models/stations/station'
+import { HealthCareCenterSchemaBasicDataType } from '../../../../domain/models/healthcare_center/healthcare_center'
+import FormInput from '../../../alter/components/form_inputs/form_input'
 
 const alertController = new AlertController()
 
@@ -77,14 +82,6 @@ const ServiceForm = ({
     closeOverlay,
 }: ServiceFormProps) => {
     const [serviceId, setServiceId] = useState(initValue ? initValue.id : '-1')
-
-    const antaresCollection = useCollection('mission/antares', AntaresFromApi)
-    const stationCollection = useCollection('station', (data: any) => {
-        return { success: true, result: data }
-    })
-    const careCenterCollection = useCollection('center', (data: any) => {
-        return { success: true, result: data }
-    })
 
     const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
     const [serviceAuthorities, setServiceAuthorities] = useState<ApiMissionAuthoritySummaryType[]>([])
@@ -164,29 +161,6 @@ const ServiceForm = ({
     const operativeAreasCollection = EnumToStringArray(OperativeAreas)
 
     useEffect(() => {
-        if (!setIt && initValue && antaresCollection.length > 0) {
-            const description = antaresCollection.filter(
-                (item) => item.id == initValue.antaresId
-            )[0]
-            setSavedAntares(`${description.id} - ${description.description}`)
-            setAntares(`${description.id} - ${description.description}`)
-            setSetIt(true)
-
-            updateUnits()
-            updateUsers()
-        }
-    }, [antaresCollection])
-
-    useEffect(() => {
-        if (initValue && stationCollection && stationCollection.length > 0) {
-            const x = stationCollection.filter(
-                (x) => x.id == initValue!.stationId
-            )[0]
-            setStation(`${x.abbreviation} - ${x.name}`)
-        }
-    }, [stationCollection])
-
-    useEffect(() => {
         if (
             initValue &&
             initValue.locationId != '' &&
@@ -199,23 +173,6 @@ const ServiceForm = ({
             else setServiceLocation('')
         }
     }, [locations])
-
-    useEffect(() => {
-        if (
-            initValue &&
-            initValue.centerId != '' &&
-            initValue.centerId != '0' &&
-            careCenterCollection &&
-            careCenterCollection.length > 0
-        ) {
-            const x = careCenterCollection.filter(
-                (x) => x.id == initValue!.centerId
-            )[0]
-            console.log('CareCenter', x, initValue.centerId)
-
-            setCareCenter(`${x.id} - ${x.name}`)
-        }
-    }, [careCenterCollection])
 
 
     function updateAuthoritiesData() {
@@ -252,6 +209,38 @@ const ServiceForm = ({
 
     const [count, setCount] = useState(0)
 
+    const getAntares = useCallback(async () => {
+        const response = await getAll<TAntares>(
+            'mission/antares',
+            AntaresFromApi
+        )
+        if (response.success && response.result)
+            return response.result
+        else return []
+    }, [])
+
+    const getStations = useCallback(async () => {
+        const response = await getAll<StationSchemaBasicDataType>(
+            'station'
+        )
+        if (response.success && response.result)
+            return response.result
+        else return []
+    }, [])
+
+    const getCareCenters = useCallback(async () => {
+        const response = await getAll<HealthCareCenterSchemaBasicDataType>(
+            'center'
+        )
+        console.log("centers", response.result);
+
+        if (response.success && response.result)
+            return response.result
+        else return []
+    }, [])
+
+
+
     let debounceUpdate = _.debounce(function () {
         setCount(count + 1)
     }, 1000)
@@ -272,7 +261,7 @@ const ServiceForm = ({
     }
 
     async function addAuthority(authority: string) {
-        const authorityResult = await post("mission/authority/service/create", {mission_id: missionId, service_id: serviceId, authority_id :  authority.split(" - ")[0]})
+        const authorityResult = await post("mission/authority/service/create", { mission_id: missionId, service_id: serviceId, authority_id: authority.split(" - ")[0] })
 
         if (authorityResult.success) {
             modalService.toastSuccess("Autoridad agregada")
@@ -322,22 +311,7 @@ const ServiceForm = ({
                 defaultValue.isImportant = isImportant
                 defaultValue.operativeAreas = operativeAreas
 
-                if (
-                    stationCollection &&
-                    stationCollection.length > 0 &&
-                    station
-                )
-                    defaultValue.stationId = stationCollection.filter(
-                        (x) => `${x.abbreviation} - ${x.name}` == station
-                    )[0].id
-                if (
-                    careCenterCollection &&
-                    careCenterCollection.length > 0 &&
-                    careCenter
-                )
-                    defaultValue.centerId = careCenterCollection.filter(
-                        (x) => `${x.id} - ${x.name}` == careCenter
-                    )[0].id
+
 
                 if (locations && locations.length > 0 && serviceLocation)
                     defaultValue.locationId =
@@ -362,22 +336,8 @@ const ServiceForm = ({
                     service.result.isImportant = isImportant
                     service.result.operativeAreas = operativeAreas
 
-                    if (
-                        stationCollection &&
-                        stationCollection.length > 0 &&
-                        station
-                    )
-                        service.result.stationId = stationCollection.filter(
-                            (x) => `${x.abbreviation} - ${x.name}` == station
-                        )[0].id
-                    if (
-                        careCenterCollection &&
-                        careCenterCollection.length > 0 &&
-                        careCenter
-                    )
-                        service.result.centerId = careCenterCollection.filter(
-                            (x) => `${x.id} - ${x.name}` == careCenter
-                        )[0].id
+
+
 
                     if (locations && locations.length > 0 && serviceLocation)
                         service.result.locationId =
@@ -493,10 +453,6 @@ const ServiceForm = ({
         } else alertController.notifyError('No se pudo eliminar el usuario ...')
     }
 
-    const antaresNames = antaresCollection.map(
-        (item) => `${item.id} - ${item.description}`
-    )
-
     function addOperativeArea(operativeArea: string) {
         if (!operativeAreas) {
             setOperativeAreas([operativeArea])
@@ -527,6 +483,10 @@ const ServiceForm = ({
         debounceUpdate()
     }
 
+    function submit() {
+
+    }
+
     return (
         <>
             <ModalLayout
@@ -534,123 +494,120 @@ const ServiceForm = ({
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex items-center space-x-8 xl:space-x-6 w-full">
-                    <div className="w-full">
-                        <div className="flex space-x-4 w-full">
-                            <div className="flex-auto w-64">
-                                <SelectWithSearch
-                                    description="Antares"
-                                    options={antaresNames}
-                                    selectedOption={antares}
-                                    selectionChange={(e) => {
-                                        setAntares(e)
-                                        debounceUpdate()
-                                    }}
-                                />
-                            </div>
+                <Form schema={ServiceSchema} initValue={initValue} onSubmit={submit}>
+                    <div className="flex items-center space-x-8 xl:space-x-6 w-full">
+                        <div className="w-full">
+                            <div className="flex space-x-4 w-full">
+                                <div className="flex-auto w-64">
+                                    <FormSelectWithSearch<TService, TAntares>
+                                        description="Antares"
+                                        fieldName={'antaresId'}
+                                        options={getAntares}
+                                        valueKey={'id'}
+                                        displayKeys={['id', 'description']}
+                                        selectionChange={(e) => {
+                                            setAntares(e)
+                                            debounceUpdate()
+                                        }}
+                                    />
+                                </div>
 
-                            <div className="flex flex-auto space-x-1 w-24">
-                                <SelectWithSearch
-                                    description="Ubicación del servicio"
-                                    options={locations.map(
-                                        (x) => `${x.id} - ${x.alias}`
-                                    )}
-                                    selectedOption={serviceLocation}
-                                    selectionChange={(e) => {
-                                        setServiceLocation(e)
-                                        debounceUpdate()
-                                    }}
-                                />
+                                <div className="flex flex-auto space-x-1 w-24">
+                                    <FormSelectWithSearch<TService, ServiceLocationSchemaType>
+                                        description="Ubicación del servicio"
+                                        fieldName={'locationId'}
+                                        options={locations}
+                                        valueKey={'id'}
+                                        displayKeys={['id', 'alias']}
+                                        selectionChange={(e) => {
+                                            setAntares(e)
+                                            debounceUpdate()
+                                        }}
+                                    />
 
-                                <div className="flex-none pt-8 h-11">
-                                    <Button
-                                        colorType="bg-[#3C50E0]"
-                                        onClick={locationActions.add}
-                                        children={'+'}
-                                        width="w-10"
-                                    ></Button>
+                                    <div className="flex-none pt-8 h-11">
+                                        <Button
+                                            colorType="bg-[#3C50E0]"
+                                            onClick={locationActions.add}
+                                            children={'+'}
+                                            width="w-10"
+                                        ></Button>
+                                    </div>
+                                </div>
+                                <div className="flex pt-8">
+                                    <Toggle
+                                        width="w-44"
+                                        height="h-11"
+                                        toggle={isImportant}
+                                        option1="Relevante"
+                                        option2="No Relevante"
+                                        toggleChanged={() => {
+                                            setIsImportant(!isImportant)
+                                            debounceUpdate()
+                                        }}
+                                    ></Toggle>
                                 </div>
                             </div>
-                            <div className="flex pt-8">
-                                <Toggle
-                                    width="w-44"
-                                    height="h-11"
-                                    toggle={isImportant}
-                                    option1="Relevante"
-                                    option2="No Relevante"
-                                    toggleChanged={() => {
-                                        setIsImportant(!isImportant)
-                                        debounceUpdate()
-                                    }}
-                                ></Toggle>
+                            <div className="flex space-x-4">
+                                <div className="flex-auto w-64">
+                                    <FormSelectWithSearch<TService, StationSchemaBasicDataType>
+                                        description="Estación"
+                                        fieldName={'stationId'}
+                                        options={getStations}
+                                        valueKey={'id'}
+                                        displayKeys={['abbreviation', 'name']}
+                                        selectionChange={(e) => {
+                                            setAntares(e)
+                                            debounceUpdate()
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="flex-auto w-24">
+                                    <FormSelectWithSearch<TService, HealthCareCenterSchemaBasicDataType>
+                                        description="Centro asistencial"
+                                        fieldName={'centerId'}
+                                        options={getCareCenters}
+                                        valueKey={'id'}
+                                        displayKeys={['id', 'name']}
+                                        selectionChange={(e) => {
+                                            setAntares(e)
+                                            debounceUpdate()
+                                        }}
+                                    />
+                                </div>
+
+                                <div className="flex-auto w-24">
+                                    <FormInput<TService>
+                                        description="Fecha de servicio"
+                                        fieldName={'manualServiceDate'}
+                                    />
+                                </div>
+
+                                <div className="w-44">
+                                    {/* <FormSelectWithSearch<TService, string>
+                                        description="Nivel"
+                                        fieldName={'level'}
+                                        options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
+                                        selectionChange={(e) => {
+                                            setAntares(e)
+                                            debounceUpdate()
+                                        }}
+                                    /> */}
+                                </div>
                             </div>
                         </div>
-                        <div className="flex space-x-4">
-                            <div className="flex-auto w-64">
-                                <SelectWithSearch
-                                    description="Estación"
-                                    options={stationCollection.map(
-                                        (x) => `${x.abbreviation} - ${x.name}`
-                                    )}
-                                    selectedOption={station}
-                                    selectionChange={(e) => {
-                                        setStation(e)
-                                        debounceUpdate()
-                                    }}
-                                />
-                            </div>
-
-                            <div className="flex-auto w-24">
-                                <SelectWithSearch
-                                    description="Centro asistencial"
-                                    options={careCenterCollection.map(
-                                        (x) => `${x.id} - ${x.name}`
-                                    )}
-                                    addClearButton={true}
-                                    selectedOption={careCenter}
-                                    selectionChange={(e) => {
-                                        setCareCenter(e)
-                                        debounceUpdate()
-                                    }}
-                                />
-                            </div>
-
-                            <div className="flex-auto w-24">
-                                <TextInput
-                                    type={'Any'}
-                                    description="Fecha de servicio"
-                                    value={date}
-                                    onChange={(e) =>
-                                        setDate(e.currentTarget.value)
-                                    }
-                                    onBlur={() => debounceUpdate()}
-                                ></TextInput>
-                            </div>
-
-                            <div className="w-44">
-                                <SelectWithSearch
-                                    description="Nivel"
-                                    options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
-                                    selectedOption={station}
-                                    selectionChange={(e) => {
-                                        setStation(e)
-                                        debounceUpdate()
-                                    }}
-                                />
-                            </div>
+                        <div className='w-6 flex-none'></div>
+                        <div className="flex-none h-28 mt-2">
+                            <Button
+                                colorType="bg-[#3C50E0]"
+                                onClick={antaresButtonClicked}
+                                children={'Guardar'}
+                            ></Button>
                         </div>
                     </div>
-                    <div className='w-6 flex-none'></div>
-                    <div className="flex-none h-28 mt-2">
-                        <Button
-                            colorType="bg-[#3C50E0]"
-                            onClick={antaresButtonClicked}
-                            children={'Guardar'}
-                        ></Button>
-                    </div>
-                </div>
 
-                <div className="h-4"></div>
+                    {/* <div className="h-4"></div>
 
                 <div className="flex items-center space-x-6">
                     <div className="flex-none w-64">
@@ -841,7 +798,8 @@ const ServiceForm = ({
                             onBlur={() => debounceUpdate()}
                         />
                     </div>
-                </div>
+                </div> */}
+                </Form>
             </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />
