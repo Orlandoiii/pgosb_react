@@ -604,26 +604,26 @@ export default function TableDataGrid({
 
 
 
-    
+
 
     useEffect(() => {
         const filters = {}
-        
+
         if (globalFilter) {
             filters['Global'] = {
                 value: globalFilter,
                 type: 'global'
             }
         }
-        
-        
+
+
         table.getAllColumns().forEach(column => {
             const filterValue = column.getFilterValue()
             if (filterValue !== undefined) {
                 const layoutColumn = layout?.find(v => v.column_name === column.id)
 
                 if (layoutColumn?.type == 'date' || layoutColumn?.type == 'datetime') {
-                    
+
                     if (Array.isArray(filterValue)) {
 
                         if (filterValue.some(v => v != null)) {
@@ -720,6 +720,9 @@ export default function TableDataGrid({
         const rowsToPrint = table.getSortedRowModel()
             .rows.map(row => row.original);
 
+        let value = {rowsToPrint, appliedFilters}
+
+        logger.log('PRINT DATA:', value)
 
         onPrint(rowsToPrint)
     }
