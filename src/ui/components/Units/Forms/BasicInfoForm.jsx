@@ -173,7 +173,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             openUp={false}
 
                         />
-                        {/* <SelectSearch
+                        <SelectSearch
 
                             inputName={"model"}
                             label={"Modelo"}
@@ -183,9 +183,9 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                             setSearhValue={setModelo}
 
                             openUp={false}
-                        /> */}
+                        />
 
-                        <SelectWithSearch
+                        {/*   <SelectWithSearch
                             options={modelos}
                             selectedOption={modelo}
                             description='Modelo'
@@ -193,9 +193,9 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
                                 if (e && e != "")
                                     setModelo(e)
                                 console.log("Cambio de valor a", e)
-                            }}
+                            }} /> */}
 
-                        />
+
                     </div>
 
                     <div className="">
