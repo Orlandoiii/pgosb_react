@@ -88,7 +88,8 @@ const ServiceForm = ({
 }: ServiceFormProps) => {
     const [initialValue, setInitialValue] = useState({
         ...initValue,
-        missionId
+        missionId,
+        manualServiceDate: initValue ? initValue.manualServiceDate : new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })
     })
     const [serviceId, setServiceId] = useState(initialValue ? initialValue?.id ?? '-1' : '-1')
 
@@ -230,7 +231,7 @@ const ServiceForm = ({
     }, [])
 
     async function addAuthority(authority: string) {
-        const authorityResult = await post("mission/authority/service/create", { mission_id: missionId, service_id: serviceId, authority_id: authority.split(" - ")[0] })
+        const authorityResult = await post("mission/authority/service/create", { mission_id: missionId, service_id: serviceId, authority_id: authority })
 
         if (authorityResult.success) {
             modalService.toastSuccess("Autoridad agregada")
@@ -331,22 +332,21 @@ const ServiceForm = ({
     }
 
     async function submit(data: TService) {
-        console.log("submited", data, serviceId );
-        
+        console.log("submited", data, serviceId);
+
         let resultService: ResultErr<TService>
         let errorMessage: string = ''
 
-        if (serviceId == '-1')
-        {
+        if (serviceId == '-1') {
             let defaultValue = getDefaults<TService>(ServiceSchema)
-            defaultValue = {...defaultValue, ...data}
+            defaultValue = { ...defaultValue, ...data }
 
-            if (defaultValue.antaresId == "" || defaultValue.stationId == ""){
+            if (defaultValue.antaresId == "" || defaultValue.stationId == "") {
                 alertController.notifyError("Debe seleccionar una estación y un antares")
                 return
             }
-            
-            resultService = await serviceCrud.insert({...defaultValue, ...data})
+
+            resultService = await serviceCrud.insert({ ...defaultValue, ...data })
         }
         else resultService = await serviceCrud.update(data)
 
@@ -379,18 +379,19 @@ const ServiceForm = ({
                         <div className="w-full">
                             <div className="flex space-x-4 w-full">
                                 <div className="flex-auto w-64">
-                                    <FormSelectWithSearch<TService, TAntares>
-                                        description="Antares"
-                                        fieldName={'antaresId'}
-                                        options={getAntares}
+                                    <FormSelectWithSearch<TService, StationSchemaBasicDataType>
+                                        description="Estación"
+                                        fieldName={'stationId'}
+                                        options={getStations}
                                         valueKey={'id'}
-                                        displayKeys={['id', 'description']}
+                                        displayKeys={['abbreviation', 'name']}
                                     />
                                 </div>
 
+
                                 <div className="flex flex-auto space-x-1 w-24">
                                     <FormSelectWithSearch<TService, ServiceLocationSchemaType>
-                                        description="Ubicación del servicio"
+                                        description="Ubicación de origen"
                                         fieldName={'locationId'}
                                         options={locations}
                                         valueKey={'id'}
@@ -419,34 +420,44 @@ const ServiceForm = ({
                             </div>
                             <div className="flex space-x-4">
                                 <div className="flex-auto w-64">
-                                    <FormSelectWithSearch<TService, StationSchemaBasicDataType>
-                                        description="Estación"
-                                        fieldName={'stationId'}
-                                        options={getStations}
+                                    <FormSelectWithSearch<TService, TAntares>
+                                        description="Antares"
+                                        fieldName={'antaresId'}
+                                        options={getAntares}
                                         valueKey={'id'}
-                                        displayKeys={['abbreviation', 'name']}
+                                        displayKeys={['id', 'description']}
                                     />
                                 </div>
 
-                                <div className="flex-auto w-24">
-                                    <FormSelectWithSearch<TService, HealthCareCenterSchemaBasicDataType>
-                                        description="Centro asistencial"
-                                        fieldName={'centerId'}
-                                        options={getCareCenters}
+                                <div className="flex flex-auto space-x-1 w-24">
+                                    <FormSelectWithSearch<TService, ServiceLocationSchemaType>
+                                        description="Ubicación de destino"
+                                        fieldName={'locationId'}
+                                        options={locations}
                                         valueKey={'id'}
-                                        displayKeys={['id', 'name']}
+                                        displayKeys={['id', 'alias']}
                                     />
+
+                                    <div className="flex-none pt-8 h-11">
+                                        <Button
+                                            colorType="bg-[#3C50E0]"
+                                            onClick={locationActions.add}
+                                            children={'+'}
+                                            width="w-10"
+                                        ></Button>
+                                    </div>
                                 </div>
 
-                                <div className="flex-auto w-24">
+
+                                <div className="flex-none w-44">
                                     <FormInput<TService>
                                         description="Fecha de servicio"
                                         fieldName={'manualServiceDate'}
                                     />
                                 </div>
 
-                                <div className="w-44">
-                                    {/* <FormSelectWithSearch<TService, string>
+                                {/* <div className="w-44">
+                                    <FormSelectWithSearch<TService, string>
                                         description="Nivel"
                                         fieldName={'level'}
                                         options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
@@ -454,8 +465,8 @@ const ServiceForm = ({
                                             setAntares(e)
                                             debounceUpdate()
                                         }}
-                                    /> */}
-                                </div>
+                                    />
+                                </div> */}
                             </div>
                         </div>
                         <div className='w-6 flex-none'></div>
@@ -486,38 +497,85 @@ const ServiceForm = ({
                     <div className="flex space-x-6 pt-4 w-full">
                         <div className="w-full">
                             <div className="space-y-10 w-full">
-                                <AddableTable
-                                    enable={formIsEnable()}
-                                    title="Unidades"
-                                    data={serviceUnits}
-                                    optionsDescription={'Placa'}
-                                    options={unitsCollection}
-                                    valueKey={'id'}
-                                    displayKeys={['plate', 'unit_type']}
-                                    nameConverter={unitNameConverter}
-                                    onAddOption={addUnitHandler}
-                                    onDeleteButtonClick={deleteUnitHandler}
-                                    idPropertyName="id"
-                                    addButtonText="Agregar una unidad"
-                                ></AddableTable>
+                                <div className='flex w-full space-x-8'>
+                                    <AddableTable
+                                        enable={formIsEnable()}
+                                        title="Unidades"
+                                        data={serviceUnits}
+                                        optionsDescription={'Placa'}
+                                        options={unitsCollection}
+                                        valueKey={'id'}
+                                        displayKeys={['plate', 'unit_type']}
+                                        nameConverter={unitNameConverter}
+                                        onAddOption={addUnitHandler}
+                                        onDeleteButtonClick={deleteUnitHandler}
+                                        idPropertyName="id"
+                                        addButtonText="Agregar una unidad"
+                                    ></AddableTable>
 
-                                <AddableTable
-                                    enable={formIsEnable()}
-                                    title="Bomberos"
-                                    data={serviceUsers}
-                                    optionsDescription={'Usuario'}
-                                    nameConverter={userNameConverter}
-                                    options={usersCollection}
-                                    valueKey={'id'}
-                                    displayKeys={['personal_code', 'legal_id']}
-                                    optionsDescription2={'Rol'}
-                                    options2={roles}
-                                    onAddOption={addUserHandler}
-                                    onDeleteButtonClick={deleteUserHandler}
-                                    defaultSort={'id'}
-                                    idPropertyName="id"
-                                    addButtonText="Agregar un bombero"
-                                />
+                                    <AddableTable
+                                        enable={formIsEnable()}
+                                        title="Bomberos"
+                                        data={serviceUsers}
+                                        optionsDescription={'Usuario'}
+                                        nameConverter={userNameConverter}
+                                        options={usersCollection}
+                                        valueKey={'id'}
+                                        displayKeys={['personal_code', 'legal_id']}
+                                        optionsDescription2={'Rol'}
+                                        options2={roles}
+                                        onAddOption={addUserHandler}
+                                        onDeleteButtonClick={deleteUserHandler}
+                                        defaultSort={'id'}
+                                        idPropertyName="id"
+                                        addButtonText="Agregar un bombero"
+                                    />
+                                </div>
+
+                                <div className={`w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
+                                    <span className="font-semibold text-slate-700 text-xl">
+                                        Descripción / Bitacora
+                                    </span>
+
+                                    <FormTextArea<TService>
+                                        description={''}
+                                        fieldName={'description'}
+                                        disable={!formIsEnable()}
+                                    />
+                                </div>
+
+
+                                <div className={`w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
+                                    <span className="font-semibold text-slate-700 text-xl">
+                                        Personas sin documetación
+                                    </span>
+                                    <div className='flex w-full items-center space-x-4'>
+                                        <FormInput<TService>
+                                            description={'Ilesos'}
+                                            fieldName={'unharmed'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                        <FormInput<TService>
+                                            description={'Lesionados'}
+                                            fieldName={'injured'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                        <FormInput<TService>
+                                            description={'Trasladados'}
+                                            fieldName={'transported'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                        <FormInput<TService>
+                                            description={'Fallecidos'}
+                                            fieldName={'deceased'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                    </div>
+                                </div>
 
                                 <AddableTable
                                     enable={formIsEnable()}
@@ -562,7 +620,9 @@ const ServiceForm = ({
                                     title="Autoridades"
                                     data={serviceAuthorities}
                                     optionsDescription={'Alias'}
-                                    options={autorities.map((item) => `${item.id} - ${item.alias}`)}
+                                    options={autorities}
+                                    valueKey={'id'}
+                                    displayKeys={['id', 'alias']}
                                     nameConverter={MissionAuthoritySummaryNameConverter}
                                     onAddOption={addAuthority}
                                     onDeleteButtonClick={deleteAuthority}
@@ -570,57 +630,6 @@ const ServiceForm = ({
                                     addButtonText="Agregar una autoridad"
                                 ></AddableTable>
                             </div>
-                        </div>
-
-                        <div
-                            className={`flex flex-col w-1/2 space-y-4  ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
-                        >
-                            <div className="space-y-4 w-full">
-                                <span className="font-semibold text-slate-700 text-xl">
-                                    Personas sin documetación
-                                </span>
-
-                                <div className="w-full">
-                                    <div className="flex items-center space-x-4">
-                                        <FormInput<TService>
-                                            description={'Ilesos'}
-                                            fieldName={'unharmed'}
-                                            disable={!formIsEnable()}
-                                            type={'Integer'}
-                                        />
-                                        <FormInput<TService>
-                                            description={'Lesionados'}
-                                            fieldName={'injured'}
-                                            disable={!formIsEnable()}
-                                            type={'Integer'}
-                                        />
-                                    </div>
-                                    <div className="flex items-center space-x-4">
-                                        <FormInput<TService>
-                                            description={'Trasladados'}
-                                            fieldName={'transported'}
-                                            disable={!formIsEnable()}
-                                            type={'Integer'}
-                                        />
-                                        <FormInput<TService>
-                                            description={'Fallecidos'}
-                                            fieldName={'deceased'}
-                                            disable={!formIsEnable()}
-                                            type={'Integer'}
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <span className="font-semibold text-slate-700 text-xl">
-                                Descripción / Bitacora
-                            </span>
-
-                            <FormTextArea<TService>
-                                description={''}
-                                fieldName={'description'}
-                                disable={!formIsEnable()}
-                            />
                         </div>
                     </div>
                 </Form>

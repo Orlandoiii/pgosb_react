@@ -62,6 +62,12 @@ const TextAreaBase = forwardRef<HTMLTextAreaElement, TextAreaBaseProps>(
         onBlur={onBlurHandler}
         onMouseEnter={onMouseEnterHandler}
         onMouseLeave={onMouseLeaveHandler}
+        onKeyDown={(e) => {
+          if (e.key.toLowerCase() == 'enter') {
+            e.preventDefault()
+            e.stopPropagation()
+          }
+        }}
         className={`${rest.className} ${!disabled ? "" : "opacity-50 pointer-events-none bg-gray-300"} flex h-full w-full items-center rounded-md px-3 outline-none`}
       />
     );

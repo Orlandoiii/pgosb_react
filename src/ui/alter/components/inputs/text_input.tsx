@@ -45,6 +45,12 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
                         {...rest}
                         ref={ref}
                         disabled={disable}
+                        onKeyDown={(e) => {
+                            if (e.key.toLowerCase() == 'enter') {
+                                e.preventDefault()
+                                e.stopPropagation()
+                            }
+                        }}
                         onFocusChanged={(isFocused) => setIsFocus(isFocused)}
                         onHoverChanged={(isHovered) => setIsHover(isHovered)}
                         onIsEmptyChanged={isEmptyChanged}

@@ -271,21 +271,3 @@ const MissionPage = () => {
 
 export default MissionPage
 
-
-
-const services: TService[] = [
-    {
-        id: "1",
-        missionId: "1",
-        antaresId: "3",
-        stationId: "1",
-        units: ["A321", "AS565"],
-        firefighter: ["001", "002"],
-        unharmed: "5",
-        injured: "2",
-        transported: "0",
-        deceased: "0",
-        isImportant: true,
-        operativeAreas: [""]
-    }
-]  

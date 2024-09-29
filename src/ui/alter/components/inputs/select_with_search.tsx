@@ -40,8 +40,10 @@ export function SelectWithSearch<T>({
     selectionChange,
     ...rest
 }: SelectWithSearchProps<T>) {
-    const { state: select, dispatch } = useSelect<T>(options, selectedOption, valueKey, displayKeys, selectionChange, isLoading, clearAfterSelect)
+    const { state: select, dispatch } = useSelect<T>(options, selectedOption, valueKey, displayKeys, selectionChange, isLoading, allowNewValue, clearAfterSelect)
 
+    console.log("state option", select.state.innerSelectedOption);
+    
     return (
         <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`} >
 
@@ -83,7 +85,7 @@ export function SelectWithSearch<T>({
                     />
                     <div className="top-0 left-0 absolute flex justify-end items-center space-x-1 pr-2 w-full h-full pointer-events-none">
                         <div
-                            className={`${select.state.optionsOpen ? "rotate-180" : ""} ${select.state.isFocus ? "pointer-events-none" : "pointer-events-auto"} inset-0 duration-200`}
+                            className={`${select.state.optionsOpen ? "rotate-180" : ""} inset-0 duration-200`}
                         >
                             <ArrowDownIcon />
                         </div>
@@ -94,7 +96,11 @@ export function SelectWithSearch<T>({
                     {select.state.innerSelectedOption.value != "" && addClearButton && !isLoading && (
                         <button
                             tabIndex={-1}
-                            onClick={() => dispatch({ type: 'CLEAR_CLICKED' })}
+                            onClick={(e) => {
+                                dispatch({ type: 'CLEAR_CLICKED' })
+                                e.preventDefault()
+                                e.stopPropagation()
+                            }}
                             className="flex justify-center items-center hover:bg-slate-200 rounded-full w-6 h-6 font-semibold text-gray-400 text-xs hover:text-red-500 duration-150 pointer-events-auto aspect-square"
                         >
                             ✕

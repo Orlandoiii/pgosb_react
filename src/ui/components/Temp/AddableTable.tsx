@@ -18,11 +18,11 @@ interface AddableTableProps<T> {
     nameConverter?: { [K in keyof T]?: string }
     onEditButtonClick?: (id: string) => void
     onDeleteButtonClick?: (id: string) => void
-    options?: any[] |  string[]
+    options?: any[] | string[]
     valueKey?: string
     displayKeys?: string[]
     optionsDescription?: string
-    options2?: any[] |  string[]
+    options2?: any[] | string[]
     valueKey2?: string
     displayKeys2?: string[]
     optionsDescription2?: string
@@ -150,30 +150,30 @@ export function AddableTable<T>({
                                 (property) => (
                                     <>
                                         {!nameConverter ||
-                                        (nameConverter &&
-                                            nameConverter.hasOwnProperty(
-                                                String(property[0])
-                                            )) ? (
+                                            (nameConverter &&
+                                                nameConverter.hasOwnProperty(
+                                                    String(property[0])
+                                                )) ? (
                                             <td
                                                 key={`${title}-${property[0]}-header`}
                                                 className={`  px-4 duration-200 hover:bg-[#1d4368] ${enable ? 'cursor-pointer' : ''}`}
                                                 onClick={
                                                     enable
                                                         ? () =>
-                                                              changeSort(
-                                                                  String(
-                                                                      property[0]
-                                                                  ) as keyof T
-                                                              )
-                                                        : () => {}
+                                                            changeSort(
+                                                                String(
+                                                                    property[0]
+                                                                ) as keyof T
+                                                            )
+                                                        : () => { }
                                                 }
                                             >
                                                 <div className="flex space-x-4">
                                                     <span>
                                                         {nameConverter
                                                             ? nameConverter[
-                                                                  property[0]
-                                                              ]
+                                                            property[0]
+                                                            ]
                                                             : property[0]}
                                                     </span>
                                                     {property[0] == sort && (
@@ -214,9 +214,9 @@ export function AddableTable<T>({
                                 {Object.entries(element as any).map(
                                     (property) =>
                                         !nameConverter ||
-                                        nameConverter.hasOwnProperty(
-                                            String(property[0])
-                                        ) ? (
+                                            nameConverter.hasOwnProperty(
+                                                String(property[0])
+                                            ) ? (
                                             <td
                                                 key={`${title}-${property[0]}-cell`}
                                                 className="px-4 whitespace-nowrap"
@@ -226,16 +226,16 @@ export function AddableTable<T>({
                                                         ? ''
                                                         : typeof property[1] ===
                                                             'object'
-                                                          ? Object?.entries(
+                                                            ? Object?.entries(
                                                                 (property[1] as any) ??
-                                                                    {}
+                                                                {}
                                                             )
                                                                 ?.map(
                                                                     (x) => x[1]
                                                                 )
                                                                 ?.join(',') ??
                                                             ''
-                                                          : (typeof property[1] === 'boolean' ? (property[1] ? "Si" : "No") : (property[1] as any)))
+                                                            : (typeof property[1] === 'boolean' ? (property[1] ? "Si" : "No") : (property[1] as any)))
                                                 }
                                             </td>
                                         ) : (
@@ -250,6 +250,7 @@ export function AddableTable<T>({
                                                     onDeleteButtonClick(
                                                         element[idPropertyName]
                                                     )
+                                                e.preventDefault()
                                                 e.stopPropagation()
                                             }}
                                             className="flex justify-center items-center border-2 border-white bg-slate-400 hover:bg-rose-500 rounded-md h-7 text-lg text-white duration-200 pointer-events-auto aspect-square"
@@ -305,16 +306,18 @@ export function AddableTable<T>({
                                     <Button
                                         enable={selectedOption != ''}
                                         colorType="bg-[#3C50E0]"
-                                        onClick={() => {
+                                        onClick={(e) => {
                                             onAddOption
                                                 ? onAddOption(
-                                                      selectedOption,
-                                                      selectedOption2
-                                                  )
+                                                    selectedOption,
+                                                    selectedOption2
+                                                )
                                                 : undefined
                                             setShowInnerAdd(false)
                                             setSelectedOption('')
                                             setSelectedOption2('')
+                                            e.preventDefault()
+                                            e.stopPropagation()
                                         }}
                                         children={'Guardar'}
                                     ></Button>
@@ -324,6 +327,7 @@ export function AddableTable<T>({
                                             setShowInnerAdd(false)
                                             setSelectedOption('')
                                             setSelectedOption2('')
+                                            e.preventDefault()
                                             e.stopPropagation()
                                         }}
                                         className="flex justify-center items-center border-2 border-white bg-slate-400 hover:bg-rose-500 rounded-md h-7 text-lg text-white duration-200 pointer-events-auto aspect-square"
@@ -335,10 +339,12 @@ export function AddableTable<T>({
 
                             <button
                                 className={`${showInnerAdd && options ? 'translate-x-full opacity-0 pointer-events-none w-[0%]' : 'w-[100%]'} absolute left-0 top-0 flex h-full items-center px-2 bg-slate-200 text-slate-500 duration-200 hover:text-slate-800 hover:bg-slate-300`}
-                                onClick={() => {
+                                onClick={(e) => {
                                     options
                                         ? setShowInnerAdd(true)
                                         : onAddButtonClick && onAddButtonClick()
+                                    e.preventDefault()
+                                    e.stopPropagation()
                                 }}
                                 disabled={!enable}
                             >

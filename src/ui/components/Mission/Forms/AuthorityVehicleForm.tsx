@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 
 import { ApiMissionAuthorityVehicleSchema, ApiMissionAuthorityVehicleType, missionAuthorityVehicleCrud } from "../../../../domain/models/authority/authority_vehicle"
 import ModalLayout from "../../../core/layouts/modal_layout"
@@ -74,7 +74,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
     
 
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
-    const unitTypes = EnumToStringArray(UnitTypes)
+    const unitTypes =useMemo(() =>  EnumToStringArray(UnitTypes), [])
 
     async function updateModels(brand: string) {
         const result = await getModels(brand)
@@ -100,8 +100,6 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
 
 
     async function handleSubmitInternal(data: ApiMissionAuthorityVehicleType) {
-        setLoading(true)
-
         try {
             let result: ResultErr<ApiMissionAuthorityVehicleType>
 
@@ -120,7 +118,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
         } catch (error) {
             modalService.toastError(`Error inesperado por: ${error.message}`)
         } finally {
-            setLoading(false)
+
         }
     }
 
@@ -132,7 +130,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
     return <>
         <ModalLayout
             className="min-w-[70vw] max-w-[85vw] max-h-[90vh]"
-            title={'Registro de la Misión'}
+            title={'Registro de Vehiculo'}
             onClose={closeOverlay}
         >
 
@@ -145,9 +143,8 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                     <div className="w-full md:flex md:md:items-start md:space-x-2">
                         <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
                             description="Tipo"
-                            allowNewValue={true}
                             options={unitTypes}
-                            fieldName={"type"}      
+                            fieldName={'type'}      
                             fatherLoading={loading}                    
                             selectionChange={(e) => { updateModels(e) }}
                         />
@@ -180,11 +177,6 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                         <FormInput<ApiMissionAuthorityVehicleType>
                             description="Año"
                             fieldName={'year'}
-                        />
-
-                        <FormInput<ApiMissionAuthorityVehicleType>
-                            description="Color"
-                            fieldName={'color'}
                         />
 
                         <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>

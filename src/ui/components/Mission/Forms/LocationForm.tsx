@@ -1,5 +1,5 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import Button from '../../../core/buttons/Button.tsx'
 
@@ -99,10 +99,10 @@ const LocationForm = ({
     const [loading, setLoading] = useState(false)
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
 
-    const staticLocations = stationCollection.length > 0 && careCenterCollection.length > 0 ? [
+    const staticLocations = useMemo(() => stationCollection.length > 0 && careCenterCollection.length > 0 ? [
         ...StationsAsStaticLocation(),
         ...CareCenterAsStaticLocation()
-    ] : []
+    ] : [], [stationCollection, careCenterCollection])
 
     function StationsAsStaticLocation(): StaticLocation[] {
         const newStaticLocations: StaticLocation[] = []
@@ -155,29 +155,30 @@ const LocationForm = ({
         return newStaticLocations
     }
 
-    function SetAlias(alias: string){
-        const staticLocation = staticLocations.filter(x => x.display === alias)[0]
-        
-        if (staticLocation){
-            setLoading(true)
 
-            setState(staticLocation.state)
-            setMunicipality(staticLocation.municipality)
-            setParish(staticLocation.parish)
-            setSector(staticLocation.sector)
-            setUrbanizacion(staticLocation.urb)
-            setAddress(staticLocation.address)
+    useEffect(() => {
+        if (alias && staticLocations.length > 0) {
+            const staticLocation = staticLocations.filter(x => x.display === alias)[0]
 
-            setTimeout(() => {
-                setLoading(false)
-            }, 1000);
+            if (staticLocation) {
+                setLoading(true)
+
+                setState(staticLocation.state)
+                setMunicipality(staticLocation.municipality)
+                setParish(staticLocation.parish)
+                setSector(staticLocation.sector)
+                setUrbanizacion(staticLocation.urb)
+                setAddress(staticLocation.address)
+
+                setTimeout(() => {
+                    setLoading(false)
+                }, 1000);
+            }
         }
-
-        setAlias(alias)
-    }
+    }, [alias])
 
     console.log(parishs.length);
-    
+
 
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
@@ -251,32 +252,44 @@ const LocationForm = ({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <SelectWithSearch
                                 description="Alias"
-                                allowNewValue={true}
                                 options={staticLocations}
-                                displayKeys={['display']}
-                                valueKey={'display'}
+                                allowNewValue={true}
                                 selectedOption={alias}
-                                selectionChange={(e) => SetAlias(e)}
+                                valueKey={'display'}
+                                displayKeys={['display']}
+                                selectionChange={(e) => {
+                                    console.log("set location alias", e);
+                                    
+                                    setAlias(e)
+                                }}
                             />
 
                             <SelectWithSearch
-                                isLoading={loading ||(states?.length ?? 0) < 2}
+                                isLoading={loading || (states?.length ?? 0) < 2}
                                 description="Estado"
                                 options={states}
                                 selectedOption={state}
                                 selectionChange={(e) => {
                                     setState(e)
-                                    console.log(e);
+                                    setMunicipality('')
+                                    setParish('')
+                                    setSector('')
+                                    setUrbanizacion('')
                                 }}
                             />
 
                             <SelectWithSearch
                                 disable={state && state == ''}
-                                isLoading={loading ||(states?.length ?? 0) < 2}
+                                isLoading={loading || (states?.length ?? 0) < 2}
                                 description="Municipio"
                                 options={municipalitys}
                                 selectedOption={municipality}
-                                selectionChange={(e) => setMunicipality(e)}
+                                selectionChange={(e) => {
+                                    setMunicipality(e)
+                                    setParish('')
+                                    setSector('')
+                                    setUrbanizacion('')
+                                }}
                             />
                         </div>
 
@@ -286,11 +299,15 @@ const LocationForm = ({
                                     (state && state == '') ||
                                     (municipality && municipality == '')
                                 }
-                                isLoading={loading ||(states?.length ?? 0) < 2}
+                                isLoading={loading || (states?.length ?? 0) < 2}
                                 description="Parroquia"
                                 options={parishs}
                                 selectedOption={parish}
-                                selectionChange={(e) => setParish(e)}
+                                selectionChange={(e) => {
+                                    setParish(e)
+                                    setSector('')
+                                    setUrbanizacion('')
+                                }}
                             />
 
                             <SelectWithSearch
@@ -299,11 +316,14 @@ const LocationForm = ({
                                     (municipality && municipality == '') ||
                                     (parish && parish == '')
                                 }
-                                isLoading={loading ||(states?.length ?? 0) < 2}
+                                isLoading={loading || (states?.length ?? 0) < 2}
                                 description="Sector"
                                 options={sectores}
                                 selectedOption={sector}
-                                selectionChange={(e) => setSector(e)}
+                                selectionChange={(e) => {
+                                    setSector(e)
+                                    setUrbanizacion('')
+                                }}
                             />
 
                             <SelectWithSearch
@@ -312,7 +332,7 @@ const LocationForm = ({
                                     (municipality && municipality == '') ||
                                     (parish && parish == '')
                                 }
-                                isLoading={loading ||(states?.length ?? 0) < 2}
+                                isLoading={loading || (states?.length ?? 0) < 2}
                                 description="Urbanización"
                                 options={urbanizaciones}
                                 selectedOption={urbanizacion}

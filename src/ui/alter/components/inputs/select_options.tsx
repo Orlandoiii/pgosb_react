@@ -113,7 +113,7 @@ const SelectOptionsInternal = forwardRef<SelectOptionsMethods, SelectOptionsProp
                   data-id={index}
                   key={`${option.display}${option.value}`}
                   onClick={() => onSelect(option)}
-                  className={`${optionBackground(option)} h-10 w-full cursor-pointer px-6 py-2`}
+                  className={`${optionBackground(option)} h-10 w-full cursor-pointer px-6 py-2 text-ellipsis overflow-hidden whitespace-nowrap`}
                 >
                   {option.display}
                 </div>
@@ -125,7 +125,7 @@ const SelectOptionsInternal = forwardRef<SelectOptionsMethods, SelectOptionsProp
                   data-id={index}
                   key={`${option.display}${option.value}`}
                   onClick={() => onSelect(option)}
-                  className={`${optionBackground(option)} h-10 w-full cursor-pointer px-6 py-2`}
+                  className={`${optionBackground(option)} h-10 w-full cursor-pointer px-6 py-2 text-ellipsis overflow-hidden whitespace-nowrap`}
                 >
                   {option.display}
                 </div>

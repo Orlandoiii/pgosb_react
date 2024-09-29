@@ -72,9 +72,9 @@ const MissionForm = ({
         updateAuthoritiesData()
     }, [services])
 
-    useEffect(()=> {
+    useEffect(() => {
         updateAuthoritiesData()
-    },[])
+    }, [])
 
     async function UpdateInnerServices() {
         const result = await getSummary<any>('mission/service')
@@ -227,15 +227,15 @@ const MissionForm = ({
                 <div className="h-8"></div>
 
                 <AddableTable
-                    title="Ubicaciones"
-                    data={locations}
-                    defaultSort={'state'}
+                    title="Servicios"
+                    data={innerServices ?? []}
+                    defaultSort={'id'}
                     idPropertyName="id"
-                    addButtonText="Agregar una ubicación"
-                    nameConverter={LocationNameConverter}
-                    onAddButtonClick={locationActions.add}
-                    onEditButtonClick={locationActions.edit}
-                    onDeleteButtonClick={locationActions.delete}
+                    addButtonText="Agregar un servicio"
+                    nameConverter={serviceNameConverter}
+                    onAddButtonClick={serviceActions.add}
+                    onEditButtonClick={serviceActions.edit}
+                    onDeleteButtonClick={serviceActions.delete}
                 ></AddableTable>
 
                 <div className="h-8"></div>
@@ -255,16 +255,17 @@ const MissionForm = ({
                 <div className="h-8"></div>
 
                 <AddableTable
-                    title="Servicios"
-                    data={innerServices ?? []}
-                    defaultSort={'id'}
+                    title="Ubicaciones"
+                    data={locations}
+                    defaultSort={'state'}
                     idPropertyName="id"
-                    addButtonText="Agregar un servicio"
-                    nameConverter={serviceNameConverter}
-                    onAddButtonClick={serviceActions.add}
-                    onEditButtonClick={serviceActions.edit}
-                    onDeleteButtonClick={serviceActions.delete}
+                    addButtonText="Agregar una ubicación"
+                    nameConverter={LocationNameConverter}
+                    onAddButtonClick={locationActions.add}
+                    onEditButtonClick={locationActions.edit}
+                    onDeleteButtonClick={locationActions.delete}
                 ></AddableTable>
+
             </ModalLayout>
             <LoadingModal initOpen={loading} children={null} />
         </>

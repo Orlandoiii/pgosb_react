@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useMemo, useState } from "react"
 
 import { ApiMissionAuthorityPersonSchema, ApiMissionAuthorityPersonType, missionAuthorityPersonCrud } from "../../../../domain/models/authority/authority_person"
 import ModalLayout from "../../../core/layouts/modal_layout"
@@ -23,18 +23,18 @@ interface Props {
     add?: boolean
 }
 
-const genders = EnumToStringArray(Genders)
-
 export function AuthorityPersonForm({ missionId, authorityId, initValue, onClose, closeOverlay, add }: Props) {
     const [loading, setLoading] = useState(true)
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
+
+    const genders = useMemo(() => EnumToStringArray(Genders), [])
 
     useEffect(() => {
         setLoading(false)
     }, [])
 
     console.log(initValue);
-    
+
 
     async function handleSubmitInternal(data: ApiMissionAuthorityPersonType) {
         setLoading(true)
@@ -67,7 +67,7 @@ export function AuthorityPersonForm({ missionId, authorityId, initValue, onClose
     }
 
     console.log(initValue?.gender);
-    
+
 
     return <>
         <ModalLayout
@@ -78,7 +78,7 @@ export function AuthorityPersonForm({ missionId, authorityId, initValue, onClose
 
             <Form
                 schema={ApiMissionAuthorityPersonSchema as any}
-                initValue={{ ...initValue, mission_id: missionId, authority_id: authorityId, gender: "MASCULINO"  } as any}
+                initValue={{ ...initValue, mission_id: missionId, authority_id: authorityId } as any}
                 onSubmit={handleSubmitInternal}
             >
                 <div className="w-full space-y-3 px-2">

@@ -68,7 +68,8 @@ export function Select<T>({
           />
 
           <div className="absolute h-full w-full flex items-center justify-end top-0 left-0 pointer-events-none pr-2 space-x-1">
-            <div className={`${select.state.optionsOpen ? "rotate-180" : ""} inset-0 pointer-events-auto duration-200`}>
+            <div
+              className={`${select.state.optionsOpen ? "rotate-180" : ""} inset-0 duration-200`}>
               <ArrowDownIcon />
             </div>
           </div>
@@ -78,7 +79,11 @@ export function Select<T>({
           {(select.state.innerSelectedOption.value != "") && addClearButton && !isLoading && (
             <button
               tabIndex={-1}
-              onClick={() => dispatch({ type: 'CLEAR_CLICKED' })}
+              onClick={(e) => {
+                dispatch({ type: 'CLEAR_CLICKED' })
+                e.preventDefault()
+                e.stopPropagation()
+              }}
               className="h-6 w-6 duration-150 aspect-square hover:bg-slate-200 hover:text-red-500 rounded-full text-gray-400 flex items-center justify-center text-xs font-semibold pointer-events-auto"
             >
               ✕

@@ -72,11 +72,14 @@ function getFilteredSelectOptions(options: SelectOption[], search: string) {
 function getNewSelectedOption(options: SelectOption[], option: SelectOption | string, allowNewValue: boolean): SelectOption {
     let newOption: SelectOption;
 
-    if (typeof option === 'string') {
-        if (allowNewValue) return { value: option, display: option }
-        else newOption = options.filter(x => x.display === option)[0]
-    } else newOption = options.filter(x => x === option)[0]
 
+    if (typeof option === 'string') {
+        if (allowNewValue) newOption = { value: option, display: option }
+        else newOption = options.filter(x => x.display === option)[0]
+    } else {
+        if (allowNewValue) newOption = { value: option.value, display: option.value }
+        else newOption = options.filter(x => x.value === option.value)[0]
+    }
     return newOption && (newOption.display != "Sin datos" && newOption.value != "") ? newOption : { value: "", display: "" }
 }
 function onClickOrFocusHandler(options: SelectOption[], selectedOption: SelectOption, selectContainer: React.RefObject<HTMLElement>, selectOptions: React.MutableRefObject<SelectOptionsMethods | undefined>, onSelectedOptionChanged: (option: SelectOption) => void, onClose: (clickedOut: boolean) => void): (() => void) | null {
@@ -103,9 +106,6 @@ function onClickOrFocusHandler(options: SelectOption[], selectedOption: SelectOp
 function selectedOptionChangedHandler<T>(state: SelectStoreState<T>, option: SelectOption | string): SelectStoreState<T> {
     const newSelectedOption = getNewSelectedOption(state.options.all, option, state.config.allowNewValue)
 
-    console.log("change to new option", state.options.all, option, newSelectedOption);
-
-
     return ({
         ...state,
         state: {
@@ -120,7 +120,7 @@ function selectedOptionChangedHandler<T>(state: SelectStoreState<T>, option: Sel
 }
 
 
-function getInitialState<T>(selectContainer: React.RefObject<HTMLElement>, selectOptions: React.MutableRefObject<SelectOptionsMethods | undefined>, input: React.RefObject<HTMLInputElement>, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void, clearAfterSelect?: boolean): SelectStoreState<T> {
+function getInitialState<T>(selectContainer: React.RefObject<HTMLElement>, selectOptions: React.MutableRefObject<SelectOptionsMethods | undefined>, input: React.RefObject<HTMLInputElement>, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void, allowNewValue?: boolean, clearAfterSelect?: boolean): SelectStoreState<T> {
     const SelectInitState: SelectState = {
         innerSelectedOption: { value: "", display: "" },
         isHover: false,
@@ -134,7 +134,7 @@ function getInitialState<T>(selectContainer: React.RefObject<HTMLElement>, selec
     const ConfigInitState = {
         valueKey: valueKey,
         displayKeys: displayKeys,
-        allowNewValue: false,
+        allowNewValue: allowNewValue,
         clearAfterSelect: clearAfterSelect
     }
     const OptionsInitState =
@@ -190,6 +190,11 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
                 return { ...state, refocus: false }
             }
 
+            if (action.payload.key.toLowerCase() === "enter") {
+                action.payload.stopPropagation();
+                action.payload.preventDefault();
+            }
+
             if (action.payload.key.toLowerCase() === "escape" && state.state.closeOptionsModal) {
                 state.state.closeOptionsModal()
                 return { ...state, state: { ...state.state, optionsOpen: false, closeOptionsModal: null }, refocus: false }
@@ -204,15 +209,13 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
             if (!state.state.optionsOpen || !state.refs.selectOptions || !state.refs.selectOptions.current) return { ...state, refocus: state.state.optionsOpen };
 
             state.refs.selectOptions.current.keyDownHandler(action.payload);
-            if (action.payload.key.toLowerCase() === "enter") {
-                action.payload.stopPropagation();
-                action.payload.preventDefault();
-            }
 
             return { ...state, refocus: state.state.optionsOpen }
         case 'CHANGE_CLOSE_CALL':
             return { ...state, state: { ...state.state, closeOptionsModal: action.payload } }
         case 'CHANGE_SEARCH':
+            const temp = state.config.allowNewValue ? { value: state.state.search, display: state.state.search } : state.state.innerSelectedOption
+            
             return {
                 ...state,
                 state: { ...state.state, search: action.payload },
@@ -221,9 +224,6 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
         case 'CHANGE_OPTIONS':
             const newOptions = getSelectOptions(action.payload, state.config.valueKey as string | undefined, state.config.displayKeys as string[] | undefined)
             const newFilteredOptions = getFilteredSelectOptions(newOptions, state.state.search)
-
-            console.log("changingOptions", action.payload, state.config.valueKey, state.config.displayKeys, newOptions, state);
-
 
             const selectedOption = newOptions.includes(state.state.innerSelectedOption) ? state.state.innerSelectedOption : { value: '', display: '' }
             const empty = selectedOption.value == "" && selectedOption.display == ''
@@ -257,12 +257,12 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
             return state;
     }
 }
-export function useSelect<T>(options: T[] | string[] | undefined, selectedOption: string, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void, isLoading?: boolean, clearAfterSelect?: boolean): { state: SelectStoreState<T>, dispatch: React.Dispatch<Action<T>> } {
+export function useSelect<T>(options: T[] | string[] | undefined, selectedOption: string, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void, isLoading?: boolean, allowNewValue?: boolean, clearAfterSelect?: boolean): { state: SelectStoreState<T>, dispatch: React.Dispatch<Action<T>> } {
     const containerRef = useRef<HTMLElement>(null);
     const optionsRef = useRef<SelectOptionsMethods>();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const [state, dispatch] = useReducer(reducer<T>, getInitialState<T>(containerRef, optionsRef, inputRef, valueKey, displayKeys, optionChanged, clearAfterSelect))
+    const [state, dispatch] = useReducer(reducer<T>, getInitialState<T>(containerRef, optionsRef, inputRef, valueKey, displayKeys, optionChanged, allowNewValue, clearAfterSelect))
 
     useEffect(() => {
         if (state.state.optionsOpen && state.refs.selectContainer && state.refs.selectOptions && !state.state.closeOptionsModal) {
@@ -279,7 +279,10 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
 
     useEffect(() => {
         if (!isLoading && state.options.all.length > 0 && state.options.all[0].display != 'Sin datos') {
-            dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: state.options.all.filter(x => x.value == selectedOption)[0] ?? { value: '', display: '' } })
+            const option = state.options.all.filter(x => x.value == selectedOption)[0] ?? { value: '', display: '' }
+            if (option.value != state.state.innerSelectedOption.value) {
+                dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: option })
+            }
         }
     }, [state.options.all, selectedOption, isLoading])
 
@@ -292,7 +295,7 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
                 dispatch({ type: 'OPTIONS_CLOSED' })
             }
             state.optionChanged?.(state.state.innerSelectedOption.value)
-            if (state.config.clearAfterSelect) dispatch({type:'CHANGE_SELECTED_OPTION', payload: ""})
+            if (state.config.clearAfterSelect) dispatch({ type: 'CHANGE_SELECTED_OPTION', payload: "" })
         }
     }, [state.state.innerSelectedOption, state.state.sameOption])
 

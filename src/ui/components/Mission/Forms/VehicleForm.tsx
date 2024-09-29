@@ -1,5 +1,5 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
 import Button from '../../../core/buttons/Button'
@@ -12,7 +12,6 @@ import { EnumToStringArray } from '../../../../utilities/converters/enum_convert
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes.ts'
 
 import CustomForm from '../../../core/context/CustomFormContext.tsx'
-import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
 import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved'
@@ -25,6 +24,9 @@ import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types.ts'
 import { get, getAll, post } from '../../../../services/http.tsx'
 import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 import { Colors } from '../../../../domain/abstractions/colors/colors.ts'
+import FormSelectWithSearch from '../../../alter/components/form_inputs/form_select_with_search.tsx'
+import FormInput from '../../../alter/components/form_inputs/form_input.tsx'
+import Form from '../../../alter/components/form/form.tsx'
 
 interface VehicleFormProps {
     serviceId: string
@@ -138,7 +140,7 @@ const VehicleForm = ({
     const areaCodes = EnumToStringArray(AreaCodes)
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
-    const unitTypes = EnumToStringArray(UnitTypes)
+    const unitTypes = useMemo(() => EnumToStringArray(UnitTypes), [])
 
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
@@ -175,7 +177,7 @@ const VehicleForm = ({
     return (
         <>
             <ModalLayout title={'Registro de Vehiculo'} onClose={handleClose}>
-                <CustomForm
+                <Form
                     schema={VehicleInvolvedSchema}
                     initValue={{ ...initValue, serviceId: serviceId }}
                     onSubmit={handleSubmitInternal}
@@ -184,53 +186,48 @@ const VehicleForm = ({
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormSelectSearch<TVehicleInvolved>
+                            <FormSelectWithSearch<TVehicleInvolved, string>
+                                description={'Tipo'}
                                 fieldName={'type'}
-                                description={'Tipo:'}
                                 options={unitTypes}
-                                initialValue={initValue ? initValue.type : ''}
                             />
 
-                            <FormSelectSearch<TVehicleInvolved>
+                            <FormSelectWithSearch<TVehicleInvolved, string>
+                                description={'Marca'}
                                 fieldName={'brand'}
-                                description={'Marca:'}
                                 options={getBrands}
-                                initialValue={initValue ? initValue.brand : ''}
-                                selectedChanged={(e) => setSelectedBrand(e)}
+                                selectionChange={(e) => setSelectedBrand(e)}
                             />
 
-                            <FormSelectSearch<TVehicleInvolved>
+                            <FormSelectWithSearch<TVehicleInvolved, string>
+                                description={'Modelo'}
                                 fieldName={'model'}
-                                description={'Modelo:'}
                                 options={models}
-                                initialValue={initValue ? initValue.model : ''}
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TVehicleInvolved>
-                                fieldName={'licensePlate'}
                                 description="Placa"
+                                fieldName={'licensePlate'}
                             />
 
                             <FormInput<TVehicleInvolved>
-                                fieldName={'year'}
                                 description="Año"
+                                fieldName={'year'}
                             />
 
-                            <FormSelectSearch<TVehicleInvolved>
+                            <FormSelectWithSearch<TVehicleInvolved, string>
+                                description={'Color'}
                                 fieldName={'color'}
-                                description="Color"
                                 options={Colors}
-                                initialValue={initValue ? initValue.color : ''}
-                                
                             />
                         </div>
                         <div className="h-4"></div>
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<TVehicleInvolved>
-                                fieldName={'condition'}
                                 description="Condición"
+                                fieldName={'condition'}
                             />
                         </div>
                     </div>
@@ -240,12 +237,12 @@ const VehicleForm = ({
                         <div className="flex justify-end space-x-8">
                             <Button
                                 colorType="bg-[#3C50E0]"
-                                onClick={() => {}}
+                                onClick={() => { }}
                                 children={buttonText}
                             ></Button>
                         </div>
                     </div>
-                </CustomForm>
+                </Form>
             </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />
