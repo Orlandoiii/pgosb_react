@@ -296,12 +296,8 @@ const ServiceForm = ({
     }
 
     async function addUserHandler(unit: string, rol: string) {
-        const selected = usersCollection.filter(
-            (items) => items.personal_code === unit.split(' - ')[0]
-        )[0]
-
         if (
-            serviceUsers.filter((x) => x.user_name == selected.user_name)
+            serviceUsers.filter((x) => x.id == unit)
                 .length > 0
         ) {
             alertController.notifyInfo(
@@ -313,7 +309,7 @@ const ServiceForm = ({
         const service = await post('mission/firefighter/create', {
             mission_id: missionId,
             service_id: serviceId,
-            user_id: selected.id,
+            user_id: unit,
             service_role: rol,
         })
 
@@ -511,10 +507,9 @@ const ServiceForm = ({
                                     data={serviceUsers}
                                     optionsDescription={'Usuario'}
                                     nameConverter={userNameConverter}
-                                    options={usersCollection.map(
-                                        (item) =>
-                                            `${item.personal_code} - ${item.legal_id}`
-                                    )}
+                                    options={usersCollection}
+                                    valueKey={'id'}
+                                    displayKeys={['personal_code', 'legal_id']}
                                     optionsDescription2={'Rol'}
                                     options2={roles}
                                     onAddOption={addUserHandler}
