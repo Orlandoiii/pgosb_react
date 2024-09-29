@@ -19,7 +19,8 @@ interface SelectStoreState<T> {
     config: {
         valueKey?: keyof T,
         displayKeys?: (keyof T)[],
-        allowNewValue: boolean
+        allowNewValue: boolean,
+        clearAfterSelect: boolean
     }
     options: {
         all: SelectOption[],
@@ -102,6 +103,9 @@ function onClickOrFocusHandler(options: SelectOption[], selectedOption: SelectOp
 function selectedOptionChangedHandler<T>(state: SelectStoreState<T>, option: SelectOption | string): SelectStoreState<T> {
     const newSelectedOption = getNewSelectedOption(state.options.all, option, state.config.allowNewValue)
 
+    console.log("change to new option", state.options.all, option, newSelectedOption);
+
+
     return ({
         ...state,
         state: {
@@ -116,7 +120,7 @@ function selectedOptionChangedHandler<T>(state: SelectStoreState<T>, option: Sel
 }
 
 
-function getInitialState<T>(selectContainer: React.RefObject<HTMLElement>, selectOptions: React.MutableRefObject<SelectOptionsMethods | undefined>, input: React.RefObject<HTMLInputElement>, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void): SelectStoreState<T> {
+function getInitialState<T>(selectContainer: React.RefObject<HTMLElement>, selectOptions: React.MutableRefObject<SelectOptionsMethods | undefined>, input: React.RefObject<HTMLInputElement>, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void, clearAfterSelect?: boolean): SelectStoreState<T> {
     const SelectInitState: SelectState = {
         innerSelectedOption: { value: "", display: "" },
         isHover: false,
@@ -130,7 +134,8 @@ function getInitialState<T>(selectContainer: React.RefObject<HTMLElement>, selec
     const ConfigInitState = {
         valueKey: valueKey,
         displayKeys: displayKeys,
-        allowNewValue: false
+        allowNewValue: false,
+        clearAfterSelect: clearAfterSelect
     }
     const OptionsInitState =
     {
@@ -217,12 +222,20 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
             const newOptions = getSelectOptions(action.payload, state.config.valueKey as string | undefined, state.config.displayKeys as string[] | undefined)
             const newFilteredOptions = getFilteredSelectOptions(newOptions, state.state.search)
 
+            console.log("changingOptions", action.payload, state.config.valueKey, state.config.displayKeys, newOptions, state);
+
+
             const selectedOption = newOptions.includes(state.state.innerSelectedOption) ? state.state.innerSelectedOption : { value: '', display: '' }
             const empty = selectedOption.value == "" && selectedOption.display == ''
 
             return ({
                 ...state,
-                state: { ...state.state, innerSelectedOption: selectedOption, isEmpty: empty },
+                state: {
+                    ...state.state,
+                    innerSelectedOption: selectedOption,
+                    isEmpty: empty,
+                    sameOption: state.state.innerSelectedOption == selectedOption ? state.state.sameOption + 1 : 0
+                },
                 options: {
                     all: newOptions,
                     filtered: newFilteredOptions
@@ -244,12 +257,12 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
             return state;
     }
 }
-export function useSelect<T>(options: T[] | string[] | undefined, selectedOption: string, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void, isLoading?: boolean): { state: SelectStoreState<T>, dispatch: React.Dispatch<Action<T>> } {
+export function useSelect<T>(options: T[] | string[] | undefined, selectedOption: string, valueKey?: keyof T, displayKeys?: (keyof T)[], optionChanged?: (option: string) => void, isLoading?: boolean, clearAfterSelect?: boolean): { state: SelectStoreState<T>, dispatch: React.Dispatch<Action<T>> } {
     const containerRef = useRef<HTMLElement>(null);
     const optionsRef = useRef<SelectOptionsMethods>();
     const inputRef = useRef<HTMLInputElement>(null);
 
-    const [state, dispatch] = useReducer(reducer<T>, getInitialState<T>(containerRef, optionsRef, inputRef, valueKey, displayKeys, optionChanged))
+    const [state, dispatch] = useReducer(reducer<T>, getInitialState<T>(containerRef, optionsRef, inputRef, valueKey, displayKeys, optionChanged, clearAfterSelect))
 
     useEffect(() => {
         if (state.state.optionsOpen && state.refs.selectContainer && state.refs.selectOptions && !state.state.closeOptionsModal) {
@@ -265,21 +278,25 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
     }, [options])
 
     useEffect(() => {
-        if (!isLoading && state.state.innerSelectedOption.value == '' && state.state.innerSelectedOption.display == '' && selectedOption != "")
-            dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: selectedOption })
-    }, [state.options.all, isLoading])
+        if (!isLoading && state.options.all.length > 0 && state.options.all[0].display != 'Sin datos') {
+            dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: state.options.all.filter(x => x.value == selectedOption)[0] ?? { value: '', display: '' } })
+        }
+    }, [state.options.all, selectedOption, isLoading])
 
     useEffect(() => {
-        if (!isLoading) {
+        if (state.config.clearAfterSelect && state.state.innerSelectedOption.value == '') return
+
+        if (!isLoading && state.options.all.length > 0 && state.options.all[0].display != 'Sin datos' && state.state.innerSelectedOption.display != '' && state.state.innerSelectedOption.value != '') {
             if (state.state.optionsOpen) {
                 state.state.closeOptionsModal?.()
                 dispatch({ type: 'OPTIONS_CLOSED' })
             }
             state.optionChanged?.(state.state.innerSelectedOption.value)
+            if (state.config.clearAfterSelect) dispatch({type:'CHANGE_SELECTED_OPTION', payload: ""})
         }
     }, [state.state.innerSelectedOption, state.state.sameOption])
 
-    useEffect(() => {        
+    useEffect(() => {
         if (state.state.optionsOpen) state.refs.selectOptions?.current?.filterOptions(state.state.search, state.options.filtered)
     }, [state.options.filtered, state.state.search])
 

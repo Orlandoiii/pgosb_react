@@ -33,7 +33,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                     const data = first.data!
                     console.log(item.unharmed, first.data);
                     console.log(first.error);
-                    
+
                     const a =
                     {
                         regionAreaId: data.id,
@@ -85,7 +85,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                             }]
                         }))
                     }
-                    
+
                     if (first.success && first.data) {
                         const parset = RelevantServiceDetail.safeParse(a)
 
@@ -308,14 +308,6 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                                             <span className="px-2">FUNCIONARIOS PRESENTES:<span className="font-semibold pl-1">{service?.firefighters?.length}</span></span>
                                         </div>
 
-                                        <div className="pt-5">
-                                            <span className="font-semibold">PERSONAS SIN IDENTIFICACIÓN:</span>
-                                            <span className="px-2">ILESOS:<span className="font-semibold pl-1">{service?.unharmed}</span></span>
-                                            <span className="px-2">HERIDOS:<span className="font-semibold pl-1">{service?.injured}</span></span>
-                                            <span className="px-2">TRANSPORTADOS:<span className="font-semibold pl-1">{service?.transported}</span></span>
-                                            <span className="px-2">FALLECIDOS:<span className="font-semibold pl-1">{service?.deceased}</span></span>
-                                        </div>
-
                                         <div className="pt-2">
                                             <div className="space-x-2">
                                                 <span className="font-semibold">ÁREAS OPERATIVAS:</span>
@@ -338,6 +330,14 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
                                                         <span className="pl-2"><span className="font-semibold pr-1">EQUIPO:</span>{`${firefighter.team}`}</span>
                                                     </div>
                                                 ))}</span>
+                                            </div>
+
+                                            <div className="pt-5">
+                                                <span className="font-semibold">PERSONAS SIN IDENTIFICACIÓN:</span>
+                                                <span className="px-2">ILESOS:<span className="font-semibold pl-1">{service?.unharmed}</span></span>
+                                                <span className="px-2">HERIDOS:<span className="font-semibold pl-1">{service?.injured}</span></span>
+                                                <span className="px-2">TRANSPORTADOS:<span className="font-semibold pl-1">{service?.transported}</span></span>
+                                                <span className="px-2">FALLECIDOS:<span className="font-semibold pl-1">{service?.deceased}</span></span>
                                             </div>
                                         </div>
                                     </>

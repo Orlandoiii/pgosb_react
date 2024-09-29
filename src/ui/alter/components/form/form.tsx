@@ -45,10 +45,12 @@ export default function Form<T extends FieldValues>({
         defaultValues: methods.formState.defaultValues,
         isSubmitted: methods.formState.isSubmitted,
         errors: methods.formState.errors,
+        getValues: methods.getValues
       }}
     >
       <form
         onSubmit={methods.handleSubmit((data) =>{
+
           onSubmit(schema.parse(data))
         })}
         onReset={formReset}

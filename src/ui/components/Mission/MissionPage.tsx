@@ -15,8 +15,8 @@ import LoadingModal from '../../core/modal/LoadingModal'
 import LayoutContexProvider from '../../core/context/LayoutContext'
 import { OverlayModalConfig } from '../../core/overlay/models/overlay_item'
 import Toggle from '../../alter/components/buttons/toggle'
-import { serviceCrud, TService } from '../../../domain/models/service/service'
-import { get, getSummary } from '../../../services/http'
+import { serviceCrud, ServiceFromApi, TService } from '../../../domain/models/service/service'
+import { get, getById, getSummary } from '../../../services/http'
 import { DetailServicesSummaryPrint } from './Print/DetailServicesSummaryPrint'
 import { RelevantServicesReportPrint } from './Print/RelevantServicesReportPrint'
 import { PrintView } from './Print/PrintView'
@@ -26,6 +26,7 @@ import { useUser } from '../../core/context/UserDataContext'
 import { useNavigate } from 'react-router-dom'
 import AlertController from '../../core/alerts/AlertController'
 import { useConfirmationModal } from '../../core/modal/ModalConfirmation'
+import ServiceForm from './Forms/ServiceForm'
 
 const alertController = new AlertController();
 
@@ -174,6 +175,26 @@ const MissionPage = () => {
 
     }, [modulesPermissions, userDataIsLoad])
 
+    async function editService(service: any) {
+        const result = await getById("", service.id, ServiceFromApi)
+        if (result.success) {
+            if (result.result && result.result.missionId) {
+                modalService.pushModal(
+                    ServiceForm,
+                    {
+                        missionId: result.result.missionId,
+                        initValue: result.result,
+                        closeOverlay: undefined,
+                    },
+                    new OverlayModalConfig(),
+                    updateData
+                )
+            }
+            else modalService.toastError(`El registro retorno sin datos`)
+        } else modalService.toastError(`No se pudo encontrar el registro`)
+    }
+
+
 
     return (
         <LayoutContexProvider
@@ -227,7 +248,7 @@ const MissionPage = () => {
                         exportFileName="Servicios"
                         rawData={data}
                         onAdd={addNewMission}
-                        onUpdate={openMission}
+                        onUpdate={editService}
                         showPrintButton={true}
                         onPrint={openPrintModal}
                         onDoubleClickRow={() => { }}

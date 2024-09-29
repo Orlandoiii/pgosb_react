@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection'
 import {
@@ -17,7 +17,7 @@ import {
     TService,
 } from '../../../../domain/models/service/service'
 import { getDefaults } from '../../../core/context/CustomFormContext'
-import { AntaresFromApi } from '../../../../domain/models/antares/antares'
+import { AntaresFromApi, TAntares } from '../../../../domain/models/antares/antares'
 
 import InfrastructureForm from './InfrastructureForm'
 import {
@@ -48,20 +48,30 @@ import {
     UnitSimple,
 } from '../../../../domain/models/unit/unit'
 import LocationIcon from '../../../core/icons/LocationIcon'
-import { get, post, remove } from '../../../../services/http'
+import { get, getAll, post, remove } from '../../../../services/http'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { Roles } from '../../../../domain/abstractions/enums/roles'
 import { OperativeAreas } from '../../../../domain/abstractions/enums/operative_areas'
 import TextInput from '../../../alter/components/inputs/text_input'
 import LocationForm from './LocationForm'
-import { LocationCrud } from '../../../../domain/models/location/location'
+import { LocationCrud, ServiceLocationSchemaType } from '../../../../domain/models/location/location'
 import { formatDateTime } from '../../../../utilities/formatters/date_formatter'
 import Toggle from '../../../alter/components/buttons/toggle'
 import _ from 'lodash'
 import Chip from '../../../alter/components/data_presenters/chip'
 import { modalService } from '../../../core/overlay/overlay_service'
 import { ApiMissionAuthoritySummaryType, MissionAuthoritySummaryNameConverter } from '../../../../domain/models/authority/mission_authority'
+import FormSelectWithSearch from '../../../alter/components/form_inputs/form_select_with_search'
+import Form from '../../../alter/components/form/form'
+import { StationSchemaBasicDataType } from '../../../../domain/models/stations/station'
+import { HealthCareCenterSchemaBasicDataType } from '../../../../domain/models/healthcare_center/healthcare_center'
+import FormInput from '../../../alter/components/form_inputs/form_input'
+import FormTextArea from '../../../alter/components/form_inputs/form_text_area'
+import FormToggle from '../../../alter/components/form_inputs/form_toggle'
+import { useFormFieldContext } from '../../../alter/components/form/form_context'
+import FormChips from '../../../alter/components/form_inputs/form_chips'
+import { Controller } from 'react-hook-form'
 
 const alertController = new AlertController()
 
@@ -76,30 +86,26 @@ const ServiceForm = ({
     initValue,
     closeOverlay,
 }: ServiceFormProps) => {
-    const [serviceId, setServiceId] = useState(initValue ? initValue.id : '-1')
-
-    const antaresCollection = useCollection('mission/antares', AntaresFromApi)
-    const stationCollection = useCollection('station', (data: any) => {
-        return { success: true, result: data }
+    const [initialValue, setInitialValue] = useState({
+        ...initValue,
+        missionId
     })
-    const careCenterCollection = useCollection('center', (data: any) => {
-        return { success: true, result: data }
-    })
+    const [serviceId, setServiceId] = useState(initialValue ? initialValue?.id ?? '-1' : '-1')
 
     const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
     const [serviceAuthorities, setServiceAuthorities] = useState<ApiMissionAuthoritySummaryType[]>([])
 
-    const [date, setDate] = useState(
-        initValue ? initValue.manualServiceDate : formatDateTime(new Date())
-    )
+
 
     const [isImportant, setIsImportant] = useState<boolean>(
-        initValue ? initValue.isImportant : false
+        initialValue ? initialValue.isImportant ?? false : false
     )
 
     const [operativeAreas, setOperativeAreas] = useState<string[]>(
-        initValue ? initValue.operativeAreas ?? [] : []
+        initialValue ? initialValue.operativeAreas ?? [] : []
     )
+    console.log("Set newOperativeAreas", operativeAreas);
+
 
     const [locationActions, locations] = useActionModalAndCollection(
         LocationForm,
@@ -131,92 +137,22 @@ const ServiceForm = ({
     const usersCollection: UserSimple[] = useSimpleCollection('user')
     const unitsCollection: UnitSimple[] = useSimpleCollection('unit')
 
-    const [unharmed, setUnharmed] = useState(
-        initValue ? initValue.unharmed : ''
-    )
-    const [injured, setInjured] = useState(initValue ? initValue.injured : '')
-    const [transferred, setTransferred] = useState(
-        initValue ? initValue.transported : ''
-    )
-    const [deceased, setDeceased] = useState(
-        initValue ? initValue.deceased : ''
-    )
-
     const [serviceUsers, setServiceUsers] = useState<UserSimple[]>([])
     const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
 
+
     const [loading, setLoading] = useState(false)
-    const [antares, setAntares] = useState('')
-    const [savedAntares, setSavedAntares] = useState('')
-    const [setIt, setSetIt] = useState(false)
-    const [details, setDetails] = useState(
-        initValue ? initValue.description : ''
-    )
 
-    const [savedDetails, setSavedDetails] = useState(
-        initValue ? initValue.description : ''
-    )
-    const [station, setStation] = useState('')
-    const [serviceLocation, setServiceLocation] = useState('')
-    const [careCenter, setCareCenter] = useState('')
+    const operativeAreasCollection = useMemo(() => EnumToStringArray(OperativeAreas), [])
+    const roles = useMemo(() => EnumToStringArray(Roles), [])
 
-    const roles = EnumToStringArray(Roles)
-    const operativeAreasCollection = EnumToStringArray(OperativeAreas)
 
     useEffect(() => {
-        if (!setIt && initValue && antaresCollection.length > 0) {
-            const description = antaresCollection.filter(
-                (item) => item.id == initValue.antaresId
-            )[0]
-            setSavedAntares(`${description.id} - ${description.description}`)
-            setAntares(`${description.id} - ${description.description}`)
-            setSetIt(true)
+        updateUnits()
+        updateUsers()
+        updateServiceAuthorities()
 
-            updateUnits()
-            updateUsers()
-        }
-    }, [antaresCollection])
-
-    useEffect(() => {
-        if (initValue && stationCollection && stationCollection.length > 0) {
-            const x = stationCollection.filter(
-                (x) => x.id == initValue!.stationId
-            )[0]
-            setStation(`${x.abbreviation} - ${x.name}`)
-        }
-    }, [stationCollection])
-
-    useEffect(() => {
-        if (
-            initValue &&
-            initValue.locationId != '' &&
-            initValue.locationId != '0' &&
-            locations &&
-            locations.length > 0
-        ) {
-            const x = locations.filter((x) => x.id == initValue!.locationId)[0]
-            if (x) setServiceLocation(`${x.id} - ${x.alias}`)
-            else setServiceLocation('')
-        }
-    }, [locations])
-
-    useEffect(() => {
-        if (
-            initValue &&
-            initValue.centerId != '' &&
-            initValue.centerId != '0' &&
-            careCenterCollection &&
-            careCenterCollection.length > 0
-        ) {
-            const x = careCenterCollection.filter(
-                (x) => x.id == initValue!.centerId
-            )[0]
-            console.log('CareCenter', x, initValue.centerId)
-
-            setCareCenter(`${x.id} - ${x.name}`)
-        }
-    }, [careCenterCollection])
-
+    }, [])
 
     function updateAuthoritiesData() {
         async function update() {
@@ -252,27 +188,49 @@ const ServiceForm = ({
 
     const [count, setCount] = useState(0)
 
+    const getAntares = useCallback(async () => {
+        const response = await getAll<TAntares>(
+            'mission/antares',
+            AntaresFromApi
+        )
+        if (response.success && response.result)
+            return response.result
+        else return []
+    }, [])
+
+    const getStations = useCallback(async () => {
+        const response = await getAll<StationSchemaBasicDataType>(
+            'station'
+        )
+        if (response.success && response.result)
+            return response.result
+        else return []
+    }, [])
+
+    const getCareCenters = useCallback(async () => {
+        const response = await getAll<HealthCareCenterSchemaBasicDataType>(
+            'center'
+        )
+        console.log("centers", response.result);
+
+        if (response.success && response.result)
+            return response.result
+        else return []
+    }, [])
+
+
+
     let debounceUpdate = _.debounce(function () {
         setCount(count + 1)
     }, 1000)
-
-    useEffect(() => {
-        console.log('aksdjklasjdklsajdkl', antares, station)
-
-        if (antares != '' && station != '') antaresButtonClicked()
-    }, [count])
 
     useEffect(() => {
         updateAuthoritiesData()
         updateServiceAuthorities()
     }, [])
 
-    function antaresButtonClicked() {
-        safeOrUpdateService(antares.split(' - ')[0])
-    }
-
     async function addAuthority(authority: string) {
-        const authorityResult = await post("mission/authority/service/create", {mission_id: missionId, service_id: serviceId, authority_id :  authority.split(" - ")[0]})
+        const authorityResult = await post("mission/authority/service/create", { mission_id: missionId, service_id: serviceId, authority_id: authority.split(" - ")[0] })
 
         if (authorityResult.success) {
             modalService.toastSuccess("Autoridad agregada")
@@ -299,134 +257,17 @@ const ServiceForm = ({
         }
     }
 
-    async function safeOrUpdateService(antaresId: string) {
-        if (antares === '') return
-        const add = serviceId === '-1'
-
-        var errorMessage: string = ''
-        try {
-            setLoading(true)
-            var resultService: ResultErr<TService>
-
-            if (add) {
-                const defaultValue = getDefaults<TService>(ServiceSchema)
-                defaultValue.missionId = missionId
-                defaultValue.antaresId = antaresId
-
-                defaultValue.unharmed = unharmed
-                defaultValue.injured = injured
-                defaultValue.transported = transferred
-                defaultValue.deceased = deceased
-                defaultValue.description = details
-                defaultValue.manualServiceDate = date
-                defaultValue.isImportant = isImportant
-                defaultValue.operativeAreas = operativeAreas
-
-                if (
-                    stationCollection &&
-                    stationCollection.length > 0 &&
-                    station
-                )
-                    defaultValue.stationId = stationCollection.filter(
-                        (x) => `${x.abbreviation} - ${x.name}` == station
-                    )[0].id
-                if (
-                    careCenterCollection &&
-                    careCenterCollection.length > 0 &&
-                    careCenter
-                )
-                    defaultValue.centerId = careCenterCollection.filter(
-                        (x) => `${x.id} - ${x.name}` == careCenter
-                    )[0].id
-
-                if (locations && locations.length > 0 && serviceLocation)
-                    defaultValue.locationId =
-                        locations.filter(
-                            (x) => `${x.id} - ${x.alias}` == serviceLocation
-                        )[0].id ?? '0'
-
-                resultService = await serviceCrud.insert(defaultValue)
-            } else {
-                const service = await serviceCrud.getById(serviceId ?? '')
-
-                if (service.success && service.result) {
-                    service.result.antaresId = antaresId
-
-                    service.result.unharmed = unharmed
-                    service.result.injured = injured
-                    service.result.transported = transferred
-                    service.result.deceased = deceased
-                    service.result.description = details
-
-                    service.result.manualServiceDate = date
-                    service.result.isImportant = isImportant
-                    service.result.operativeAreas = operativeAreas
-
-                    if (
-                        stationCollection &&
-                        stationCollection.length > 0 &&
-                        station
-                    )
-                        service.result.stationId = stationCollection.filter(
-                            (x) => `${x.abbreviation} - ${x.name}` == station
-                        )[0].id
-                    if (
-                        careCenterCollection &&
-                        careCenterCollection.length > 0 &&
-                        careCenter
-                    )
-                        service.result.centerId = careCenterCollection.filter(
-                            (x) => `${x.id} - ${x.name}` == careCenter
-                        )[0].id
-
-                    if (locations && locations.length > 0 && serviceLocation)
-                        service.result.locationId =
-                            locations.filter(
-                                (x) => `${x.id} - ${x.alias}` == serviceLocation
-                            )[0].id ?? '0'
-
-                    resultService = await serviceCrud.update(service.result)
-                }
-            }
-            if (resultService! && resultService.success) {
-                alertController.notifySuccess(
-                    add ? 'Servicio guardado' : 'Servicio actualizado'
-                )
-
-                if (add) setServiceId(resultService.result?.id)
-                setSavedAntares(antares)
-
-                return
-            } else if (!resultService!.success)
-                errorMessage = `Lo sentimos tenemos problemas para ${add ? 'agregar' : 'guardar'} el servicio`
-            else if (add && !resultService!.result?.id)
-                errorMessage =
-                    'El Id no fue retornado en el agregar el servicio'
-        } catch (error) {
-            errorMessage = `Lo sentimos ocurrio un error inesperado al ${add ? 'agregar' : 'guardar'} la misión`
-            console.error(error)
-        } finally {
-            setLoading(false)
-        }
-        if (errorMessage != '') alertController.notifyError(errorMessage)
-    }
-
     function formIsEnable(): boolean {
-        return savedAntares != '' && antares === savedAntares
+        return serviceId != '-1'
     }
-
-    console.log('Saved', savedAntares, antares)
 
     async function addUnitHandler(unit: string, ignore: any) {
-        const selected = unitsCollection.filter(
-            (item) => `${item.plate} - ${item.unit_type}` === unit
-        )[0]
 
         const service = await serviceCrud.getById(serviceId ?? '')
 
         if (service.success && service.result && service.result.units) {
-            if (!service.result.units.includes(selected.id)) {
-                service.result.units.push(selected.id)
+            if (!service.result.units.includes(unit)) {
+                service.result.units.push(unit)
 
                 const resultService = await serviceCrud.update(service.result)
                 if (resultService.success) {
@@ -455,12 +296,8 @@ const ServiceForm = ({
     }
 
     async function addUserHandler(unit: string, rol: string) {
-        const selected = usersCollection.filter(
-            (items) => items.personal_code === unit.split(' - ')[0]
-        )[0]
-
         if (
-            serviceUsers.filter((x) => x.user_name == selected.user_name)
+            serviceUsers.filter((x) => x.id == unit)
                 .length > 0
         ) {
             alertController.notifyInfo(
@@ -472,7 +309,7 @@ const ServiceForm = ({
         const service = await post('mission/firefighter/create', {
             mission_id: missionId,
             service_id: serviceId,
-            user_id: selected.id,
+            user_id: unit,
             service_role: rol,
         })
 
@@ -493,38 +330,41 @@ const ServiceForm = ({
         } else alertController.notifyError('No se pudo eliminar el usuario ...')
     }
 
-    const antaresNames = antaresCollection.map(
-        (item) => `${item.id} - ${item.description}`
-    )
+    async function submit(data: TService) {
+        console.log("submited", data, serviceId );
+        
+        let resultService: ResultErr<TService>
+        let errorMessage: string = ''
 
-    function addOperativeArea(operativeArea: string) {
-        if (!operativeAreas) {
-            setOperativeAreas([operativeArea])
-            return
+        if (serviceId == '-1')
+        {
+            let defaultValue = getDefaults<TService>(ServiceSchema)
+            defaultValue = {...defaultValue, ...data}
+
+            if (defaultValue.antaresId == "" || defaultValue.stationId == ""){
+                alertController.notifyError("Debe seleccionar una estación y un antares")
+                return
+            }
+            
+            resultService = await serviceCrud.insert({...defaultValue, ...data})
         }
+        else resultService = await serviceCrud.update(data)
 
-        let newOperativeAreas: string[] = [...operativeAreas, operativeArea]
-        newOperativeAreas = [
-            ...newOperativeAreas.filter(
-                (value, index) => newOperativeAreas.indexOf(value) === index
-            ),
-        ]
+        if (resultService! && resultService.success) {
+            alertController.notifySuccess(
+                serviceId == '-1' ? 'Servicio guardado' : 'Servicio actualizado'
+            )
 
-        setOperativeAreas(newOperativeAreas)
-        debounceUpdate()
-    }
+            if (serviceId == '-1') setServiceId(resultService.result!.id)
 
-    function removeOperativeArea(operativeArea: string) {
-        if (!operativeAreas) return
+            return
+        } else if (!resultService!.success)
+            errorMessage = `Lo sentimos tenemos problemas para ${serviceId == '-1' ? 'agregar' : 'guardar'} el servicio`
+        else if (serviceId == '-1' && !resultService!.result?.id)
+            errorMessage =
+                'El Id no fue retornado en el agregar el servicio'
 
-        let newOperativeAreas: string[] = []
-
-        operativeAreas.forEach((element) => {
-            if (element != operativeArea) newOperativeAreas.push(element)
-        })
-
-        setOperativeAreas(newOperativeAreas)
-        debounceUpdate()
+        if (errorMessage != '') alertController.notifyError(errorMessage)
     }
 
     return (
@@ -534,314 +374,256 @@ const ServiceForm = ({
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex items-center space-x-8 xl:space-x-6 w-full">
-                    <div className="w-full">
-                        <div className="flex space-x-4 w-full">
-                            <div className="flex-auto w-64">
-                                <SelectWithSearch
-                                    description="Antares"
-                                    options={antaresNames}
-                                    selectedOption={antares}
-                                    selectionChange={(e) => {
-                                        setAntares(e)
-                                        debounceUpdate()
-                                    }}
-                                />
-                            </div>
+                <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit}>
+                    <div className="flex items-center space-x-8 xl:space-x-6 w-full">
+                        <div className="w-full">
+                            <div className="flex space-x-4 w-full">
+                                <div className="flex-auto w-64">
+                                    <FormSelectWithSearch<TService, TAntares>
+                                        description="Antares"
+                                        fieldName={'antaresId'}
+                                        options={getAntares}
+                                        valueKey={'id'}
+                                        displayKeys={['id', 'description']}
+                                    />
+                                </div>
 
-                            <div className="flex flex-auto space-x-1 w-24">
-                                <SelectWithSearch
-                                    description="Ubicación del servicio"
-                                    options={locations.map(
-                                        (x) => `${x.id} - ${x.alias}`
-                                    )}
-                                    selectedOption={serviceLocation}
-                                    selectionChange={(e) => {
-                                        setServiceLocation(e)
-                                        debounceUpdate()
-                                    }}
-                                />
+                                <div className="flex flex-auto space-x-1 w-24">
+                                    <FormSelectWithSearch<TService, ServiceLocationSchemaType>
+                                        description="Ubicación del servicio"
+                                        fieldName={'locationId'}
+                                        options={locations}
+                                        valueKey={'id'}
+                                        displayKeys={['id', 'alias']}
+                                    />
 
-                                <div className="flex-none pt-8 h-11">
-                                    <Button
-                                        colorType="bg-[#3C50E0]"
-                                        onClick={locationActions.add}
-                                        children={'+'}
-                                        width="w-10"
-                                    ></Button>
+                                    <div className="flex-none pt-8 h-11">
+                                        <Button
+                                            colorType="bg-[#3C50E0]"
+                                            onClick={locationActions.add}
+                                            children={'+'}
+                                            width="w-10"
+                                        ></Button>
+                                    </div>
+                                </div>
+                                <div className="flex pt-8">
+
+                                    <FormToggle<TService>
+                                        width="w-44"
+                                        height="h-11"
+                                        fieldName={'isImportant'}
+                                        option1="Relevante"
+                                        option2="No Relevante"
+                                    />
                                 </div>
                             </div>
-                            <div className="flex pt-8">
-                                <Toggle
-                                    width="w-44"
-                                    height="h-11"
-                                    toggle={isImportant}
-                                    option1="Relevante"
-                                    option2="No Relevante"
-                                    toggleChanged={() => {
-                                        setIsImportant(!isImportant)
-                                        debounceUpdate()
-                                    }}
-                                ></Toggle>
+                            <div className="flex space-x-4">
+                                <div className="flex-auto w-64">
+                                    <FormSelectWithSearch<TService, StationSchemaBasicDataType>
+                                        description="Estación"
+                                        fieldName={'stationId'}
+                                        options={getStations}
+                                        valueKey={'id'}
+                                        displayKeys={['abbreviation', 'name']}
+                                    />
+                                </div>
+
+                                <div className="flex-auto w-24">
+                                    <FormSelectWithSearch<TService, HealthCareCenterSchemaBasicDataType>
+                                        description="Centro asistencial"
+                                        fieldName={'centerId'}
+                                        options={getCareCenters}
+                                        valueKey={'id'}
+                                        displayKeys={['id', 'name']}
+                                    />
+                                </div>
+
+                                <div className="flex-auto w-24">
+                                    <FormInput<TService>
+                                        description="Fecha de servicio"
+                                        fieldName={'manualServiceDate'}
+                                    />
+                                </div>
+
+                                <div className="w-44">
+                                    {/* <FormSelectWithSearch<TService, string>
+                                        description="Nivel"
+                                        fieldName={'level'}
+                                        options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
+                                        selectionChange={(e) => {
+                                            setAntares(e)
+                                            debounceUpdate()
+                                        }}
+                                    /> */}
+                                </div>
                             </div>
                         </div>
-                        <div className="flex space-x-4">
-                            <div className="flex-auto w-64">
-                                <SelectWithSearch
-                                    description="Estación"
-                                    options={stationCollection.map(
-                                        (x) => `${x.abbreviation} - ${x.name}`
-                                    )}
-                                    selectedOption={station}
-                                    selectionChange={(e) => {
-                                        setStation(e)
-                                        debounceUpdate()
-                                    }}
-                                />
-                            </div>
+                        <div className='w-6 flex-none'></div>
+                        <div className="flex-none h-28 mt-2">
+                            <Button
+                                colorType="bg-[#3C50E0]"
+                                children={'Guardar'}
+                            ></Button>
+                        </div>
+                    </div>
 
-                            <div className="flex-auto w-24">
-                                <SelectWithSearch
-                                    description="Centro asistencial"
-                                    options={careCenterCollection.map(
-                                        (x) => `${x.id} - ${x.name}`
-                                    )}
-                                    addClearButton={true}
-                                    selectedOption={careCenter}
-                                    selectionChange={(e) => {
-                                        setCareCenter(e)
-                                        debounceUpdate()
-                                    }}
-                                />
-                            </div>
+                    <div className="h-4"></div>
 
-                            <div className="flex-auto w-24">
-                                <TextInput
-                                    type={'Any'}
-                                    description="Fecha de servicio"
-                                    value={date}
-                                    onChange={(e) =>
-                                        setDate(e.currentTarget.value)
+                    <div className="flex items-center space-x-6">
+                        <div className="flex-none w-64">
+                            <AddOperativeAreaComponent options={operativeAreasCollection} />
+                        </div>
+
+                        {operativeAreas && (
+                            <FormChips<TService>
+                                fieldName={'operativeAreas'}
+                            />
+                        )}
+                    </div>
+
+                    <div className="h-4"></div>
+
+                    <div className="flex space-x-6 pt-4 w-full">
+                        <div className="w-full">
+                            <div className="space-y-10 w-full">
+                                <AddableTable
+                                    enable={formIsEnable()}
+                                    title="Unidades"
+                                    data={serviceUnits}
+                                    optionsDescription={'Placa'}
+                                    options={unitsCollection}
+                                    valueKey={'id'}
+                                    displayKeys={['plate', 'unit_type']}
+                                    nameConverter={unitNameConverter}
+                                    onAddOption={addUnitHandler}
+                                    onDeleteButtonClick={deleteUnitHandler}
+                                    idPropertyName="id"
+                                    addButtonText="Agregar una unidad"
+                                ></AddableTable>
+
+                                <AddableTable
+                                    enable={formIsEnable()}
+                                    title="Bomberos"
+                                    data={serviceUsers}
+                                    optionsDescription={'Usuario'}
+                                    nameConverter={userNameConverter}
+                                    options={usersCollection}
+                                    valueKey={'id'}
+                                    displayKeys={['personal_code', 'legal_id']}
+                                    optionsDescription2={'Rol'}
+                                    options2={roles}
+                                    onAddOption={addUserHandler}
+                                    onDeleteButtonClick={deleteUserHandler}
+                                    defaultSort={'id'}
+                                    idPropertyName="id"
+                                    addButtonText="Agregar un bombero"
+                                />
+
+                                <AddableTable
+                                    enable={formIsEnable()}
+                                    title="Infraestructuras"
+                                    data={infrastructures}
+                                    idPropertyName="id"
+                                    addButtonText="Agregar una infraestructura"
+                                    nameConverter={infrastructureNameConverter}
+                                    onAddButtonClick={infrastructureActions.add}
+                                    onEditButtonClick={infrastructureActions.edit}
+                                    onDeleteButtonClick={
+                                        infrastructureActions.delete
                                     }
-                                    onBlur={() => debounceUpdate()}
-                                ></TextInput>
-                            </div>
-
-                            <div className="w-44">
-                                <SelectWithSearch
-                                    description="Nivel"
-                                    options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
-                                    selectedOption={station}
-                                    selectionChange={(e) => {
-                                        setStation(e)
-                                        debounceUpdate()
-                                    }}
                                 />
+
+                                <AddableTable
+                                    enable={formIsEnable()}
+                                    title="Vehiculos"
+                                    data={vehicles}
+                                    idPropertyName="id"
+                                    addButtonText="Agregar un vehiculo"
+                                    nameConverter={vehicleNameConverter}
+                                    onAddButtonClick={vehicleActions.add}
+                                    onEditButtonClick={vehicleActions.edit}
+                                    onDeleteButtonClick={vehicleActions.delete}
+                                />
+
+                                <AddableTable
+                                    enable={formIsEnable()}
+                                    title="Personas"
+                                    data={people}
+                                    idPropertyName="id"
+                                    addButtonText="Agregar una persona"
+                                    nameConverter={personNameConverter}
+                                    onAddButtonClick={personActions.add}
+                                    onEditButtonClick={personActions.edit}
+                                    onDeleteButtonClick={personActions.delete}
+                                />
+
+                                <AddableTable
+                                    enable={formIsEnable()}
+                                    title="Autoridades"
+                                    data={serviceAuthorities}
+                                    optionsDescription={'Alias'}
+                                    options={autorities.map((item) => `${item.id} - ${item.alias}`)}
+                                    nameConverter={MissionAuthoritySummaryNameConverter}
+                                    onAddOption={addAuthority}
+                                    onDeleteButtonClick={deleteAuthority}
+                                    idPropertyName="id"
+                                    addButtonText="Agregar una autoridad"
+                                ></AddableTable>
                             </div>
                         </div>
-                    </div>
-                    <div className='w-6 flex-none'></div>
-                    <div className="flex-none h-28 mt-2">
-                        <Button
-                            colorType="bg-[#3C50E0]"
-                            onClick={antaresButtonClicked}
-                            children={'Guardar'}
-                        ></Button>
-                    </div>
-                </div>
 
-                <div className="h-4"></div>
+                        <div
+                            className={`flex flex-col w-1/2 space-y-4  ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
+                        >
+                            <div className="space-y-4 w-full">
+                                <span className="font-semibold text-slate-700 text-xl">
+                                    Personas sin documetación
+                                </span>
 
-                <div className="flex items-center space-x-6">
-                    <div className="flex-none w-64">
-                        <SelectWithSearch
-                            disable={!formIsEnable()}
-                            description="Áreas operativas"
-                            options={operativeAreasCollection}
-                            selectedOption={''}
-                            selectionChange={(e) => {
-                                addOperativeArea(e)
-                            }}
-                        />
-                    </div>
+                                <div className="w-full">
+                                    <div className="flex items-center space-x-4">
+                                        <FormInput<TService>
+                                            description={'Ilesos'}
+                                            fieldName={'unharmed'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                        <FormInput<TService>
+                                            description={'Lesionados'}
+                                            fieldName={'injured'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-4">
+                                        <FormInput<TService>
+                                            description={'Trasladados'}
+                                            fieldName={'transported'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                        <FormInput<TService>
+                                            description={'Fallecidos'}
+                                            fieldName={'deceased'}
+                                            disable={!formIsEnable()}
+                                            type={'Integer'}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
 
-                    {operativeAreas && (
-                        <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
-                            {operativeAreas.map((item) => (
-                                <Chip
-                                    text={item}
-                                    onDelete={removeOperativeArea}
-                                ></Chip>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                <div className="h-4"></div>
-
-                <div className="flex space-x-6 pt-4 w-full">
-                    <div className="w-full">
-                        <div className="space-y-10 w-full">
-                            <AddableTable
-                                enable={formIsEnable()}
-                                title="Unidades"
-                                data={serviceUnits}
-                                optionsDescription={'Placa'}
-                                options={unitsCollection.map(
-                                    (item) =>
-                                        `${item.plate} - ${item.unit_type}`
-                                )}
-                                nameConverter={unitNameConverter}
-                                onAddOption={addUnitHandler}
-                                onDeleteButtonClick={deleteUnitHandler}
-                                idPropertyName="id"
-                                addButtonText="Agregar una unidad"
-                            ></AddableTable>
-
-                            <AddableTable
-                                enable={formIsEnable()}
-                                title="Bomberos"
-                                data={serviceUsers}
-                                optionsDescription={'Usuario'}
-                                nameConverter={userNameConverter}
-                                options={usersCollection.map(
-                                    (item) =>
-                                        `${item.personal_code} - ${item.legal_id}`
-                                )}
-                                optionsDescription2={'Rol'}
-                                options2={roles}
-                                onAddOption={addUserHandler}
-                                onDeleteButtonClick={deleteUserHandler}
-                                defaultSort={'id'}
-                                idPropertyName="id"
-                                addButtonText="Agregar un bombero"
-                            />
-
-                            <AddableTable
-                                enable={formIsEnable()}
-                                title="Infraestructuras"
-                                data={infrastructures}
-                                idPropertyName="id"
-                                addButtonText="Agregar una infraestructura"
-                                nameConverter={infrastructureNameConverter}
-                                onAddButtonClick={infrastructureActions.add}
-                                onEditButtonClick={infrastructureActions.edit}
-                                onDeleteButtonClick={
-                                    infrastructureActions.delete
-                                }
-                            />
-
-                            <AddableTable
-                                enable={formIsEnable()}
-                                title="Vehiculos"
-                                data={vehicles}
-                                idPropertyName="id"
-                                addButtonText="Agregar un vehiculo"
-                                nameConverter={vehicleNameConverter}
-                                onAddButtonClick={vehicleActions.add}
-                                onEditButtonClick={vehicleActions.edit}
-                                onDeleteButtonClick={vehicleActions.delete}
-                            />
-
-                            <AddableTable
-                                enable={formIsEnable()}
-                                title="Personas"
-                                data={people}
-                                idPropertyName="id"
-                                addButtonText="Agregar una persona"
-                                nameConverter={personNameConverter}
-                                onAddButtonClick={personActions.add}
-                                onEditButtonClick={personActions.edit}
-                                onDeleteButtonClick={personActions.delete}
-                            />
-
-                            <AddableTable
-                                enable={formIsEnable()}
-                                title="Autoridades"
-                                data={serviceAuthorities}
-                                optionsDescription={'Alias'}
-                                options={autorities.map((item) => `${item.id} - ${item.alias}`)}
-                                nameConverter={MissionAuthoritySummaryNameConverter}
-                                onAddOption={addAuthority}
-                                onDeleteButtonClick={deleteAuthority}
-                                idPropertyName="id"
-                                addButtonText="Agregar una autoridad"
-                            ></AddableTable>
-                        </div>
-                    </div>
-
-                    <div
-                        className={`flex flex-col w-1/2 space-y-4  ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}
-                    >
-                        <div className="space-y-4 w-full">
                             <span className="font-semibold text-slate-700 text-xl">
-                                Personas sin documetación
+                                Descripción / Bitacora
                             </span>
 
-                            <div className="w-full">
-                                <div className="flex items-center space-x-4">
-                                    <TextInput
-                                        disable={!formIsEnable()}
-                                        type={'Integer'}
-                                        description={'Ilesos'}
-                                        value={unharmed}
-                                        onChange={(e) =>
-                                            setUnharmed(e.currentTarget.value)
-                                        }
-                                        onBlur={() => debounceUpdate()}
-                                    ></TextInput>
-                                    <TextInput
-                                        disable={!formIsEnable()}
-                                        type={'Integer'}
-                                        description={'Lesionados'}
-                                        value={injured}
-                                        onChange={(e) =>
-                                            setInjured(e.currentTarget.value)
-                                        }
-                                        onBlur={() => debounceUpdate()}
-                                    ></TextInput>
-                                </div>
-                                <div className="flex items-center space-x-4">
-                                    <TextInput
-                                        disable={!formIsEnable()}
-                                        type={'Integer'}
-                                        description={'Trasladados'}
-                                        value={transferred}
-                                        onChange={(e) =>
-                                            setTransferred(
-                                                e.currentTarget.value
-                                            )
-                                        }
-                                        onBlur={() => debounceUpdate()}
-                                    ></TextInput>
-                                    <TextInput
-                                        disable={!formIsEnable()}
-                                        type={'Integer'}
-                                        description={'Fallecidos'}
-                                        value={deceased}
-                                        onChange={(e) =>
-                                            setDeceased(e.currentTarget.value)
-                                        }
-                                        onBlur={() => debounceUpdate()}
-                                    ></TextInput>
-                                </div>
-                            </div>
+                            <FormTextArea<TService>
+                                description={''}
+                                fieldName={'description'}
+                                disable={!formIsEnable()}
+                            />
                         </div>
-
-                        <span className="font-semibold text-slate-700 text-xl">
-                            Descripción / Bitacora
-                        </span>
-
-                        <TextArea
-                            tabIndex={formIsEnable() ? undefined : -1}
-                            disabled={!formIsEnable()}
-                            inputName="description"
-                            value={details}
-                            onChange={(e) => setDetails(e.currentTarget.value)}
-                            onBlur={() => debounceUpdate()}
-                        />
                     </div>
-                </div>
+                </Form>
             </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />
@@ -849,3 +631,41 @@ const ServiceForm = ({
     )
 }
 export default ServiceForm
+
+interface AddOperativeAreaComponentProps {
+    options: string[]
+}
+
+function AddOperativeAreaComponent({ options }: AddOperativeAreaComponentProps) {
+    const { setValue, control } = useFormFieldContext<TService>('operativeAreas')
+
+    return <Controller
+        name={"operativeAreas"}
+        control={control}
+        render={({ field }) => (
+
+            <SelectWithSearch
+                description="Áreas operativas"
+                options={options}
+                selectedOption=''
+                clearAfterSelect={true}
+                selectionChange={(e) => {
+                    if (e == '') return
+                    console.log(field.value);
+
+                    let newOperativeAreas = field.value as string[] ?? []
+                    newOperativeAreas.push(e)
+
+                    newOperativeAreas = [
+                        ...newOperativeAreas.filter(
+                            (value, index) => newOperativeAreas.indexOf(value) === index
+                        ),
+                    ]
+
+                    setValue('operativeAreas', newOperativeAreas)
+                }}
+            />
+        )}
+    ></Controller>
+
+}

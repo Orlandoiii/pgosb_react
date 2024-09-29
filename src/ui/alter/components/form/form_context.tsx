@@ -4,6 +4,7 @@ import {
   FieldErrors,
   FieldPath,
   FieldValues,
+  UseFormGetValues,
   UseFormRegister,
   UseFormSetError,
   UseFormSetValue,
@@ -21,6 +22,7 @@ interface FormContextProps<T extends FieldValues> {
   defaultValues: Readonly<DeepPartial<T>> | undefined;
   isSubmitted: boolean;
   errors: FieldErrors<T>;
+  getValues: UseFormGetValues<T>;
 }
 
 export const FormContext = createContext<FormContextProps<any> | undefined>(undefined);
@@ -44,8 +46,11 @@ export const useFormFieldContext = <T extends FieldValues, TFieldName extends Fi
     const isSubmitted = context.isSubmitted;
     const control = context.control;
     const resetCount = context.resetCount;
+    const setValue = context.setValue;
     const setError = context.setError;
-    return { fieldError, fieldRegister, control, isSubmitted, resetCount, setError };
+    const getValues = context.getValues;
+    
+    return { fieldError, fieldRegister, control, isSubmitted, resetCount, setValue, setError, getValues };
   } else throw new Error("useFormFieldContext must be used within a FormProvider");
 };
 

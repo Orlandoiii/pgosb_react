@@ -18,9 +18,13 @@ interface AddableTableProps<T> {
     nameConverter?: { [K in keyof T]?: string }
     onEditButtonClick?: (id: string) => void
     onDeleteButtonClick?: (id: string) => void
-    options?: string[]
+    options?: any[] |  string[]
+    valueKey?: string
+    displayKeys?: string[]
     optionsDescription?: string
-    options2?: string[]
+    options2?: any[] |  string[]
+    valueKey2?: string
+    displayKeys2?: string[]
     optionsDescription2?: string
     onAddOption?: (data: any, data2: any) => void
 }
@@ -37,7 +41,11 @@ export function AddableTable<T>({
     onEditButtonClick,
     onDeleteButtonClick,
     options,
+    valueKey,
+    displayKeys,
     options2,
+    valueKey2,
+    displayKeys2,
     optionsDescription,
     optionsDescription2,
     onAddOption,
@@ -122,17 +130,6 @@ export function AddableTable<T>({
 
     function arrayOfLength(length: number): number[] {
         return anyElement() ? Array<number>(length).fill(0) : []
-    }
-
-    function blurOptionsHandler() {
-        if (!options) return
-
-        let selected: string = options.filter(
-            (item) => item === selectedOption
-        )[0]
-
-        selected = selected ? selected : ''
-        setSelectedOption(selected)
     }
 
     console.log('Table', internalData, idPropertyName, nameConverter)
@@ -273,8 +270,9 @@ export function AddableTable<T>({
                                 <SelectWithSearch
                                     description={optionsDescription}
                                     options={options}
-                                    controlled={true}
-                                    selectedOption={selectedOption}
+                                    value={selectedOption}
+                                    valueKey={valueKey as any}
+                                    displayKeys={displayKeys as any}
                                     selectionChange={(e) =>
                                         setSelectedOption(e)
                                     }
@@ -284,8 +282,9 @@ export function AddableTable<T>({
                                     <SelectWithSearch
                                         description={optionsDescription2}
                                         options={options2}
-                                        controlled={true}
-                                        selectedOption={selectedOption2}
+                                        valueKey={valueKey2 as any}
+                                        value={selectedOption2}
+                                        displayKeys={displayKeys2 as any}
                                         selectionChange={(e) =>
                                             setSelectedOption2(e)
                                         }
