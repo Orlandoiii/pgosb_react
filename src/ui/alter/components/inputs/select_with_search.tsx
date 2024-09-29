@@ -18,6 +18,7 @@ interface SelectWithSearchProps<T> extends React.InputHTMLAttributes<HTMLInputEl
     isLoading?: boolean;
     controlled?: boolean;
     addClearButton?: boolean;
+    clearAfterSelect?: boolean;
     allowNewValue?: boolean;
     selectionChange?: (option: string) => void;
 }
@@ -35,10 +36,11 @@ export function SelectWithSearch<T>({
     allowNewValue = false,
     controlled = true,
     addClearButton = false,
+    clearAfterSelect = false,
     selectionChange,
     ...rest
 }: SelectWithSearchProps<T>) {
-    const { state: select, dispatch } = useSelect<T>(options, selectedOption, valueKey, displayKeys, selectionChange, isLoading)
+    const { state: select, dispatch } = useSelect<T>(options, selectedOption, valueKey, displayKeys, selectionChange, isLoading, clearAfterSelect)
 
     return (
         <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`} >
