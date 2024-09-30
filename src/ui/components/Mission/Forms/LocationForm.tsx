@@ -250,7 +250,7 @@ const LocationForm = ({
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <SelectWithSearch
-                                description="Ubicación estática"
+                                description="Acceso directo a ubicaciones existentes"
                                 options={staticLocations}
                                 valueKey={'display'}
                                 displayKeys={['display']}

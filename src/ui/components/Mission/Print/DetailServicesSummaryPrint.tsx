@@ -346,7 +346,7 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy }: ServicePrin
     const { antaresSummary, stationsSummary, antaresDetail, stationsDetail } = getServiceData(services);
 
     return <div id={'PrintThis'} className='h-full w-full'>
-        <PrintLayout loading={loading} title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? "ANTARES" : "ESTACIONES"} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`} subtitle={"12/05/2024 00:00:00 - 12/05/2024 12:00:00"}>
+        <PrintLayout loading={loading} title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? "ANTARES" : "ESTACIONES"} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })}>
             <>
                 <div className='flex'>
                     <div className="pt-4 w-1/2">

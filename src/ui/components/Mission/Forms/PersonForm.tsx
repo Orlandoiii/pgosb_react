@@ -227,6 +227,7 @@ const PersonForm = ({
                                 <FormInput<TPersonInvolved>
                                     fieldName={'age'}
                                     description="Edad:"
+                                    mask={numberMask}
                                 />
                             </div>
                         </div>

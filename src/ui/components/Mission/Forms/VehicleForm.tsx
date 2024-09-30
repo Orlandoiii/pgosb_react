@@ -27,6 +27,7 @@ import { Colors } from '../../../../domain/abstractions/colors/colors.ts'
 import FormSelectWithSearch from '../../../alter/components/form_inputs/form_select_with_search.tsx'
 import FormInput from '../../../alter/components/form_inputs/form_input.tsx'
 import Form from '../../../alter/components/form/form.tsx'
+import { VehicleTypes } from '../../../../domain/abstractions/enums/vehicle_type.ts'
 
 interface VehicleFormProps {
     serviceId: string
@@ -140,7 +141,7 @@ const VehicleForm = ({
     const areaCodes = EnumToStringArray(AreaCodes)
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
-    const unitTypes = useMemo(() => EnumToStringArray(UnitTypes), [])
+    const vehicleTypes = useMemo(() => EnumToStringArray(VehicleTypes), [])
 
     async function handleSubmitInternal(data: FieldValues) {
         setLoading(true)
@@ -189,7 +190,7 @@ const VehicleForm = ({
                             <FormSelectWithSearch<TVehicleInvolved, string>
                                 description={'Tipo'}
                                 fieldName={'type'}
-                                options={unitTypes}
+                                options={vehicleTypes}
                             />
 
                             <FormSelectWithSearch<TVehicleInvolved, string>
@@ -215,6 +216,7 @@ const VehicleForm = ({
                             <FormInput<TVehicleInvolved>
                                 description="Año"
                                 fieldName={'year'}
+                                type={'Integer'}
                             />
 
                             <FormSelectWithSearch<TVehicleInvolved, string>

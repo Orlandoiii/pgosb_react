@@ -166,9 +166,8 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
         case 'HOVER_OUT':
             return { ...state, state: { ...state.state, isHover: false } };
         case 'FOCUS_IN_OR_CLICKED':
-
             if (state.refs.selectContainer && state.refs.selectOptions) {
-                if (state.ignoreFocus) return { ...state, ignoreFocus: false }
+                if (state.ignoreFocus) return { ...state, state:{...state.state, optionsOpen: false , closeOptionsModal: null,}, ignoreFocus: false }
                 else return ({ ...state, state: { ...state.state, optionsOpen: true, isFocus: true }, refocus: true });
             }
             else {
@@ -191,8 +190,19 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
             }
 
             if (action.payload.key.toLowerCase() === "enter") {
+
+
                 action.payload.stopPropagation();
                 action.payload.preventDefault();
+            }
+            else if (action.payload.key.toLowerCase() === " " && state.state.optionsOpen) {
+                action.payload.preventDefault();
+
+                return {
+                    ...state,
+                    state: { ...state.state, search: state.state.search + " " },
+                    options: { ...state.options, filtered: getFilteredSelectOptions(state.options.all, state.state.search + " ") }
+                }
             }
 
             if (action.payload.key.toLowerCase() === "escape" && state.state.closeOptionsModal) {
@@ -214,8 +224,6 @@ function reducer<T>(state: SelectStoreState<T>, action: Action<T>): SelectStoreS
         case 'CHANGE_CLOSE_CALL':
             return { ...state, state: { ...state.state, closeOptionsModal: action.payload } }
         case 'CHANGE_SEARCH':
-            const temp = state.config.allowNewValue ? { value: state.state.search, display: state.state.search } : state.state.innerSelectedOption
-            
             return {
                 ...state,
                 state: { ...state.state, search: action.payload },
@@ -265,6 +273,9 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
     const [state, dispatch] = useReducer(reducer<T>, getInitialState<T>(containerRef, optionsRef, inputRef, valueKey, displayKeys, optionChanged, allowNewValue, clearAfterSelect))
 
     useEffect(() => {
+
+        console.log("OpenChanged",state);
+        
         if (state.state.optionsOpen && state.refs.selectContainer && state.refs.selectOptions && !state.state.closeOptionsModal) {
             const closeModal = onClickOrFocusHandler(state.options.all, state.state.innerSelectedOption, containerRef, optionsRef, (option: SelectOption) => { dispatch({ type: 'CHANGE_SELECTED_OPTION', payload: option }) }, () => { dispatch({ type: 'FOCUS_OUT' }) });
             if (closeModal) {
@@ -278,11 +289,9 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
     }, [options])
 
     useEffect(() => {
-        console.log(state.options.all, selectedOption, isLoading);
-        
+
         if (!isLoading && state.options.all.length > 0 && state.options.all[0].display != 'Sin datos') {
             const option = state.options.all.filter(x => x.value == selectedOption)[0] ?? { value: '', display: '' }
-            console.log(selectedOption,option, state.state.innerSelectedOption);
             if (option.value != state.state.innerSelectedOption.value) {
                 dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: option })
             }

@@ -16,6 +16,7 @@ import { EnumToStringArray } from "../../../../utilities/converters/enum_convert
 import { UnitTypes } from "../../../../domain/abstractions/enums/unit_types"
 import { Colors } from "../../../../domain/abstractions/colors/colors"
 import { ResultErr } from "../../../../domain/abstractions/types/resulterr"
+import { VehicleTypes } from "../../../../domain/abstractions/enums/vehicle_type"
 
 interface Props {
     missionId: string
@@ -74,7 +75,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
     
 
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
-    const unitTypes =useMemo(() =>  EnumToStringArray(UnitTypes), [])
+    const vehicleTypes = useMemo(() => EnumToStringArray(VehicleTypes), [])
 
     async function updateModels(brand: string) {
         const result = await getModels(brand)
@@ -143,7 +144,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                     <div className="w-full md:flex md:md:items-start md:space-x-2">
                         <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
                             description="Tipo"
-                            options={unitTypes}
+                            options={vehicleTypes}
                             fieldName={'type'}      
                             fatherLoading={loading}                    
                             selectionChange={(e) => { updateModels(e) }}

@@ -268,6 +268,9 @@ const ServiceForm = ({
         return serviceId != '-1'
     }
 
+
+    const levels = useMemo(() => ["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"], [])
+
     async function addUnitHandler(unit: string, ignore: any) {
 
         const service = await serviceCrud.getById(serviceId ?? '')
@@ -338,6 +341,7 @@ const ServiceForm = ({
     }
 
     async function submit(data: TService) {
+        data.operativeAreas = operativeAreas;
         console.log("submited", data, serviceId);
 
         let resultService: ResultErr<TService>
@@ -391,11 +395,13 @@ const ServiceForm = ({
                             </div>
                         </div>
 
-                        <div className="w-44">
-                            <FormSelectWithSearch<TService, string>
-                                description="Nivel"
-                                fieldName={'level'}
-                                options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
+                        <div className="flex items-center space-x-4 flex-none w-44">
+                            <div className="font-semibold text-slate-700 text-xl">
+                                Fecha:
+                            </div>
+                            <FormInput<TService>
+                                description=""
+                                fieldName={'manualServiceDate'}
                             />
                         </div>
                     </div>
@@ -483,11 +489,11 @@ const ServiceForm = ({
                                     </div>
                                 </div>
 
-
-                                <div className="flex-none w-44">
-                                    <FormInput<TService>
-                                        description="Fecha de servicio"
-                                        fieldName={'manualServiceDate'}
+                                <div className="w-44">
+                                    <FormSelectWithSearch<TService, string>
+                                        description="Nivel"
+                                        fieldName={'level'}
+                                        options={levels}
                                     />
                                 </div>
                             </div>
@@ -501,12 +507,7 @@ const ServiceForm = ({
                         </div>
                     </div>
 
-                    <div className="h-4"></div>
 
-                    <div className="flex items-center space-x-6">
-                        <AddOperativeAreaComponent options={operativeAreasCollection} />
-
-                    </div>
 
                     <div className="h-4"></div>
 
@@ -548,7 +549,7 @@ const ServiceForm = ({
                                     />
                                 </div>
 
-                                <div className={`w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
+                                <div className={`h-64 w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
                                     <span className="font-semibold text-slate-700 text-xl">
                                         Descripción / Bitacora
                                     </span>
@@ -591,6 +592,11 @@ const ServiceForm = ({
                                             type={'Integer'}
                                         />
                                     </div>
+                                </div>
+
+                                <div className="flex items-center space-x-6">
+                                    <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas}/>
+
                                 </div>
 
                                 <AddableTable
@@ -659,8 +665,9 @@ export default ServiceForm
 
 interface AddOperativeAreaComponentProps {
     options: string[]
+    setExternal: React.Dispatch<React.SetStateAction<string[]>>
 }
-function AddOperativeAreaComponent({ options }: AddOperativeAreaComponentProps) {
+function AddOperativeAreaComponent({ options, setExternal }: AddOperativeAreaComponentProps) {
     const { setValue, control } = useFormFieldContext<TService>('operativeAreas')
 
     return <Controller
@@ -676,10 +683,11 @@ function AddOperativeAreaComponent({ options }: AddOperativeAreaComponentProps) 
                         clearAfterSelect={true}
                         selectionChange={(e) => {
                             if (e == '') return
-
+                            
                             setValue('operativeAreas', (prevValue) => {
                                 const newOperativeAreas = new Set(prevValue as string[] ?? []);
                                 newOperativeAreas.add(e);
+                                setExternal(Array.from(newOperativeAreas))
                                 return Array.from(newOperativeAreas);
                             });
                         }}
@@ -687,10 +695,13 @@ function AddOperativeAreaComponent({ options }: AddOperativeAreaComponentProps) 
                 </div>
 
                 <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
-                    {field.value && (field.value as string[]).length && field.value.map((item) => (
+                    {field.value && (field.value as string[]).length > 0 && field.value.map((item) => (
                         <Chip
                             text={item}
-                            onDelete={(e) => field.onChange((field.value as string[]).filter(x => x !== e))}
+                            onDelete={(e) => {
+                                field.onChange((field.value as string[]).filter(x => x !== e))
+                                setExternal((field.value as string[]).filter(x => x !== e))
+                            }}
                         ></Chip>
                     ))}
                 </div>

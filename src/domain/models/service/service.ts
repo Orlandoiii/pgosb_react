@@ -23,7 +23,7 @@ export const ServiceSchema = z.object({
     serviceDate: z.string().optional().default(''),
     manualServiceDate: z.string().optional().default(''),
     isImportant: z.boolean().optional().default(false),
-    operativeAreas: z.array(z.string()).default([]).optional().default([]),
+    operativeAreas: z.any(),
     level: z.string().optional().default(''),
 })
 

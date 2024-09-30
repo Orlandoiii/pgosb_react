@@ -139,7 +139,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
     }
 
     return <div id={'PrintThis'} className='h-full w-full'>
-        <PrintLayout loading={loading} title={"INFORME DE SERVICIOS POR REGIONES OPERATIVAS"} subtitle={"12/05/2024 00:00:00 - 12/05/2024 12:00:00"}>
+        <PrintLayout loading={loading} title={"INFORME DE SERVICIOS POR REGIONES OPERATIVAS"} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })}>
             <div className="text-sm">
                 {relevantServices.map(relevantService => (
                     relevantService && <div className="pb-16">

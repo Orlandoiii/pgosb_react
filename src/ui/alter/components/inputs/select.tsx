@@ -53,7 +53,9 @@ export function Select<T>({
           }}
           onFocus={() => dispatch({ type: 'FOCUS_IN_OR_CLICKED' })}
           onBlur={() => dispatch({ type: 'FOCUS_OUT' })}
-          onKeyDown={(e) => dispatch({ type: 'KEY_DOWN', payload: e })}
+          onKeyDown={(e) => {
+            dispatch({ type: 'KEY_DOWN', payload: e })
+          }}
           onMouseEnter={() => dispatch({ type: 'HOVER_IN' })}
           onMouseLeave={() => dispatch({ type: 'HOVER_OUT' })}
         >

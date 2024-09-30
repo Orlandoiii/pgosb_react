@@ -15,4 +15,8 @@ export enum OperativeAreas {
     MATPEL = 'MATPEL',
     Archives = 'ARCHIVOS',
     Press = 'PRENSA',
+    Transport = 'TRANSPORTE',
+    AirDivition = 'DIVISION AEREA',
+    NauticDivition = 'DIVISION NAUTICA',
+    Risks = 'RIESGOS',
 }

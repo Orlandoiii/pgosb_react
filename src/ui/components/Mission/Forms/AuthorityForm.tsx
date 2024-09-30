@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import ModalLayout from '../../../core/layouts/modal_layout'
 import { AddableTable } from '../../Temp/AddableTable.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
@@ -25,7 +25,8 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
 
     const [loading, setLoading] = useState(false)
     const [alias, setAlias] = useState(initValue ? initValue.alias : '')
-    const [type, setType] = useState(initValue ? initValue.type : '')
+    const [type, setType] = useState(initValue ? initValue.institution_id : '')
+    const [typesCollection, setTypesCollection] = useState<{ id: string, name: string, abbreviation: string, government: string }[]>([])
 
     const [authorityVehicleActions, vehicles] = useActionModalAndCollection(
         AuthorityVehicleForm,
@@ -41,13 +42,17 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
         initValue!.id
     )
 
+    useEffect(() => {
+        getAuthorityTypes()
+    }, [])
+
     const getAuthorityTypes = useCallback(async () => {
-        const response = await getAll<{id: string,name:string,abbreviation:string,"government":""}>(
-            'station'
+        const response = await getAll<{ id: string, name: string, abbreviation: string, government: string }>(
+            'authority'
         )
         if (response.success && response.result)
-            return response.result
-        else return []
+            return setTypesCollection(response.result)
+        else return setTypesCollection([])
     }, [])
 
     async function updateService() {
@@ -56,9 +61,10 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
         if (
             authorityResult.success &&
             authorityResult.result &&
-            authorityResult.result?.alias != alias
+            (authorityResult.result?.alias != alias || authorityResult.result?.institution_id != type)
         ) {
             authorityResult.result.alias = alias
+            authorityResult.result.institution_id = type
             const updateResult = await missionAuthorityCrud.update(authorityResult.result)
 
             if (updateResult.success)
@@ -66,6 +72,13 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
             else modalService.toastError('No se pudo actualizar la autoridad!')
         }
     }
+
+    useEffect(() => {
+        updateService()
+    }, [type])
+
+console.log();
+
 
     return (
         <>
@@ -86,12 +99,14 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
                         ></TextInput>
                     </div>
 
-                    <div className="w-44">
+                    <div className=" w-80">
                         <SelectWithSearch
                             description="Tipo"
-                            options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
-                            selectedOption={''}
-                            selectionChange={(e) => e}
+                            options={typesCollection}
+                            selectedOption={type}
+                            selectionChange={(e) => setType(e)}
+                            valueKey={'id'}
+                            displayKeys={['abbreviation', 'name']}
                         />
                     </div>
                 </div>

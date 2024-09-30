@@ -198,7 +198,7 @@ const MissionForm = ({
     return (
         <>
             <ModalLayout
-                className="min-w-[70vw] max-w-[85vw] max-h-[90vh]"
+                className="min-w-[70vw] max-w-[85vw] max-h-[90vh] overflow-y-auto"
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
