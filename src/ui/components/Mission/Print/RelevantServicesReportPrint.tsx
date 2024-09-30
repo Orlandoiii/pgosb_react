@@ -9,10 +9,11 @@ import { modalService } from "../../../core/overlay/overlay_service";
 
 interface ServicePrintProps {
     servicesIds: string[]
+    filters: { name: string, value: string }[]
 }
 
 
-export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) {
+export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePrintProps) {
     const [relevantServices, setRelevantServices] = useState<TRelevantServiceDetail[]>([]);
     const [loading, setLoading] = useState(false)
 
@@ -139,7 +140,7 @@ export function RelevantServicesReportPrint({ servicesIds }: ServicePrintProps) 
     }
 
     return <div id={'PrintThis'} className='h-full w-full'>
-        <PrintLayout loading={loading} title={"INFORME DE SERVICIOS POR REGIONES OPERATIVAS"} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })}>
+        <PrintLayout loading={loading} title={"INFORME DE SERVICIOS POR REGIONES OPERATIVAS"} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })} filters={filters}>
             <div className="text-sm">
                 {relevantServices.map(relevantService => (
                     relevantService && <div className="pb-16">

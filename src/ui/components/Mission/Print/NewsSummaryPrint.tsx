@@ -277,6 +277,7 @@ function detailByStation(services: TService[]): StationsDetail[] {
 
 interface NewsSummaryPrintProps {
     servicesIds: string[]
+    filters: { name: string, value: string }[]
 }
 
 export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {

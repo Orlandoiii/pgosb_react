@@ -145,12 +145,19 @@ const MissionPage = () => {
         }
     }
 
-    function openPrintModal(service: Array<any>) {
-        const list = service.map(s => s.id)
+    function openPrintModal(service: any) {
+        const list = service.data.map(s => s.id)
+
+        const filters = (Object.entries(service.filters) as [string, any][]).map(([key, { value }]) => ({
+            name: key,
+            value: value
+        }))
+
         modalService.pushModal(
             MissionReports,
             {
                 servicesIds: list,
+                filters: filters,
                 closeOverlay: undefined,
             },
             new OverlayModalConfig(),

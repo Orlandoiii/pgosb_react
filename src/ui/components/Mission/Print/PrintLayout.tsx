@@ -7,10 +7,11 @@ interface PrintLayoutProps {
     title: string
     subtitle: string
     children: ReactNode,
-    loading: boolean
+    loading: boolean,
+    filters?: { name: string, value: string }[]
 }
 
-export function PrintLayout({ title, subtitle, children, loading }: PrintLayoutProps) {
+export function PrintLayout({ title, subtitle, children, loading, filters }: PrintLayoutProps) {
     return (
         <>
             <div className="flex flex-col">
@@ -54,7 +55,26 @@ export function PrintLayout({ title, subtitle, children, loading }: PrintLayoutP
                 </div >
 
                 <div className="relative min-h-96 bg-white p-4">
-                    {loading ? (<Overlay background={""}  isVisible={true} type={'Loader'} />) : (children)}</div>
+                    {filters && (
+                        <>
+                            <div className='font-semibold text-xl'>
+                                Filtros
+                            </div>
+
+                            {filters.map(filter => (
+                                <div className='pl-4'>
+                                    <span className='font-semibold px-2'> -  </span> {filter.name} <span className='font-semibold px-2'> igual a </span>{filter.value}
+                                </div>
+                            ))}
+
+                            <div className='h-6'></div>
+                        </>
+
+                    )
+                    }
+
+
+                    {loading ? (<Overlay background={""} isVisible={true} type={'Loader'} />) : (children)}</div>
 
                 <div className='absolute bottom-0 right-0 flex justify-end p-4 space-x-4 print:hidden'>
                     <button

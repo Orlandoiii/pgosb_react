@@ -10,6 +10,7 @@ import { NewsSummaryPrint } from "./NewsSummaryPrint";
 
 interface MissionReportsProps {
     servicesIds: string[]
+    filters: { name: string, value: string }[]
     closeOverlay?: () => void
 }
 
@@ -20,7 +21,7 @@ enum reportTypes {
     NewsSummary = "Resumen de Novedades",
 }
 
-export function MissionReports({ servicesIds, closeOverlay }: MissionReportsProps) {
+export function MissionReports({ servicesIds, filters, closeOverlay }: MissionReportsProps) {
     const [selectedReport, setSelectedReport] = useState<string>(reportTypes.StatisticsForAntares)
     const reports: string[] = EnumToStringArray(reportTypes)
 
@@ -37,19 +38,19 @@ export function MissionReports({ servicesIds, closeOverlay }: MissionReportsProp
                 <div className="h-full w-full flex flex-col rounded-lg border border-slate-400 bg-slate-300 overflow-auto">
                     <PrintView>
                         {selectedReport === reportTypes.StatisticsForAntares &&
-                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'Antares'} />
+                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'Antares'} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.StatisticsForStation &&
-                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'Stations'} />
+                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'Stations'} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.ServiceDetails &&
-                            <RelevantServicesReportPrint servicesIds={servicesIds} />
+                            <RelevantServicesReportPrint servicesIds={servicesIds} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.NewsSummary &&
-                            <NewsSummaryPrint servicesIds={servicesIds} />
+                            <NewsSummaryPrint servicesIds={servicesIds} filters={filters} />
                         }
 
                     </PrintView>

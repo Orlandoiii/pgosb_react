@@ -306,8 +306,11 @@ const ServiceForm = ({
     }
 
     async function addUserHandler(unit: string, rol: string) {
+
+        const newUser = usersCollection.filter(x => x.id == unit)[0]
+
         if (
-            serviceUsers.filter((x) => x.id == unit)
+            serviceUsers.filter((x) => x.personal_code == newUser.personal_code && x.legal_id == newUser.legal_id)
                 .length > 0
         ) {
             alertController.notifyInfo(

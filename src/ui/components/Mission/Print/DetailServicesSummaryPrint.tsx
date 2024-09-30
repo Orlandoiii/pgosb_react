@@ -276,10 +276,11 @@ function detailByStation(services: TService[]): StationsDetail[] {
 
 interface ServicePrintProps {
     servicesIds: string[]
+    filters: { name: string, value: string }[]
     groupBy: "Antares" | "Stations"
 }
 
-export function DetailServicesSummaryPrint({ servicesIds, groupBy }: ServicePrintProps) {
+export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: ServicePrintProps) {
     const antaresCollection = useCollection('mission/antares', AntaresFromApi)
     const stationCollection = useCollection('station', (data: StationSchemaBasicDataType) => {
         return { success: true, result: data }
@@ -346,7 +347,7 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy }: ServicePrin
     const { antaresSummary, stationsSummary, antaresDetail, stationsDetail } = getServiceData(services);
 
     return <div id={'PrintThis'} className='h-full w-full'>
-        <PrintLayout loading={loading} title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? "ANTARES" : "ESTACIONES"} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })}>
+        <PrintLayout loading={loading} title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? "ANTARES" : "ESTACIONES"} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })} filters={filters}>
             <>
                 <div className='flex'>
                     <div className="pt-4 w-1/2">
