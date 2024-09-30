@@ -628,7 +628,8 @@ export default function TableDataGrid({
 
                         if (filterValue.some(v => v != null)) {
                             filters[layoutColumn?.display_name] = {
-                                value: filterValue,
+
+                                value: `Desde: ${formatDate(filterValue[0])} - Hasta: ${formatDate(filterValue[1])}`,
                                 type: layoutColumn?.type || 'default'
                             }
                         } else {
@@ -636,7 +637,15 @@ export default function TableDataGrid({
                             delete filters[layoutColumn?.display_name]
                         }
                     }
-                } else {
+
+                } else if (layoutColumn?.type == 'bool') {
+                    filters[layoutColumn?.display_name] = {
+                        value: filterValue ? 'SI' : 'NO',
+                        type: layoutColumn?.type || 'default'
+                    }
+                }
+
+                else {
                     filters[layoutColumn?.display_name] = {
                         value: filterValue,
                         type: layoutColumn?.type || 'default'
@@ -720,7 +729,7 @@ export default function TableDataGrid({
         const rowsToPrint = table.getSortedRowModel()
             .rows.map(row => row.original);
 
-        let value = {"data":rowsToPrint, "filters":appliedFilters}
+        let value = { "data": rowsToPrint, "filters": appliedFilters }
 
         logger.log('PRINT DATA:', value)
 
