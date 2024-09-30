@@ -42,7 +42,7 @@ export function SelectWithSearch<T>({
 }: SelectWithSearchProps<T>) {
     const { state: select, dispatch } = useSelect<T>(options, selectedOption, valueKey, displayKeys, selectionChange, isLoading, allowNewValue, clearAfterSelect)
 
-    console.log("state option", select.state.innerSelectedOption);
+    console.log("state option", selectedOption,select.state.innerSelectedOption);
     
     return (
         <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`} >

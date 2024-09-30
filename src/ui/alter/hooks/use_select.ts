@@ -278,8 +278,11 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
     }, [options])
 
     useEffect(() => {
+        console.log(state.options.all, selectedOption, isLoading);
+        
         if (!isLoading && state.options.all.length > 0 && state.options.all[0].display != 'Sin datos') {
             const option = state.options.all.filter(x => x.value == selectedOption)[0] ?? { value: '', display: '' }
+            console.log(selectedOption,option, state.state.innerSelectedOption);
             if (option.value != state.state.innerSelectedOption.value) {
                 dispatch({ type: 'CHANGE_SELECTED_OPTION_FROM_FATHER', payload: option })
             }

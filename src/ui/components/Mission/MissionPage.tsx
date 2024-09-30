@@ -176,7 +176,7 @@ const MissionPage = () => {
     }, [modulesPermissions, userDataIsLoad])
 
     async function editService(service: any) {
-        const result = await getById("", service.id, ServiceFromApi)
+        const result = await getById("mission/service", service.id, ServiceFromApi)
         if (result.success) {
             if (result.result && result.result.missionId) {
                 modalService.pushModal(
@@ -242,7 +242,7 @@ const MissionPage = () => {
                             />
                         }
                         showAddButton={false}
-                        showEditButton={false}
+                        showEditButton={true}
                         showDeleteButton={false}
                         showDownloadButton={true}
                         exportFileName="Servicios"

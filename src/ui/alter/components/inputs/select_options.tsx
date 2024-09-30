@@ -61,9 +61,11 @@ const SelectOptionsInternal = forwardRef<SelectOptionsMethods, SelectOptionsProp
     }
 
     function actionFromKey(key: "up" | "down" | "enter") {
-      const currentIndex = indexOfOption(innerSelectedOption.value);
+      const currentIndex = indexOfOption(innerSelectedOption?.value);
       let resultIndex = 0;
 
+      console.log(currentIndex);
+      
       if (currentIndex >= 0) {
         switch (key) {
           case "up":
@@ -73,9 +75,15 @@ const SelectOptionsInternal = forwardRef<SelectOptionsMethods, SelectOptionsProp
             if (options && options.length > 0 && currentIndex < options.length - 1) resultIndex = currentIndex + 1;
             break;
           case "enter":
-            onSelect(innerSelectedOption);
+            console.log("enter", innerSelectedOption);
+
+            if (innerSelectedOption) onSelect(innerSelectedOption);
+            else onSelect({ value: '', display: '' })
             return;
         }
+      }
+      else {
+        if (key == "enter") onSelect({ value: '', display: '' })
       }
 
       setInnerSelectedOption(options[resultIndex]);
@@ -98,9 +106,11 @@ const SelectOptionsInternal = forwardRef<SelectOptionsMethods, SelectOptionsProp
     }
 
     function filterOptions(search: string, newOptions: SelectOption[]) {
+      const newInner = newOptions.length > 0 ? newOptions[0] : { value: '', display: '' }
+      console.log('search', search, newOptions, newInner);
       setSearch(search)
       setFilteredOptions(newOptions)
-      setInnerSelectedOption(newOptions[0])
+      setInnerSelectedOption(newInner)
     }
 
     return (

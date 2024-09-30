@@ -1,7 +1,7 @@
 import { Controller, FieldPath, FieldValues } from 'react-hook-form'
+import React from 'react'
 
 import { useFormFieldContext } from '../form/form_context'
-import React from 'react'
 import Chip from '../data_presenters/chip'
 
 interface Props<
@@ -23,16 +23,16 @@ function FormChips<T extends FieldValues>({
         <Controller
             name={fieldName}
             control={control}
-            render={({ field }) => (
-                <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
-                    {field.value && (field.value as string[]).length && field.value.map((item) => (
-                        <Chip
-                            text={item}
-                            onDelete={(e)=> field.onChange((field.value as string[]).filter(x => x != e))}
-                        ></Chip>
-                    ))}
-                </div>
-            )}
+            render={({ field }) => {
+                return <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
+                {field.value && (field.value as string[]).length && field.value.map((item) => (
+                    <Chip
+                        text={item}
+                        onDelete={(e)=> field.onChange((field.value as string[]).filter(x => x != e))}
+                    ></Chip>
+                ))}
+            </div>
+            }}
         ></Controller>
     )
 }

@@ -241,6 +241,20 @@ const MissionForm = ({
                 <div className="h-8"></div>
 
                 <AddableTable
+                    title="Ubicaciones"
+                    data={locations}
+                    defaultSort={'state'}
+                    idPropertyName="id"
+                    addButtonText="Agregar una ubicación"
+                    nameConverter={LocationNameConverter}
+                    onAddButtonClick={locationActions.add}
+                    onEditButtonClick={locationActions.edit}
+                    onDeleteButtonClick={locationActions.delete}
+                ></AddableTable>
+
+                <div className="h-8"></div>
+
+                <AddableTable
                     title="Autoridades"
                     data={autorities}
                     defaultSort={'id'}
@@ -252,19 +266,7 @@ const MissionForm = ({
                     onDeleteButtonClick={deleteAuthority}
                 ></AddableTable>
 
-                <div className="h-8"></div>
 
-                <AddableTable
-                    title="Ubicaciones"
-                    data={locations}
-                    defaultSort={'state'}
-                    idPropertyName="id"
-                    addButtonText="Agregar una ubicación"
-                    nameConverter={LocationNameConverter}
-                    onAddButtonClick={locationActions.add}
-                    onEditButtonClick={locationActions.edit}
-                    onDeleteButtonClick={locationActions.delete}
-                ></AddableTable>
 
             </ModalLayout>
             <LoadingModal initOpen={loading} children={null} />

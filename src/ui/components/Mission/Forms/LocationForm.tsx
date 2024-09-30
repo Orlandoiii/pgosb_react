@@ -135,7 +135,7 @@ const LocationForm = ({
         careCenterCollection.forEach(element => {
             newStaticLocations.push(
                 {
-                    display: `${element.abbreviation} - ${element.description}`,
+                    display: `${element.id} - ${element.name}`,
                     state_id: element.state_id,
                     state: element.state,
                     municipality_id: element.municipality_id,
@@ -154,7 +154,6 @@ const LocationForm = ({
 
         return newStaticLocations
     }
-
 
     useEffect(() => {
         if (alias && staticLocations.length > 0) {

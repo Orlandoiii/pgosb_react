@@ -13,7 +13,11 @@ function chip({ text, onDelete }: ChipProps) {
             </span>
             <div className="w-1"></div>
             <button
-                onClick={() => onDelete(text)}
+                onClick={(e) => {
+                    onDelete(text)
+                    e.preventDefault()
+                    e.stopPropagation()
+                }}
                 className="flex flex-none justify-center items-center bg-white bg-opacity-0 hover:bg-opacity-40 rounded-full w-9 h-9"
             >
                 ✖

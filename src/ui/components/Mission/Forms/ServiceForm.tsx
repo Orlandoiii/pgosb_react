@@ -145,7 +145,13 @@ const ServiceForm = ({
     const [loading, setLoading] = useState(false)
 
     const operativeAreasCollection = useMemo(() => EnumToStringArray(OperativeAreas), [])
-    const roles = useMemo(() => EnumToStringArray(Roles), [])
+    const roles = useMemo(() => {
+        if (serviceUsers.length == 0 || serviceUsers.filter(x => x.service_role.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
+        else return [Roles.Auxiliary.toString(), Roles.Driver.toString()]
+    }, [serviceUsers])
+
+
+    console.log("roles", roles);
 
 
     useEffect(() => {
@@ -374,6 +380,19 @@ const ServiceForm = ({
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
+                <div className="flex justify-between w-full">
+                    <div className="flex items-center space-x-4">
+                        <div className="font-semibold text-slate-700 text-xl">
+                            Código:
+                        </div>
+                        <div className="bg-white px-4 py-2 rounded-md h-10">
+                            {serviceId}
+                        </div>
+                    </div>
+                </div>
+
+                <div className="h-8"></div>
+
                 <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit}>
                     <div className="flex items-center space-x-8 xl:space-x-6 w-full">
                         <div className="w-full">
@@ -401,7 +420,11 @@ const ServiceForm = ({
                                     <div className="flex-none pt-8 h-11">
                                         <Button
                                             colorType="bg-[#3C50E0]"
-                                            onClick={locationActions.add}
+                                            onClick={(e) => {
+                                                locationActions.add()
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                            }}
                                             children={'+'}
                                             width="w-10"
                                         ></Button>
@@ -441,7 +464,11 @@ const ServiceForm = ({
                                     <div className="flex-none pt-8 h-11">
                                         <Button
                                             colorType="bg-[#3C50E0]"
-                                            onClick={locationActions.add}
+                                            onClick={(e) => {
+                                                locationActions.add()
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                            }}
                                             children={'+'}
                                             width="w-10"
                                         ></Button>
@@ -481,15 +508,8 @@ const ServiceForm = ({
                     <div className="h-4"></div>
 
                     <div className="flex items-center space-x-6">
-                        <div className="flex-none w-64">
-                            <AddOperativeAreaComponent options={operativeAreasCollection} />
-                        </div>
+                        <AddOperativeAreaComponent options={operativeAreasCollection} />
 
-                        {operativeAreas && (
-                            <FormChips<TService>
-                                fieldName={'operativeAreas'}
-                            />
-                        )}
                     </div>
 
                     <div className="h-4"></div>
@@ -644,37 +664,41 @@ export default ServiceForm
 interface AddOperativeAreaComponentProps {
     options: string[]
 }
-
 function AddOperativeAreaComponent({ options }: AddOperativeAreaComponentProps) {
     const { setValue, control } = useFormFieldContext<TService>('operativeAreas')
 
     return <Controller
         name={"operativeAreas"}
         control={control}
-        render={({ field }) => (
+        render={({ field }) => {
 
-            <SelectWithSearch
-                description="Áreas operativas"
-                options={options}
-                selectedOption=''
-                clearAfterSelect={true}
-                selectionChange={(e) => {
-                    if (e == '') return
-                    console.log(field.value);
+            return <div className='flex items-center space-x-6'>
+                <div className="flex-none w-64">
+                    <SelectWithSearch
+                        description="Áreas operativas"
+                        options={options}
+                        clearAfterSelect={true}
+                        selectionChange={(e) => {
+                            if (e == '') return
 
-                    let newOperativeAreas = field.value as string[] ?? []
-                    newOperativeAreas.push(e)
+                            setValue('operativeAreas', (prevValue) => {
+                                const newOperativeAreas = new Set(prevValue as string[] ?? []);
+                                newOperativeAreas.add(e);
+                                return Array.from(newOperativeAreas);
+                            });
+                        }}
+                    />
+                </div>
 
-                    newOperativeAreas = [
-                        ...newOperativeAreas.filter(
-                            (value, index) => newOperativeAreas.indexOf(value) === index
-                        ),
-                    ]
-
-                    setValue('operativeAreas', newOperativeAreas)
-                }}
-            />
-        )}
+                <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
+                    {field.value && (field.value as string[]).length && field.value.map((item) => (
+                        <Chip
+                            text={item}
+                            onDelete={(e) => field.onChange((field.value as string[]).filter(x => x !== e))}
+                        ></Chip>
+                    ))}
+                </div>
+            </div>
+        }}
     ></Controller>
-
 }

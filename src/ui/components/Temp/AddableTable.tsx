@@ -59,6 +59,9 @@ export function AddableTable<T>({
     const [selectedOption2, setSelectedOption2] = useState('')
     const [showInnerAdd, setShowInnerAdd] = useState(false)
 
+    console.log(selectedOption, selectedOption2);
+
+
     useEffect(() => {
         if (sort == '') return
 
@@ -268,7 +271,8 @@ export function AddableTable<T>({
                             <div
                                 className={`${showInnerAdd && options ? '' : '-translate-x-full opacity-0 pointer-events-none'} absolute left-0 top-0 flex h-full w-full items-center bg-slate-200 space-x-4 px-2`}
                             >
-                                <SelectWithSearch
+
+                                {showInnerAdd && <SelectWithSearch
                                     description={optionsDescription}
                                     options={options}
                                     value={selectedOption}
@@ -277,9 +281,10 @@ export function AddableTable<T>({
                                     selectionChange={(e) =>
                                         setSelectedOption(e)
                                     }
-                                ></SelectWithSearch>
+                                ></SelectWithSearch>}
 
-                                {options2 && options2.length > 0 && (
+
+                                {showInnerAdd && options2 && options2.length > 0 && (
                                     <SelectWithSearch
                                         description={optionsDescription2}
                                         options={options2}
