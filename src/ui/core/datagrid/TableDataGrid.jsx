@@ -720,11 +720,11 @@ export default function TableDataGrid({
         const rowsToPrint = table.getSortedRowModel()
             .rows.map(row => row.original);
 
-        let value = {rowsToPrint, appliedFilters}
+        let value = {"data":rowsToPrint, "filters":appliedFilters}
 
         logger.log('PRINT DATA:', value)
 
-        onPrint(rowsToPrint)
+        onPrint(value)
     }
 
 

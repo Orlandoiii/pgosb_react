@@ -165,8 +165,13 @@ function getMunicipios(stateName) {
     )
         return []
 
+
+    const estadoId = getEstadoId(stateName)
+
+    if (!estadoId) return []
+
     const foundState = LocationRawData.States?.find(
-        (item) => item?.name?.toLowerCase() === stateName.toLowerCase()
+        (item) => item?.id === estadoId
     )
 
     if (!foundState || !LocationRawData.MunicipalitysIsLoad) return []
@@ -198,12 +203,16 @@ function getParroquias(estado, municipio) {
         (item) => item?.name?.toLowerCase() === estado.toLowerCase()
     )
 
+
+
     logger.log('Buscando parroquias state', foundState)
 
     if (!foundState) return []
 
+
+
     const foundMunicipio = LocationRawData.Municipalitys?.find(
-        (item) => item?.name?.toLowerCase() === municipio.toLowerCase()
+        (item) => item?.name?.toLowerCase() === municipio.toLowerCase() && item?.state_id === foundState.id
     )
 
     if (!foundMunicipio) return []
@@ -245,6 +254,7 @@ function getSectores(estado, municipio, parroquia) {
 
     const foundMunicipio = LocationRawData.Municipalitys?.find(
         (item) => item?.name?.toLowerCase() === municipio.toLowerCase()
+            && item?.state_id === foundState.id
     )
 
     if (!foundMunicipio) return []
@@ -252,7 +262,8 @@ function getSectores(estado, municipio, parroquia) {
     logger.log('Buscando parroquias muni', foundMunicipio)
 
     const foundParroquia = LocationRawData.Parish?.find(
-        (item) => item?.name?.toLowerCase() === parroquia.toLowerCase()
+        (item) => item?.name?.toLowerCase() === parroquia.toLowerCase() &&
+            item?.municipality_id === foundMunicipio.id
     )
 
     if (!foundParroquia) return []
@@ -317,7 +328,9 @@ export function useLocation(
 
     const [estado, setEstado] = useState(initEstado ?? 'MIRANDA')
 
-    const [estadoId, setEstadoId] = useState<string | number | undefined>(0)
+
+
+    const [estadoId, setEstadoId] = useState<string | number | undefined>(15)
 
     const canLoadMunicipios =
         LocationRawData.StatesIsLoad &&
