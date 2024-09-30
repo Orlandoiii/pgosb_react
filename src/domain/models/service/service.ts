@@ -24,6 +24,7 @@ export const ServiceSchema = z.object({
     manualServiceDate: z.string().optional().default(''),
     isImportant: z.boolean().optional().default(false),
     operativeAreas: z.array(z.string()).default([]).optional().default([]),
+    level: z.string().optional().default(''),
 })
 
 export const ApiServiceSchema = z.object({
@@ -45,6 +46,7 @@ export const ApiServiceSchema = z.object({
     manual_service_date: z.string().optional(),
     is_important: z.boolean(),
     operative_areas: z.array(z.string()).default([]).optional(),
+    level: z.string().optional().default(''),
 })
 
 export type TService = z.infer<typeof ServiceSchema>
@@ -70,6 +72,7 @@ function fromApiInternal(data: TApiService): TService {
         manualServiceDate: data.manual_service_date ?? "",
         isImportant: data.is_important ?? false,
         operativeAreas: data.operative_areas ?? [],
+        level: data.level
     }
 }
 
@@ -93,6 +96,7 @@ function toApiInternal(data: TService): TApiService {
         manual_service_date: data.manualServiceDate,
         is_important: data.isImportant ?? false,
         operative_areas: data.operativeAreas,
+        level: data.level
     }
 }
 
@@ -121,7 +125,7 @@ export const serviceCrud = new CRUD<TService>(
 export const serviceNameConverter: { [K in keyof any]?: string } = {
     // id: 'Id',
     antares_id: 'Antares',
-    is_important : "Relevante",
+    is_important: "Relevante",
     num_firefighters: 'Bomberos',
 
 

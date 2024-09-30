@@ -22,6 +22,7 @@ import TextInput from '../../../alter/components/inputs/text_input.tsx'
 import { useCollection } from '../../../core/hooks/useCollection.ts'
 import { ApiStationType } from '../../../../domain/models/stations/station.ts'
 import { ApiHealthCareCenterType } from '../../../../domain/models/healthcare_center/healthcare_center.ts'
+import FormInput from '../../../core/inputs/FormInput.tsx'
 
 interface LocationFormProps {
     missionId: string
@@ -182,7 +183,6 @@ const LocationForm = ({
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
-        setLoading(true)
 
         try {
             const defaultValue = getDefaults<ServiceLocationSchemaType>(
@@ -226,7 +226,7 @@ const LocationForm = ({
         } catch (error) {
             modalService.toastError(`Error inesperado por: ${error.message}`)
         } finally {
-            setLoading(false)
+
         }
     }
 
@@ -250,18 +250,24 @@ const LocationForm = ({
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <SelectWithSearch
-                                description="Alias"
+                                description="Ubicación estática"
                                 options={staticLocations}
-                                allowNewValue={true}
-                                selectedOption={alias}
                                 valueKey={'display'}
                                 displayKeys={['display']}
                                 selectionChange={(e) => {
-                                    console.log("set location alias", e);
-                                    
                                     setAlias(e)
                                 }}
                             />
+                        </div>
+
+                        <div className="md:flex md:md:items-start md:space-x-2">
+                            <TextInput
+                                description='Alias'
+                                value={alias}
+                                onChange={(e) => setAlias(e.target.value)}>
+
+                            </TextInput>
+
 
                             <SelectWithSearch
                                 isLoading={loading || (states?.length ?? 0) < 2}

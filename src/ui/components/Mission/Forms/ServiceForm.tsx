@@ -380,20 +380,28 @@ const ServiceForm = ({
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <div className="flex justify-between w-full">
-                    <div className="flex items-center space-x-4">
-                        <div className="font-semibold text-slate-700 text-xl">
-                            Código:
+                <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit}>
+                    <div className="flex justify-between w-full">
+                        <div className="flex items-center space-x-4">
+                            <div className="font-semibold text-slate-700 text-xl">
+                                Código:
+                            </div>
+                            <div className="bg-white px-4 py-2 rounded-md h-10">
+                                {serviceId}
+                            </div>
                         </div>
-                        <div className="bg-white px-4 py-2 rounded-md h-10">
-                            {serviceId}
+
+                        <div className="w-44">
+                            <FormSelectWithSearch<TService, string>
+                                description="Nivel"
+                                fieldName={'level'}
+                                options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
+                            />
                         </div>
                     </div>
-                </div>
 
-                <div className="h-8"></div>
+                    <div className="h-8"></div>
 
-                <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit}>
                     <div className="flex items-center space-x-8 xl:space-x-6 w-full">
                         <div className="w-full">
                             <div className="flex space-x-4 w-full">
@@ -482,18 +490,6 @@ const ServiceForm = ({
                                         fieldName={'manualServiceDate'}
                                     />
                                 </div>
-
-                                {/* <div className="w-44">
-                                    <FormSelectWithSearch<TService, string>
-                                        description="Nivel"
-                                        fieldName={'level'}
-                                        options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
-                                        selectionChange={(e) => {
-                                            setAntares(e)
-                                            debounceUpdate()
-                                        }}
-                                    />
-                                </div> */}
                             </div>
                         </div>
                         <div className='w-6 flex-none'></div>

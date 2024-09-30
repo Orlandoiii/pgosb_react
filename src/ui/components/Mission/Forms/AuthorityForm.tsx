@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import ModalLayout from '../../../core/layouts/modal_layout'
 import { AddableTable } from '../../Temp/AddableTable.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
@@ -10,6 +10,9 @@ import { AuthorityPersonForm } from './AuthorityPersonForm.tsx'
 import { AuthorityVehicleForm } from './AuthorityVehicleForm.tsx'
 import { ApiMissionAuthorityType, missionAuthorityCrud } from '../../../../domain/models/authority/mission_authority.ts'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
+import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
+import { StationSchemaBasicDataType } from '../../../../domain/models/stations/station.ts'
+import { getAll } from '../../../../services/http.tsx'
 
 
 interface AutorityFormProps {
@@ -18,8 +21,11 @@ interface AutorityFormProps {
 }
 
 export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
+
+
     const [loading, setLoading] = useState(false)
     const [alias, setAlias] = useState(initValue ? initValue.alias : '')
+    const [type, setType] = useState(initValue ? initValue.type : '')
 
     const [authorityVehicleActions, vehicles] = useActionModalAndCollection(
         AuthorityVehicleForm,
@@ -34,6 +40,15 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
         { missionId: initValue!.mission_id, authorityId: initValue!.id },
         initValue!.id
     )
+
+    const getAuthorityTypes = useCallback(async () => {
+        const response = await getAll<{id: string,name:string,abbreviation:string,"government":""}>(
+            'station'
+        )
+        if (response.success && response.result)
+            return response.result
+        else return []
+    }, [])
 
     async function updateService() {
         const authorityResult = await missionAuthorityCrud.getById(initValue!.id)
@@ -69,6 +84,15 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
                             onChange={(e) => setAlias(e.currentTarget.value)}
                             onBlur={updateService}
                         ></TextInput>
+                    </div>
+
+                    <div className="w-44">
+                        <SelectWithSearch
+                            description="Tipo"
+                            options={["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"]}
+                            selectedOption={''}
+                            selectionChange={(e) => e}
+                        />
                     </div>
                 </div>
 

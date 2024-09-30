@@ -7,6 +7,7 @@ export const ApiMissionAuthoritySchema = z.object({
     id: z.string().optional().default(''),
     mission_id: z.string().optional().default(''),
     alias: z.string().optional().default(''),
+    type: z.string().optional().default(''),
 })
 
 
