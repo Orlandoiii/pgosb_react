@@ -178,6 +178,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                         <FormInput<ApiMissionAuthorityVehicleType>
                             description="Año"
                             fieldName={'year'}
+                            type={'Integer'}
                         />
 
                         <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
