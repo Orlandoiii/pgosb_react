@@ -398,7 +398,7 @@ const ServiceForm = ({
                             </div>
                         </div>
 
-                        <div className="flex items-center space-x-4 flex-none w-44">
+                        <div className="flex items-center space-x-4 flex-none w-72">
                             <div className="font-semibold text-slate-700 text-xl">
                                 Fecha:
                             </div>
@@ -427,7 +427,7 @@ const ServiceForm = ({
 
                                 <div className="flex flex-auto space-x-1 w-24">
                                     <FormSelectWithSearch<TService, ServiceLocationSchemaType>
-                                        description="Ubicación de origen"
+                                        description="Ubicación de origen del servicio"
                                         fieldName={'locationId'}
                                         options={locations}
                                         valueKey={'id'}
@@ -470,12 +470,12 @@ const ServiceForm = ({
                                 </div>
 
                                 <div className="flex flex-auto space-x-1 w-24">
-                                    <FormSelectWithSearch<TService, ServiceLocationSchemaType>
-                                        description="Ubicación de destino"
-                                        fieldName={'locationId'}
-                                        options={locations}
+                                    <FormSelectWithSearch<TService, HealthCareCenterSchemaBasicDataType>
+                                        description="Ubicación de destino (Centro asistencial)"
+                                        fieldName={'centerId'}
+                                        options={getCareCenters}
                                         valueKey={'id'}
-                                        displayKeys={['id', 'alias']}
+                                        displayKeys={['id', 'name']}
                                     />
 
                                     <div className="flex-none pt-8 h-11">

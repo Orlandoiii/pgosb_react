@@ -63,7 +63,7 @@ export function PrintLayout({ title, subtitle, children, loading, filters }: Pri
 
                             {filters.map(filter => (
                                 <div className='pl-4'>
-                                    <span className='font-semibold px-2'> -  </span> {filter.name} <span className='font-semibold px-2'> igual a </span>{filter.value}
+                                    <span className='font-semibold px-2'> -  </span> {filter.name}:  <span className='font-semibold px-2 text-slate-700'> {filter.value} </span>
                                 </div>
                             ))}
 

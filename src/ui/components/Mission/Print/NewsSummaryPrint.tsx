@@ -280,7 +280,7 @@ interface NewsSummaryPrintProps {
     filters: { name: string, value: string }[]
 }
 
-export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
+export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps) {
     const antaresCollection = useCollection('mission/antares', AntaresFromApi)
     const stationCollection = useCollection('station', (data: StationSchemaBasicDataType) => {
         return { success: true, result: data }
@@ -392,6 +392,20 @@ export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
 
                     <div className="font-semibold">DIRECCIÓN GENERAL NACIONAL DE BOMBEROS</div>
                     <div className="font-semibold">REDAN CAPITAL - ZOEDAN MIRANDA</div>
+
+                    {filters && (
+                        <>
+                            <div className="py-2">-------------------------------------------------------------------------</div>
+                            <div className="font-semibold pb-2">FILTROS</div>
+
+                            {filters.map(filter => (
+                                <div >
+                                    {filter.name}:  <span className='font-semibold px-2 text-slate-700'> {filter.value} </span>
+                                </div>
+                            ))}
+                        </>
+                    )}
+
                     <div className="py-2">-------------------------------------------------------------------------</div>
                     <div className="font-semibold">RESUMEN DE NOVEDADES</div>
                     <div className="py-2">-------------------------------------------------------------------------</div>
@@ -412,7 +426,7 @@ export function NewsSummaryPrint({ servicesIds }: NewsSummaryPrintProps) {
                     <div className="font-semibold">Total Servicios: <span className="font-normal">{services.length}</span></div>
 
                     <div className="pt-8">
-                        {getServicesByAntares(services).sort((a,b) => b.count - a.count).map(antares => (
+                        {getServicesByAntares(services).sort((a, b) => b.count - a.count).map(antares => (
                             <>
                                 {antares.count > 0 &&
                                     <div className="font-semibold">{antares.count}<span className="font-normal"> - {antares.antaresDescription}</span></div>
