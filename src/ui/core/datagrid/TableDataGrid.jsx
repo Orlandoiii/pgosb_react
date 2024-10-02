@@ -19,6 +19,7 @@ import { CsvBuilder } from 'filefy';
 import PrintIcon from '../icons/PrintIcon'
 import DateTimePickerRange from '../datetime_picker/DateTimePickerRange'
 import { parse, isAfter, isBefore, isEqual } from 'date-fns';
+import CleanIcon from '../icons/CleanIcon'
 
 
 const alert = new AlertController()
@@ -490,7 +491,8 @@ export default function TableDataGrid({
     permissions,
     child,
     showDownloadButton = false,
-    exportFileName = 'data'
+    exportFileName = 'data',
+    showCleanFiltersButton = true
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
@@ -558,6 +560,9 @@ export default function TableDataGrid({
         })
     }
 
+
+
+
     const columns = useMemo(() => COLUMNS, [rawData])
 
     const data = useMemo(() => rawData, [rawData])
@@ -571,6 +576,8 @@ export default function TableDataGrid({
     const [sorting, setSorting] = useState([])
 
     const [globalFilter, setGlobalFilter] = useState('')
+
+
 
 
 
@@ -654,6 +661,7 @@ export default function TableDataGrid({
             }
         })
         setAppliedFilters(filters)
+        console.log('Applied Filters:', filters)
     }, [table.getState().columnFilters, layout, globalFilter])
 
     // Log applied filters whenever they change
@@ -714,6 +722,20 @@ export default function TableDataGrid({
     }
 
 
+    function resetAllFilters() {
+
+        setGlobalFilter('')
+
+        // Reset all column filters
+        table.getAllColumns().forEach(column => {
+            column.setFilterValue(undefined)
+        })
+
+    }
+
+
+
+
     function handlePrint() {
 
 
@@ -745,6 +767,7 @@ export default function TableDataGrid({
                 <div className="flex flex-col flex-1 bg-[white] h-60 overflow-hidden">
                     <header className="flex justify-between mx-auto px-8 py-4 w-full">
                         {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
+
                         <div className="flex space-x-4">
                             {showAddButton && (
                                 <button
@@ -888,6 +911,22 @@ export default function TableDataGrid({
 
                                 </button>
                             )}
+
+
+                            {showCleanFiltersButton && (
+
+
+                                <button
+                                    onClick={resetAllFilters}
+                                    className={`relative flex justify-center items-center bg-slate-200 
+                                           shadow-md p-0.5 rounded-full w-[40px] h-[40px]`}
+                                >
+                                    <div className= {`absolute bg-transparent  top-0 left-0 w-full h-full  rounded-full  
+                                        ${Object.keys(appliedFilters).length > 0 ? 'ring-2 ring-blue-500 animate-pulse' : 'animate-none'}`}></div>
+                                    <CleanIcon color={Object.keys(appliedFilters).length > 0 ? 'black' : 'gray'} />
+                                </button>
+                            )}
+
                         </div>
 
                         <div className="px-4 w-1 flex-1">
