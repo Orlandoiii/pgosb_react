@@ -560,7 +560,7 @@ const ServiceForm = ({
 
                                 <div className="flex flex-auto space-x-1 w-24">
                                     <FormSelectWithSearch<TService, ServiceLocationSchemaType>
-                                        description="Ubicación de destino (Centro asistencial)"
+                                        description="Ubicación de destino"
                                         fieldName={'locationDestinyId'}
                                         options={locations}
                                         valueKey={'id'}

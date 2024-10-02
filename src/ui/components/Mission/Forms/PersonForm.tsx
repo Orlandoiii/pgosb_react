@@ -169,7 +169,7 @@ const PersonForm = ({
     return (
         <>
             <ModalLayout
-                className="max-w-[85vw] max-h-[90vh] overflow-y-auto"
+                className="max-w-[85vw]"
                 title={'Registro de Persona'}
                 onClose={handleClose}
             >
