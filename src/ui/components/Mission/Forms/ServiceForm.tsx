@@ -72,6 +72,7 @@ import FormToggle from '../../../alter/components/form_inputs/form_toggle'
 import { useFormFieldContext } from '../../../alter/components/form/form_context'
 import FormChips from '../../../alter/components/form_inputs/form_chips'
 import { Controller } from 'react-hook-form'
+import DateTimePicker from '../../../core/datetime_picker/DateTimePicker'
 
 const alertController = new AlertController()
 
@@ -89,12 +90,41 @@ const ServiceForm = ({
     const [initialValue, setInitialValue] = useState({
         ...initValue,
         missionId,
-        manualServiceDate: initValue ? initValue.manualServiceDate : new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })
+        manualServiceDate: initValue ? initValue.manualServiceDate : new Date().toLocaleString('es-VE', {
+            timeZone: 'America/Caracas',
+            hour12: false
+        })
     })
     const [serviceId, setServiceId] = useState(initialValue ? initialValue?.id ?? '-1' : '-1')
 
     const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
     const [serviceAuthorities, setServiceAuthorities] = useState<ApiMissionAuthoritySummaryType[]>([])
+
+    const [serviceDate, setServiceDate] = useState<Date | null>(() => {
+
+        if (initialValue && initialValue.manualServiceDate) {
+
+            // Parse the date string in the format "DD-MM-YYYY HH:mm:ss"
+            try {
+                const parts = initialValue.manualServiceDate.split(/[-\s:]/);
+
+                if (parts.length === 6) {
+                    const [day, month, year, hours, minutes, seconds] = parts;
+                    const date = new Date(+year, +month - 1, +day, +hours, +minutes, +seconds);
+                    if (!isNaN(date.getTime())) {
+                        return date;
+                    }
+                }
+            } catch (error) {
+                console.error("Error parsing date:", error);
+                return new Date();
+            }
+
+        }
+        return new Date();
+    });
+
+
 
 
 
@@ -344,6 +374,23 @@ const ServiceForm = ({
     }
 
     async function submit(data: TService) {
+
+        if (serviceDate) {
+            // Format the date to "DD-MM-YYYY HH:mm:ss"
+
+            const formattedDate = serviceDate.toLocaleString('es-VE', {
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false,
+                timeZone: 'America/Caracas'
+            }).replace(/\//g, '-').replace(',', '').trim();
+
+            data.manualServiceDate = formattedDate;
+        }
         data.operativeAreas = operativeAreas;
         console.log("submited", data, serviceId);
 
@@ -352,6 +399,7 @@ const ServiceForm = ({
 
         if (serviceId == '-1') {
             let defaultValue = getDefaults<TService>(ServiceSchema)
+          
             defaultValue = { ...defaultValue, ...data }
 
             if (defaultValue.antaresId == "" || defaultValue.stationId == "") {
@@ -361,7 +409,14 @@ const ServiceForm = ({
 
             resultService = await serviceCrud.insert({ ...defaultValue, ...data })
         }
-        else resultService = await serviceCrud.update(data)
+        else {
+
+            //Fix para seguir actualizando despues del insert inciial
+            if (data?.id == null || data?.id == "" || data?.id == "-1") {
+                data.id = serviceId
+            }
+            resultService = await serviceCrud.update(data)
+        }
 
         if (resultService! && resultService.success) {
             alertController.notifySuccess(
@@ -388,25 +443,34 @@ const ServiceForm = ({
                 onClose={closeOverlay}
             >
                 <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit}>
-                    <div className="flex justify-between w-full">
-                        <div className="flex items-center space-x-4">
-                            <div className="font-semibold text-slate-700 text-xl">
-                                Código:
-                            </div>
-                            <div className="bg-white px-4 py-2 rounded-md h-10">
-                                {serviceId}
-                            </div>
-                        </div>
-
+                    <div className="flex space-x-8 w-full">
                         <div className="flex items-center space-x-4 flex-none w-72">
                             <div className="font-semibold text-slate-700 text-xl">
                                 Fecha:
                             </div>
-                            <FormInput<TService>
-                                description=""
-                                fieldName={'manualServiceDate'}
+
+                            <DateTimePicker
+                                onChange={(date) => {
+                                    setServiceDate(date);
+                                }}
+                                selected={serviceDate}
+                                height='h-10'
+                                timeInterval={1}
+
                             />
+
                         </div>
+
+                        <div className="flex items-center space-x-4">
+                            <div className="font-semibold text-slate-700 text-xl">
+                                Código:
+                            </div>
+                            <div className="bg-white px-4 py-2 rounded-md h-10 font-semibold text-md">
+                                {serviceId}
+                            </div>
+                        </div>
+
+
                     </div>
 
                     <div className="h-8"></div>
@@ -499,8 +563,21 @@ const ServiceForm = ({
                                         options={levels}
                                     />
                                 </div>
+
+                                <div className="w-52">
+                                    <FormInput<TService>
+                                        description={'Cuadrante de Paz'}
+                                        fieldName={'peaceQuadrant'}
+
+
+                                    />
+                                </div>
+
                             </div>
+
                         </div>
+
+
                         <div className='w-6 flex-none'></div>
                         <div className="flex-none h-28 mt-2">
                             <Button
@@ -598,7 +675,7 @@ const ServiceForm = ({
                                 </div>
 
                                 <div className="flex items-center space-x-6">
-                                    <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas}/>
+                                    <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas} />
 
                                 </div>
 
@@ -686,7 +763,7 @@ function AddOperativeAreaComponent({ options, setExternal }: AddOperativeAreaCom
                         clearAfterSelect={true}
                         selectionChange={(e) => {
                             if (e == '') return
-                            
+
                             setValue('operativeAreas', (prevValue) => {
                                 const newOperativeAreas = new Set(prevValue as string[] ?? []);
                                 newOperativeAreas.add(e);

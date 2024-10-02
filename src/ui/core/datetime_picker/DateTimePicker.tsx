@@ -15,6 +15,8 @@ interface DateTimePickerProps {
   minDate?: Date | undefined;
   minTime?: Date | undefined;
   disabled?: boolean;
+  height?: string;
+  timeInterval?: number;
 }
 
 const DateTimePicker: React.FC<DateTimePickerProps> = ({
@@ -22,9 +24,11 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   selected,
   placeholderText = 'Seleccione fecha y hora...',
   width = 'w-auto',
+  height = 'h-auto',
   minDate = undefined,
   minTime = undefined,
-  disabled = false
+  disabled = false,
+  timeInterval = 15
 }) => {
 
   logger.log("RENDERIZANDO DATETIMEPICKER COMPONENTE")
@@ -79,13 +83,13 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       onChange={handleChange}
       showTimeSelect
       timeFormat="HH:mm"
-      timeIntervals={15}
+      timeIntervals={timeInterval}
       timeCaption="Hora"
       dateFormat="dd/MM/yyyy HH:mm"
       placeholderText={placeholderText}
       locale="es"
       filterTime={filterTime}
-      className={`${width} text-lg text-center font-bold p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+      className={`${width} ${height} text-lg text-center font-bold p-1 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
     />
   );
 };

@@ -49,9 +49,10 @@ export function SelectWithSearch<T>({
 
             <div className="relative">
                 <button
+                    type="button"
                     tabIndex={-1}
                     disabled={disable}
-                    className={`pointer-events-none  h-12 w-full  outline-none`}
+                    className={`pointer-events-none  w-full  outline-none`}
                     ref={select.refs.selectContainer as React.RefObject<HTMLButtonElement>}
                 >
                     <TextInputBase

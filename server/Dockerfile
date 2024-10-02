@@ -30,8 +30,8 @@ WORKDIR /app
 # Copy the binary from the builder stage
 COPY --from=builder /app/pgosb_web_app .
 COPY config/appsettings.json /app/config/appsettings.json 
-#COPY config/gres.local.net.pem /app/config/gres.local.net.pem 
-#COPY config/gres.local.net-key.pem /app/config/gres.local.net-key.pem
+COPY config/gres.local.net.pem /app/config/gres.local.net.pem 
+COPY config/gres.local.net-key.pem /app/config/gres.local.net-key.pem
 
 
 # (Optional) Copy any static files or configuration if needed

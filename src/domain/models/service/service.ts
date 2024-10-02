@@ -25,6 +25,7 @@ export const ServiceSchema = z.object({
     isImportant: z.boolean().optional().default(false),
     operativeAreas: z.any(),
     level: z.string().optional().default(''),
+    peaceQuadrant: z.string().optional().default(''),
 })
 
 export const ApiServiceSchema = z.object({
@@ -47,6 +48,7 @@ export const ApiServiceSchema = z.object({
     is_important: z.boolean(),
     operative_areas: z.array(z.string()).default([]).optional(),
     level: z.string().optional().default(''),
+    peace_quadrant: z.string().optional().default(''),
 })
 
 export type TService = z.infer<typeof ServiceSchema>
@@ -72,7 +74,9 @@ function fromApiInternal(data: TApiService): TService {
         manualServiceDate: data.manual_service_date ?? "",
         isImportant: data.is_important ?? false,
         operativeAreas: data.operative_areas ?? [],
-        level: data.level
+        level: data.level,
+        peaceQuadrant: data.peace_quadrant ?? "",
+
     }
 }
 
@@ -96,7 +100,8 @@ function toApiInternal(data: TService): TApiService {
         manual_service_date: data.manualServiceDate,
         is_important: data.isImportant ?? false,
         operative_areas: data.operativeAreas,
-        level: data.level
+        level: data.level,
+        peace_quadrant: data.peaceQuadrant,
     }
 }
 
