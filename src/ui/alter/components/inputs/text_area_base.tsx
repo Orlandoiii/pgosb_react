@@ -55,6 +55,7 @@ const TextAreaBase = forwardRef<HTMLTextAreaElement, TextAreaBaseProps>(
 
     return (
       <textarea
+  
         tabIndex={!disabled ? undefined : -1}
         {...rest}
         ref={selfRef}
@@ -68,7 +69,7 @@ const TextAreaBase = forwardRef<HTMLTextAreaElement, TextAreaBaseProps>(
             e.stopPropagation()
           }
         }}
-        className={`${rest.className} ${!disabled ? "" : "opacity-50 pointer-events-none bg-gray-300"} flex h-full w-full items-center rounded-md px-3 outline-none`}
+        className={`${rest.className} ${!disabled ? "" : "opacity-50 pointer-events-none bg-gray-300"} resize-none flex h-full w-full items-center rounded-md px-3 outline-none`}
       />
     );
   }

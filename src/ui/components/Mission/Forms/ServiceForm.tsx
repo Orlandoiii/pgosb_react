@@ -399,7 +399,7 @@ const ServiceForm = ({
 
         if (serviceId == '-1') {
             let defaultValue = getDefaults<TService>(ServiceSchema)
-          
+
             defaultValue = { ...defaultValue, ...data }
 
             if (defaultValue.antaresId == "" || defaultValue.stationId == "") {
@@ -438,11 +438,11 @@ const ServiceForm = ({
     return (
         <>
             <ModalLayout
-                className="min-w-[80vw] max-w-[85vw] max-h-[90vh] overflow-y-auto"
+                className="min-w-[80vw] max-w-[85vw]"
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
-                <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit}>
+                <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit} className='relative' >
                     <div className="flex space-x-8 w-full">
                         <div className="flex items-center space-x-4 flex-none w-72">
                             <div className="font-semibold text-slate-700 text-xl">
@@ -470,8 +470,34 @@ const ServiceForm = ({
                             </div>
                         </div>
 
+                        <div className="flex">
 
+                            <FormToggle<TService>
+                                width="w-44"
+                                height="h-11"
+                                fieldName={'isImportant'}
+                                option1="Relevante"
+                                option2="No Relevante"
+                            />
+                        </div>
                     </div>
+
+                    <div className=' absolute top-0 left-0 w-full h-full pointer-events-none'>
+                        <div className='relative h-full w-full flex'>
+                            <div className='w-full'></div>
+                            <div className="sticky h-fit z-50 top-6 right-6 pointer-events-auto">
+                                <Button
+                                    height='h-12'
+                                    width='w-44'
+                                    colorType="bg-[#3C50E0]"
+
+                                >
+                                    <span className='text-lg font-semibold'>Guardar</span>
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+
 
                     <div className="h-8"></div>
 
@@ -511,16 +537,15 @@ const ServiceForm = ({
                                         ></Button>
                                     </div>
                                 </div>
-                                <div className="flex pt-8">
 
-                                    <FormToggle<TService>
-                                        width="w-44"
-                                        height="h-11"
-                                        fieldName={'isImportant'}
-                                        option1="Relevante"
-                                        option2="No Relevante"
+                                <div className="w-52">
+                                    <FormSelectWithSearch<TService, string>
+                                        description="Nivel"
+                                        fieldName={'level'}
+                                        options={levels}
                                     />
                                 </div>
+
                             </div>
                             <div className="flex space-x-4">
                                 <div className="flex-auto w-64">
@@ -534,12 +559,12 @@ const ServiceForm = ({
                                 </div>
 
                                 <div className="flex flex-auto space-x-1 w-24">
-                                    <FormSelectWithSearch<TService, HealthCareCenterSchemaBasicDataType>
+                                    <FormSelectWithSearch<TService, ServiceLocationSchemaType>
                                         description="Ubicación de destino (Centro asistencial)"
-                                        fieldName={'centerId'}
-                                        options={getCareCenters}
+                                        fieldName={'locationDestinyId'}
+                                        options={locations}
                                         valueKey={'id'}
-                                        displayKeys={['id', 'name']}
+                                        displayKeys={['id', 'alias']}
                                     />
 
                                     <div className="flex-none pt-8 h-11">
@@ -556,14 +581,6 @@ const ServiceForm = ({
                                     </div>
                                 </div>
 
-                                <div className="w-44">
-                                    <FormSelectWithSearch<TService, string>
-                                        description="Nivel"
-                                        fieldName={'level'}
-                                        options={levels}
-                                    />
-                                </div>
-
                                 <div className="w-52">
                                     <FormInput<TService>
                                         description={'Cuadrante de Paz'}
@@ -576,18 +593,13 @@ const ServiceForm = ({
                             </div>
 
                         </div>
-
-
-                        <div className='w-6 flex-none'></div>
-                        <div className="flex-none h-28 mt-2">
-                            <Button
-                                colorType="bg-[#3C50E0]"
-                                children={'Guardar'}
-                            ></Button>
-                        </div>
                     </div>
 
+                    <div className="h-4"></div>
 
+                    <div className="flex items-center space-x-6">
+                        <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas} />
+                    </div>
 
                     <div className="h-4"></div>
 
@@ -629,7 +641,7 @@ const ServiceForm = ({
                                     />
                                 </div>
 
-                                <div className={`h-64 w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
+                                <div className={`h-48 w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
                                     <span className="font-semibold text-slate-700 text-xl">
                                         Descripción / Bitacora
                                     </span>
@@ -640,6 +652,8 @@ const ServiceForm = ({
                                         disable={!formIsEnable()}
                                     />
                                 </div>
+
+                                <div className='h-4'></div>
 
 
                                 <div className={`w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
@@ -672,11 +686,6 @@ const ServiceForm = ({
                                             type={'Integer'}
                                         />
                                     </div>
-                                </div>
-
-                                <div className="flex items-center space-x-6">
-                                    <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas} />
-
                                 </div>
 
                                 <AddableTable

@@ -38,7 +38,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
             >
                 <div className={`h-full relative`}>
                     <TextAreaBase
-                        {...rest}
+                        {...rest}                        
                         ref={ref}
                         disabled={disable}
                         onFocusChanged={(isFocused) => setIsFocus(isFocused)}
