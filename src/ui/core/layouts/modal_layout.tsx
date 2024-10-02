@@ -15,7 +15,7 @@ function ModalLayout({
     onClose,
 }: ModalLayoutProps) {
     return (
-        <div className='h-screen w-[100vw] flex flex-col items-center py-24 overflow-y-auto'>
+        <div className='h-screen w-[100vw] flex flex-col items-center py-20 overflow-y-auto'>
             <div
                 className={`${className} flex flex-col relative rounded-xl bg-slate-100 shadow-lg shadow-gray-400 pointer-events-auto`}
             >

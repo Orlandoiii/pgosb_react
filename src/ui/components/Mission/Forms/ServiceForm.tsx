@@ -485,7 +485,7 @@ const ServiceForm = ({
                     <div className=' absolute top-0 left-0 w-full h-full pointer-events-none'>
                         <div className='relative h-full w-full flex'>
                             <div className='w-full'></div>
-                            <div className="sticky h-fit z-50 top-6 right-6 pointer-events-auto">
+                            <div className="sticky h-fit z-50 top-[-48px] right-6 pointer-events-auto">
                                 <Button
                                     height='h-12'
                                     width='w-44'
