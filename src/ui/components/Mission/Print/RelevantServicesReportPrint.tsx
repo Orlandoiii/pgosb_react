@@ -177,13 +177,20 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
                                             </div>
 
                                             <div>
-                                                <span >IMPACTO:</span>
-                                                <span className="font-semibold">Pendiente</span>
+                                                <span >NIVEL:</span>
+                                                <span className="font-semibold">{service?.level}</span>
                                             </div>
                                         </div>
 
-                                        <div className="pt-2">
-                                            <span className="font-semibold text-base"> {service?.antaresId!} - {service?.antaresDescription} {service.isImportant ? "( Relevante )" : ""}</span>
+                                        <div className="flex w-full justify-between">
+                                            <div className="pt-2">
+                                                <span className="font-semibold text-base"> {service?.antaresId!} - {service?.antaresDescription} {service.isImportant ? "( Relevante )" : ""}</span>
+                                            </div>
+
+                                            <div className="flex">
+                                                <span>CUADRANTE DE PAZ:</span>
+                                                <span className="font-semibold">{service?.peaceQuadrant}</span>
+                                            </div>
                                         </div>
 
                                         <div>

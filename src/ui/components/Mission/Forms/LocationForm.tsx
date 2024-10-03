@@ -240,7 +240,7 @@ const LocationForm = ({
             <ModalLayout
                 title={'Registro de Ubicación'}
                 onClose={handleClose}
-                className="max-h-[90vh] min-w-[54rem] max-w-[85vw]"
+                className="min-w-[54rem] max-w-[85vw]"
             >
                 <CustomForm
                     schema={ServiceLocationSchema}

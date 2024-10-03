@@ -16,6 +16,7 @@ interface MissionReportsProps {
 
 enum reportTypes {
     StatisticsForAntares = "Estadísticas por Antares",
+    StatisticsForAntaresTypes = "Estadísticas por Tipos de Estaciones",
     StatisticsForStation = "Estadísticas por Estaciones",
     ServiceDetails = "Servicios detallados",
     NewsSummary = "Resumen de Novedades",
@@ -26,7 +27,7 @@ export function MissionReports({ servicesIds, filters, closeOverlay }: MissionRe
     const reports: string[] = EnumToStringArray(reportTypes)
 
     return <ModalLayout
-        className="max-w-[85vw] max-h-[90vh] overflow-y-auto"
+        className="max-w-[85vw]"
         title={'Registro de Persona'}
         onClose={closeOverlay}
     ><div className="h-[80vh] w-[80vw] flex flex-col p-6">
@@ -39,6 +40,10 @@ export function MissionReports({ servicesIds, filters, closeOverlay }: MissionRe
                     <PrintView>
                         {selectedReport === reportTypes.StatisticsForAntares &&
                             <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'Antares'} filters={filters} />
+                        }
+
+                        {selectedReport === reportTypes.StatisticsForAntaresTypes &&
+                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'AntaresTypes'} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.StatisticsForStation &&
