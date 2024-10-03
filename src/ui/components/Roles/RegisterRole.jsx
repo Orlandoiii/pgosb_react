@@ -36,7 +36,7 @@ function RegisterRole({ open, onClose,
                                 onChange={(e) => {
                                     if (readonly)
                                         return;
-                                    setRolName(e.target.value)
+                                    setRolName(e.target.value.toUpperCase())
                                 }} />
                         </div>
 

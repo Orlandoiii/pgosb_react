@@ -150,7 +150,7 @@ export default function AddInput({
         if (!setItems) return
 
         setItems((currentItems) => {
-            let newItems = [...currentItems, controlValue]
+            let newItems = [...currentItems, controlValue.toUpperCase()]
 
             return newItems
         })

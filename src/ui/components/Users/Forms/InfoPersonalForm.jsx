@@ -45,6 +45,7 @@ export default function InfoPersonalForm({ clickSubmitRef, onSubmit }) {
 
             schema={UserSchemaBasicData}
             initValue={initialData}
+            use_uppercase={false}
             onSubmit={
                 (data) => {
                     logger.log("Aqui en User Info Form", data);
