@@ -132,7 +132,7 @@ export const serviceCrud = new CRUD<TService>(
 )
 
 export const serviceNameConverter: { [K in keyof any]?: string } = {
-    // id: 'Id',
+    id: 'Código',
     antares_id: 'Antares',
     is_important: "Relevante",
     num_firefighters: 'Bomberos',

@@ -24,6 +24,7 @@ export const RelevantServiceDetail =
                 antaresDescription: z.string().optional().default(''),
                 missionCode: z.string().optional().default(''),
                 serviceId: z.string().optional().default(''),
+                level: z.string().optional().default(''),
                 serviceDescription: z.string().optional().default(''),
                 serviceDate: z.string().optional().default(''),
                 unharmed: z.string().optional().default(''),
@@ -32,6 +33,7 @@ export const RelevantServiceDetail =
                 deceased: z.string().optional().default(''),
                 isImportant: z.boolean().optional().default(false),
                 operativeAreas: z.array(z.string()).optional().default([]),
+                peaceQuadrant: z.string().optional().default(''),
                 location: z.object({
                     state: z.string().optional().default(''),
                     municipality: z.string().optional().default(''),
@@ -104,6 +106,7 @@ export const ApiRelevantServiceDetail = z.object({
     operative_area_name: z.array(z.string()).optional().default([]),
     service_description: z.string().optional().default(''),
     service_date: z.string().optional().default(''),
+    level: z.string().optional().default(''),
     antares_id: z.string().optional().default(''),
     antares_type: z.string().optional().default(''),
     unharmed: z.string().optional().default(''),
@@ -113,6 +116,7 @@ export const ApiRelevantServiceDetail = z.object({
     deceased: z.string().optional().default(''),
     antares_description: z.string().optional().default(''),
     units: z.array(z.string()).optional().default([]),
+    peace_quadrant: z.string().optional().default(''),
     firefighters: z.array(z.object({
         rank: z.string().optional().default(''),
         name: z.string().optional().default(''),
@@ -196,6 +200,7 @@ function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetai
                 serviceId: data.service_id || '',
                 serviceDescription: data.service_description || '',
                 serviceDate: data.service_date || '',
+                level: data.level || '',
                 antaresId: data.antares_id || '',
                 antaresType: data.antares_type || '',
                 antaresDescription: data.antares_description || '',
@@ -206,6 +211,7 @@ function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetai
                 location: data.service_locations[0] || undefined,
                 isImportant: data.is_important,
                 operativeAreas: data.operative_area_name || [],
+                peaceQuadrant: data.peace_quadrant || '',
                 careCenter: (data.centers || []).map(center => ({
                     name: center.name || '',
                     abbreviation: center.abbreviation || '',
@@ -242,6 +248,7 @@ function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail 
         operative_area_name: firstService.operativeAreas,
         service_description: firstService.serviceDescription,
         service_date: firstService.serviceDate,
+        level: 'level',
         antares_id: firstService.antaresId,
         antares_type: firstService.antaresType,
         antares_description: firstService.antaresDescription,
@@ -252,6 +259,7 @@ function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail 
         deceased: firstService.deceased || '',
         units: firstService.units || [],
         firefighters: firstService.firefighters || [],
+        peace_quadrant: 'quadrant',
         people: (firstService.people || []).map(person => ({
             ...person,
             person_condition: person.personCondition,

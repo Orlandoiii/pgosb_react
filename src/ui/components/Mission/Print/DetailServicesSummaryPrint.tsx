@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useState } from 'react'
 import { ServiceFromApi, TService } from '../../../../domain/models/service/service'
 import { PrintLayout } from './PrintLayout'
 import { useCollection } from '../../../core/hooks/useCollection'
-import { AntaresFromApi } from '../../../../domain/models/antares/antares'
+import { AntaresFromApi, TAntares } from '../../../../domain/models/antares/antares'
 
 import { StationSchemaBasicDataType } from '../../../../domain/models/stations/station'
 import { getById } from '../../../../services/http'
@@ -277,7 +277,120 @@ function detailByStation(services: TService[]): StationsDetail[] {
 interface ServicePrintProps {
     servicesIds: string[]
     filters: { name: string, value: string }[]
-    groupBy: "Antares" | "Stations"
+    groupBy: "Antares" | "Stations" | "AntaresTypes"
+}
+
+type AnteresTypeSummary = { antaresType: string; count: number, percentage: string }
+
+type AntaresTypeDetail = {
+    antaresType: string
+    details: {
+        stationId: string
+        services: number
+        unharmed: number
+        injured: number
+        transported: number
+        deceased: number
+        percentage: string
+    }[],
+    summatory: {
+        services: number
+        unharmed: number
+        injured: number
+        transported: number
+        deceased: number
+        percentage: string
+    }
+}
+
+function getAntaresTypes(antares: TAntares[], antaresSummary: AnteresSummary[], antaresDetail: AntaresDetail[]): { antaresTypeSummary: AnteresTypeSummary[], antaresTypeDetail: AntaresTypeDetail[] } {
+    if (!antares || antares.length < 1) return { antaresTypeSummary: [], antaresTypeDetail: [] }
+
+    let antaresTypeSummary: AnteresTypeSummary[] = [];
+    let servicesCount = 0;
+
+    antaresSummary.forEach(item => {
+        var currentAntares = antares.filter(x => x.id == item.antaresId)[0]
+
+        if (currentAntares) {
+            var CurrentAntaresType = antaresTypeSummary.filter(x => x.antaresType == currentAntares.type)[0]
+
+            if (CurrentAntaresType) CurrentAntaresType.count += item.count
+            else antaresTypeSummary.push({ antaresType: currentAntares.type, count: item.count, percentage: '' })
+
+            servicesCount += item.count
+        }
+    });
+
+    antaresSummary = antaresSummary.sort((a, b) => b.count - a.count)
+    antaresSummary.forEach(x => {
+        x.percentage = ((x.count / servicesCount) * 100).toFixed(2)
+    })
+
+    let antaresTypeDetail: AntaresTypeDetail[] = [];
+
+    antaresDetail.forEach(item => {
+        let currentAntares = antares.filter(x => x.id == item.antaresId)[0]
+
+        if (currentAntares) {
+            let CurrentAntaresType = antaresTypeDetail.filter(x => x.antaresType == currentAntares.type)[0]
+
+            if (!CurrentAntaresType) {
+                CurrentAntaresType = {
+                    antaresType: currentAntares.type, details: [], summatory: {
+                        services: 0,
+                        unharmed: 0,
+                        injured: 0,
+                        transported: 0,
+                        deceased: 0,
+                        percentage: "",
+                    }
+                }
+
+                antaresTypeDetail.push(CurrentAntaresType)
+            }
+
+            item.details.forEach(station => {
+                let currentStation = CurrentAntaresType.details.filter(x => x.stationId == station.stationId)[0]
+
+                if (currentStation) {
+                    currentStation.unharmed += station.unharmed
+                    currentStation.injured += station.injured
+                    currentStation.transported += station.transported
+                    currentStation.deceased += station.deceased
+                    currentStation.services += station.services
+
+                    CurrentAntaresType.summatory.unharmed += station.unharmed
+                    CurrentAntaresType.summatory.injured += station.injured
+                    CurrentAntaresType.summatory.transported += station.transported
+                    CurrentAntaresType.summatory.deceased += station.deceased
+                    CurrentAntaresType.summatory.services += station.services
+                }
+                else {
+                    CurrentAntaresType.details.push({ ...station, percentage: '' })
+
+                    CurrentAntaresType.summatory.unharmed += station.unharmed
+                    CurrentAntaresType.summatory.injured += station.injured
+                    CurrentAntaresType.summatory.transported += station.transported
+                    CurrentAntaresType.summatory.deceased += station.deceased
+                    CurrentAntaresType.summatory.services += station.services
+                }
+            })
+        }
+    })
+
+    antaresTypeDetail = antaresTypeDetail.sort((a, b) => b.summatory.services - a.summatory.services)
+    antaresTypeDetail.forEach(item => {
+        item.summatory.percentage = ((item.summatory.services / servicesCount) * 100).toFixed(2)
+
+        item.details.forEach(detail => {
+            detail.percentage = ((detail.services / servicesCount) * 100).toFixed(2)
+        })
+
+        item.details = item.details.sort((a, b) => b.services - a.services)
+    })
+
+    return { antaresTypeSummary, antaresTypeDetail }
 }
 
 export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: ServicePrintProps) {
@@ -311,7 +424,7 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: Se
             setLoading(false)
         }
     }
-    
+
     async function getServicesList(): Promise<TService[]> {
 
         const servicesList: TService[] = []
@@ -345,6 +458,10 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: Se
     }
 
     const { antaresSummary, stationsSummary, antaresDetail, stationsDetail } = getServiceData(services);
+    const { antaresTypeSummary, antaresTypeDetail } = getAntaresTypes(antaresCollection, antaresSummary, antaresDetail)
+
+    console.log(antaresTypeSummary, antaresTypeDetail);
+    
 
     return <div id={'PrintThis'} className='h-full w-full'>
         <PrintLayout loading={loading} title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? "ANTARES" : "ESTACIONES"} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })} filters={filters}>
@@ -404,6 +521,98 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: Se
                                 <div>
                                     <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
                                         Antares {antares.antaresId} ( {getAntaresDescriptionFor(antares.antaresId)} ) - {antares.summatory.services} Servicios
+                                    </div>
+
+                                    <div className="px-2 border rounded-b-md">
+                                        <table className="w-full">
+                                            <tr>
+                                                <td className="py-2 font-semibold text-lg text-slate-600">
+                                                    Estación
+                                                </td>
+                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                    Servicios
+                                                </td>
+                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                    Ilesos
+                                                </td>
+                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                    Lesionados
+                                                </td>
+                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                    Transladados
+                                                </td>
+                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                    Fallecidos
+                                                </td>
+                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                    Total
+                                                </td>
+                                            </tr>
+                                            {antares.details.map(stationDetail => (
+                                                <tr className="border-t">
+                                                    <td className="py-2 text-sm">
+                                                        {getStationAbbreviationFor(stationDetail.stationId)} - ( {getStationDescriptionFor(stationDetail.stationId)} )
+                                                    </td>
+                                                    <td className="py-2 text-center text-sm">
+                                                        {stationDetail.services}
+                                                    </td>
+                                                    <td className="py-2 text-center text-sm">
+                                                        {stationDetail.unharmed}
+                                                    </td>
+                                                    <td className="py-2 text-center text-sm">
+                                                        {stationDetail.injured}
+                                                    </td>
+                                                    <td className="py-2 text-center text-sm">
+                                                        {stationDetail.transported}
+                                                    </td>
+                                                    <td className="py-2 text-center text-sm">
+                                                        {stationDetail.deceased}
+                                                    </td>
+                                                    <td className="py-2 text-center text-sm">
+                                                        {stationDetail.percentage}%
+                                                    </td>
+                                                </tr>
+                                            ))}
+
+                                            <tr className="border-t font-semibold">
+                                                <td className="py-2">Total</td>
+                                                <td className="py-2 text-center text-sm">
+                                                    {antares.summatory.services}
+                                                </td>
+                                                <td className="py-2 text-center text-sm">
+                                                    {antares.summatory.unharmed}
+                                                </td>
+                                                <td className="py-2 text-center text-sm">
+                                                    {antares.summatory.injured}
+                                                </td>
+                                                <td className="py-2 text-center text-sm">
+                                                    {antares.summatory.transported}
+                                                </td>
+                                                <td className="py-2 text-center text-sm">
+                                                    {antares.summatory.deceased}
+                                                </td>
+                                                <td className="py-2 text-center text-sm">
+                                                    {antares.summatory.percentage}%
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+                {groupBy == "AntaresTypes" && (
+                    <div className="space-y-4 pt-8">
+                        <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
+                            Detalles por Tipos de Antares
+                        </div>
+
+                        <div className="space-y-8">
+                            {antaresTypeDetail.map(antares => (
+                                <div>
+                                    <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
+                                        {antares.antaresType} - {antares.summatory.services} Servicios
                                     </div>
 
                                     <div className="px-2 border rounded-b-md">
