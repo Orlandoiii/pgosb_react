@@ -53,8 +53,8 @@ export default function SelectSearch({
 
     function handleOnSelected(selectValue) {
         setOpen(false)
-        setSearhValue(selectValue)
-        if (onSelected) onSelected(selectValue)
+        setSearhValue(selectValue.toUpperCase())
+        if (onSelected) onSelected(selectValue.toUpperCase())
         inpRef?.current?.blur()
     }
 
@@ -84,7 +84,7 @@ export default function SelectSearch({
                 refCallback={refCallback}
                 useStrongErrColor={useStrongErrColor}
                 onChange={(e) => {
-                    setSearhValue(e.target.value)
+                    setSearhValue(e.target.value.toUpperCase())
                     if (onChange) onChange(e)
                 }}
                 onFocus={handleOnFocus}

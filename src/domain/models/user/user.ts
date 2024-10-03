@@ -145,6 +145,8 @@ export const UserIntutionalDataSchema = z.object({
         .or(z.string().length(0)),
 
     user_system: z.boolean().default(false).optional(),
+
+    status_user: z.string().default("INACTIVO").optional(),
 })
 
 

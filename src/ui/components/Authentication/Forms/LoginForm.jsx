@@ -100,6 +100,7 @@ export default function LoginForm({ onSubmit }) {
                     onSubmit={(data) => {
                         handleSubmitInternal(data)
                     }}
+                    use_uppercase={false}
                 >
                     <div className="space-y-6">
                         <FormInput

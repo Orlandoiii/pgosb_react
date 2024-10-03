@@ -27,6 +27,7 @@ export default function AuthorityForm({ onSubmit, currentData }) {
 
             schema={AuthorityModuleSchema}
             initValue={initialData}
+
             onSubmit={
                 (data) => {
                     logger.log("Aqui en Authority Info Form", data);
