@@ -37,6 +37,9 @@ export default function Input({
         if (refCallback) refCallback(node)
     }, [])
 
+
+    const { onChange } = rest
+
     useEffect(() => {
         if (!maskDefinition) return
 

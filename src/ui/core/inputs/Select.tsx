@@ -131,10 +131,10 @@ export function Options({
               ))
             : [
                   <OptionContainerButton
-                      option={'Sin resultados'}
+                      option={'NO APLICA'}
                       key={'not-found'}
                       onClick={() => {
-                          if (onSelected) onSelected(options[0])
+                          if (onSelected) onSelected("N/A")
                           setOpen(false)
                       }}
                   />,

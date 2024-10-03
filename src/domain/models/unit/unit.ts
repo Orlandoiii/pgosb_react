@@ -30,9 +30,9 @@ export const UnitSchemaBasicData = z.object({
         .optional()
         .refine(
             (value) => {
-                return !value || value.length >= 8
+                return !value || value.length >= 2
             },
-            { message: 'Debe ser igual o mayor a 8 caracteres' }
+            { message: 'Debe ser igual o mayor a 2 caracteres' }
         )
         .refine(
             (value) => {
@@ -46,7 +46,7 @@ export const UnitSchemaBasicData = z.object({
         .optional()
         .refine(
             (value) => {
-                return !value || value.length >= 14
+                return !value || value.length >= 2
             },
             { message: 'Debe ser igual o mayor a 14 caracteres' }
         )
@@ -64,7 +64,7 @@ export const UnitSchemaBasicData = z.object({
         .optional()
         .refine(
             (value) => {
-                return !value || value.length >= 4
+                return !value || value.length >= 2
             },
             { message: 'Debe ser igual o mayor a 4 caracteres' }
         )
@@ -82,7 +82,7 @@ export const UnitSchemaBasicData = z.object({
         .optional()
         .refine(
             (value) => {
-                return !value || value.length >= 6
+                return !value || value.length >= 2
             },
             { message: 'Debe ser igual o mayor a 6 caracteres' }
         )

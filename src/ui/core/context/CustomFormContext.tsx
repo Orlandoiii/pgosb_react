@@ -77,6 +77,7 @@ interface CustomFormProps<T extends FieldValues> {
     initValue?: T | null
     onSubmit: (data: z.infer<z.ZodSchema<T>>) => void
     classStyle?: string | undefined
+    use_uppercase?: boolean
 }
 
 export function getDefaults<T extends FieldValues>(schema: z.ZodType<any>): T {
@@ -96,10 +97,11 @@ export function getDefaults<T extends FieldValues>(schema: z.ZodType<any>): T {
 
 export default function CustomForm<T extends FieldValues>({
     schema,
-    initValue = null,
     onSubmit,
     children,
     classStyle,
+    initValue = null,
+    use_uppercase = true
 }: PropsWithChildren<CustomFormProps<T>>) {
     const [resetCount, setResetCount] = useState(0)
 
@@ -131,8 +133,18 @@ export default function CustomForm<T extends FieldValues>({
                 noValidate
                 className={classStyle}
                 onSubmit={methods.handleSubmit((data) => {
+
                     logger.log('On Submit de la forma')
-                    onSubmit(schema.parse(data))
+
+                    const uppercaseData = Object.fromEntries(
+
+                        Object.entries(data).map(([key, value]) => [
+                            key,
+                            typeof value === 'string' ? value.toUpperCase() : value
+                        ])
+                    );
+
+                    onSubmit(schema.parse(use_uppercase ? uppercaseData : data))
                 })}
             >
                 {children}

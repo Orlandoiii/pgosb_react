@@ -22,7 +22,7 @@ import { SelectWithSearch } from "../../../alter/components/inputs/select_with_s
 const unitPropertiesMask = {
     mask: /^[A-Za-z0-9]{0,15}$/,
     prepare: function (str) {
-        return str.toUpperCase();
+        return str;
     },
 }
 

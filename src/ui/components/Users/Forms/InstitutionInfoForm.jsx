@@ -19,6 +19,7 @@ import { useConfig } from "../../../core/context/ConfigContext";
 import FormToggle from "../../../core/inputs/FormToggle";
 
 import { EquipoMask } from "../../../core/inputs/Common/Mask";
+import Toggle from "../../../core/buttons/Toggle";
 
 
 
@@ -33,6 +34,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
     const [stations, setStations] = useState([])
 
+    const [isActive, setIsActive] = useState(currentData?.status_user === "ACTIVO")
 
     const { config } = useConfig()
 
@@ -58,7 +60,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
     const initialData = !currentData ? {
 
 
-
+        "status_user": "INACTIVO",
         "user_system": false,
     } : { ...currentData, user_system: Boolean(currentData?.user_system) }
 
@@ -77,7 +79,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
         axios.get(config.back_url + "/api/v1/station/all").then((r) => {
             if (r.status > 199 && r.status < 300) {
-                setStations(r.data.map(s => s.abbreviation + " "+ s.name));
+                setStations(r.data.map(s => s.abbreviation + " " + s.name));
                 // allStations.current = r.data;
                 return;
             }
@@ -114,6 +116,8 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                 //     "rol": rol,
                 //     "division": division,
                 // }
+
+                data.status_user = isActive ? "ACTIVO" : "INACTIVO"
 
                 handleSubmitInternal(data)
             }}
@@ -168,20 +172,20 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                     </div>
 
 
-                     <FormSelectSearch
+                    <FormSelectSearch
                         description={"Estación"}
                         fieldName={"station"}
                         options={stations}
                         openUp={false}
                         initialValue={initialData?.station ?? ""}
-                    /> 
+                    />
 
 
 
-                 
 
 
-                    
+
+
 
                     <div className="md:flex md:space-x-2">
 
@@ -203,11 +207,25 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
 
                     </div>
 
-                    <div className="h-full w-full flex justify-start items-center pl-1 space-x-2 mt-8">
+                    <div className="h-full w-full flex justify-start items-center pl-1 space-x-8 mt-8">
 
-                        <p className="text-sm">Usuario Sistema:</p>
-                        <FormToggle fieldName="user_system"
-                        />
+                        <div className="flex items-center space-x-2">
+                            <p className="text-sm">Usuario Sistema:</p>
+                            <FormToggle fieldName="user_system"
+                            />
+
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                            <p className="text-sm">Activar Usuario:</p>
+                            <Toggle
+                                active={isActive}
+                                onClick={() => setIsActive(!isActive)}
+                            ></Toggle>
+
+                        </div>
+
+
 
                     </div>
 
