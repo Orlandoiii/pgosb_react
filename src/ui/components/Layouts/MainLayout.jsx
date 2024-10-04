@@ -45,6 +45,7 @@ export default function MainLayout({ }) {
 
                      <div id="step-page-modal" className="relative w-full h-screen overflow-hidden">
                         <main className='w-full h-full overflow-hidden'>
+                          
                            <div className="relative h-full mx-auto p-4 mt-4  overflow-y-auto ">
 
                               <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-[-1] bg-slate-50 pointer-events-none flex items-center justify-center">
