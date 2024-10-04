@@ -121,6 +121,14 @@
 
     }
 
+    .logo_bombero_nacional {
+        background-image: url("./assets/images/BoomberoNacional.png");
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: contain;
+        opacity: 0.95;
+    }
+
 
     .notfound {
         max-width: 520px;
