@@ -104,6 +104,7 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
         <CustomForm
             initValue={initialData}
             schema={UserIntutionalDataSchema}
+            use_uppercase={false}
             onSubmit={(
                 data) => {
 
@@ -118,6 +119,24 @@ export default function InstitutionInfoForm({ clickSubmitRef, onSubmit }) {
                 // }
 
                 data.status_user = isActive ? "ACTIVO" : "INACTIVO"
+
+                //convert to uppercase
+                //verifie if is string and is not null or undefined
+                if (typeof data.personal_code === 'string') {
+                    data.personal_code = data.personal_code.toUpperCase()
+                }
+                if (typeof data.role === 'string') {
+                    data.role = data.role.toUpperCase()
+                }
+                if (typeof data.station === 'string') {
+                    data.station = data.station.toUpperCase()
+                }
+                if (typeof data.division === 'string') {
+                    data.division = data.division.toUpperCase()
+                }
+                if (typeof data.profession === 'string') {
+                    data.profession = data.profession.toUpperCase()
+                }
 
                 handleSubmitInternal(data)
             }}

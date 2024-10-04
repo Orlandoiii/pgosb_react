@@ -10,7 +10,7 @@ export function useActionModalAndCollection<T, P>(
     crud: CRUD<T>,
     baseProps: P,
     groupId: string,
-): [ActionModal<T, P>, T[]] {
+): [ActionModal<T, P>, T[], React.Dispatch<React.SetStateAction<T[]>>] {
     const [collection, setCollection] = useState<T[]>([])
 
     const memoizedSetCollection = useCallback((newCollection: T[]) => {
@@ -28,6 +28,7 @@ export function useActionModalAndCollection<T, P>(
         baseProps,
         groupId,
         memoizedSetCollection
+
     )
 
     useEffect(() => {
@@ -39,5 +40,5 @@ export function useActionModalAndCollection<T, P>(
         getCollection()
     },[groupId])
 
-    return [actionModal, collection]
+    return [actionModal, collection, setCollection]
 }
