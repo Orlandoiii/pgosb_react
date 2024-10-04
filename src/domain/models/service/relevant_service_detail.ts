@@ -92,6 +92,30 @@ export const RelevantServiceDetail =
                     unit: z.string().optional().default(''),
                     address: z.string().optional().default('')
                 })).optional().default([]),
+
+                authorities: z.array(z.object({
+                    id: z.string().optional().default(''),
+                    government: z.string().optional().default(''),
+                    authority_name: z.string().optional().default(''),
+                    authority_abbreviation: z.string().optional().default(''),
+                    person: z.array(z.object({
+                        name: z.string().optional().default(''),
+                        phone: z.string().optional().default(''),
+                        gender: z.string().optional().default(''),
+                        legal_id: z.string().optional().default(''),
+                        observations: z.string().optional().default(''),
+                        identification_number: z.string().optional().default(''),
+                    })).optional().default([]),
+                    vehicles: z.array(z.object({
+                        plate: z.string().optional().default(''),
+                        make: z.string().optional().default(''),
+                        model: z.string().optional().default(''),
+                        year: z.string().optional().default(''),
+                        color: z.string().optional().default(''),
+                        type: z.string().optional().default(''),
+                        description: z.string().optional().default('')
+                    })).optional().default([]),
+                })).optional().default([]),
             }))
         }))
     })
@@ -175,7 +199,30 @@ export const ApiRelevantServiceDetail = z.object({
         parish: z.string().optional().default(''),
         sector: z.string().optional().default(''),
         urb: z.string().optional().default('')
-    })).optional().default([])
+    })).optional().default([]),
+    authorities: z.array(z.object({
+        id: z.string().optional().default(''),
+        government: z.string().optional().default(''),
+        authority_name: z.string().optional().default(''),
+        authority_abbreviation: z.string().optional().default(''),
+        person: z.array(z.object({
+            name: z.string().optional().default(''),
+            phone: z.string().optional().default(''),
+            gender: z.string().optional().default(''),
+            legal_id: z.string().optional().default(''),
+            observations: z.string().optional().default(''),
+            identification_number: z.string().optional().default(''),
+        })).optional().default([]),
+        vehicles: z.array(z.object({
+            plate: z.string().optional().default(''),
+            make: z.string().optional().default(''),
+            model: z.string().optional().default(''),
+            year: z.string().optional().default(''),
+            color: z.string().optional().default(''),
+            type: z.string().optional().default(''),
+            description: z.string().optional().default('')
+        })).optional().default([]),
+    })).optional().default([]),
 });
 
 export type TRelevantServiceDetail = z.infer<typeof RelevantServiceDetail>
@@ -231,6 +278,7 @@ function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetai
                     ...person,
                     personCondition: person.person_condition || '',
                 })),
+                authorities: data.authorities
             }]
         }))
     }
@@ -277,6 +325,7 @@ function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail 
             abbreviation: center.abbreviation,
             ...center.location,
         })) || [],
+        authorities: firstService.authorities
     }
 }
 

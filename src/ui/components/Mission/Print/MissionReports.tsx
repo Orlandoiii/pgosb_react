@@ -16,7 +16,7 @@ interface MissionReportsProps {
 
 enum reportTypes {
     StatisticsForAntares = "Estadísticas por Antares",
-    StatisticsForAntaresTypes = "Estadísticas por Tipos de Estaciones",
+    StatisticsForAntaresTypes = "Estadísticas por Tipos de Antares",
     StatisticsForStation = "Estadísticas por Estaciones",
     ServiceDetails = "Servicios detallados",
     NewsSummary = "Resumen de Novedades",

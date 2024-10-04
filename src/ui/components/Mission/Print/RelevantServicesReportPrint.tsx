@@ -83,6 +83,7 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
                                     ...person,
                                     personCondition: person.person_condition || '',
                                 })),
+                                authorities: data.authorities
                             }]
                         }))
                     }
@@ -305,6 +306,63 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
                                                 </div>
                                             </div>
                                         }
+
+                                        {service.authorities.length > 0 &&
+                                            <div className="pt-6">
+                                                <span className="text-base font-semibold">AUTORIDADES:</span>
+
+                                                <div className="pl-8">
+                                                    {service.authorities.map(authority => (
+                                                        <>
+                                                            <div>
+                                                                <span>{authority.authority_abbreviation}:</span>
+                                                                <span className="font-semibold">{authority.authority_name}</span>
+                                                            </div>
+
+                                                            {authority.person.length > 0 && (
+                                                                <div className="pl-8">
+                                                                    <span className="text-base font-semibold">FUNCIONARIOS:</span>
+
+                                                                    <div className="pl-2">
+                                                                        {authority.person.map(person => (
+                                                                            <div>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">PLACA: </span> {`${person.identification_number}`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">NOMBRE: </span> {`${person.name},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">GÉNERO: </span> {`${person.gender},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">CI: </span> {`${person.legal_id},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">TELÉFONO: </span> {`${person.phone},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">OBSERVACIONES: </span> {`${person.observations},`}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {authority.vehicles.length > 0 && (
+                                                                <div className="pl-8">
+                                                                    <span className="text-base font-semibold">VEHÍCULOS:</span>
+
+                                                                    <div className="pl-2">
+                                                                        {authority.vehicles.map(vehicle => (
+                                                                            <div>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">TIPO: </span> {`${vehicle.type},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">MARCA: </span> {`${vehicle.make},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">MODELO: </span> {`${vehicle.model},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">PLACA: </span> {`${vehicle.plate},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">AÑO: </span> {`${vehicle.year},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">COLOR: </span> {`${vehicle.color},`}</span>
+                                                                                <span className="pl-2"><span className="font-semibold pr-1">DESCRIPCIÓN: </span> {`${vehicle.description},`}</span>
+                                                                            </div>
+                                                                        ))}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </>
+                                                    ))
+                                                    }
+                                                </div>
+                                            </div>
+                                        }F
 
 
 

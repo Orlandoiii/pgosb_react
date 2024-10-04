@@ -322,10 +322,10 @@ function getAntaresTypes(antares: TAntares[], antaresSummary: AnteresSummary[], 
         }
     });
 
-    antaresSummary = antaresSummary.sort((a, b) => b.count - a.count)
-    antaresSummary.forEach(x => {
+    antaresTypeSummary = antaresTypeSummary.sort((a, b) => b.count - a.count)
+    antaresTypeSummary.forEach(x => {
         x.percentage = ((x.count / servicesCount) * 100).toFixed(2)
-    })
+    })    
 
     let antaresTypeDetail: AntaresTypeDetail[] = [];
 
@@ -461,32 +461,56 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: Se
     const { antaresTypeSummary, antaresTypeDetail } = getAntaresTypes(antaresCollection, antaresSummary, antaresDetail)
 
     console.log(antaresTypeSummary, antaresTypeDetail);
-    
+
 
     return <div id={'PrintThis'} className='h-full w-full'>
         <PrintLayout loading={loading} title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? "ANTARES" : "ESTACIONES"} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })} filters={filters}>
             <>
                 <div className='flex'>
-                    <div className="pt-4 w-1/2">
-                        <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
-                            Resumen de antares
-                        </div>
 
-                        <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
-                            {antaresSummary.map(antares => (
-                                <div className="w-fit">
-                                    <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
-                                        <span>( {antares.antaresId} {getAntaresDescriptionFor(antares.antaresId)} )</span>
-                                        <span>-</span>
-                                        <span>{antares.count}</span>
+                    {groupBy == "AntaresTypes" ? (
+                        <div className="pt-4 w-1/2">
+                            <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
+                                Resumen por tipos de antares
+                            </div>
+
+                            <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
+                                {antaresTypeSummary.map(antares => (
+                                    <div className="w-fit">
+                                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                                            <span> {antares.antaresType} </span>
+                                            <span>-</span>
+                                            <span>{antares.count}</span>
+                                        </div>
+                                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                                            <span>{antares.percentage}%</span>
+                                        </div>
                                     </div>
-                                    <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
-                                        <span>{antares.percentage}%</span>
-                                    </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="pt-4 w-1/2">
+                            <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
+                                Resumen de antares
+                            </div>
+
+                            <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
+                                {antaresSummary.map(antares => (
+                                    <div className="w-fit">
+                                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                                            <span>( {antares.antaresId} {getAntaresDescriptionFor(antares.antaresId)} )</span>
+                                            <span>-</span>
+                                            <span>{antares.count}</span>
+                                        </div>
+                                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                                            <span>{antares.percentage}%</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="pt-4 w-1/2">
                         <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">

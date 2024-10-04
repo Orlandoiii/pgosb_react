@@ -484,7 +484,7 @@ function RolesPageInternal({ }) {
 
     return (
         <>
-            <div className="">
+            <div className="h-full flex flex-col">
                 {rolData && <TableDataGrid rawData={rolData}
 
                     showDownloadButton={true}

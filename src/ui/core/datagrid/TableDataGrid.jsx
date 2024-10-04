@@ -967,7 +967,7 @@ export default function TableDataGrid({
                         </div>
                     </header>
 
-                    <div className="overflow-auto">
+                    <div className="h-full overflow-auto">
                         <table className="border-collapse mt-2 w-full">
                             <thead>
                                 {/* {table.column} */}
