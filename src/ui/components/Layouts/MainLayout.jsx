@@ -47,18 +47,21 @@ export default function MainLayout({ }) {
                         <main className='w-full h-full overflow-hidden'>
                            <div className="relative h-full mx-auto p-4 mt-4  overflow-y-auto ">
 
-                              <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-[-1] flex items-center justify-center">
+                              <div className="absolute top-0 left-0 w-full h-full overflow-hidden z-[-1] bg-slate-50 pointer-events-none flex items-center justify-center">
                                  <div className="w-full h-full flex flex-col  items-center justify-start pt-20">
-                                    <div className="w-full h-[600px] logo_bombero_nacional opacity-80 blur-[1px]">
+                                    <div className="w-full h-[70vh] logo_bombero_nacional opacity-70 blur-[1px]">
                                     </div>
                                  </div>
-                              
-                                 <h2 className="absolute bottom-[120px] left-10 text-2xl font-bold text-center text-black">Bienvenidos a GRES</h2>
-                                 <h2 className="absolute bottom-[120px] right-10 text-xl font-bold text-center text-black">Version 1.0.0</h2>
+
+                                 <h2 className="absolute bottom-[120px] left-10 text-2xl font-semibold text-center text-gray-400">Bienvenidos a GRES</h2>
+                                 <h2 className="absolute bottom-[120px] right-10 text-xl font-semibold text-center text-gray-400">Version 1.0.0</h2>
 
                               </div>
-                            
-                              <Outlet />
+
+                              <div className="z-50 h-full w-full">
+                                 <Outlet />
+                              </div>
+
 
                            </div>
                         </main>
