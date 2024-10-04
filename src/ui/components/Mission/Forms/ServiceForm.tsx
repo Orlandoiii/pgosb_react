@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection'
 import {
@@ -69,7 +69,7 @@ import { HealthCareCenterSchemaBasicDataType } from '../../../../domain/models/h
 import FormInput from '../../../alter/components/form_inputs/form_input'
 import FormTextArea from '../../../alter/components/form_inputs/form_text_area'
 import FormToggle from '../../../alter/components/form_inputs/form_toggle'
-import { useFormFieldContext } from '../../../alter/components/form/form_context'
+import { useFormContext, useFormFieldContext } from '../../../alter/components/form/form_context'
 import FormChips from '../../../alter/components/form_inputs/form_chips'
 import { Controller } from 'react-hook-form'
 import DateTimePicker from '../../../core/datetime_picker/DateTimePicker'
@@ -81,6 +81,64 @@ interface ServiceFormProps {
     initValue?: TService
     closeOverlay?: () => void
 }
+
+
+
+const LocationAutoSetComponent = ({ locations, preLocationRef, lastLocationButtonPressedRef, currentLocationId, currentLocationIdDestination }:
+    {
+        locations: ServiceLocationSchemaType[],
+        preLocationRef: React.MutableRefObject<ServiceLocationSchemaType[]>,
+        lastLocationButtonPressedRef: React.MutableRefObject<string | null>,
+        currentLocationId: string,
+        currentLocationIdDestination: string,
+
+    }) => {
+
+    const { setValue } = useFormContext<TService>()
+
+
+    const buttonRef = useRef<HTMLButtonElement>(null)
+
+    useEffect(() => {
+
+        if (!locations || locations.length == 0) return;
+
+
+        if (preLocationRef.current?.length == locations.length) return;
+
+        const newLocation = locations.find(location =>
+            !preLocationRef.current?.some(preLocation => preLocation.id === location.id)
+        );
+
+        preLocationRef.current = locations;
+
+        if (!newLocation) {
+            return
+        }
+
+        if (lastLocationButtonPressedRef.current == 'ORIGEN' &&
+            currentLocationId != newLocation?.id) {
+
+            lastLocationButtonPressedRef.current = null
+            setValue("locationId", newLocation?.id ?? '')
+            buttonRef.current?.click()
+            return
+        }
+
+        if (lastLocationButtonPressedRef.current == 'DESTINO' &&
+            currentLocationIdDestination != newLocation?.id) {
+
+            lastLocationButtonPressedRef.current = null
+            setValue("locationDestinyId", newLocation?.id ?? '')
+            buttonRef.current?.click()
+            return
+        }
+    }, [locations])
+    return (<>
+        <button ref={buttonRef} className='h-0 w-0 hidden' />
+    </>)
+}
+
 
 const ServiceForm = ({
     missionId,
@@ -95,10 +153,16 @@ const ServiceForm = ({
             hour12: false
         })
     })
+
+
+
+
     const [serviceId, setServiceId] = useState(initialValue ? initialValue?.id ?? '-1' : '-1')
 
     const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
     const [serviceAuthorities, setServiceAuthorities] = useState<ApiMissionAuthoritySummaryType[]>([])
+
+
 
     const [serviceDate, setServiceDate] = useState<Date | null>(() => {
 
@@ -125,6 +189,9 @@ const ServiceForm = ({
     });
 
 
+
+    const preLocationRef = useRef<ServiceLocationSchemaType[]>([])
+    const lastLocationButtonPressedRef = useRef<string | null>(null)
 
 
 
@@ -435,6 +502,9 @@ const ServiceForm = ({
         if (errorMessage != '') alertController.notifyError(errorMessage)
     }
 
+
+
+
     return (
         <>
             <ModalLayout
@@ -443,6 +513,10 @@ const ServiceForm = ({
                 onClose={closeOverlay}
             >
                 <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit} className='relative' >
+
+
+
+
                     <div className="flex space-x-8 w-full">
                         <div className="flex items-center space-x-4 flex-none w-72">
                             <div className="font-semibold text-slate-700 text-xl">
@@ -528,6 +602,9 @@ const ServiceForm = ({
                                         <Button
                                             colorType="bg-[#3C50E0]"
                                             onClick={(e) => {
+                                                preLocationRef.current = locations;
+                                                lastLocationButtonPressedRef.current = 'ORIGEN'
+
                                                 locationActions.add()
                                                 e.preventDefault()
                                                 e.stopPropagation()
@@ -571,6 +648,9 @@ const ServiceForm = ({
                                         <Button
                                             colorType="bg-[#3C50E0]"
                                             onClick={(e) => {
+                                                preLocationRef.current = locations;
+                                                lastLocationButtonPressedRef.current = 'DESTINO'
+
                                                 locationActions.add()
                                                 e.preventDefault()
                                                 e.stopPropagation()
@@ -743,6 +823,16 @@ const ServiceForm = ({
                             </div>
                         </div>
                     </div>
+
+
+
+                    <LocationAutoSetComponent locations={locations} preLocationRef={preLocationRef}
+                        lastLocationButtonPressedRef={lastLocationButtonPressedRef}
+                        currentLocationId={initialValue.locationId ?? ''}
+                        currentLocationIdDestination={initialValue.locationDestinyId ?? ''}
+
+                    />
+
                 </Form>
             </ModalLayout>
 

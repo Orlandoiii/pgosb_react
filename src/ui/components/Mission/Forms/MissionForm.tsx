@@ -58,7 +58,7 @@ const MissionForm = ({
 
     const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
 
-    const [locationActions, locations] = useActionModalAndCollection(
+    const [locationActions, locations, setLocations] = useActionModalAndCollection(
         LocationForm,
         LocationCrud,
         { missionId: missionId },
@@ -67,10 +67,23 @@ const MissionForm = ({
 
     const [innerServices, setInnerServices] = useState<any[]>()
 
+
+    const getLocations = async () => {
+        const result = await LocationCrud.getGroup(missionId)
+        if (result.success && result.result) setLocations(result.result)
+    }
+
     useEffect(() => {
+
         UpdateInnerServices()
         updateAuthoritiesData()
+        getLocations()
+
     }, [services])
+
+
+
+
 
     useEffect(() => {
         updateAuthoritiesData()
@@ -194,6 +207,7 @@ const MissionForm = ({
             `No se pudo abrir la autoridad por: ${result.error}`
         )
     }
+
 
     return (
         <>
