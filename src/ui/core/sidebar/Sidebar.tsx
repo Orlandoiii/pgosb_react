@@ -18,6 +18,7 @@ import { useConfirmationModal } from '../modal/ModalConfirmation'
 import FireLogo from '../logo/FireLogo'
 import AmbulanceIcon from '../icons/AmbulanceIcon'
 import AuthorityIcon from '../icons/AuthorityIcon'
+import HomeIcon from '../icons/HomeIcon'
 
 const alert = new AlertController();
 
@@ -114,6 +115,11 @@ export default function Sidebar({ }) {
                             <h2 className='px-2 uppercase text-[whitesmoke] text-center md:text-left opacity-60  text-md mb-5 font-semibold'>Menu</h2>
 
                             <div className="space-y-4">
+                                
+                                <SideBarLink collpase={collapse} link="/" icon={<HomeIcon />} name='Inicio' onClick={(e) => {
+                                    handleClick(e, "Inicio")
+                                }} />
+
                                 <SideBarLink collpase={collapse} link="/services" icon={<ServiceIcon />} name='Servicios' onClick={(e) => {
                                     handleClick(e, "Servicios")
                                 }} />
