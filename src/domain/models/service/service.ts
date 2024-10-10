@@ -27,8 +27,7 @@ export const ServiceSchema = z.object({
     operativeAreas: z.any(),
     level: z.string().optional().default(''),
     peaceQuadrant: z.string().optional().default(''),
-    notAttended: z.boolean().optional().default(false),
-    falseAlarm: z.boolean().optional().default(false),
+    cancelReason: z.string().optional().default(''),
     pendingForData: z.boolean().optional().default(true),
 })
 
@@ -54,8 +53,7 @@ export const ApiServiceSchema = z.object({
     operative_areas: z.array(z.string()).default([]).optional(),
     level: z.string().optional().default(''),
     peace_quadrant: z.string().optional().default(''),
-    not_attended: z.boolean().optional().default(false),
-    false_alarm: z.boolean().optional().default(false),
+    cancel_reason: z.string().optional().default(''),
     pending_for_data: z.boolean().optional().default(true),
 })
 
@@ -85,8 +83,7 @@ function fromApiInternal(data: TApiService): TService {
         operativeAreas: data.operative_areas ?? [],
         level: data.level,
         peaceQuadrant: data.peace_quadrant ?? "",
-        notAttended: data.not_attended,
-        falseAlarm: data.false_alarm,
+        cancelReason: data.cancel_reason,
         pendingForData: data.pending_for_data,
     }
 }
@@ -114,8 +111,7 @@ function toApiInternal(data: TService): TApiService {
         operative_areas: data.operativeAreas,
         level: data.level,
         peace_quadrant: data.peaceQuadrant,
-        not_attended: data.notAttended,
-        false_alarm: data.falseAlarm,
+        cancel_reason: data.cancelReason,
         pending_for_data: data.pendingForData,
     }
 }

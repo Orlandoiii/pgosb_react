@@ -368,6 +368,7 @@ const ServiceForm = ({
 
 
     const levels = useMemo(() => ["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"], [])
+    const cancelReasons = useMemo(() => ["ALARMA FALSA", "ALARMA INFUNDADA", "ATENDIDO NO EFECTUADO", "ATENCION NO REALIZADA"], [])
 
     async function addUnitHandler(unit: string, ignore: any) {
 
@@ -549,6 +550,15 @@ const ServiceForm = ({
                             />
                         </div>
 
+                        <div className="flex">
+                            <FormToggle<TService>
+                                width="w-44"
+                                height="h-11"
+                                fieldName={'pendingForData'}
+                                option1="Faltan Datos"
+                                option2="Datos Completos"
+                            />
+                        </div>
                     </div>
 
                     <div className="h-4"></div>
@@ -641,10 +651,6 @@ const ServiceForm = ({
                                     />
                                 </div>
 
-                                <div className="flex items-center space-x-6">
-                                    <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas} />
-                                </div>
-
                                 <div className='flex space-x-6'>
                                     <div className="flex flex-auto space-x-1 w-24">
                                         <FormSelectWithSearch<TService, ServiceLocationSchemaType>
@@ -699,6 +705,12 @@ const ServiceForm = ({
                                     </div>
                                 </div>
 
+                                <div className="flex items-center space-x-6">
+                                    <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas} />
+                                </div>
+
+
+
                                 <div className='flex justify-between'>
                                     <div className='flex space-x-4'>
                                         <div className="w-32">
@@ -715,43 +727,18 @@ const ServiceForm = ({
                                                 fieldName={'peaceQuadrant'}
                                             />
                                         </div>
-                                    </div>
 
-
-                                    <div className='flex space-x-4 pt-5 text-sm'>
-                                        <div className='flex items-center space-x-2'>
-                                            <span className='text-base'>Falsa Alarma</span>
-                                            <FormToggle<TService>
-                                                width="w-20"
-                                                height="h-8"
-                                                fieldName={'falseAlarm'}
-                                                option1="Si"
-                                                option2="No"
-                                            />
-                                        </div>
-
-                                        <div className='flex items-center space-x-2'>
-                                            <span className='text-base'>No Atendido</span>
-                                            <FormToggle<TService>
-                                                width="w-20"
-                                                height="h-8"
-                                                fieldName={'notAttended'}
-                                                option1="Si"
-                                                option2="No"
-                                            />
-                                        </div>
-
-                                        <div className='flex items-center space-x-2'>
-                                            <span className='text-base'>Datos Faltantes</span>
-                                            <FormToggle<TService>
-                                                width="w-20"
-                                                height="h-8"
-                                                fieldName={'pendingForData'}
-                                                option1="Si"
-                                                option2="No"
+                                        <div className="w-44">
+                                            <FormSelectWithSearch<TService, string>
+                                                description="Motivo de Cancelación"
+                                                fieldName={'cancelReason'}
+                                                options={cancelReasons}
                                             />
                                         </div>
                                     </div>
+
+
+
                                 </div>
 
 
