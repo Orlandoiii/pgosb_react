@@ -28,6 +28,12 @@ import { useCollection } from '../../../core/hooks/useCollection'
 import { ApiMissionAuthoritySchema, ApiMissionAuthoritySummaryType, ApiMissionAuthorityType, missionAuthorityCrud, MissionAuthoritySummaryFromToApi, MissionAuthoritySummaryNameConverter } from '../../../../domain/models/authority/mission_authority'
 import { AuthorityForm } from './AuthorityForm'
 import { OverlayModalConfig } from '../../../core/overlay/models/overlay_item'
+import InfrastructureForm from './InfrastructureForm'
+import { infrastructureCrud, infrastructureNameConverter } from '../../../../domain/models/infrastructure/infrastructure'
+import VehicleForm from './VehicleForm'
+import { vehicleCrud, vehicleNameConverter } from '../../../../domain/models/vehicle/vehicle_involved'
+import PersonForm from './PersonForm'
+import { personCrud, personNameConverter } from '../../../../domain/models/person/person_involved'
 
 interface MissionFormProps {
     missionId: string
@@ -63,6 +69,25 @@ const MissionForm = ({
         LocationCrud,
         { missionId: missionId },
         missionId
+    )
+
+    const [infrastructureActions, infrastructures] = useActionModalAndCollection(
+        InfrastructureForm,
+        infrastructureCrud,
+        { missionId: missionId ?? '' },
+        missionId ?? ''
+    )
+    const [vehicleActions, vehicles] = useActionModalAndCollection(
+        VehicleForm,
+        vehicleCrud,
+        { missionId: missionId ?? '' },
+        missionId ?? ''
+    )
+    const [personActions, people] = useActionModalAndCollection(
+        PersonForm,
+        personCrud,
+        { missionId: missionId ?? '' },
+        missionId ?? ''
     )
 
     const [innerServices, setInnerServices] = useState<any[]>()
@@ -267,6 +292,45 @@ const MissionForm = ({
                 ></AddableTable>
 
                 <div className="h-8"></div>
+
+                <AddableTable
+                    title="Infraestructuras"
+                    data={infrastructures}
+                    idPropertyName="id"
+                    addButtonText="Agregar una infraestructura"
+                    nameConverter={infrastructureNameConverter}
+                    onAddButtonClick={infrastructureActions.add}
+                    onEditButtonClick={infrastructureActions.edit}
+                    onDeleteButtonClick={
+                        infrastructureActions.delete
+                    }
+                />
+
+                <div className="h-8"></div>
+
+                <AddableTable
+                    title="Vehiculos"
+                    data={vehicles}
+                    idPropertyName="id"
+                    addButtonText="Agregar un vehiculo"
+                    nameConverter={vehicleNameConverter}
+                    onAddButtonClick={vehicleActions.add}
+                    onEditButtonClick={vehicleActions.edit}
+                    onDeleteButtonClick={vehicleActions.delete}
+                />
+
+                <div className="h-8"></div>
+
+                <AddableTable
+                    title="Personas"
+                    data={people}
+                    idPropertyName="id"
+                    addButtonText="Agregar una persona"
+                    nameConverter={personNameConverter}
+                    onAddButtonClick={personActions.add}
+                    onEditButtonClick={personActions.edit}
+                    onDeleteButtonClick={personActions.delete}
+                />
 
                 <AddableTable
                     title="Autoridades"

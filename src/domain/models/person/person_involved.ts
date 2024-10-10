@@ -3,14 +3,11 @@ import { z } from 'zod'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
-import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
-import { zodPhoneNumber } from '../../../utilities/zod/validators/phone_validators'
-import { zodIdDocument } from '../../../utilities/zod/validators/document_validators'
 
 export const PersonInvolvedSchema = z.object({
     id: z.string().default(''),
     unitId: z.string().default(''),
-    serviceId: z.string().default(''),
+    missionId: z.string().default(''),
     vehicleId: z.string().default(''),
     infrastructureId: z.string().default(''),
     condition: z.string().default(''),
@@ -35,7 +32,7 @@ export const PersonInvolvedSchema = z.object({
 
 export const ApiPersonInvolvedSchema = z.object({
     id: z.string().default(''),
-    service_id: z.string().default(''),
+    mission_id: z.string().default(''),
     unit_id: z.string().default(''),
     infrastructure_id: z.string().default(''),
     vehicle_id: z.string().default(''),
@@ -61,7 +58,7 @@ export type TApiPersonInvolved = z.infer<typeof ApiPersonInvolvedSchema>
 function fromApiInternal(data: TApiPersonInvolved): TPersonInvolved {
     return {
         id: data.id,
-        serviceId: data.service_id,
+        missionId: data.mission_id,
         unitId: data.unit_id,
         infrastructureId: data.infrastructure_id,
         vehicleId: data.vehicle_id,
@@ -85,7 +82,7 @@ function fromApiInternal(data: TApiPersonInvolved): TPersonInvolved {
 function toApiInternal(data: TPersonInvolved): TApiPersonInvolved {
     return {
         id: data.id,
-        service_id: data.serviceId,
+        mission_id: data.missionId,
         unit_id: String(data.unitId),
         infrastructure_id: String(data.infrastructureId),
         vehicle_id: String(data.vehicleId),

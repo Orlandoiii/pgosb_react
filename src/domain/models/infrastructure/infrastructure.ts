@@ -6,7 +6,7 @@ import { CRUD } from '../../../utilities/crud'
 
 export const InfrastructureSchema = z.object({
     id: z.string().default(''),
-    serviceId: z.string().default(''),
+    missionId: z.string().default(''),
     buildType: z.string().default(''),
     buildOccupation: z.string().default(''),
     buildArea: z.string().default(''),
@@ -23,7 +23,7 @@ export const InfrastructureSchema = z.object({
 
 export const ApiInfrastructureSchema = z.object({
     id: z.string().default(''),
-    service_id: z.string().default(''),
+    mission_id: z.string().default(''),
     build_type: z.string().default(''),
     build_occupation: z.string().default(''),
     build_area: z.string().default(''),
@@ -44,7 +44,7 @@ export type TApiInfrastructure = z.infer<typeof ApiInfrastructureSchema>
 function fromApiInternal(data: TApiInfrastructure): TInfrastructure {
     return {
         id: data.id,
-        serviceId: data.service_id,
+        missionId: data.mission_id,
         buildType: data.build_type,
         buildOccupation: data.build_occupation,
         buildArea: data.build_area,
@@ -63,7 +63,7 @@ function fromApiInternal(data: TApiInfrastructure): TInfrastructure {
 function toApiInternal(data: TInfrastructure): TApiInfrastructure {
     return {
         id: String(data.id),
-        service_id: data.serviceId,
+        mission_id: data.missionId,
         build_type: data.buildType,
         build_occupation: data.buildOccupation,
         build_area: data.buildArea,

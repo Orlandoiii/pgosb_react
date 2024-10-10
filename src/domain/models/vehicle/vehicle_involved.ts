@@ -7,7 +7,7 @@ import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
 
 export const VehicleInvolvedSchema = z.object({
     id: zodEmptyOrGreaterThan(0),
-    serviceId: zodEmptyOrGreaterThan(0),
+    missionId: zodEmptyOrGreaterThan(0),
     brand: zodEmptyOrGreaterThan(3),
     model: zodEmptyOrGreaterThan(3),
     color: zodEmptyOrGreaterThan(3),
@@ -21,7 +21,7 @@ export const VehicleInvolvedSchema = z.object({
 
 export const ApiVehicleInvolvedSchema = z.object({
     id: z.string().default(''),
-    service_id: z.string().default(''),
+    mission_id: z.string().default(''),
     vehicle_condition: z.string().default(''),
     make: z.string().default(''),
     model: z.string().default(''),
@@ -39,7 +39,7 @@ export type TApiVehicleInvolved = z.infer<typeof ApiVehicleInvolvedSchema>
 function fromApiInternal(data: TApiVehicleInvolved): TVehicleInvolved {
     return {
         id: data.id,
-        serviceId: data.service_id,
+        missionId: data.mission_id,
         condition: data.vehicle_condition,
         brand: data.make,
         model: data.model,
@@ -55,7 +55,7 @@ function fromApiInternal(data: TApiVehicleInvolved): TVehicleInvolved {
 function toApiInternal(data: TVehicleInvolved): TApiVehicleInvolved {
     return {
         id: data.id,
-        service_id: data.serviceId,
+        mission_id: data.missionId,
         vehicle_condition: data.condition,
         make: data.brand,
         model: data.model,

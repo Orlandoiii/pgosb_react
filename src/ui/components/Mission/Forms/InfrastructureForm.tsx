@@ -26,7 +26,7 @@ import { CeilingTypes } from '../../../../domain/abstractions/enums/ceiling_type
 import { numberMask } from '../../../core/inputs/Common/Mask.ts'
 
 interface InfrastructureFormProps {
-    serviceId: string
+    missionId: string
     initValue?: TInfrastructure | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
@@ -36,7 +36,7 @@ interface InfrastructureFormProps {
 const areaCodes = ['N/A','Sin Pavimento', 'Inestable']
 
 const InfrastructureForm = ({
-    serviceId,
+    missionId,
     initValue,
     onClose,
     closeOverlay,
@@ -89,7 +89,7 @@ const InfrastructureForm = ({
             >
                 <CustomForm
                     schema={InfrastructureSchema}
-                    initValue={{ ...initValue, serviceId: serviceId }}
+                    initValue={{ ...initValue, missionId: missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos de la Infraestructura" />

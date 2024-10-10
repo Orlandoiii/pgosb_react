@@ -39,7 +39,7 @@ import { documentIdMask, numberMask } from '../../../core/inputs/Common/Mask.ts'
 import logger from '../../../../logic/Logger/logger.js'
 
 interface PersonFormProps {
-    serviceId: string
+    missionId: string
     initValue?: TPersonInvolved | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
@@ -47,7 +47,7 @@ interface PersonFormProps {
 }
 
 const PersonForm = ({
-    serviceId,
+    missionId,
     initValue,
     onClose,
     closeOverlay,
@@ -60,15 +60,15 @@ const PersonForm = ({
         useActionModalAndCollection(
             InfrastructureForm,
             infrastructureCrud,
-            { serviceId: serviceId },
-            serviceId
+            { missionId: missionId },
+            missionId
         )
 
     const [vehicleActions, vehicles] = useActionModalAndCollection(
         VehicleForm,
         vehicleCrud,
-        { serviceId: serviceId },
-        serviceId
+        { missionId: missionId },
+        missionId
     )
 
     const [unit, setUnit] = useState('')
@@ -113,7 +113,7 @@ const PersonForm = ({
 
     async function updateUnits() {
         const result = await get<UnitSimple[]>(
-            `mission/service/unit/${serviceId}`
+            `mission/service/unit/${missionId}`
         )
         if (result.success && result.result) setServiceUnits(result.result)
         console.log(result)
@@ -175,7 +175,7 @@ const PersonForm = ({
             >
                 <CustomForm
                     schema={PersonInvolvedSchema}
-                    initValue={{ ...initValue, serviceId: serviceId }}
+                    initValue={{ ...initValue, serviceId: missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <div className="md:flex md:md:items-start md:space-x-2 pb-8">

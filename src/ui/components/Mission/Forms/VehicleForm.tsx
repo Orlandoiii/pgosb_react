@@ -30,7 +30,7 @@ import Form from '../../../alter/components/form/form.tsx'
 import { VehicleTypes } from '../../../../domain/abstractions/enums/vehicle_type.ts'
 
 interface VehicleFormProps {
-    serviceId: string
+    missionId: string
     initValue?: TVehicleInvolved | null
     onClose?: (success: boolean) => void
     closeOverlay?: () => void
@@ -38,7 +38,7 @@ interface VehicleFormProps {
 }
 
 const VehicleForm = ({
-    serviceId,
+    missionId,
     initValue,
     onClose,
     closeOverlay,
@@ -180,7 +180,7 @@ const VehicleForm = ({
             <ModalLayout title={'Registro de Vehiculo'} onClose={handleClose}>
                 <Form
                     schema={VehicleInvolvedSchema}
-                    initValue={{ ...initValue, serviceId: serviceId }}
+                    initValue={{ ...initValue, missionId: missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos del Vehiculo" />
