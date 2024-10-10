@@ -71,7 +71,7 @@ export function AuthorityPersonForm({ missionId, authorityId, initValue, onClose
 
     return <>
         <ModalLayout
-            className="min-w-[70vw] max-w-[85vw]"
+            className="min-w-[70vw]"
             title={'Registro de la Misión'}
             onClose={closeOverlay}
         >

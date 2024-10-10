@@ -151,7 +151,8 @@ const ServiceForm = ({
         manualServiceDate: initValue ? initValue.manualServiceDate : new Date().toLocaleString('es-VE', {
             timeZone: 'America/Caracas',
             hour12: false
-        })
+        }),
+        pendingForData: initValue ? initValue.pendingForData : true
     })
 
 
@@ -508,15 +509,11 @@ const ServiceForm = ({
     return (
         <>
             <ModalLayout
-                className="min-w-[80vw] max-w-[85vw]"
+                className="min-w-[80vw]"
                 title={'Registro de Datos del Servicio'}
                 onClose={closeOverlay}
             >
                 <Form schema={ServiceSchema as any} initValue={initialValue as any} onSubmit={submit} className='relative' >
-
-
-
-
                     <div className="flex space-x-8 w-full">
                         <div className="flex items-center space-x-4 flex-none w-72">
                             <div className="font-semibold text-slate-700 text-xl">
@@ -530,9 +527,7 @@ const ServiceForm = ({
                                 selected={serviceDate}
                                 height='h-10'
                                 timeInterval={1}
-
                             />
-
                         </div>
 
                         <div className="flex items-center space-x-4">
@@ -545,7 +540,6 @@ const ServiceForm = ({
                         </div>
 
                         <div className="flex">
-
                             <FormToggle<TService>
                                 width="w-44"
                                 height="h-11"
@@ -554,7 +548,12 @@ const ServiceForm = ({
                                 option2="No Relevante"
                             />
                         </div>
+
                     </div>
+
+                    <div className="h-4"></div>
+
+
 
                     <div className=' absolute top-0 left-0 w-full h-full pointer-events-none'>
                         <div className='relative h-full w-full flex'>
@@ -572,7 +571,6 @@ const ServiceForm = ({
                         </div>
                     </div>
 
-
                     <div className="h-8"></div>
 
                     <div className="flex items-center space-x-8 xl:space-x-6 w-full">
@@ -588,43 +586,6 @@ const ServiceForm = ({
                                     />
                                 </div>
 
-
-                                <div className="flex flex-auto space-x-1 w-24">
-                                    <FormSelectWithSearch<TService, ServiceLocationSchemaType>
-                                        description="Ubicación de origen del servicio"
-                                        fieldName={'locationId'}
-                                        options={locations}
-                                        valueKey={'id'}
-                                        displayKeys={['id', 'alias']}
-                                    />
-
-                                    <div className="flex-none pt-8 h-11">
-                                        <Button
-                                            colorType="bg-[#3C50E0]"
-                                            onClick={(e) => {
-                                                preLocationRef.current = locations;
-                                                lastLocationButtonPressedRef.current = 'ORIGEN'
-
-                                                locationActions.add()
-                                                e.preventDefault()
-                                                e.stopPropagation()
-                                            }}
-                                            children={'+'}
-                                            width="w-10"
-                                        ></Button>
-                                    </div>
-                                </div>
-
-                                <div className="w-52">
-                                    <FormSelectWithSearch<TService, string>
-                                        description="Nivel"
-                                        fieldName={'level'}
-                                        options={levels}
-                                    />
-                                </div>
-
-                            </div>
-                            <div className="flex space-x-4">
                                 <div className="flex-auto w-64">
                                     <FormSelectWithSearch<TService, TAntares>
                                         description="Antares"
@@ -634,51 +595,9 @@ const ServiceForm = ({
                                         displayKeys={['id', 'description']}
                                     />
                                 </div>
-
-                                <div className="flex flex-auto space-x-1 w-24">
-                                    <FormSelectWithSearch<TService, ServiceLocationSchemaType>
-                                        description="Ubicación de destino"
-                                        fieldName={'locationDestinyId'}
-                                        options={locations}
-                                        valueKey={'id'}
-                                        displayKeys={['id', 'alias']}
-                                    />
-
-                                    <div className="flex-none pt-8 h-11">
-                                        <Button
-                                            colorType="bg-[#3C50E0]"
-                                            onClick={(e) => {
-                                                preLocationRef.current = locations;
-                                                lastLocationButtonPressedRef.current = 'DESTINO'
-
-                                                locationActions.add()
-                                                e.preventDefault()
-                                                e.stopPropagation()
-                                            }}
-                                            children={'+'}
-                                            width="w-10"
-                                        ></Button>
-                                    </div>
-                                </div>
-
-                                <div className="w-52">
-                                    <FormInput<TService>
-                                        description={'Cuadrante de Paz'}
-                                        fieldName={'peaceQuadrant'}
-
-
-                                    />
-                                </div>
-
                             </div>
 
                         </div>
-                    </div>
-
-                    <div className="h-4"></div>
-
-                    <div className="flex items-center space-x-6">
-                        <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas} />
                     </div>
 
                     <div className="h-4"></div>
@@ -713,6 +632,7 @@ const ServiceForm = ({
                                         displayKeys={['personal_code', 'legal_id']}
                                         optionsDescription2={'Rol'}
                                         options2={roles}
+                                        preSelectFirstOption2={true}
                                         onAddOption={addUserHandler}
                                         onDeleteButtonClick={deleteUserHandler}
                                         defaultSort={'id'}
@@ -720,6 +640,120 @@ const ServiceForm = ({
                                         addButtonText="Agregar un bombero"
                                     />
                                 </div>
+
+                                <div className="flex items-center space-x-6">
+                                    <AddOperativeAreaComponent options={operativeAreasCollection} setExternal={setOperativeAreas} />
+                                </div>
+
+                                <div className='flex space-x-6'>
+                                    <div className="flex flex-auto space-x-1 w-24">
+                                        <FormSelectWithSearch<TService, ServiceLocationSchemaType>
+                                            description="Ubicación de origen del servicio"
+                                            fieldName={'locationId'}
+                                            options={locations}
+                                            valueKey={'id'}
+                                            displayKeys={['id', 'alias']}
+                                        />
+
+                                        <div className="flex-none pt-8 h-11">
+                                            <Button
+                                                colorType="bg-[#3C50E0]"
+                                                onClick={(e) => {
+                                                    preLocationRef.current = locations;
+                                                    lastLocationButtonPressedRef.current = 'ORIGEN'
+
+                                                    locationActions.add()
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                }}
+                                                children={'+'}
+                                                width="w-10"
+                                            ></Button>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex flex-auto space-x-1 w-24">
+                                        <FormSelectWithSearch<TService, ServiceLocationSchemaType>
+                                            description="Ubicación de destino"
+                                            fieldName={'locationDestinyId'}
+                                            options={locations}
+                                            valueKey={'id'}
+                                            displayKeys={['id', 'alias']}
+                                        />
+
+                                        <div className="flex-none pt-8 h-11">
+                                            <Button
+                                                colorType="bg-[#3C50E0]"
+                                                onClick={(e) => {
+                                                    preLocationRef.current = locations;
+                                                    lastLocationButtonPressedRef.current = 'DESTINO'
+
+                                                    locationActions.add()
+                                                    e.preventDefault()
+                                                    e.stopPropagation()
+                                                }}
+                                                children={'+'}
+                                                width="w-10"
+                                            ></Button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className='flex justify-between'>
+                                    <div className='flex space-x-4'>
+                                        <div className="w-32">
+                                            <FormSelectWithSearch<TService, string>
+                                                description="Nivel"
+                                                fieldName={'level'}
+                                                options={levels}
+                                            />
+                                        </div>
+
+                                        <div className="w-40">
+                                            <FormInput<TService>
+                                                description={'Cuadrante de Paz'}
+                                                fieldName={'peaceQuadrant'}
+                                            />
+                                        </div>
+                                    </div>
+
+
+                                    <div className='flex space-x-4 pt-5 text-sm'>
+                                        <div className='flex items-center space-x-2'>
+                                            <span className='text-base'>Falsa Alarma</span>
+                                            <FormToggle<TService>
+                                                width="w-20"
+                                                height="h-8"
+                                                fieldName={'falseAlarm'}
+                                                option1="Si"
+                                                option2="No"
+                                            />
+                                        </div>
+
+                                        <div className='flex items-center space-x-2'>
+                                            <span className='text-base'>No Atendido</span>
+                                            <FormToggle<TService>
+                                                width="w-20"
+                                                height="h-8"
+                                                fieldName={'notAttended'}
+                                                option1="Si"
+                                                option2="No"
+                                            />
+                                        </div>
+
+                                        <div className='flex items-center space-x-2'>
+                                            <span className='text-base'>Datos Faltantes</span>
+                                            <FormToggle<TService>
+                                                width="w-20"
+                                                height="h-8"
+                                                fieldName={'pendingForData'}
+                                                option1="Si"
+                                                option2="No"
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
 
                                 <div className={`h-48 w-full space-y-4 ${formIsEnable() ? '' : 'pointer-events-none opacity-50 select-none'}`}>
                                     <span className="font-semibold text-slate-700 text-xl">

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 
 import TextInputBase from "./text_input_base";
 import InputController from "./input_controller";
@@ -42,8 +42,8 @@ export function SelectWithSearch<T>({
 }: SelectWithSearchProps<T>) {
     const { state: select, dispatch } = useSelect<T>(options, selectedOption, valueKey, displayKeys, selectionChange, isLoading, allowNewValue, clearAfterSelect)
 
-    console.log("state option", selectedOption,select.state.innerSelectedOption);
     
+
     return (
         <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`} >
 

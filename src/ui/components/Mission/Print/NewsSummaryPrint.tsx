@@ -416,7 +416,7 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
                             <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {importantService.description}</span></div>
                             <div className="font-semibold">HORA: <span className="font-normal">{importantService.manual_service_date}</span></div>
                             <div className="font-semibold">CODIGO: <span className="font-normal">{importantService.mission_id.split("-")[0]}</span></div>
-                            <div className="font-semibold">ESTACION: <span className="font-normal">{importantService.station_name}</span></div>
+                            <div className="font-semibold">ESTACION: <span className="font-normal">{importantService.station_name} - {importantService.stationDescription}</span></div>
                             <div className="font-semibold">DIRECCION: <span className="font-normal">{importantService.serviceLocation}</span></div>
                         </div>
                     ))}

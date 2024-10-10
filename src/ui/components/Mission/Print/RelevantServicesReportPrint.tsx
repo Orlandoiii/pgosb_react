@@ -27,7 +27,7 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
             const result = await get<TApiRelevantServiceDetail[]>(`mission/service/relevant/'${servicesIds.join("','")}'`)
 
             if (result.success && result.result) {
-                const newRelevantServices: TRelevantServiceDetail[] = []
+                let newRelevantServices: TRelevantServiceDetail[] = []
 
                 result.result.forEach(item => {
                     const first = ApiRelevantServiceDetail.safeParse(item)
@@ -131,6 +131,8 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
                         console.log("Falla", first);
                     }
                 })
+                newRelevantServices = newRelevantServices.sort((a,b) => (a.regionAreaId as any) - (b.regionAreaId as any))
+
                 setRelevantServices(newRelevantServices)
             }
             else modalService.toastError("No se pudo cargar la data de los servicios relevantes")
@@ -188,7 +190,7 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
                                                 <span className="font-semibold text-base"> {service?.antaresId!} - {service?.antaresDescription} {service.isImportant ? "( Relevante )" : ""}</span>
                                             </div>
 
-                                            <div className="flex">
+                                            <div className="flex pt-2">
                                                 <span>CUADRANTE DE PAZ:</span>
                                                 <span className="font-semibold">{service?.peaceQuadrant}</span>
                                             </div>

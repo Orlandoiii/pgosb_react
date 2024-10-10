@@ -1,5 +1,5 @@
 export enum Roles {
-    Driver = 'CONDUCTOR',
     Commander = 'COMANDANTE',
+    Driver = 'CONDUCTOR',
     Auxiliary = 'AUXILIAR'
 }

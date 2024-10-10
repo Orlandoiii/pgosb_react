@@ -27,7 +27,6 @@ export function MissionReports({ servicesIds, filters, closeOverlay }: MissionRe
     const reports: string[] = EnumToStringArray(reportTypes)
 
     return <ModalLayout
-        className="max-w-[85vw]"
         title={'Registro de Persona'}
         onClose={closeOverlay}
     ><div className="h-[80vh] w-[80vw] flex flex-col p-6">

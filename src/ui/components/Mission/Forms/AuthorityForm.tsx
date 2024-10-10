@@ -83,7 +83,7 @@ console.log();
     return (
         <>
             <ModalLayout
-                className="min-w-[70vw] max-w-[85vw]"
+                className="min-w-[70vw]"
                 title={'Registro de Autoridad'}
                 onClose={closeOverlay}
             >

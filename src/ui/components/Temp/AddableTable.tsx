@@ -12,6 +12,8 @@ interface AddableTableProps<T> {
     addButtonText: string
     onAddButtonClick?: () => void
     enable?: boolean
+    preSelectFirstOption1?: boolean
+    preSelectFirstOption2?: boolean
     data: T[]
     defaultSort?: keyof T
     idPropertyName: string
@@ -49,6 +51,8 @@ export function AddableTable<T>({
     optionsDescription,
     optionsDescription2,
     onAddOption,
+    preSelectFirstOption1,
+    preSelectFirstOption2
 }: AddableTableProps<T>) {
     const [internalData, setInternalData] = useState(data)
 
@@ -135,7 +139,7 @@ export function AddableTable<T>({
         return anyElement() ? Array<number>(length).fill(0) : []
     }
 
-    console.log('Table', internalData, idPropertyName, nameConverter)
+    console.log('Table', selectedOption2)
 
     return (
         <div
@@ -291,8 +295,9 @@ export function AddableTable<T>({
                                         valueKey={valueKey2 as any}
                                         value={selectedOption2}
                                         displayKeys={displayKeys2 as any}
-                                        selectionChange={(e) =>
-                                            setSelectedOption2(e)
+                                        selectionChange={(e) => {
+                                            setSelectedOption2(e);
+                                        }
                                         }
                                     ></SelectWithSearch>
                                 )}
@@ -345,9 +350,16 @@ export function AddableTable<T>({
                             <button
                                 className={`${showInnerAdd && options ? 'translate-x-full opacity-0 pointer-events-none w-[0%]' : 'w-[100%]'} absolute left-0 top-0 flex h-full items-center px-2 bg-slate-200 text-slate-500 duration-200 hover:text-slate-800 hover:bg-slate-300`}
                                 onClick={(e) => {
-                                    options
+                                    if (options && preSelectFirstOption1) setSelectedOption(options[0])
+                                    if (options2 && preSelectFirstOption2) setSelectedOption2(options2[0])
+
+                                    setTimeout(() => 
+                                    {
+                                        options
                                         ? setShowInnerAdd(true)
                                         : onAddButtonClick && onAddButtonClick()
+                                    } , 10)
+
                                     e.preventDefault()
                                     e.stopPropagation()
                                 }}
