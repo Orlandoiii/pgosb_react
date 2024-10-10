@@ -70,7 +70,7 @@ export default function BasicInfoForm({ clickSubmitRef, onSubmit }) {
 
         axios.get(config.back_url + "/api/v1/station/all").then(r => {
             logger.log("Stations: GET", r)
-            setStations(r.data.map(v => v.name))
+            setStations(r.data.map(v => v.abbreviation + " - " + v.name ))
         }).catch(err => {
             logger.error("Station: GET", err);
         })
