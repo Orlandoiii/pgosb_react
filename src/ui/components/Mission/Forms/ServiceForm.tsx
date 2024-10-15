@@ -552,7 +552,7 @@ const ServiceForm = ({
 
                         <div className="flex">
                             <FormToggle<TService>
-                                width="w-44"
+                                width="w-48"
                                 height="h-11"
                                 fieldName={'pendingForData'}
                                 option1="Faltan Datos"
