@@ -728,7 +728,7 @@ const ServiceForm = ({
                                             />
                                         </div>
 
-                                        <div className="w-44">
+                                        <div className="w-72">
                                             <FormSelectWithSearch<TService, string>
                                                 description="Motivo de Cancelación"
                                                 fieldName={'cancelReason'}

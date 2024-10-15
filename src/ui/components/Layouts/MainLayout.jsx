@@ -55,7 +55,7 @@ export default function MainLayout({ }) {
                                  </div>
 
                                  <h2 className="absolute bottom-[120px] left-10 text-2xl font-semibold text-center text-gray-400">Bienvenidos a GRES</h2>
-                                 <h2 className="absolute bottom-[120px] right-10 text-xl font-semibold text-center text-gray-400">Version 1.0.0</h2>
+                                 <h2 className="absolute bottom-[120px] right-10 text-xl font-semibold text-center text-gray-400">Version 1.0.3</h2>
 
                               </div>
 
