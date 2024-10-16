@@ -17,14 +17,13 @@ import {
 } from '../../../../domain/models/location/location'
 import {
     missionCrud,
-    MissionSchema,
     TMission,
 } from '../../../../domain/models/mission/mission'
 import TextInput from '../../../alter/components/inputs/text_input'
 import { getDefaults } from '../../../core/context/CustomFormContext'
 import { modalService } from '../../../core/overlay/overlay_service'
 import { get, getSummary } from '../../../../services/http'
-import { useCollection } from '../../../core/hooks/useCollection'
+import { useCollection, useGroup } from '../../../core/hooks/useCollection'
 import { ApiMissionAuthoritySchema, ApiMissionAuthoritySummaryType, ApiMissionAuthorityType, missionAuthorityCrud, MissionAuthoritySummaryFromToApi, MissionAuthoritySummaryNameConverter } from '../../../../domain/models/authority/mission_authority'
 import { AuthorityForm } from './AuthorityForm'
 import { OverlayModalConfig } from '../../../core/overlay/models/overlay_item'
@@ -34,6 +33,7 @@ import VehicleForm from './VehicleForm'
 import { vehicleCrud, vehicleNameConverter } from '../../../../domain/models/vehicle/vehicle_involved'
 import PersonForm from './PersonForm'
 import { personCrud, personNameConverter } from '../../../../domain/models/person/person_involved'
+import { FromtoUserSimple as FromToUserSimple, UserSimple } from '../../../../domain/models/user/user'
 
 interface MissionFormProps {
     missionId: string
@@ -54,6 +54,11 @@ const MissionForm = ({
     const [alias, setAlias] = useState(initValue ? initValue.alias : '')
 
     const autoritiesCollection = useCollection(`mission/authority/summary/${missionId}`, MissionAuthoritySummaryFromToApi)
+    
+    const [firefighters , updateFirefighters] = useGroup<UserSimple>('mission/firefighter', missionId, FromToUserSimple)
+    const [units , updateUnits] = useGroup<UserSimple>('mission/firefighter', missionId, FromToUserSimple)
+
+    const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
 
     const [serviceActions, services] = useActionModalAndCollection(
         ServiceForm,
@@ -61,8 +66,6 @@ const MissionForm = ({
         { missionId: missionId },
         missionId
     )
-
-    const [autorities, setAutorities] = useState<ApiMissionAuthoritySummaryType[]>([])
 
     const [locationActions, locations, setLocations] = useActionModalAndCollection(
         LocationForm,

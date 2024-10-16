@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { MartialStatusTypes } from '../../abstractions/enums/martial_status_type'
 import { Genders } from '../../abstractions/enums/genders'
 import { ResultErr } from '../../abstractions/types/resulterr'
+import { mapEntity } from '../../../services/mapper'
 
 export const UserSchemaBasicData = z
     .object({
@@ -150,15 +151,31 @@ export const UserIntutionalDataSchema = z.object({
 })
 
 
-export type UserSimple = {
-    id: string
-    name: string
-    user_name: string
-    rank: string
-    personal_code: string
-    legal_id: string
-    service_role: string
+export const UserSimpleSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    user_name: z.string(),
+    rank: z.string(),
+    personal_code: z.string(),
+    legal_id: z.string(),
+    service_role: z.string(),
+})
+
+export type UserSimple = z.infer<typeof UserSimpleSchema>
+
+function FromToUserSimpleInternal(data: UserSimple): UserSimple {
+    return data
 }
+
+export const FromToUserSimple = (data: UserSimple): ResultErr<UserSimple> =>
+    mapEntity<UserSimple, UserSimple>(
+        data,
+        UserSimpleSchema as any,
+        UserSimpleSchema as any,
+        FromToUserSimpleInternal
+    )
+
+
 
 export const userNameConverter: { [K in keyof UserSimple]?: string } = {
     // id: 'Id',
