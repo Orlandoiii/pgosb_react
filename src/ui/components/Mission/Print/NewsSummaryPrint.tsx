@@ -379,10 +379,13 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
         ))
     }
 
-    function getCancelledServicesByAntares(services: NewsSummary[]): { antaresId: string, antaresDescription: string, count: number }[] {
-        return antaresCollection.map(antares => (
-            { antaresId: antares.id, antaresDescription: antares.description, count: services.filter(service => service.antares_id == antares.id && service.cancelReason).length }
-        ))
+    function getCancelledServices(services: NewsSummary[]): { cancelReason: string, count: number }[] {
+        return [
+            { cancelReason: "ALARMA FALSA",  count: services.filter(service => service.cancelReason == "ALARMA FALSA").length },
+            { cancelReason: "ALARMA INFUNDADA",  count: services.filter(service => service.cancelReason == "ALARMA INFUNDADA").length },
+            { cancelReason: "ATENDIDO NO EFECTUADO",  count: services.filter(service => service.cancelReason == "ATENDIDO NO EFECTUADO").length },
+            { cancelReason: "ATENCION NO REALIZADA",  count: services.filter(service => service.cancelReason == "ATENCION NO REALIZADA").length }
+        ].filter(x => x.count > 0).sort((a,b) => b.count - a.count)
     }
 
 
@@ -444,10 +447,10 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
                     <div className="font-semibold">Servicios Cancelados: <span className="font-normal">{services.filter(x => x.cancelReason).length}</span></div>
 
                     <div className="pt-8">
-                        {getCancelledServicesByAntares(services).sort((a, b) => b.count - a.count).map(antares => (
+                        {getCancelledServices(services).sort((a, b) => b.count - a.count).map(antares => (
                             <>
                                 {antares.count > 0 &&
-                                    <div className="font-semibold">{antares.count}<span className="font-normal"> - {antares.antaresDescription}</span></div>
+                                    <div className="font-semibold">{antares.count}<span className="font-normal"> - {antares.cancelReason}</span></div>
                                 }
                             </>
                         ))}
