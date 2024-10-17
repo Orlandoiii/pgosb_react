@@ -49,13 +49,13 @@ function groupByAntaresId(services: TService[]): { antaresSummary: AnteresSummar
     })
 
     antares.forEach(antares => {
-        antares.percentage = ((antares.count / services.length) * 100).toFixed(2)
+        antares.percentage = ((antares.count / services.filter(x => !x.cancelReason).length) * 100).toFixed(2)
     })
 
-    cancelledCount.falseAlarmPersentage = ((cancelledCount.falseAlarm / services.length) * 100).toFixed(2)
-    cancelledCount.unfundedAlarmPersentage = ((cancelledCount.unfundedAlarm / services.length) * 100).toFixed(2)
-    cancelledCount.notCarriedOutPersentage = ((cancelledCount.notCarriedOut / services.length) * 100).toFixed(2)
-    cancelledCount.notAttendedPersentage = ((cancelledCount.notAttended / services.length) * 100).toFixed(2)
+    cancelledCount.falseAlarmPersentage = ((cancelledCount.falseAlarm / services.filter(x => x.cancelReason).length) * 100).toFixed(2)
+    cancelledCount.unfundedAlarmPersentage = ((cancelledCount.unfundedAlarm / services.filter(x => x.cancelReason).length) * 100).toFixed(2)
+    cancelledCount.notCarriedOutPersentage = ((cancelledCount.notCarriedOut / services.filter(x => x.cancelReason).length) * 100).toFixed(2)
+    cancelledCount.notAttendedPersentage = ((cancelledCount.notAttended / services.filter(x => x.cancelReason).length) * 100).toFixed(2)
 
     antares = antares.sort((a, b) => b.count - a.count)
 
@@ -82,7 +82,7 @@ function groupServicesByStation(services: TService[]): StationsSummary[] {
     })
 
     stations.forEach(station => {
-        station.percentage = ((station.count / services.length) * 100).toFixed(2)
+        station.percentage = ((station.count / services.filter(x => x.cancelReason == '').length) * 100).toFixed(2)
     })
 
     stations = stations.sort((a, b) => b.count - a.count)

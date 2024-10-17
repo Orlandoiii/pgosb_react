@@ -375,7 +375,13 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
 
     function getServicesByAntares(services: NewsSummary[]): { antaresId: string, antaresDescription: string, count: number }[] {
         return antaresCollection.map(antares => (
-            { antaresId: antares.id, antaresDescription: antares.description, count: services.filter(service => service.antares_id == antares.id && service.cancelReason != '').length }
+            { antaresId: antares.id, antaresDescription: antares.description, count: services.filter(service => service.antares_id == antares.id && service.cancelReason == '').length }
+        ))
+    }
+
+    function getCancelledServicesByAntares(services: NewsSummary[]): { antaresId: string, antaresDescription: string, count: number }[] {
+        return antaresCollection.map(antares => (
+            { antaresId: antares.id, antaresDescription: antares.description, count: services.filter(service => service.antares_id == antares.id && service.cancelReason).length }
         ))
     }
 
@@ -421,10 +427,24 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
 
                     <div className="py-2">-------------------------------------------------------------------------</div>
 
-                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.filter(x => x.cancelReason).length}</span></div>
+                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.filter(x => x.cancelReason == '').length}</span></div>
 
                     <div className="pt-8">
                         {getServicesByAntares(services).sort((a, b) => b.count - a.count).map(antares => (
+                            <>
+                                {antares.count > 0 &&
+                                    <div className="font-semibold">{antares.count}<span className="font-normal"> - {antares.antaresDescription}</span></div>
+                                }
+                            </>
+                        ))}
+                    </div>
+
+                    <div className="py-2">-------------------------------------------------------------------------</div>
+
+                    <div className="font-semibold">Servicios Cancelados: <span className="font-normal">{services.filter(x => x.cancelReason).length}</span></div>
+
+                    <div className="pt-8">
+                        {getCancelledServicesByAntares(services).sort((a, b) => b.count - a.count).map(antares => (
                             <>
                                 {antares.count > 0 &&
                                     <div className="font-semibold">{antares.count}<span className="font-normal"> - {antares.antaresDescription}</span></div>
