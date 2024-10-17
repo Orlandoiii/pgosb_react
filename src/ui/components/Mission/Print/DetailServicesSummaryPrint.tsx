@@ -8,7 +8,7 @@ import { StationSchemaBasicDataType } from '../../../../domain/models/stations/s
 import { getById } from '../../../../services/http'
 
 function getServiceData(services: TService[]): {
-    antaresSummary: AnteresSummary[]
+    antaresSummary: { antaresSummary: AnteresSummary[], cancelledCount: cancelReasonCount }
     stationsSummary: StationsSummary[]
     antaresDetail: AntaresDetail[]
     stationsDetail: StationsDetail[]
@@ -23,17 +23,28 @@ function getServiceData(services: TService[]): {
 }
 
 type AnteresSummary = { antaresId: string; count: number, percentage: string }
-function groupByAntaresId(services: TService[]): AnteresSummary[] {
+type cancelReasonCount = { falseAlarm: number, falseAlarmPersentage: string, unfundedAlarm: number, unfundedAlarmPersentage: string, notCarriedOut: number, notCarriedOutPersentage: string, notAttended: number, notAttendedPersentage: string }
+
+function groupByAntaresId(services: TService[]): { antaresSummary: AnteresSummary[], cancelledCount: cancelReasonCount } {
     let antares: AnteresSummary[] = []
+    let cancelledCount: cancelReasonCount = { falseAlarm: 0, falseAlarmPersentage: '', unfundedAlarm: 0, unfundedAlarmPersentage: '', notCarriedOut: 0, notCarriedOutPersentage: '', notAttended: 0, notAttendedPersentage: '' };
 
     services.forEach((service) => {
-        const antaresId = service.antaresId
-        const antaresItem = antares.find((item) => item.antaresId === antaresId)
+        if (service.cancelReason != '') {
+            if (service.cancelReason.toLowerCase() == ("ALARMA FALSA").toLowerCase()) cancelledCount.falseAlarm++;
+            else if (service.cancelReason.toLowerCase() == ("ALARMA INFUNDADA").toLowerCase()) cancelledCount.unfundedAlarm++;
+            else if (service.cancelReason.toLowerCase() == ("ATENDIDO NO EFECTUADO").toLowerCase()) cancelledCount.notCarriedOut++;
+            else if (service.cancelReason.toLowerCase() == ("ATENCION NO REALIZADA").toLowerCase()) cancelledCount.notAttended++;
+        }
+        else {
+            const antaresId = service.antaresId
+            const antaresItem = antares.find((item) => item.antaresId === antaresId)
 
-        if (antaresItem) {
-            antaresItem.count++
-        } else if (antaresId) {
-            antares.push({ antaresId, count: 1, percentage: "0" })
+            if (antaresItem) {
+                antaresItem.count++
+            } else if (antaresId) {
+                antares.push({ antaresId, count: 1, percentage: "0" })
+            }
         }
     })
 
@@ -41,9 +52,14 @@ function groupByAntaresId(services: TService[]): AnteresSummary[] {
         antares.percentage = ((antares.count / services.length) * 100).toFixed(2)
     })
 
+    cancelledCount.falseAlarmPersentage = ((cancelledCount.falseAlarm / services.length) * 100).toFixed(2)
+    cancelledCount.unfundedAlarmPersentage = ((cancelledCount.unfundedAlarm / services.length) * 100).toFixed(2)
+    cancelledCount.notCarriedOutPersentage = ((cancelledCount.notCarriedOut / services.length) * 100).toFixed(2)
+    cancelledCount.notAttendedPersentage = ((cancelledCount.notAttended / services.length) * 100).toFixed(2)
+
     antares = antares.sort((a, b) => b.count - a.count)
 
-    return antares
+    return { antaresSummary: antares, cancelledCount: cancelledCount }
 }
 
 type StationsSummary = { stationId: string; count: number, percentage: string }
@@ -51,15 +67,17 @@ function groupServicesByStation(services: TService[]): StationsSummary[] {
     let stations: StationsSummary[] = []
 
     services.forEach((service) => {
-        const stationId = service.stationId
-        const stationItem = stations.find(
-            (item) => item.stationId === stationId
-        )
+        if (service.cancelReason == '') {
+            const stationId = service.stationId
+            const stationItem = stations.find(
+                (item) => item.stationId === stationId
+            )
 
-        if (stationItem) {
-            stationItem.count++
-        } else if (stationId) {
-            stations.push({ stationId, count: 1, percentage: "0" })
+            if (stationItem) {
+                stationItem.count++
+            } else if (stationId) {
+                stations.push({ stationId, count: 1, percentage: "0" })
+            }
         }
     })
 
@@ -97,38 +115,25 @@ function detailByAntares(services: TService[]): AntaresDetail[] {
     let servicesCount: number = 0
 
     services.forEach((service) => {
-        const antaresId = service.antaresId
-        const stationId = service.stationId
-        const antaresItem = antaresDetail.find(
-            (item) => item.antaresId === antaresId
-        )
-
-        if (antaresItem) {
-            const stationItem = antaresItem.details.find(
-                (item) => item.stationId === stationId
+        if (service.cancelReason == '') {
+            const antaresId = service.antaresId
+            const stationId = service.stationId
+            const antaresItem = antaresDetail.find(
+                (item) => item.antaresId === antaresId
             )
-            if (stationItem) {
-                stationItem.services++
-                stationItem.unharmed += Number(service.unharmed)
-                stationItem.injured += Number(service.injured)
-                stationItem.transported += Number(service.transported)
-                stationItem.deceased += Number(service.deceased)
-            } else if (stationId) {
-                antaresItem.details.push({
-                    stationId,
-                    services: 1,
-                    unharmed: Number(service.unharmed),
-                    injured: Number(service.injured),
-                    transported: Number(service.transported),
-                    deceased: Number(service.deceased),
-                    percentage: "0",
-                })
-            }
-        } else if (antaresId && stationId) {
-            antaresDetail.push({
-                antaresId,
-                details: [
-                    {
+
+            if (antaresItem) {
+                const stationItem = antaresItem.details.find(
+                    (item) => item.stationId === stationId
+                )
+                if (stationItem) {
+                    stationItem.services++
+                    stationItem.unharmed += Number(service.unharmed)
+                    stationItem.injured += Number(service.injured)
+                    stationItem.transported += Number(service.transported)
+                    stationItem.deceased += Number(service.deceased)
+                } else if (stationId) {
+                    antaresItem.details.push({
                         stationId,
                         services: 1,
                         unharmed: Number(service.unharmed),
@@ -136,20 +141,35 @@ function detailByAntares(services: TService[]): AntaresDetail[] {
                         transported: Number(service.transported),
                         deceased: Number(service.deceased),
                         percentage: "0",
+                    })
+                }
+            } else if (antaresId && stationId) {
+                antaresDetail.push({
+                    antaresId,
+                    details: [
+                        {
+                            stationId,
+                            services: 1,
+                            unharmed: Number(service.unharmed),
+                            injured: Number(service.injured),
+                            transported: Number(service.transported),
+                            deceased: Number(service.deceased),
+                            percentage: "0",
+                        },
+                    ],
+                    summatory: {
+                        services: 0,
+                        unharmed: 0,
+                        injured: 0,
+                        transported: 0,
+                        deceased: 0,
+                        percentage: "0",
                     },
-                ],
-                summatory: {
-                    services: 0,
-                    unharmed: 0,
-                    injured: 0,
-                    transported: 0,
-                    deceased: 0,
-                    percentage: "0",
-                },
-            })
-        }
+                })
+            }
 
-        servicesCount++
+            servicesCount++
+        }
     })
 
     antaresDetail.forEach((antaresDetail) => {
@@ -198,38 +218,25 @@ function detailByStation(services: TService[]): StationsDetail[] {
     let servicesCount = 0
 
     services.forEach((service) => {
-        const antaresId = service.antaresId
-        const stationId = service.stationId
-        const stationItem = stationDetail.find(
-            (item) => item.stationId === stationId
-        )
-
-        if (stationItem) {
-            const antaresItem = stationItem.details.find(
-                (item) => item.antaresId === antaresId
+        if (service.cancelReason == '') {
+            const antaresId = service.antaresId
+            const stationId = service.stationId
+            const stationItem = stationDetail.find(
+                (item) => item.stationId === stationId
             )
-            if (antaresItem) {
-                antaresItem.services++
-                antaresItem.unharmed += Number(service.unharmed)
-                antaresItem.injured += Number(service.injured)
-                antaresItem.transported += Number(service.transported)
-                antaresItem.deceased += Number(service.deceased)
-            } else if (antaresId) {
-                stationItem.details.push({
-                    antaresId,
-                    services: 1,
-                    unharmed: Number(service.unharmed),
-                    injured: Number(service.injured),
-                    transported: Number(service.transported),
-                    deceased: Number(service.deceased),
-                    percentage: "0",
-                })
-            }
-        } else if (stationId && antaresId) {
-            stationDetail.push({
-                stationId,
-                details: [
-                    {
+
+            if (stationItem) {
+                const antaresItem = stationItem.details.find(
+                    (item) => item.antaresId === antaresId
+                )
+                if (antaresItem) {
+                    antaresItem.services++
+                    antaresItem.unharmed += Number(service.unharmed)
+                    antaresItem.injured += Number(service.injured)
+                    antaresItem.transported += Number(service.transported)
+                    antaresItem.deceased += Number(service.deceased)
+                } else if (antaresId) {
+                    stationItem.details.push({
                         antaresId,
                         services: 1,
                         unharmed: Number(service.unharmed),
@@ -237,20 +244,35 @@ function detailByStation(services: TService[]): StationsDetail[] {
                         transported: Number(service.transported),
                         deceased: Number(service.deceased),
                         percentage: "0",
+                    })
+                }
+            } else if (stationId && antaresId) {
+                stationDetail.push({
+                    stationId,
+                    details: [
+                        {
+                            antaresId,
+                            services: 1,
+                            unharmed: Number(service.unharmed),
+                            injured: Number(service.injured),
+                            transported: Number(service.transported),
+                            deceased: Number(service.deceased),
+                            percentage: "0",
+                        },
+                    ],
+                    summatory: {
+                        services: 0,
+                        unharmed: 0,
+                        injured: 0,
+                        transported: 0,
+                        deceased: 0,
+                        percentage: "0",
                     },
-                ],
-                summatory: {
-                    services: 0,
-                    unharmed: 0,
-                    injured: 0,
-                    transported: 0,
-                    deceased: 0,
-                    percentage: "0",
-                },
-            })
-        }
+                })
+            }
 
-        servicesCount++
+            servicesCount++
+        }
     })
 
     stationDetail.forEach((stationItem) => {
@@ -325,7 +347,7 @@ function getAntaresTypes(antares: TAntares[], antaresSummary: AnteresSummary[], 
     antaresTypeSummary = antaresTypeSummary.sort((a, b) => b.count - a.count)
     antaresTypeSummary.forEach(x => {
         x.percentage = ((x.count / servicesCount) * 100).toFixed(2)
-    })    
+    })
 
     let antaresTypeDetail: AntaresTypeDetail[] = [];
 
@@ -458,7 +480,7 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: Se
     }
 
     const { antaresSummary, stationsSummary, antaresDetail, stationsDetail } = getServiceData(services);
-    const { antaresTypeSummary, antaresTypeDetail } = getAntaresTypes(antaresCollection, antaresSummary, antaresDetail)
+    const { antaresTypeSummary, antaresTypeDetail } = getAntaresTypes(antaresCollection, antaresSummary.antaresSummary, antaresDetail)
 
     console.log(antaresTypeSummary, antaresTypeDetail);
 
@@ -496,7 +518,7 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: Se
                             </div>
 
                             <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
-                                {antaresSummary.map(antares => (
+                                {antaresSummary.antaresSummary.map(antares => (
                                     <div className="w-fit">
                                         <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
                                             <span>( {antares.antaresId} {getAntaresDescriptionFor(antares.antaresId)} )</span>
@@ -532,6 +554,56 @@ export function DetailServicesSummaryPrint({ servicesIds, groupBy, filters }: Se
                             ))}
                         </div>
                     </div>
+                </div>
+
+                <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl pt-12 pb-4">
+                    Resumen de Cancelados
+                </div>
+
+                <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
+                    {antaresSummary.cancelledCount.falseAlarm > 0 && <div className="w-fit">
+                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-6 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                            <span>Falsa Alarma</span>
+                            <span>-</span>
+                            <span>{antaresSummary.cancelledCount.falseAlarm}</span>
+                        </div>
+                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                            <span>{antaresSummary.cancelledCount.falseAlarmPersentage}%</span>
+                        </div>
+                    </div>}
+
+                    {antaresSummary.cancelledCount.unfundedAlarm > 0 && <div className="w-fit">
+                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-6 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                            <span>Alarma Infundada</span>
+                            <span>-</span>
+                            <span>{antaresSummary.cancelledCount.unfundedAlarm}</span>
+                        </div>
+                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                            <span>{antaresSummary.cancelledCount.unfundedAlarmPersentage}%</span>
+                        </div>
+                    </div>}
+
+                    {antaresSummary.cancelledCount.notCarriedOut > 0 && <div className="w-fit">
+                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-6 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                            <span>Atendido No Efectuado</span>
+                            <span>-</span>
+                            <span>{antaresSummary.cancelledCount.notCarriedOut}</span>
+                        </div>
+                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                            <span>{antaresSummary.cancelledCount.notCarriedOutPersentage}%</span>
+                        </div>
+                    </div>}
+
+                    {antaresSummary.cancelledCount.notAttended > 0 && <div className="w-fit">
+                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-6 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                            <span>Atención No Realizado</span>
+                            <span>-</span>
+                            <span>{antaresSummary.cancelledCount.notAttended}</span>
+                        </div>
+                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                            <span>{antaresSummary.cancelledCount.notAttendedPersentage}%</span>
+                        </div>
+                    </div>}
                 </div>
 
                 {groupBy == "Antares" && (

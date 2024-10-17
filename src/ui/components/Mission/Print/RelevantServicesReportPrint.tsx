@@ -6,6 +6,8 @@ import { TMission } from "../../../../domain/models/mission/mission";
 import { ApiRelevantServiceDetail, RelevantServiceDetail, RelevantServiceFromApi, TApiRelevantServiceDetail, TRelevantServiceDetail } from "../../../../domain/models/service/relevant_service_detail";
 import { get } from "../../../../services/http";
 import { modalService } from "../../../core/overlay/overlay_service";
+import { useCollection } from "../../../core/hooks/useCollection";
+import { AntaresFromApi } from "../../../../domain/models/antares/antares";
 
 interface ServicePrintProps {
     servicesIds: string[]
@@ -15,11 +17,18 @@ interface ServicePrintProps {
 
 export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePrintProps) {
     const [relevantServices, setRelevantServices] = useState<TRelevantServiceDetail[]>([]);
+    const antaresCollection = useCollection('mission/antares', AntaresFromApi)
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
         updateRelevantServices()
     }, [])
+
+    function getAntaresDescriptionFor(id: string): string {
+        const antares = antaresCollection.filter(x => x.id == id)[0]
+        if (antares) return antares.description
+        return ""
+    }
 
     async function updateRelevantServices() {
         try {
@@ -62,6 +71,7 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
                                 transported: data.transported || '',
                                 deceased: data.deceased || '',
                                 isImportant: data.is_important,
+                                cancelReason: data.cancel_reason,
                                 location: data.service_locations[0] || undefined,
                                 operativeAreas: data.operative_area_name || [],
                                 careCenter: (data.centers || []).map(center => ({
@@ -131,7 +141,7 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
                         console.log("Falla", first);
                     }
                 })
-                newRelevantServices = newRelevantServices.sort((a,b) => (a.regionAreaId as any) - (b.regionAreaId as any))
+                newRelevantServices = newRelevantServices.sort((a, b) => (a.regionAreaId as any) - (b.regionAreaId as any))
 
                 setRelevantServices(newRelevantServices)
             }
@@ -187,7 +197,7 @@ export function RelevantServicesReportPrint({ servicesIds, filters }: ServicePri
 
                                         <div className="flex w-full justify-between">
                                             <div className="pt-2">
-                                                <span className="font-semibold text-base"> {service?.antaresId!} - {service?.antaresDescription} {service.isImportant ? "( Relevante )" : ""}</span>
+                                                <span className="font-semibold text-base"> {service?.antaresId!} - {getAntaresDescriptionFor(service?.antaresId!)} {service.cancelReason != '' ? `( ${service.cancelReason} )` : service.isImportant ? "( Relevante )" : ""}</span>
                                             </div>
 
                                             <div className="flex pt-2">

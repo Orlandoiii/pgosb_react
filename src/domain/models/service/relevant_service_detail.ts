@@ -32,6 +32,7 @@ export const RelevantServiceDetail =
                 transported: z.string().optional().default(''),
                 deceased: z.string().optional().default(''),
                 isImportant: z.boolean().optional().default(false),
+                cancelReason: z.string().optional().default(''),
                 operativeAreas: z.array(z.string()).optional().default([]),
                 peaceQuadrant: z.string().optional().default(''),
                 location: z.object({
@@ -136,6 +137,7 @@ export const ApiRelevantServiceDetail = z.object({
     unharmed: z.string().optional().default(''),
     injured: z.string().optional().default(''),
     is_important: z.boolean().optional().default(false),
+    cancel_reason: z.string().optional().default(''),
     transported: z.string().optional().default(''),
     deceased: z.string().optional().default(''),
     antares_description: z.string().optional().default(''),
@@ -257,6 +259,7 @@ function fromApiInternal(data: TApiRelevantServiceDetail): TRelevantServiceDetai
                 deceased: data.deceased || '',
                 location: data.service_locations[0] || undefined,
                 isImportant: data.is_important,
+                cancelReason: data.cancel_reason,
                 operativeAreas: data.operative_area_name || [],
                 peaceQuadrant: data.peace_quadrant || '',
                 careCenter: (data.centers || []).map(center => ({
@@ -303,6 +306,7 @@ function toApiInternal(data: TRelevantServiceDetail): TApiRelevantServiceDetail 
         unharmed: firstService.unharmed || '',
         injured: firstService.injured || '',
         is_important: firstService.isImportant,
+        cancel_reason: firstService.cancelReason,
         transported: firstService.transported || '',
         deceased: firstService.deceased || '',
         units: firstService.units || [],

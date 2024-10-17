@@ -297,10 +297,6 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
     }, [])
 
     async function getServices(servicesIds: string[]) {
-
-        console.log("called for", servicesIds.length);
-
-
         try {
             setLoading(true)
             const servicesList: NewsSummary[] = await getServicesList()
@@ -324,6 +320,7 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
     type NewsSummary = TServiceSummary & {
         stationDescription: string;
         serviceLocation: string;
+        cancelReason: string;
     }
 
     async function getServicesList(): Promise<NewsSummary[]> {
@@ -349,7 +346,8 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
                     servicesList.push({
                         ...serviceSummary,
                         stationDescription: stationCollection.filter(x => x.id == serviceSummary.station_name.replace("M", ""))[0]?.description ?? "",
-                        serviceLocation: `${serviceLocation?.address ? `${serviceLocation.address}, ` : ''}${serviceLocation?.urb ? `URBANIZACIÓN: ${serviceLocation.urb}, ` : ''}${serviceLocation?.sector ? `SECTOR: ${serviceLocation.sector}, ` : ''}${serviceLocation?.parish ? `PARROQUIA: ${serviceLocation.parish}, ` : ''}${serviceLocation?.municipality ? `MUNICIPIO: ${serviceLocation.municipality}, ` : ''}${serviceLocation?.state ? `ESTADO: ${serviceLocation.state}` : ''}`.trim().replace(/,\s*$/, '')
+                        serviceLocation: `${serviceLocation?.address ? `${serviceLocation.address}, ` : ''}${serviceLocation?.urb ? `URBANIZACIÓN: ${serviceLocation.urb}, ` : ''}${serviceLocation?.sector ? `SECTOR: ${serviceLocation.sector}, ` : ''}${serviceLocation?.parish ? `PARROQUIA: ${serviceLocation.parish}, ` : ''}${serviceLocation?.municipality ? `MUNICIPIO: ${serviceLocation.municipality}, ` : ''}${serviceLocation?.state ? `ESTADO: ${serviceLocation.state}` : ''}`.trim().replace(/,\s*$/, ''),
+                        cancelReason: servicesRequest.result?.cancelReason ?? ""
                     })
                 }
             }
@@ -377,7 +375,7 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
 
     function getServicesByAntares(services: NewsSummary[]): { antaresId: string, antaresDescription: string, count: number }[] {
         return antaresCollection.map(antares => (
-            { antaresId: antares.id, antaresDescription: antares.description, count: services.filter(service => service.antares_id == antares.id).length }
+            { antaresId: antares.id, antaresDescription: antares.description, count: services.filter(service => service.antares_id == antares.id && service.cancelReason != '').length }
         ))
     }
 
@@ -413,7 +411,7 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
 
                     {services.filter(x => x.is_important).map(importantService => (
                         <div className="pt-8">
-                            <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {importantService.description}</span></div>
+                            <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {getAntaresDescriptionFor(importantService.antares_id)} {importantService.cancelReason != '' && <span className="font-semibold">( {importantService.cancelReason} )</span>}</span></div>
                             <div className="font-semibold">HORA: <span className="font-normal">{importantService.manual_service_date}</span></div>
                             <div className="font-semibold">CODIGO: <span className="font-normal">{importantService.mission_id.split("-")[0]}</span></div>
                             <div className="font-semibold">ESTACION: <span className="font-normal">{importantService.station_name} - {importantService.stationDescription}</span></div>
@@ -423,7 +421,7 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
 
                     <div className="py-2">-------------------------------------------------------------------------</div>
 
-                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.length}</span></div>
+                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.filter(x => x.cancelReason).length}</span></div>
 
                     <div className="pt-8">
                         {getServicesByAntares(services).sort((a, b) => b.count - a.count).map(antares => (
