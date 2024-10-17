@@ -552,7 +552,7 @@ const ServiceForm = ({
 
                         <div className="flex">
                             <FormToggle<TService>
-                                width="w-44"
+                                width="w-48"
                                 height="h-11"
                                 fieldName={'pendingForData'}
                                 option1="Faltan Datos"
@@ -728,7 +728,7 @@ const ServiceForm = ({
                                             />
                                         </div>
 
-                                        <div className="w-44">
+                                        <div className="w-72">
                                             <FormSelectWithSearch<TService, string>
                                                 description="Motivo de Cancelación"
                                                 fieldName={'cancelReason'}
