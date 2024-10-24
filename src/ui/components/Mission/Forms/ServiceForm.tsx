@@ -368,7 +368,7 @@ const ServiceForm = ({
 
 
     const levels = useMemo(() => ["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"], [])
-    const cancelReasons = useMemo(() => ["ALARMA FALSA", "ALARMA INFUNDADA", "ATENDIDO NO EFECTUADO", "ATENCION NO REALIZADA"], [])
+    const cancelReasons = useMemo(() => [ "ALARMA FALSA", "ALARMA INFUNDADA", "ATENDIDO NO EFECTUADO", "ATENCION NO REALIZADA", "N/A"], [])
 
     async function addUnitHandler(unit: string, ignore: any) {
 
