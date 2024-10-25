@@ -29,6 +29,7 @@ export const ServiceSchema = z.object({
     peaceQuadrant: z.string().optional().default(''),
     cancelReason: z.string().optional().default(''),
     pendingForData: z.boolean().optional().default(true),
+    unitsPlates: z.any(),
 })
 
 export const ApiServiceSchema = z.object({
@@ -55,6 +56,7 @@ export const ApiServiceSchema = z.object({
     peace_quadrant: z.string().optional().default(''),
     cancel_reason: z.string().optional().default(''),
     pending_for_data: z.boolean().optional().default(true),
+    units_plates: z.any(),
 })
 
 export type TService = z.infer<typeof ServiceSchema>
@@ -85,6 +87,7 @@ function fromApiInternal(data: TApiService): TService {
         peaceQuadrant: data.peace_quadrant ?? "",
         cancelReason: data.cancel_reason,
         pendingForData: data.pending_for_data,
+        unitsPlates: data.units_plates,
     }
 }
 
@@ -113,6 +116,7 @@ function toApiInternal(data: TService): TApiService {
         peace_quadrant: data.peaceQuadrant,
         cancel_reason: data.cancelReason,
         pending_for_data: data.pendingForData,
+        units_plates: data.unitsPlates,
     }
 }
 
