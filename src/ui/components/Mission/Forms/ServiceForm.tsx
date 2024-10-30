@@ -461,7 +461,15 @@ const ServiceForm = ({
             data.manualServiceDate = formattedDate;
         }
         data.operativeAreas = operativeAreas;
-        console.log("submited", data, serviceId);
+
+
+        const service = await serviceCrud.getById(serviceId ?? '')
+
+        if (service.success && service.result && service.result.units) {
+            data.units = service.result.units;
+        }
+
+        console.log("submited", data, serviceId, service.result?.units);
 
         let resultService: ResultErr<TService>
         let errorMessage: string = ''
