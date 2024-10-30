@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { PrintLayout } from "./PrintLayout";
 import { TService } from "../../../../domain/models/service/service";
-import { TMission } from "../../../../domain/models/mission/mission";
+import { MissionFront } from "../../../../domain/models/mission/mission";
 import { ApiRelevantServiceDetail, RelevantServiceDetail, RelevantServiceFromApi, TApiRelevantServiceDetail, TRelevantServiceDetail } from "../../../../domain/models/service/relevant_service_detail";
 import { get } from "../../../../services/http";
 import { modalService } from "../../../core/overlay/overlay_service";

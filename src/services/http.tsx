@@ -68,12 +68,19 @@ export async function getAllSimple<T>(
     }
 }
 
-export async function getSummary<T>(endpoint: string): Promise<ResultErr<T[]>> {
+export async function getSummary<T>(
+    endpoint: string,
+    fromJson?: (json: any) => ResultErr<T>
+): Promise<ResultErr<T[]>> {
     const response = await requestInternal('GET', `${endpoint}/summary`)
     console.log('response', response)
 
     if (response.success && response.result) {
-        return { success: true, result: response.result }
+        if (!fromJson) return { success: true, result: response.result }
+        const result: T[] = response.result.map(
+            (item: any) => fromJson(item).result
+        )
+        return { success: true, result: result }
     } else {
         return response
     }

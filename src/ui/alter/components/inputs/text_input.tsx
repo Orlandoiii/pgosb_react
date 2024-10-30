@@ -35,9 +35,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
         }
 
         return (
-            <div
-                className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`}
-            >
+            <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`}>
                 <div className="relative">
                     <TextInputBase
                         tabIndex={disable ? -1 : undefined}

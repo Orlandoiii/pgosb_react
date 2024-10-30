@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react'
 import TableDataGrid from '../../core/datagrid/TableDataGrid'
 
 import {
-    MissionSchema,
+    MissionFrontSchema,
     missionCrud,
-    TMission,
+    MissionFront,
 } from '../../../domain/models/mission/mission'
 
 import { getDefaults } from '../../core/context/CustomFormContext'
@@ -26,13 +26,19 @@ import { useUser } from '../../core/context/UserDataContext'
 import { useNavigate } from 'react-router-dom'
 import AlertController from '../../core/alerts/AlertController'
 import { useConfirmationModal } from '../../core/modal/ModalConfirmation'
-import ServiceForm from './Forms/ServiceForm'
+import { ResultErr } from '../../../domain/abstractions/types/resulterr'
+import { executeAndValidate } from '../../optimized/Utilities/execute_and_validate'
+import { useMissionCollection } from '../../../domain/models/mission/use_collection'
 
 const alertController = new AlertController();
 
 
 const MissionPage = () => {
+    const [missions, missionsActions, updateMissions] = useMissionCollection()
+    const [mission, setMission] = useState<MissionFront | null>(null)
+
     const navigate = useNavigate();
+
     const [loading, setLoading] = useState(false)
     const [toggle, setToggle] = useState(true)
     const [data, setData] = useState<any[]>([])
@@ -85,64 +91,21 @@ const MissionPage = () => {
 
 
     async function addNewMission() {
-        var errorMessage: string = ''
-        try {
-            setLoading(true)
+        const result = await executeAndValidate(
+            "misión", 'FEMALE', 'guardar',
+            async () => await missionsActions.insertFront(
+                getDefaults<MissionFront>(MissionFrontSchema)
+            ),
+            setLoading,
+            'id'
+        );
 
-            const missionResult = await missionCrud.insert(
-                getDefaults<TMission>(MissionSchema)
-            )
-
-            if (missionResult.success && missionResult.result?.id) {
-                modalService.pushModal(
-                    MissionForm,
-                    {
-                        missionId: missionResult.result?.id,
-                        missionCode: missionResult.result.code,
-                        closeOverlay: undefined,
-                    },
-                    new OverlayModalConfig(),
-                    updateData
-                )
-            } else if (!missionResult.success)
-                errorMessage =
-                    'Lo sentimos tenemos problemas para agregar la misión'
-            else if (!missionResult.result?.id) {
-                errorMessage = 'El Id no fue retornado en el agregar la misión'
-            }
-        } catch (error) {
-            errorMessage =
-                'Lo sentimos ocurrio un error inesperado al agregar la misión'
-            console.error(error)
-        } finally {
-            setLoading(false)
-        }
-        if (errorMessage != '') modalService.pushAlert('Error', errorMessage)
+        if (result.success && result.result) setMission(result.result)
     }
 
     async function openMission(service: any) {
-        console.log('service', service)
-
-        const result = await missionCrud.getById(service.id)
-
-        if (result.success && result.result) {
-            modalService.pushModal(
-                MissionForm,
-                {
-                    initValue: result.result,
-                    missionId: result.result?.id,
-                    missionCode: result.result.code,
-                    closeOverlay: undefined,
-                },
-                new OverlayModalConfig(),
-                updateData
-            )
-        } else {
-            modalService.pushAlert(
-                'Error',
-                `No se pudo abrir la missión por: ${result.error}`
-            )
-        }
+        const result = await missionsActions.getById(service.id)
+        if (result.success && result.result) setMission(result.result)
     }
 
     function openPrintModal(service: any) {
@@ -186,93 +149,99 @@ const MissionPage = () => {
         const result = await getById("mission/service", service.id, ServiceFromApi)
         if (result.success) {
             if (result.result && result.result.missionId) {
-                modalService.pushModal(
-                    ServiceForm,
-                    {
-                        missionId: result.result.missionId,
-                        initValue: result.result,
-                        closeOverlay: undefined,
-                    },
-                    new OverlayModalConfig(),
-                    updateData
-                )
+                // modalService.pushModal(
+                //     ServiceForm,
+                //     {
+                //         missionId: result.result.missionId,
+                //         initValue: result.result,
+                //         closeOverlay: undefined,
+                //     },
+                //     new OverlayModalConfig(),
+                //     updateData
+                // )
             }
             else modalService.toastError(`El registro retorno sin datos`)
         } else modalService.toastError(`No se pudo encontrar el registro`)
     }
+    console.log(mission);
 
 
 
     return (
-        <LayoutContexProvider
-            layoutName={!toggle ? 'service_layout' : 'mission_layout'}
-        >
-            <div className="relative flex w-full h-full overflow-hidden">
-                <div
-                    className={`${toggle ? '' : '-translate-x-full opacity-0'} absolute top-0 left-0 h-full w-full duration-200`}
-                >
-                    <TableDataGrid
-                        child={
-                            <Toggle
-                                useActiveColors={false}
-                                toggle={toggle}
-                                toggleChanged={() => setToggle(!toggle)}
-                                option1="Misiones"
-                                option2="Servicios"
-                            />
-                        }
-                        showDownloadButton={true}
-                        exportFileName="Missiones"
-                        rawData={data}
-                        showDeleteButton={false}
-                        onAdd={openAddMissionModal}
-                        onUpdate={openMission}
-                        showPrintButton={false}
-                        onPrint={openPrintModal}
-                        onDoubleClickRow={() => { }}
-                        permissions={permissions}
-                        onDelete={() => { }}
-                    />
+        <>
+            <LayoutContexProvider
+                layoutName={!toggle ? 'service_layout' : 'mission_layout'}
+            >
+                <div className="relative flex w-full h-full overflow-hidden">
+                    <div
+                        className={`${toggle ? '' : '-translate-x-full opacity-0'} absolute top-0 left-0 h-full w-full duration-200`}
+                    >
+                        <TableDataGrid
+                            child={
+                                <Toggle
+                                    useActiveColors={false}
+                                    toggle={toggle}
+                                    toggleChanged={() => setToggle(!toggle)}
+                                    option1="Misiones"
+                                    option2="Servicios"
+                                />
+                            }
+                            showDownloadButton={true}
+                            exportFileName="Missiones"
+                            rawData={missions}
+                            showDeleteButton={false}
+                            onAdd={openAddMissionModal}
+                            onUpdate={openMission}
+                            showPrintButton={false}
+                            onPrint={openPrintModal}
+                            onDoubleClickRow={() => { }}
+                            permissions={permissions}
+                            onDelete={() => { }}
+                        />
+                    </div>
+
+                    <div
+                        className={`${toggle ? 'translate-x-full opacity-0' : ''} absolute top-0 left-0 h-full w-full duration-200`}
+                    >
+                        <TableDataGrid
+                            child={
+                                <Toggle
+                                    useActiveColors={false}
+                                    toggle={toggle}
+                                    toggleChanged={() => setToggle(!toggle)}
+                                    option1="Misiones"
+                                    option2="Servicios"
+                                />
+                            }
+                            showAddButton={false}
+                            showEditButton={true}
+                            showDeleteButton={false}
+                            showDownloadButton={true}
+                            exportFileName="Servicios"
+                            rawData={data}
+                            onAdd={addNewMission}
+                            onUpdate={editService}
+                            showPrintButton={true}
+                            onPrint={openPrintModal}
+                            onDoubleClickRow={() => { }}
+                            permissions={permissions}
+                            onDelete={() => { }}
+                        />
+                    </div>
                 </div>
 
-                <div
-                    className={`${toggle ? 'translate-x-full opacity-0' : ''} absolute top-0 left-0 h-full w-full duration-200`}
-                >
-                    <TableDataGrid
-                        child={
-                            <Toggle
-                                useActiveColors={false}
-                                toggle={toggle}
-                                toggleChanged={() => setToggle(!toggle)}
-                                option1="Misiones"
-                                option2="Servicios"
-                            />
-                        }
-                        showAddButton={false}
-                        showEditButton={true}
-                        showDeleteButton={false}
-                        showDownloadButton={true}
-                        exportFileName="Servicios"
-                        rawData={data}
-                        onAdd={addNewMission}
-                        onUpdate={editService}
-                        showPrintButton={true}
-                        onPrint={openPrintModal}
-                        onDoubleClickRow={() => { }}
-                        permissions={permissions}
-                        onDelete={() => { }}
-                    />
-                </div>
-            </div>
+                <LoadingModal initOpen={loading} children={null} />
+            </LayoutContexProvider>
 
-            <LoadingModal initOpen={loading} children={null} />
-        </LayoutContexProvider>
-
-        //  <>
-        //      {/* <DetailServicesSummaryPrint services={services} groupBy={"Antares"} /> */}
-        //      {/* <DetailServicesSummaryPrint services={services} groupBy={"Stations"} /> */}
-        //      <RelevantServicesReportPrint services={services} missions={data}/>
-        //  </>
+            <MissionForm
+                isVisible={mission != null}
+                initValue={mission}
+                closeOverlay={() => {
+                    setMission(null)
+                    updateMissions()
+                }}
+            />
+        </>
     )
 }
 

@@ -1,6 +1,6 @@
-import { DefaultValues, FieldValues, useForm } from "react-hook-form";
+import { DefaultValues, FieldValues, useForm, UseFormSetValue } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { z } from "zod";
 import React from "react";
 import { FormContext } from "./form_context";
@@ -11,6 +11,7 @@ interface FormProps<T extends FieldValues> {
   onSubmit: (data: z.infer<z.ZodSchema<T>>) => void;
   children: ReactNode;
   className?: string;
+  setFormValue?: (setValue: UseFormSetValue<T>) => void; // New prop
 }
 
 export default function Form<T extends FieldValues>({
@@ -19,6 +20,7 @@ export default function Form<T extends FieldValues>({
   onSubmit,
   children,
   className = "flex flex-col",
+  setFormValue
 }: FormProps<T>) {
   const [resetCount, setResetCount] = useState(0);
 
@@ -27,6 +29,12 @@ export default function Form<T extends FieldValues>({
     resolver: zodResolver(schema),
     defaultValues: (initValue ?? {}) as DefaultValues<T>,
   });
+
+  useEffect(() => {
+    if (setFormValue) {
+      setFormValue(methods.setValue); // Pass setValue to the parent
+    }
+  }, [methods.setValue, setFormValue]);
 
   function formReset(event: React.FormEvent<HTMLFormElement>) {
     methods.reset(getDefaults(schema));

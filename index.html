@@ -11,7 +11,10 @@
     <title>GRES</title>
 </head>
 
-<body class="">
+<body class="relative">
+    <div class="absolute top-0 left-0 h-screen w-full z-50 overflow-hidden pointer-events-none">
+        <div id="modal-container" class="relative h-full w-full"></div>
+    </div>
     <div id="root"></div>
     <div id="backdrop-root"></div>
     <script type="module" src="/src/main.jsx"></script>

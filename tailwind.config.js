@@ -30,6 +30,7 @@ export default {
                 purple: '#9F7AEA',
                 pink: '#ED64A6',
                 green: '#48BB78',
+                primary: '#0A2F4E'
             },
         },
     },

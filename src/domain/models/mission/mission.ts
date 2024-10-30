@@ -3,34 +3,8 @@ import { z } from 'zod'
 import { ResultErr } from '../../abstractions/types/resulterr'
 import { mapEntity } from '../../../services/mapper'
 import { CRUD } from '../../../utilities/crud'
-import { zodEmptyOrGreaterThan } from '../../../utilities/zod/empty_string'
-export const MissionSchema = z.object({
-    id: z.string().optional().default(''),
-    createdAt: z.string().optional().default(''),
-    code: z.string().optional().default(''),
-    alias: z.string().optional().default(''),
-    operativeAreas: z.array(z.string()).default([]).optional().default([]),
-    summary: z.string().optional().default(''),
-    description: z.string().optional().default(''),
-    unharmed: z.string().optional().default(''),
-    injured: z.string().optional().default(''),
-    transported: z.string().optional().default(''),
-    deceased: z.string().optional().default(''),
-    stationId: z.string().optional().default(''),
-    locationId: z.string().optional().default(''),
-    manualMissionDate: z.string().optional().default(''),
-    isImportant: z.boolean().optional().default(false),
-    centerId: z.string().optional().default(''),
-    sendingUserId: z.string().optional().default(''),
-    receivingUserId: z.string().optional().default(''),
-    location_destinyId: z.string().optional().default(''),
-    level: z.string().optional().default(''),
-    peaceQuadrant: z.string().optional().default(''),
-    cancelReason: z.string().optional().default(''),
-    pendingForData: z.boolean().optional().default(true),
-})
 
-export const ApiMissionSchema = z.object({
+export const MissionApiSchema = z.object({
     id: z.string().optional().default(''),
     created_at: z.string().optional().default(''),
     code: z.string().optional().default(''),
@@ -56,10 +30,38 @@ export const ApiMissionSchema = z.object({
     pending_for_data: z.boolean().optional().default(true),
 })
 
-export type TMission = z.infer<typeof MissionSchema>
-export type TApiMission = z.infer<typeof ApiMissionSchema>
+export const MissionFrontSchema = z.object({
+    id: z.string().optional().default(''),
+    createdAt: z.string().optional().default(''),
+    code: z.string().optional().default(''),
+    alias: z.string().optional().default(''),
+    operativeAreas: z.array(z.string()).default([]).optional().default([]),
+    summary: z.string().optional().default(''),
+    description: z.string().optional().default(''),
+    unharmed: z.string().optional().default(''),
+    injured: z.string().optional().default(''),
+    transported: z.string().optional().default(''),
+    deceased: z.string().optional().default(''),
+    stationId: z.string().optional().default(''),
+    locationId: z.string().optional().default(''),
+    manualMissionDate: z.string().optional().default(''),
+    isImportant: z.boolean().optional().default(false),
+    centerId: z.string().optional().default(''),
+    sendingUserId: z.string().optional().default(''),
+    receivingUserId: z.string().optional().default(''),
+    locationDestinyId: z.string().optional().default(''),
+    level: z.string().optional().default(''),
+    peaceQuadrant: z.string().optional().default(''),
+    cancelReason: z.string().optional().default(''),
+    pendingForData: z.boolean().optional().default(true),
+})
 
-function fromApiInternal(data: TApiMission): TMission {
+
+
+export type MissionApi = z.infer<typeof MissionApiSchema>
+export type MissionFront = z.infer<typeof MissionFrontSchema>
+
+function fromApiInternal(data: MissionApi): MissionFront {
     return {
         id: data.id,
         code: data.code,
@@ -79,7 +81,7 @@ function fromApiInternal(data: TApiMission): TMission {
         centerId: data.center_id,
         sendingUserId: data.sending_user_id,
         receivingUserId: data.receiving_user_id,
-        location_destinyId: data.location_destiny_id,
+        locationDestinyId: data.location_destiny_id,
         level: data.level,
         peaceQuadrant: data.peace_quadrant,
         cancelReason: data.cancel_reason,
@@ -87,7 +89,7 @@ function fromApiInternal(data: TApiMission): TMission {
     }
 }
 
-function toApiInternal(data: TMission): TApiMission {
+function toApiInternal(data: MissionFront): MissionApi {
     return {
         id: data.id,
         code: data.code,
@@ -107,7 +109,7 @@ function toApiInternal(data: TMission): TApiMission {
         center_id: data.centerId,
         sending_user_id: data.sendingUserId,
         receiving_user_id: data.receivingUserId,
-        location_destiny_id: data.location_destinyId,
+        location_destiny_id: data.locationDestinyId,
         level: data.level,
         peace_quadrant: data.peaceQuadrant,
         cancel_reason: data.cancelReason,
@@ -115,23 +117,23 @@ function toApiInternal(data: TMission): TApiMission {
     }
 }
 
-export const MissionFromApi = (data: TApiMission): ResultErr<TMission> =>
-    mapEntity<TApiMission, TMission>(
+export const MissionFromApi = (data: MissionApi): ResultErr<MissionFront> =>
+    mapEntity<MissionApi, MissionFront>(
         data,
-        ApiMissionSchema as any,
-        MissionSchema as any,
+        MissionApiSchema as any,
+        MissionFrontSchema as any,
         fromApiInternal
     )
 
-export const MissionToApi = (data: TMission): ResultErr<TApiMission> =>
-    mapEntity<TMission, TApiMission>(
+export const MissionToApi = (data: MissionFront): ResultErr<MissionApi> =>
+    mapEntity<MissionFront, MissionApi>(
         data,
-        MissionSchema as any,
-        ApiMissionSchema as any,
+        MissionFrontSchema as any,
+        MissionApiSchema as any,
         toApiInternal
     )
 
-export const missionCrud = new CRUD<TMission>(
+export const missionCrud = new CRUD<MissionFront>(
     'mission',
     MissionToApi,
     MissionFromApi
