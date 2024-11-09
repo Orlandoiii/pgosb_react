@@ -55,13 +55,18 @@ export async function getAllSimple<T>(
     fromJson?: (json: any) => ResultErr<T>
 ): Promise<ResultErr<T[]>> {
     const response = await requestInternal('GET', `${endpoint}/all/simple`)
-    console.log('response', response)
 
     if (response.success) {
         if (!fromJson) return { success: true, result: response.result }
         const result: T[] = response.result.map(
-            (item: any) => fromJson(item).result
+            (item: any) => {
+                //console.log(item,fromJson(item));
+                
+                return fromJson(item).result
+            }
         )
+        console.log(response ,result);
+        
         return { success: true, result: result }
     } else {
         return response
@@ -91,7 +96,7 @@ export async function getAll<T>(
     fromJson?: (json: any) => ResultErr<T>
 ): Promise<ResultErr<T[]>> {
     const response = await requestInternal('GET', `${endpoint}/all`)
-
+    
     if (response.success) {
         if (!fromJson) return { success: true, result: response.result }
         const result: T[] = response.result.map(

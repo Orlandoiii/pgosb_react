@@ -12,8 +12,6 @@ import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
-import { infrastructureCrud } from '../../../../domain/models/infrastructure/infrastructure'
-import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
@@ -24,25 +22,26 @@ import { FloorTypes } from '../../../../domain/abstractions/enums/floor_types.ts
 import { WallTypes } from '../../../../domain/abstractions/enums/wall_types.ts'
 import { CeilingTypes } from '../../../../domain/abstractions/enums/ceiling_types.ts'
 import { numberMask } from '../../../core/inputs/Common/Mask.ts'
+import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
+import { useMissionInfrastructureActions } from '../../../../domain/models/mission/infraestructure/use_collection.ts'
 
 interface InfrastructureFormProps {
-    missionId: string
     initValue?: TInfrastructure | null
-    onClose?: (success: boolean) => void
     closeOverlay?: () => void
     add?: boolean
 }
 
-const areaCodes = ['N/A','Sin Pavimento', 'Inestable']
+const areaCodes = ['N/A', 'Sin Pavimento', 'Inestable']
 
-const InfrastructureForm = ({
-    missionId,
+export default function InfrastructureForm({
     initValue,
-    onClose,
     closeOverlay,
     add = true,
-}: InfrastructureFormProps) => {
+}: InfrastructureFormProps){
+    const infrastructureActions = useMissionInfrastructureActions();
+    const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
+
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
@@ -56,14 +55,14 @@ const InfrastructureForm = ({
             console.log('parsed', parsed)
             var result: ResultErr<TInfrastructure>
 
-            if (add) result = await infrastructureCrud.insert(parsed)
-            else result = await infrastructureCrud.update(parsed)
+            if (add) result = await infrastructureActions.insertFront(parsed)
+            else result = await infrastructureActions.updateFront(parsed)
 
             if (result.success) {
                 modalService.toastSuccess(
                     `Infraestructura ${buttonText.replace('dar', 'dada')}`
                 )
-                handleClose()
+                closeOverlay?.()
             } else
                 modalService.toastError(
                     `No se pudo guardar la infraestructura por: ${result.result}`
@@ -75,21 +74,20 @@ const InfrastructureForm = ({
         }
     }
 
-    function handleClose() {
-        if (closeOverlay) closeOverlay()
-        if (onClose) onClose(false)
-    }
-    console.log('initValue', initValue)
-
     return (
         <>
             <ModalLayout
                 title={'Registro de Infrastructura'}
-                onClose={handleClose}
+                isVisible={isVisible}
+                onClosed={closeOverlay}
+                className="min-w-[54rem]"
+                onClose={() => {
+                    setIsVisible(false)
+                }}
             >
                 <CustomForm
                     schema={InfrastructureSchema}
-                    initValue={{ ...initValue, missionId: missionId }}
+                    initValue={{ ...initValue, missionId: initValue?.missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos de la Infraestructura" />
@@ -189,7 +187,7 @@ const InfrastructureForm = ({
                         <div className="flex justify-end space-x-8">
                             <Button
                                 colorType="bg-[#3C50E0]"
-                                onClick={(e) => {}}
+                                onClick={(e) => { }}
                                 children={'Aceptar'}
                             ></Button>
                         </div>
@@ -201,5 +199,3 @@ const InfrastructureForm = ({
         </>
     )
 }
-
-export default InfrastructureForm

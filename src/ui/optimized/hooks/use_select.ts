@@ -47,8 +47,8 @@ type Action<T> =
 
 
 function getSelectOptions<T>(options: T[] | string[] | undefined, valueKey?: string, displayKeys?: string[]) {
-    if (!options || options.length == 0) return [{ value: "", display: "Sin datos" }];
-    console.log("options",options);
+    if (!options || options.length == 0 || options.some(x => x == undefined)) return [{ value: "", display: "Sin datos" }];
+    console.log("options",options, valueKey);
     
     return options.map(option => {
         const value = typeof option === 'string' || !valueKey ? String(option) : String((option as Record<string, any>)[valueKey]);

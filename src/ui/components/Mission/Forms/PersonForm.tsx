@@ -15,15 +15,11 @@ import CustomForm from '../../../core/context/CustomFormContext.tsx'
 import FormInput from '../../../core/inputs/FormInput.tsx'
 import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
-import { personCrud } from '../../../../domain/models/person/person_involved'
-
 import LoadingModal from '../../../core/modal/LoadingModal'
 
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
-import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { Genders } from '../../../../domain/abstractions/enums/genders.ts'
-import { DocumentTypes } from '../../../../domain/abstractions/enums/document_types.ts'
 import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection.ts'
 import InfrastructureForm from './InfrastructureForm.tsx'
@@ -32,43 +28,42 @@ import VehicleForm from './VehicleForm.tsx'
 import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved.ts'
 import { UnitSimple } from '../../../../domain/models/unit/unit.ts'
 import { get } from '../../../../services/http.tsx'
-import { useSimpleCollection } from '../../../core/hooks/useCollection.ts'
 import { Condition } from '../../../../domain/abstractions/enums/condition.ts'
 import { PersonState } from '../../../../domain/abstractions/enums/person_state.ts'
 import { documentIdMask, numberMask } from '../../../core/inputs/Common/Mask.ts'
-import logger from '../../../../logic/Logger/logger.js'
+import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
+import { useMissionPersonActions } from '../../../../domain/models/mission/person/use_collection.ts'
 
 interface PersonFormProps {
-    missionId: string
     initValue?: TPersonInvolved | null
-    onClose?: (success: boolean) => void
     closeOverlay?: () => void
     add?: boolean
 }
 
-const PersonForm = ({
-    missionId,
+export default function PersonForm({
     initValue,
-    onClose,
     closeOverlay,
     add = true,
-}: PersonFormProps) => {
-    const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
+}: PersonFormProps) {
+    const personActions = useMissionPersonActions();
+    const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
+
+    const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
 
     const [infrastructureActions, infrastructures] =
         useActionModalAndCollection(
             InfrastructureForm,
             infrastructureCrud,
-            { missionId: missionId },
-            missionId
+            { missionId: initValue?.missionId } as any,
+            initValue?.missionId ?? ""
         )
 
     const [vehicleActions, vehicles] = useActionModalAndCollection(
         VehicleForm,
         vehicleCrud,
-        { missionId: missionId },
-        missionId
+        { missionId: initValue?.missionId } as any,
+        initValue?.missionId ?? ""
     )
 
     const [unit, setUnit] = useState('')
@@ -113,7 +108,7 @@ const PersonForm = ({
 
     async function updateUnits() {
         const result = await get<UnitSimple[]>(
-            `mission/service/unit/${missionId}`
+            `mission/service/unit/${initValue?.missionId}`
         )
         if (result.success && result.result) setServiceUnits(result.result)
         console.log(result)
@@ -142,8 +137,8 @@ const PersonForm = ({
 
             var result: ResultErr<TPersonInvolved>
 
-            if (add) result = await personCrud.insert(parsed)
-            else result = await personCrud.update(parsed)
+            if (add) result = await personActions.insertFront(parsed)
+            else result = await personActions.updateFront(parsed)
 
             if (result.success) {
                 modalService.toastSuccess(
@@ -163,19 +158,21 @@ const PersonForm = ({
 
     function handleClose() {
         if (closeOverlay) closeOverlay()
-        if (onClose) onClose(false)
     }
 
     return (
         <>
             <ModalLayout
-                className=""
                 title={'Registro de Persona'}
-                onClose={handleClose}
+                isVisible={isVisible}
+                onClosed={closeOverlay}
+                onClose={() => {
+                    setIsVisible(false)
+                }}
             >
                 <CustomForm
                     schema={PersonInvolvedSchema}
-                    initValue={{ ...initValue, serviceId: missionId }}
+                    initValue={{ ...initValue, serviceId: initValue?.missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <div className="md:flex md:md:items-start md:space-x-2 pb-8">
@@ -323,5 +320,3 @@ const PersonForm = ({
         </>
     )
 }
-
-export default PersonForm

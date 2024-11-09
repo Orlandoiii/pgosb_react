@@ -1,8 +1,8 @@
 import { MissionInfraestructureApi, MissionInfraestructureFromApi, MissionInfraestructureFront, MissionInfraestructureToApi } from "./mission_infraestructure";
 import { useCollection } from "../../../../ui/optimized/hooks/useCollection";
-import { HttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
+import { HttpActions, useHttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
 
-export function useMissionInfraestructureCollection(id: string, type: 'ALL' | 'GROUP' = 'GROUP'): [collection: MissionInfraestructureFront[], actions: HttpActions<MissionInfraestructureFront, MissionInfraestructureApi>, updateCollection: () => void] {
+export function useMissionInfrastructureCollection(id: string, type: 'ALL' | 'GROUP' = 'GROUP'): [collection: MissionInfraestructureFront[], actions: HttpActions<MissionInfraestructureFront, MissionInfraestructureApi>, updateCollection: () => void] {
     const [infraestructures, actions, updateInfraestructures] = useCollection({
         endpointCompound: 'mission/infrastructure',
         fromApiMapper: MissionInfraestructureFromApi,
@@ -12,4 +12,12 @@ export function useMissionInfraestructureCollection(id: string, type: 'ALL' | 'G
     })
 
     return [infraestructures, actions, updateInfraestructures]
+}
+
+export function useMissionInfrastructureActions(){
+    return  useHttpActions({ 
+        endpointCompound: 'mission/infrastructure',
+        fromApiMapper: MissionInfraestructureFromApi,
+        toApiMapper: MissionInfraestructureToApi,
+    })
 }

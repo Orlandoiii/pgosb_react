@@ -7,9 +7,7 @@ export const MissionAuthorityApiSchema = z.object({
     id: z.string().optional().default(''),
     mission_id: z.string().optional().default(''),
     alias: z.string().optional().default(''),
-    services: z.string().optional().default(''),
-    vehicles: z.string().optional().default(''),
-    people: z.string().optional().default(''),
+    institution_id: z.string().optional().default(''),
     type: z.string().optional().default(''),
 })
 
@@ -17,11 +15,10 @@ export const MissionAuthorityFrontSchema = z.object({
     id: z.string().optional().default(''),
     missionId: z.string().optional().default(''),
     alias: z.string().optional().default(''),
-    services: z.string().optional().default(''),
-    vehicles: z.string().optional().default(''),
-    people: z.string().optional().default(''),
+    institutionId: z.string().optional().default(''),
     type: z.string().optional().default(''),
 })
+
 
 export type MissionAuthorityApi = z.infer<typeof MissionAuthorityApiSchema>
 export type MissionAuthorityFront = z.infer<typeof MissionAuthorityFrontSchema>
@@ -33,10 +30,8 @@ function fromApiInternal(data: MissionAuthorityApi): MissionAuthorityFront {
         id: data.id,
         missionId: data.mission_id,
         alias: data.alias,
-        services: data.services,
-        vehicles: data.vehicles,
-        people: data.people,
-        type: data.type,
+        institutionId: data.institution_id,
+        type: data.type
     }
 }
 
@@ -45,10 +40,8 @@ function toApiInternal(data: MissionAuthorityFront): MissionAuthorityApi {
         id: data.id,
         mission_id: data.missionId,
         alias: data.alias,
-        services: data.services,
-        vehicles: data.vehicles,
-        people: data.people,
-        type: data.type,
+        institution_id: data.institutionId,
+        type: data.type
     }
 }
 
@@ -77,6 +70,6 @@ export const MissionAuthorityNameConverter: {
     type: 'Tipo',
     alias: 'Alias',
     missionId: 'Id de Misión',
-    vehicles: 'N° Vehículos',
-    people: 'N° Functionarios',
+    // vehicles: 'N° Vehículos',
+    // people: 'N° Functionarios',
 }

@@ -11,40 +11,34 @@ import {
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes.ts'
 
-import CustomForm from '../../../core/context/CustomFormContext.tsx'
-import FormSelect from '../../../core/inputs/FormSelect.tsx'
-
-import { vehicleCrud } from '../../../../domain/models/vehicle/vehicle_involved'
-
-import LoadingModal from '../../../core/modal/LoadingModal'
-import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
-import { UnitTypes } from '../../../../domain/abstractions/enums/unit_types.ts'
-import { get, getAll, post } from '../../../../services/http.tsx'
-import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
+import { get, post } from '../../../../services/http.tsx'
 import { Colors } from '../../../../domain/abstractions/colors/colors.ts'
 import FormSelectWithSearch from '../../../alter/components/form_inputs/form_select_with_search.tsx'
 import FormInput from '../../../alter/components/form_inputs/form_input.tsx'
 import Form from '../../../alter/components/form/form.tsx'
 import { VehicleTypes } from '../../../../domain/abstractions/enums/vehicle_type.ts'
+import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
+import LoadingModal from '../../../core/modal/LoadingModal.tsx'
+import { useMissionVehicleActions } from '../../../../domain/models/mission/vehicle/use_collection.ts'
+import { MissionVehicleFront, MissionVehicleFrontSchema } from '../../../../domain/models/mission/vehicle/mission_vehicle.ts'
 
 interface VehicleFormProps {
-    missionId: string
     initValue?: TVehicleInvolved | null
-    onClose?: (success: boolean) => void
     closeOverlay?: () => void
     add?: boolean
 }
 
-const VehicleForm = ({
-    missionId,
+export default function VehicleForm({
     initValue,
-    onClose,
     closeOverlay,
     add = true,
-}: VehicleFormProps) => {
+}: VehicleFormProps) {
+    const vehicleActions = useMissionVehicleActions();
+    const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
+
     const [brands, setBrands] = useState<string[]>([])
     const [models, setModels] = useState<string[]>([])
 
@@ -147,12 +141,12 @@ const VehicleForm = ({
         setLoading(true)
 
         try {
-            const parsed = VehicleInvolvedSchema.parse(data)
+            const parsed = MissionVehicleFrontSchema.parse(data)
 
-            var result: ResultErr<TVehicleInvolved>
+            var result: ResultErr<MissionVehicleFront>
 
-            if (add) result = await vehicleCrud.insert(parsed)
-            else result = await vehicleCrud.update(parsed)
+            if (add) result = await vehicleActions.insertFront(parsed)
+            else result = await vehicleActions.updateFront(parsed)
 
             if (result.success) {
                 modalService.toastSuccess(
@@ -172,15 +166,21 @@ const VehicleForm = ({
 
     function handleClose() {
         if (closeOverlay) closeOverlay()
-        if (onClose) onClose(false)
     }
 
     return (
         <>
-            <ModalLayout title={'Registro de Vehiculo'} onClose={handleClose}>
+            <ModalLayout
+                title={'Registro de Vehiculo'}
+                isVisible={isVisible}
+                onClosed={closeOverlay}
+                className="min-w-[54rem]"
+                onClose={() => {
+                    setIsVisible(false)
+                }}>
                 <Form
                     schema={VehicleInvolvedSchema}
-                    initValue={{ ...initValue, missionId: missionId }}
+                    initValue={{ ...initValue, missionId: initValue?.missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos del Vehiculo" />
@@ -251,5 +251,3 @@ const VehicleForm = ({
         </>
     )
 }
-
-export default VehicleForm

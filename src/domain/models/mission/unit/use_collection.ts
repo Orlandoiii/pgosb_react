@@ -2,9 +2,9 @@ import { MissionUnitApi, MissionUnitFromApi, MissionUnitFront, MissionUnitToApi 
 import { useCollection } from "../../../../ui/optimized/hooks/useCollection";
 import { HttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
 
-export function useMissionUnitCollection(id: string, type: 'ALL' | 'GROUP' = 'GROUP'): [collection: MissionUnitFront[], actions: HttpActions<MissionUnitFront, MissionUnitApi>, updateCollection: () => void] {
+export function useMissionUnitCollection(id: string, type: 'ALL' | 'GROUP' = 'GROUP', endpoint: string = 'mission/unit'): [collection: MissionUnitFront[], actions: HttpActions<MissionUnitFront, MissionUnitApi>, updateCollection: () => void] {
     const [units, actions, updateUnits] = useCollection({
-        endpointCompound: 'mission/unit',
+        endpointCompound: endpoint,
         fromApiMapper: MissionUnitFromApi,
         toApiMapper: MissionUnitToApi,
         type: type,

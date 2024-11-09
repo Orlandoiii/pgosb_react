@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react"
 
 import { ApiMissionAuthorityPersonSchema, ApiMissionAuthorityPersonType, missionAuthorityPersonCrud } from "../../../../domain/models/authority/authority_person"
-import ModalLayout from "../../../core/layouts/modal_layout"
+import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import LoadingModal from "../../../core/modal/LoadingModal"
 import Button from "../../../core/buttons/Button"
 import CustomForm from "../../../core/context/CustomFormContext"
@@ -15,16 +15,19 @@ import FormSelectWithSearch from "../../../alter/components/form_inputs/form_sel
 import { ResultErr } from "../../../../domain/abstractions/types/resulterr"
 
 interface Props {
-    missionId: string
-    authorityId: string
     initValue?: ApiMissionAuthorityPersonType | null
-    onClose?: (success: boolean) => void
     closeOverlay?: () => void
     add?: boolean
 }
 
-export function AuthorityPersonForm({ missionId, authorityId, initValue, onClose, closeOverlay, add }: Props) {
-    const [loading, setLoading] = useState(true)
+export function AuthorityPersonForm({ 
+    initValue,
+    closeOverlay,
+    add = true,
+}: Props) {
+    const [isVisible, setIsVisible] = useState(true)
+    const [loading, setLoading] = useState(false)
+
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     const genders = useMemo(() => EnumToStringArray(Genders), [])
@@ -49,7 +52,7 @@ export function AuthorityPersonForm({ missionId, authorityId, initValue, onClose
                 modalService.toastSuccess(
                     `Vehículo ${buttonText.replace('dar', 'dado')}`
                 )
-                handleClose()
+                closeOverlay?.()
             } else
                 modalService.toastError(
                     `No se pudo guardar el vehículo por: ${result.result}`
@@ -61,24 +64,20 @@ export function AuthorityPersonForm({ missionId, authorityId, initValue, onClose
         }
     }
 
-    function handleClose() {
-        if (closeOverlay) closeOverlay()
-        if (onClose) onClose(false)
-    }
-
-    console.log(initValue?.gender);
-
-
     return <>
         <ModalLayout
-            className="min-w-[70vw]"
             title={'Registro de la Misión'}
-            onClose={closeOverlay}
+            isVisible={isVisible}
+            onClosed={closeOverlay}
+            className="min-w-[70vw]"
+            onClose={() => {
+                setIsVisible(false)
+            }}
         >
 
             <Form
                 schema={ApiMissionAuthorityPersonSchema as any}
-                initValue={{ ...initValue, mission_id: missionId, authority_id: authorityId } as any}
+                initValue={{ ...initValue, mission_id: initValue?.mission_id, authority_id: initValue?.authority_id } as any}
                 onSubmit={handleSubmitInternal}
             >
                 <div className="w-full space-y-3 px-2">

@@ -8,7 +8,8 @@ export const MissionUnitApiSchema = z.object({
     plate: z.string().optional().default(''),
     station: z.string().optional().default(''),
     unit_type: z.string().optional().default(''),
-    alias: z.string().optional().default('')
+    alias: z.string().optional().default(''),
+    mission_id: z.string().optional().default(''),
 })
 
 export const MissionUnitFrontSchema = z.object({
@@ -16,7 +17,8 @@ export const MissionUnitFrontSchema = z.object({
     plate: z.string().optional().default(''),
     station: z.string().optional().default(''),
     unitType: z.string().optional().default(''),
-    alias: z.string().optional().default('')
+    alias: z.string().optional().default(''),
+    missionId: z.string().optional().default(''),
 })
 
 export type MissionUnitApi = z.infer<typeof MissionUnitApiSchema>
@@ -31,6 +33,7 @@ function fromApiInternal(data: MissionUnitApi): MissionUnitFront {
         station: data.station,
         unitType: data.unit_type,
         alias: data.alias,
+        missionId: data.mission_id,
     }
 }
 
@@ -41,6 +44,7 @@ function toApiInternal(data: MissionUnitFront): MissionUnitApi {
         station: data.station,
         unit_type: data.unitType,
         alias: data.alias,
+        mission_id: data.missionId,
     }
 }
 

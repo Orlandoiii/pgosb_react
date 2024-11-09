@@ -4,23 +4,25 @@ import { ResultErr } from "../../../abstractions/types/resulterr"
 import { mapEntity } from "../../../../services/mapper"
 
 export const MissionFirefighterApiSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    user_name: z.string(),
-    rank: z.string(),
-    personal_code: z.string(),
-    legal_id: z.string(),
-    service_role: z.string(),
+    id: z.string().optional().default(''),
+    name: z.string().optional().default(''),
+    user_name: z.string().optional().default(''),
+    rank: z.string().optional().default(''),
+    personal_code: z.string().optional().default(''),
+    legal_id: z.string().optional().default(''),
+    service_role: z.string().optional().optional().default(''),
+    mission_id: z.string().optional().optional().default(''),
 })
 
 export const MissionFirefighterFrontSchema = z.object({
-    id: z.string(),
-    name: z.string(),
-    userName: z.string(),
-    rank: z.string(),
-    personalCode: z.string(),
-    legalId: z.string(),
-    serviceRole: z.string(),
+    id: z.string().optional().default(''),
+    name: z.string().optional().default(''),
+    userName: z.string().optional().default(''),
+    rank: z.string().optional().default(''),
+    personalCode: z.string().optional().default(''),
+    legalId: z.string().optional().default(''),
+    serviceRole: z.string().optional().default(''),
+    missionId: z.string().optional().default(''),
 })
 
 export type MissionFirefighterApi = z.infer<typeof MissionFirefighterApiSchema>
@@ -37,6 +39,7 @@ function fromApiInternal(data: MissionFirefighterApi): MissionFirefighterFront {
         personalCode: data.personal_code,
         legalId: data.legal_id,
         serviceRole: data.service_role,
+        missionId: data.mission_id,
     }
 }
 
@@ -49,6 +52,7 @@ function toApiInternal(data: MissionFirefighterFront): MissionFirefighterApi {
         personal_code: data.personalCode,
         legal_id: data.legalId,
         service_role: data.serviceRole,
+        mission_id: data.missionId,
     }
 }
 

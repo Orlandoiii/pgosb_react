@@ -10,7 +10,7 @@ type FriendlyNames<T> = {
 interface AddableTableProps<T> {
     title: string
     addButtonText: string
-    onAddButtonClick?: () => void
+    onAddButtonClick?: (selectedOption?: string, selectedOption2?: string) => void
     enable?: boolean
     preSelectFirstOption1?: boolean
     preSelectFirstOption2?: boolean
@@ -357,7 +357,7 @@ export function AddableTable<T>({
                                     {
                                         options
                                         ? setShowInnerAdd(true)
-                                        : onAddButtonClick && onAddButtonClick()
+                                        : onAddButtonClick && onAddButtonClick(selectedOption, selectedOption2)
                                     } , 10)
 
                                     e.preventDefault()

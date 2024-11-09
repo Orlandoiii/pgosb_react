@@ -14,16 +14,16 @@ import { MissionUnitNameConverter } from '../../../../domain/models/mission/unit
 
 import { useMissionLocationCollection } from '../../../../domain/models/mission/location/use_collection'
 import { useMissionAuthorityCollection } from '../../../../domain/models/mission/authority/use_collection'
-import { useMissionInfraestructureCollection } from '../../../../domain/models/mission/infraestructure/use_collection'
+import { useMissionInfrastructureCollection } from '../../../../domain/models/mission/infraestructure/use_collection'
 import { useMissionVehicleCollection } from '../../../../domain/models/mission/vehicle/use_collection'
 import { useMissionPersonCollection } from '../../../../domain/models/mission/person/use_collection'
 import { useMissionServiceCollection } from '../../../../domain/models/mission/service/use_collection'
 import { MissionServiceNameConverter } from '../../../../domain/models/mission/service/mission_service'
 import { MissionLocationFront, MissionLocationNameConverter } from '../../../../domain/models/mission/location/mission_location'
-import { MissionInfraestructureNameConverter } from '../../../../domain/models/mission/infraestructure/mission_infraestructure'
-import { MissionVehicleNameConverter } from '../../../../domain/models/mission/vehicle/mission_vehicle'
-import { MissionPersonNameConverter } from '../../../../domain/models/mission/person/mission_person'
-import { MissionAuthorityNameConverter } from '../../../../domain/models/mission/authority/mission_authority'
+import { MissionInfraestructureFront, MissionInfraestructureNameConverter } from '../../../../domain/models/mission/infraestructure/mission_infraestructure'
+import { MissionVehicleFront, MissionVehicleNameConverter } from '../../../../domain/models/mission/vehicle/mission_vehicle'
+import { MissionPersonFront, MissionPersonNameConverter } from '../../../../domain/models/mission/person/mission_person'
+import { MissionAuthorityFront, MissionAuthorityNameConverter } from '../../../../domain/models/mission/authority/mission_authority'
 
 
 import { Roles } from '../../../../domain/abstractions/enums/roles'
@@ -41,6 +41,12 @@ import { useStationCollection } from '../../../../domain/models/mission/station/
 import { ApiStationType } from '../../../../domain/models/stations/station'
 import { SelectWithSearch } from '../../../optimized/components/inputs/select_with_search'
 import { OperativeAreas } from '../../../../domain/abstractions/enums/operative_areas'
+import LocationForm from './LocationForm'
+import InfrastructureForm from './InfrastructureForm'
+import PersonForm from './PersonForm'
+import VehicleForm from './VehicleForm'
+import { AuthorityForm } from './AuthorityForm'
+import { modalService } from '../../../core/overlay/overlay_service'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -57,26 +63,37 @@ const MissionForm = ({
 
     // const [missionServices, missionServicesActions] = useMissionServiceCollection(initValue?.id ?? '')
 
-    const [missionUnits, missionUnitsActions] = useMissionUnitCollection(initValue?.id ?? '')
-    const [units] = useMissionUnitCollection('', 'ALL')
-    const [missionFirefighters, missionFirefightersActions] = useMissionFirefighterCollection(initValue?.id ?? '')
-    const [firefighters] = useMissionFirefighterCollection('', 'ALL')
+    const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(initValue?.id ?? '')
+    const [units] = useMissionUnitCollection('', 'ALL', 'unit')
+    const [missionFirefighters, missionFirefightersActions, updateFirefighters] = useMissionFirefighterCollection(initValue?.id ?? '')
+    const [firefighters] = useMissionFirefighterCollection('', 'SIMPLE', 'user')
 
-    const [missionLocations, missionLocationsActions] = useMissionLocationCollection(initValue?.id ?? '')
+    const [missionLocations, missionLocationsActions, updateMissionLocations] = useMissionLocationCollection(initValue?.id ?? '')
+    const [locationModalData, setLocationModalData] = useState<MissionLocationFront>()
+    const [locationModalOpen, setLocationModalOpen] = useState(false)
 
-    const [missionInfrastructures, missionInfrastructuresActions] = useMissionInfraestructureCollection(initValue?.id ?? '')
-    const [missionVehicles, missionVehiclesActions] = useMissionVehicleCollection(initValue?.id ?? '')
-    const [missionPeople, missionPeopleActions] = useMissionPersonCollection(initValue?.id ?? '')
+    const [missionInfrastructures, missionInfrastructuresActions, updateMissionInfrastructure] = useMissionInfrastructureCollection(initValue?.id ?? '')
+    const [infrastructureModalData, setInfrastructureModalData] = useState<MissionInfraestructureFront>()
+    const [infrastructureModalOpen, setInfrastructureModalOpen] = useState(false)
 
-    const [missionAuthorities, missionAuthoritiesActions] = useMissionAuthorityCollection(initValue?.id ?? '')
+    const [missionVehicles, missionVehiclesActions, updateMissionVehicle] = useMissionVehicleCollection(initValue?.id ?? '')
+    const [vehicleModalData, setVehicleModalData] = useState<MissionVehicleFront>()
+    const [vehicleModalOpen, setVehicleModalOpen] = useState(false)
+
+    const [missionPeople, missionPeopleActions, updateMissionPeople] = useMissionPersonCollection(initValue?.id ?? '')
+    const [personModalData, setPersonModalData] = useState<MissionPersonFront>()
+    const [personModalOpen, setPersonModalOpen] = useState(false)
+
+    const [missionAuthorities, missionAuthoritiesActions, updateMissionAuthorities] = useMissionAuthorityCollection(initValue?.id ?? '')
+    const [authorityModalData, setAuthorityModalData] = useState<MissionAuthorityFront>()
+    const [authorityModalOpen, setAuthorityModalOpen] = useState(false)
 
     const [stations, stationsActions, updatestations] = useStationCollection();
 
     const roles = useMemo(() => {
-        if (missionFirefighters.length == 0 || missionFirefighters.filter(x => x.serviceRole.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
+        if (missionFirefighters.length == 0 || missionFirefighters.filter(x => x.serviceRole?.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
         else return [Roles.Auxiliary.toString(), Roles.Driver.toString()]
     }, [missionFirefighters])
-    console.log(initValue?.id, missionFirefighters, missionUnits);
 
     const cancelReasons = useMemo(() => ["ALARMA FALSA", "ALARMA INFUNDADA", "ATENDIDO NO EFECTUADO", "ATENCION NO REALIZADA"], [])
     const operativeAreas = useMemo(() => EnumToStringArray(OperativeAreas), [])
@@ -157,6 +174,7 @@ const MissionForm = ({
 
     }
 
+console.log(missionUnits);
 
     return (
         <>
@@ -271,7 +289,14 @@ const MissionForm = ({
                         optionsDescription={'Placa'}
                         valueKey={'id'}
                         displayKeys={['plate', 'unitType']}
-                        // onAddButtonClick={servicesActions}
+                        onAddButtonClick={(id) => {
+                            // const firefighter = firefighters.filter(x => x.id == id)[0]
+                            // if (firefighter && rank && initValue?.id) {
+                            //     firefighter.rank = rank
+                            //     firefighter.missionId = initValue?.id
+                            //     missionFirefightersActions.insertFront(firefighter)
+                            // }
+                        }}
                         onDeleteButtonClick={missionUnitsActions.remove}
                     ></AddableTable>
 
@@ -290,7 +315,25 @@ const MissionForm = ({
                             optionsDescription={'Placa'}
                             valueKey={'id'}
                             displayKeys={['plate', 'unitType']}
-                            // onAddButtonClick={servicesActions}
+                            onAddOption={async (id) => {
+                                const unit = units.filter(x => x.id == id)[0]
+                                if (unit && initValue?.id) {
+                                    unit.missionId = initValue?.id;
+                                    let result = await missionUnitsActions.insertFront(unit)
+
+                                    if (result.success) {
+                                        modalService.toastSuccess("Unidad agregada")
+                                        updateUnits()
+                                    }
+                                    else {
+                                        modalService.toastError("No se pudo agregar la unidad")
+                                        console.log(result.error);
+                                    }
+                                }
+                                else {
+                                    modalService.toastError("Unidad no encontrado")
+                                }
+                            }}
                             onDeleteButtonClick={missionUnitsActions.remove}
                         ></AddableTable>
 
@@ -310,7 +353,25 @@ const MissionForm = ({
                             options2={roles}
                             optionsDescription2={'Rol'}
                             preSelectFirstOption2={true}
-                            // onAddButtonClick={servicesActions}
+                            onAddOption={async (id, rank) => {
+                                const firefighter = firefighters.filter(x => x.id == id)[0]
+                                if (firefighter && rank && initValue?.id) {
+                                    firefighter.rank = rank
+                                    firefighter.missionId = initValue?.id
+                                    let result = await missionFirefightersActions.insertFront(firefighter)
+                                    if (result.success) {
+                                        modalService.toastSuccess("Bombero agregado")
+                                        updateFirefighters()
+                                    }
+                                    else {
+                                        modalService.toastError("No se pudo agregar al bombero")
+                                        console.log(result.error);
+                                    }
+                                }
+                                else {
+                                    modalService.toastError("Bombero no encontrado")
+                                }
+                            }}
                             onDeleteButtonClick={missionFirefightersActions.remove}
                         ></AddableTable>
                     </div>
@@ -442,8 +503,14 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una ubicación"
                         nameConverter={MissionLocationNameConverter}
-                        // onAddButtonClick={locationActions.add}
-                        // onEditButtonClick={locationActions.edit}
+                        onAddButtonClick={() => setLocationModalOpen(true)}
+                        onEditButtonClick={async (id) => {
+                            const location = await missionLocationsActions.getById(id)
+                            if (location.success && location.result) {
+                                setLocationModalData(location.result)
+                                setLocationModalOpen(true)
+                            }
+                        }}
                         onDeleteButtonClick={missionLocationsActions.remove}
                     ></AddableTable>
 
@@ -455,8 +522,14 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una infraestructura"
                         nameConverter={MissionInfraestructureNameConverter}
-                        // onAddButtonClick={infrastructureActions.add}
-                        // onEditButtonClick={infrastructureActions.edit}
+                        onAddButtonClick={() => setInfrastructureModalOpen(true)}
+                        onEditButtonClick={async (id) => {
+                            const infrastructure = await missionInfrastructuresActions.getById(id)
+                            if (infrastructure.success && infrastructure.result) {
+                                setInfrastructureModalData(infrastructure.result)
+                                setInfrastructureModalOpen(true)
+                            }
+                        }}
                         onDeleteButtonClick={missionInfrastructuresActions.remove}
                     />
 
@@ -468,8 +541,14 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar un vehiculo"
                         nameConverter={MissionVehicleNameConverter}
-                        // onAddButtonClick={vehicleActions.add}
-                        // onEditButtonClick={vehicleActions.edit}
+                        onAddButtonClick={() => setVehicleModalOpen(true)}
+                        onEditButtonClick={async (id) => {
+                            const vehicle = await missionVehiclesActions.getById(id)
+                            if (vehicle.success && vehicle.result) {
+                                setVehicleModalData(vehicle.result)
+                                setVehicleModalOpen(true)
+                            }
+                        }}
                         onDeleteButtonClick={missionVehiclesActions.remove}
                     />
 
@@ -481,8 +560,14 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una persona"
                         nameConverter={MissionPersonNameConverter}
-                        // onAddButtonClick={personActions.add}
-                        // onEditButtonClick={personActions.edit}
+                        onAddButtonClick={() => setPersonModalOpen(true)}
+                        onEditButtonClick={async (id) => {
+                            const person = await missionPeopleActions.getById(id)
+                            if (person.success && person.result) {
+                                setPersonModalData(person.result)
+                                setPersonModalOpen(true)
+                            }
+                        }}
                         onDeleteButtonClick={missionPeopleActions.remove}
                     />
 
@@ -493,16 +578,59 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una autoridad"
                         nameConverter={MissionAuthorityNameConverter}
-                        // onAddButtonClick={addNewAuthority}
-                        // onEditButtonClick={openAuthority}
+                        onAddButtonClick={() => setAuthorityModalOpen(true)}
+                        onEditButtonClick={async (id) => {
+                            const authority = await missionAuthoritiesActions.getById(id)
+                            if (authority.success && authority.result) {
+                                setAuthorityModalData(authority.result)
+                                setAuthorityModalOpen(true)
+                            }
+                        }}
                         onDeleteButtonClick={missionAuthoritiesActions.remove}
                     ></AddableTable>
-
-
                 </Form>
             </ModalLayout>
             <LoadingModal initOpen={loading} children={null} />
 
+            {locationModalOpen &&
+                <LocationForm
+                    initValue={locationModalData}
+                    closeOverlay={() => {
+                        updateMissionLocations()
+                        setLocationModalOpen(false)}
+                    } />}
+
+            {infrastructureModalOpen &&
+                <InfrastructureForm
+                    initValue={infrastructureModalData}
+                    closeOverlay={() => {
+                        updateMissionInfrastructure()
+                        setInfrastructureModalOpen(false)}
+                    } />}
+
+            {vehicleModalOpen &&
+                <VehicleForm
+                    initValue={vehicleModalData}
+                    closeOverlay={() => {
+                        updateMissionVehicle()
+                        setVehicleModalOpen(false)}
+                    } />}
+
+            {personModalOpen &&
+                <PersonForm
+                    initValue={personModalData}
+                    closeOverlay={() => {
+                        updateMissionPeople
+                        setPersonModalOpen(false)}
+                    } />}
+
+            {authorityModalOpen &&
+                <AuthorityForm
+                    initValue={authorityModalData}
+                    closeOverlay={() => {
+                        updateMissionAuthorities()
+                        setAuthorityModalOpen(false)}
+                    } />}
         </>
     )
 }

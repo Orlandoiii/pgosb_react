@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import ModalLayout from '../../../core/layouts/modal_layout'
+import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import { AddableTable } from '../../Temp/AddableTable.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
@@ -8,37 +8,43 @@ import { missionAuthorityPersonCrud, MissionAuthorityPersonNameConverter } from 
 import { missionAuthorityVehicleCrud, MissionAuthorityVehicleNameConverter } from '../../../../domain/models/authority/authority_vehicle.ts'
 import { AuthorityPersonForm } from './AuthorityPersonForm.tsx'
 import { AuthorityVehicleForm } from './AuthorityVehicleForm.tsx'
-import { ApiMissionAuthorityType, missionAuthorityCrud } from '../../../../domain/models/authority/mission_authority.ts'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
-import { StationSchemaBasicDataType } from '../../../../domain/models/stations/station.ts'
 import { getAll } from '../../../../services/http.tsx'
+import { MissionAuthorityFront } from '../../../../domain/models/mission/authority/mission_authority.ts'
+import { useMissionAuthorityActions } from '../../../../domain/models/mission/authority/use_collection.ts'
 
 
 interface AutorityFormProps {
-    initValue: ApiMissionAuthorityType | undefined
+    initValue: MissionAuthorityFront | undefined
     closeOverlay?: () => void
+    add?: boolean
 }
 
-export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
-
-
+export function AuthorityForm({ 
+    initValue,
+    closeOverlay,
+    add = true,
+}: AutorityFormProps) {
+    const authorityActions = useMissionAuthorityActions();
+    const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
+
     const [alias, setAlias] = useState(initValue ? initValue.alias : '')
-    const [type, setType] = useState(initValue ? initValue.institution_id : '')
+    const [type, setType] = useState(initValue ? initValue.institutionId : '')
     const [typesCollection, setTypesCollection] = useState<{ id: string, name: string, abbreviation: string, government: string }[]>([])
 
     const [authorityVehicleActions, vehicles] = useActionModalAndCollection(
         AuthorityVehicleForm,
         missionAuthorityVehicleCrud,
-        { missionId: initValue!.mission_id, authorityId: initValue!.id },
+        { mission_id: initValue?.missionId, authorityId: initValue?.id } as any,
         initValue!.id
     )
 
     const [authorityPersonActions, people] = useActionModalAndCollection(
         AuthorityPersonForm,
         missionAuthorityPersonCrud,
-        { missionId: initValue!.mission_id, authorityId: initValue!.id },
+        { mission_id: initValue?.missionId, authorityId: initValue?.id } as any,
         initValue!.id
     )
 
@@ -56,7 +62,7 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
     }, [])
 
     async function updateService() {
-        const authorityResult = await missionAuthorityCrud.getById(initValue!.id)
+        const authorityResult = await authorityActions.getById(initValue!.id)
 
         if (
             authorityResult.success &&
@@ -65,7 +71,7 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
         ) {
             authorityResult.result.alias = alias
             authorityResult.result.institution_id = type
-            const updateResult = await missionAuthorityCrud.update(authorityResult.result)
+            const updateResult = await authorityActions.updateFront(authorityResult.result)
 
             if (updateResult.success)
                 modalService.toastSuccess('Autoridad actualizada!')
@@ -77,15 +83,19 @@ export function AuthorityForm({ initValue, closeOverlay }: AutorityFormProps) {
         updateService()
     }, [type])
 
-console.log();
+    console.log();
 
 
     return (
         <>
             <ModalLayout
-                className="min-w-[70vw]"
                 title={'Registro de Autoridad'}
-                onClose={closeOverlay}
+                isVisible={isVisible}
+                onClosed={closeOverlay}
+                className="min-w-[70vw]"
+                onClose={() => {
+                    setIsVisible(false)
+                }}
             >
                 <div className="flex justify-between w-full">
                     <div className="flex items-center space-x-4">

@@ -24,7 +24,7 @@ interface CollectionProps<F, T> extends BaseProps<F, T> {
     id?: string
 }
 
-export function useCollection<F, T>({ endpointCompound, fromApiMapper, toApiMapper, type, id, onInsert, onUpdate, onDelete }: CollectionGroupProps<F, T> | CollectionProps<F, T>): [collection: F[], actions: HttpActions<F, T>, updateCollection: () => void] {
+export function useCollection<F, T>({ endpointCompound, fromApiMapper = undefined, toApiMapper = undefined, type, id, onInsert, onUpdate, onDelete }: CollectionGroupProps<F, T> | CollectionProps<F, T>): [collection: F[], actions: HttpActions<F, T>, updateCollection: () => void] {
     const actions = useHttpActions<F,T>({ endpointCompound, fromApiMapper, toApiMapper })
     const [collection, setCollection] = useState<F[]>([])
 
@@ -40,7 +40,6 @@ export function useCollection<F, T>({ endpointCompound, fromApiMapper, toApiMapp
         else if (type == 'GROUP') return
 
         if (endpointCompound.includes('station')) console.log(response);
-        
 
         if (response.success && response.result)
             setCollection(response.result)

@@ -8,30 +8,25 @@ import CustomForm, {
 } from '../../../core/context/CustomFormContext.tsx'
 
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
-import ModalLayout from '../../../core/layouts/modal_layout.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { useLocation } from '../../../core/hooks/useLocation.tsx'
 import {
-    LocationCrud,
     ServiceLocationSchema,
     ServiceLocationSchemaType,
 } from '../../../../domain/models/location/location.ts'
 import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
-import { useCollection } from '../../../core/hooks/useCollection.ts'
-import { ApiStationType } from '../../../../domain/models/stations/station.ts'
-import { ApiHealthCareCenterType } from '../../../../domain/models/healthcare_center/healthcare_center.ts'
-import FormInput from '../../../core/inputs/FormInput.tsx'
+import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
+import { useStationCollection } from '../../../../domain/models/mission/station/use_collection.ts'
+import { useHealthCareCenterCollection } from '../../../../domain/models/mission/health_care_center/use_collection.ts'
+import { useMissionLocationActions, useMissionLocationCollection } from '../../../../domain/models/mission/location/use_collection.ts'
 
 interface LocationFormProps {
-    missionId: string
     initValue?: ServiceLocationSchemaType | null
-    onClose?: (success: boolean) => void
     closeOverlay?: () => void
     add?: boolean
 }
-
 
 type StaticLocation = {
     display,
@@ -49,20 +44,50 @@ type StaticLocation = {
     address,
 }
 
-
-const LocationForm = ({
-    missionId,
+export default function LocationForm({
     initValue,
-    onClose,
     closeOverlay,
     add = true,
-}: LocationFormProps) => {
-    const stationCollection = useCollection<ApiStationType>('station', (data: any) => {
-        return { success: true, result: data }
-    })
-    const careCenterCollection = useCollection<ApiHealthCareCenterType>('center', (data: any) => {
-        return { success: true, result: data }
-    })
+}: LocationFormProps) {
+    const locationActions = useMissionLocationActions();
+    const [healthCareCenters] = useHealthCareCenterCollection();
+    const [stations] = useStationCollection();
+
+    const staticLocations = useMemo<StaticLocation[]>(() => stations.length > 0 && healthCareCenters.length > 0 ? [
+        ...StationsAsStaticLocation(),
+        ...CareCenterAsStaticLocation(),
+    ] : [], [stations, healthCareCenters])
+    function StationsAsStaticLocation(): StaticLocation[] {
+        const newStaticLocations: StaticLocation[] = []
+
+        stations.forEach(station => {
+            newStaticLocations.push(
+                {
+                    display: `${station.abbreviation} - ${station.description}`,
+                    ...station
+                }
+            )
+        });
+
+        return newStaticLocations
+    }
+    function CareCenterAsStaticLocation(): StaticLocation[] {
+        const newStaticLocations: StaticLocation[] = []
+
+        healthCareCenters.forEach(careCenter => {
+            newStaticLocations.push(
+                {
+                    display: `${careCenter.id} - ${careCenter.name}`,
+                    ...careCenter
+                }
+            )
+        });
+
+        return newStaticLocations
+    }
+
+    const [isVisible, setIsVisible] = useState(true)
+    const [loading, setLoading] = useState(false)
 
     const [alias, setAlias] = useState(initValue ? initValue?.alias : '')
     const {
@@ -97,64 +122,9 @@ const LocationForm = ({
         initValue?.sector,
         initValue?.urb
     )
-    const [loading, setLoading] = useState(false)
+
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
 
-    const staticLocations = useMemo(() => stationCollection.length > 0 && careCenterCollection.length > 0 ? [
-        ...StationsAsStaticLocation(),
-        ...CareCenterAsStaticLocation()
-    ] : [], [stationCollection, careCenterCollection])
-
-    function StationsAsStaticLocation(): StaticLocation[] {
-        const newStaticLocations: StaticLocation[] = []
-
-        stationCollection.forEach(element => {
-            newStaticLocations.push(
-                {
-                    display: `${element.abbreviation} - ${element.description}`,
-                    state_id: element.state_id,
-                    state: element.state,
-                    municipality_id: element.municipality_id,
-                    municipality: element.municipality,
-                    parish_id: element.parish_id,
-                    parish: element.parish,
-                    sector_id: element.sector_id,
-                    sector: element.sector,
-                    urb_id: element.urb_id,
-                    urb: element.urb,
-                    street: element.street,
-                    address: element.address,
-                }
-            )
-        });
-
-        return newStaticLocations
-    }
-    function CareCenterAsStaticLocation(): StaticLocation[] {
-        const newStaticLocations: StaticLocation[] = []
-
-        careCenterCollection.forEach(element => {
-            newStaticLocations.push(
-                {
-                    display: `${element.id} - ${element.name}`,
-                    state_id: element.state_id,
-                    state: element.state,
-                    municipality_id: element.municipality_id,
-                    municipality: element.municipality,
-                    parish_id: element.parish_id,
-                    parish: element.parish,
-                    sector_id: element.sector_id,
-                    sector: element.sector,
-                    urb_id: element.urb_id,
-                    urb: element.urb,
-                    street: element.street,
-                    address: element.address,
-                }
-            )
-        });
-
-        return newStaticLocations
-    }
 
     useEffect(() => {
         if (alias && staticLocations.length > 0) {
@@ -201,7 +171,7 @@ const LocationForm = ({
             defaultValue.urb = urbanizacion
             defaultValue.urb_id = String(urbanizationId)
             defaultValue.alias = alias
-            defaultValue.mission_id = missionId
+            defaultValue.mission_id = initValue?.id
 
             if (!add) {
                 defaultValue.mission_id = initValue?.mission_id
@@ -211,14 +181,14 @@ const LocationForm = ({
             let result: ResultErr<ServiceLocationSchemaType>
             console.log('Result', defaultValue)
 
-            if (add) result = await LocationCrud.insert(defaultValue)
-            else result = await LocationCrud.update(defaultValue)
+            if (add) result = await locationActions.insertFront(defaultValue)
+            else result = await locationActions.updateFront(defaultValue)
 
             if (result.success) {
                 modalService.toastSuccess(
                     `Ubicación ${buttonText.replace('dar', 'dada')}`
                 )
-                handleClose()
+                closeOverlay?.()
             } else
                 modalService.toastError(
                     `No se pudo guardar la ubicación por: ${result.result}`
@@ -230,21 +200,20 @@ const LocationForm = ({
         }
     }
 
-    function handleClose() {
-        if (closeOverlay) closeOverlay()
-        if (onClose) onClose(false)
-    }
-
     return (
         <>
             <ModalLayout
                 title={'Registro de Ubicación'}
-                onClose={handleClose}
+                isVisible={isVisible}
+                onClosed={closeOverlay}
                 className="min-w-[54rem]"
+                onClose={() => {
+                    setIsVisible(false)
+                }}
             >
                 <CustomForm
                     schema={ServiceLocationSchema}
-                    initValue={{ ...initValue, missionId: missionId }}
+                    initValue={{ ...initValue, missionId: initValue?.id }}
                     onSubmit={handleSubmitInternal}
                 >
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
@@ -390,5 +359,3 @@ const LocationForm = ({
         </>
     )
 }
-
-export default LocationForm

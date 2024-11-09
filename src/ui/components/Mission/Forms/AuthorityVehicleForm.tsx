@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react"
 
 import { ApiMissionAuthorityVehicleSchema, ApiMissionAuthorityVehicleType, missionAuthorityVehicleCrud } from "../../../../domain/models/authority/authority_vehicle"
-import ModalLayout from "../../../core/layouts/modal_layout"
+import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import LoadingModal from "../../../core/modal/LoadingModal"
 import FormInput from "../../../alter/components/form_inputs/form_input"
 import Button from "../../../core/buttons/Button"
@@ -19,16 +19,19 @@ import { ResultErr } from "../../../../domain/abstractions/types/resulterr"
 import { VehicleTypes } from "../../../../domain/abstractions/enums/vehicle_type"
 
 interface Props {
-    missionId: string
-    authorityId: string
     initValue?: ApiMissionAuthorityVehicleType | null
-    onClose?: (success: boolean) => void
     closeOverlay?: () => void
     add?: boolean
 }
 
-export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClose, closeOverlay, add }: Props) {
-    const [loading, setLoading] = useState(true)
+export function AuthorityVehicleForm({ 
+    initValue,
+    closeOverlay,
+    add = true,
+ }: Props) {
+    const infrastructureActions = useMissionInfrastructureActions();
+    const [isVisible, setIsVisible] = useState(true)
+    const [loading, setLoading] = useState(false)
 
     const [brands, setBrands] = useState<string[]>([])
     const [models, setModels] = useState<string[]>([])
@@ -66,13 +69,13 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
             }
         } finally {
             console.log("here");
-            
+
             setLoading(false)
         }
     }
 
     console.log(loading);
-    
+
 
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
     const vehicleTypes = useMemo(() => EnumToStringArray(VehicleTypes), [])
@@ -111,7 +114,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                 modalService.toastSuccess(
                     `Vehículo ${buttonText.replace('dar', 'dado')}`
                 )
-                handleClose()
+                closeOverlay?.()
             } else
                 modalService.toastError(
                     `No se pudo guardar el vehículo por: ${result.result}`
@@ -123,21 +126,20 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
         }
     }
 
-    function handleClose() {
-        if (closeOverlay) closeOverlay()
-        if (onClose) onClose(false)
-    }
-
     return <>
         <ModalLayout
-            className="min-w-[70vw]"
             title={'Registro de Vehiculo'}
-            onClose={closeOverlay}
+            isVisible={isVisible}
+            onClosed={closeOverlay}
+            className="min-w-[70vw]"
+            onClose={() => {
+                setIsVisible(false)
+            }}
         >
 
             <Form
                 schema={ApiMissionAuthorityVehicleSchema as any}
-                initValue={{ ...initValue, mission_id: missionId, authority_id: authorityId } as any}
+                initValue={{ ...initValue, mission_id: initValue?.mission_id, authority_id: initValue?.authority_id } as any}
                 onSubmit={handleSubmitInternal}
             >
                 <div className="w-full space-y-3 px-2">
@@ -145,8 +147,8 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                         <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
                             description="Tipo"
                             options={vehicleTypes}
-                            fieldName={'type'}      
-                            fatherLoading={loading}                    
+                            fieldName={'type'}
+                            fatherLoading={loading}
                             selectionChange={(e) => { updateModels(e) }}
                         />
 
@@ -155,7 +157,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                             allowNewValue={true}
                             options={brands}
                             fieldName={"make"}
-                            fatherLoading={loading}            
+                            fatherLoading={loading}
                             selectionChange={(e) => { updateModels(e) }}
                         />
 
@@ -164,7 +166,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                             allowNewValue={true}
                             options={models}
                             fieldName={"model"}
-                            fatherLoading={loading}            
+                            fatherLoading={loading}
                             selectionChange={(e) => { }}
                         />
                     </div>
@@ -186,7 +188,7 @@ export function AuthorityVehicleForm({ missionId, authorityId, initValue, onClos
                             allowNewValue={true}
                             options={Colors}
                             fieldName={"color"}
-                            fatherLoading={loading}            
+                            fatherLoading={loading}
                             selectionChange={(e) => { }}
                         />
                     </div>

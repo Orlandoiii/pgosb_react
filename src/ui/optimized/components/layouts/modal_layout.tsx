@@ -10,6 +10,7 @@ interface ModalLayoutProps extends ModalProps {
     children?: ReactNode
     isVisible: boolean
     onClose?: () => void
+    onClosed?: () => void
 }
 
 function ModalLayout({

@@ -27,18 +27,8 @@ export interface HttpActions<F, T> {
     remove: (id: string) => Promise<ResultErr<F>>
 }
 
-export function useHttpActions<F, T>({ endpointCompound, fromApiMapper, toApiMapper }: Props<F, T>): HttpActions<F, T> {
+export function useHttpActions<F, T>({ endpointCompound, fromApiMapper = undefined, toApiMapper = undefined }: Props<F, T>): HttpActions<F, T> {
 
-    function defaultFromApi(data: any): ResultErr<F> {
-        return { success: true, result: data }
-    }
-
-    function defaultToApi(data: any): ResultErr<T> {
-        return { success: true, result: data }
-    }
-
-    fromApiMapper = fromApiMapper ? fromApiMapper : defaultFromApi
-    toApiMapper = toApiMapper ? toApiMapper : defaultToApi
 
     const getAllCall = useCallback(async () => {
         return getAll<F>(endpointCompound, fromApiMapper)
@@ -54,6 +44,16 @@ export function useHttpActions<F, T>({ endpointCompound, fromApiMapper, toApiMap
     }, [endpointCompound, fromApiMapper, toApiMapper])
 
 
+    function defaultFromApi(data: any): ResultErr<F> {
+        return { success: true, result: data }
+    }
+
+    function defaultToApi(data: any): ResultErr<T> {
+        return { success: true, result: data }
+    }
+
+    fromApiMapper = fromApiMapper ? fromApiMapper : defaultFromApi
+    toApiMapper = toApiMapper ? toApiMapper : defaultToApi
 
     const getCall = useCallback(async () => {
         return get<F>(endpointCompound, fromApiMapper)

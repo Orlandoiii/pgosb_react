@@ -1,6 +1,6 @@
 import { MissionPersonApi, MissionPersonFromApi, MissionPersonFront, MissionPersonToApi } from "./mission_person";
 import { useCollection } from "../../../../ui/optimized/hooks/useCollection";
-import { HttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
+import { HttpActions, useHttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
 
 export function useMissionPersonCollection(id: string, type: 'ALL' | 'GROUP' = 'GROUP'): [collection: MissionPersonFront[], actions: HttpActions<MissionPersonFront, MissionPersonApi>, updateCollection: () => void] {
     const [people, actions, updatePeople] = useCollection({
@@ -12,4 +12,12 @@ export function useMissionPersonCollection(id: string, type: 'ALL' | 'GROUP' = '
     })
 
     return [people, actions, updatePeople]
+}
+
+export function useMissionPersonActions(){
+    return  useHttpActions({ 
+        endpointCompound: 'mission/person',
+        fromApiMapper: MissionPersonFromApi,
+        toApiMapper: MissionPersonToApi,
+    })
 }
