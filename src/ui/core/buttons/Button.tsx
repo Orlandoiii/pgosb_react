@@ -15,6 +15,7 @@ interface ButtonProps {
     width?: string
     height?: string
     enable?: boolean
+    type?: 'BUTTON' | 'SUBMIT'
 }
 
 export default function Button({
@@ -25,10 +26,11 @@ export default function Button({
     width = '',
     height = '',
     enable = true,
+    type
 }: PropsWithChildren<ButtonProps>) {
     console.log('enable', enable)
 
-    return (
+    if (type == 'BUTTON') return (
         <button
             disabled={!enable}
             className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
@@ -39,6 +41,12 @@ export default function Button({
             }}
         >
             {children}
-        </button>
+        </button >
     )
+
+    else if (type == 'SUBMIT') return <input disabled={!enable} type='submit'
+        className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
+    text-md rounded-md shadow-md text-nowrap ${enable ? hoverColor : 'hover:bg-slate-500 pointer-events-none '} `}
+        value={String(children)}
+    />
 }

@@ -1,5 +1,5 @@
 import { DefaultValues, FieldValues, useForm, UseFormSetValue } from "react-hook-form";
-import React, { ReactNode, useEffect, useState } from "react";
+import React, { LegacyRef, ReactNode, useEffect, useRef, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 
@@ -16,6 +16,7 @@ interface FormProps<T extends FieldValues> {
 
 export default function Form<T extends FieldValues>({ schema, initValue = null, onSubmit, children, setFormValue, className }: FormProps<T>) {
   const [resetCount, setResetCount] = useState(0);
+  const formRef = useRef<any>();
 
   const methods = useForm<T>({
     mode: "onChange",
@@ -35,6 +36,11 @@ export default function Form<T extends FieldValues>({ schema, initValue = null, 
     event.preventDefault();
   }
 
+  function manualSubmit() {
+    console.log("manual submit", formRef);
+    if (formRef) formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
+  }
+
   return (
     <FormContext.Provider
       value={{
@@ -46,9 +52,14 @@ export default function Form<T extends FieldValues>({ schema, initValue = null, 
         defaultValues: methods.formState.defaultValues,
         isSubmitted: methods.formState.isSubmitted,
         errors: methods.formState.errors,
+        manualSubmit: manualSubmit
       }}
     >
-      <form className={`${className}`} onSubmit={methods.handleSubmit((data) => onSubmit(schema.parse(data)))} onReset={formReset}>
+      <form ref={formRef} className={`${className}`} onSubmit={() => {
+        console.log("handle submit");
+
+        return methods.handleSubmit((data) => onSubmit(schema.parse(data)))
+      }} onReset={formReset}>
         {children}
       </form>
     </FormContext.Provider>

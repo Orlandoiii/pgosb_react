@@ -21,6 +21,7 @@ interface FormContextProps<T extends FieldValues> {
   defaultValues: Readonly<DeepPartial<T>> | undefined;
   isSubmitted: boolean;
   errors: FieldErrors<T>;
+  manualSubmit: () => void
 }
 
 export const FormContext = createContext<FormContextProps<any> | undefined>(undefined);
@@ -59,3 +60,4 @@ export function useIsEmpty<T extends FieldValues>(name: FieldPath<T>, control: C
   }
   return isEmpty;
 }
+

@@ -1,5 +1,5 @@
 import { FieldValues } from 'react-hook-form'
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import Button from '../../../core/buttons/Button.tsx'
 
@@ -15,12 +15,14 @@ import {
     ServiceLocationSchema,
     ServiceLocationSchemaType,
 } from '../../../../domain/models/location/location.ts'
-import { SelectWithSearch } from '../../../alter/components/inputs/select_with_search.tsx'
-import TextInput from '../../../alter/components/inputs/text_input.tsx'
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import { useStationCollection } from '../../../../domain/models/mission/station/use_collection.ts'
 import { useHealthCareCenterCollection } from '../../../../domain/models/mission/health_care_center/use_collection.ts'
 import { useMissionLocationActions, useMissionLocationCollection } from '../../../../domain/models/mission/location/use_collection.ts'
+import Form from '../../../optimized/components/form/form.tsx'
+import { SelectWithSearch } from '../../../optimized/components/inputs/select_with_search.tsx'
+import TextInput from '../../../optimized/components/inputs/text_input.tsx'
+
 
 interface LocationFormProps {
     initValue?: ServiceLocationSchemaType | null
@@ -126,6 +128,8 @@ export default function LocationForm({
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
 
 
+    const submitButtonRef = useRef<any>(null);
+
     useEffect(() => {
         if (alias && staticLocations.length > 0) {
             const staticLocation = staticLocations.filter(x => x.display === alias)[0]
@@ -153,11 +157,14 @@ export default function LocationForm({
     const buttonText = initValue ? 'Actualizar' : 'Guardar'
 
     async function handleSubmitInternal(data: FieldValues) {
-
+        console.log("here", data);
         try {
             const defaultValue = getDefaults<ServiceLocationSchemaType>(
                 ServiceLocationSchema
             )
+
+
+
 
             defaultValue.address = address
             defaultValue.state = state
@@ -211,7 +218,7 @@ export default function LocationForm({
                     setIsVisible(false)
                 }}
             >
-                <CustomForm
+                <Form
                     schema={ServiceLocationSchema}
                     initValue={{ ...initValue, missionId: initValue?.id }}
                     onSubmit={handleSubmitInternal}
@@ -339,6 +346,7 @@ export default function LocationForm({
                     <div className="flex flex-col space-y-4">
                         <div className="flex justify-end space-x-8">
                             <Button
+                                type={'BUTTON'}
                                 enable={
                                     !(
                                         state == '' ||
@@ -349,10 +357,19 @@ export default function LocationForm({
                                 }
                                 colorType="bg-[#3C50E0]"
                                 children={buttonText}
+                                onClick={() =>
+                                {
+                                    submitButtonRef.current.click();
+                                    console.log("Clicked");
+                                }
+                                   
+                                }
+                                
                             ></Button>
+                            <button ref={submitButtonRef}></button>
                         </div>
                     </div>
-                </CustomForm>
+                </Form>
             </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />

@@ -66,7 +66,8 @@ export function useHttpActions<F, T>({ endpointCompound, fromApiMapper = undefin
 
     const insertFrontModelCall = useCallback(async (data: F) => {
         const mapped = toApiMapper(data)
-
+        console.log("Mapper",endpointCompound, mapped.success, mapped.success ? mapped.result : mapped.error);
+        
         if (mapped.success) {
             const result = await insert<T>(endpointCompound, mapped.result)
             if (!result.success || typeof result.result != 'object') return result as any as ResultErr<F>
@@ -84,7 +85,7 @@ export function useHttpActions<F, T>({ endpointCompound, fromApiMapper = undefin
 
     const updateFrontModelCall = useCallback(async (data: F) => {
         const mapped = toApiMapper(data)
-
+        console.log("Mapper",endpointCompound, mapped.success, mapped.success ? mapped.result : mapped.error);
         if (mapped.success) {
             const result = await update<T>(endpointCompound, mapped.result)
             if (!result.success || typeof result.result != 'object') return result as any as ResultErr<F>

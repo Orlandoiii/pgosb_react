@@ -110,6 +110,7 @@ export default function CustomForm<T extends FieldValues>({
         resolver: zodResolver(schema),
         defaultValues: (initValue ?? {}) as DefaultValues<T>,
     })
+    methods.getValues
 
     function formReset() {
         methods.reset(getDefaults<T>(schema))
@@ -132,20 +133,24 @@ export default function CustomForm<T extends FieldValues>({
             <form
                 noValidate
                 className={classStyle}
-                onSubmit={methods.handleSubmit((data) => {
+                onSubmit={() => {
+                    console.log("Submiting");
+                    
+                    return methods.handleSubmit((data) => {
 
-                    logger.log('On Submit de la forma')
+                        logger.log('On Submit de la forma')
 
-                    const uppercaseData = Object.fromEntries(
+                        const uppercaseData = Object.fromEntries(
 
-                        Object.entries(data).map(([key, value]) => [
-                            key,
-                            typeof value === 'string' ? value.toUpperCase() : value
-                        ])
-                    );
+                            Object.entries(data).map(([key, value]) => [
+                                key,
+                                typeof value === 'string' ? value.toUpperCase() : value
+                            ])
+                        );
 
-                    onSubmit(schema.parse(use_uppercase ? uppercaseData : data))
-                })}
+                        onSubmit(schema.parse(use_uppercase ? uppercaseData : data))
+                    })
+                }}
             >
                 {children}
             </form>

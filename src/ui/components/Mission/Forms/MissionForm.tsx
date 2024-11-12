@@ -47,6 +47,7 @@ import PersonForm from './PersonForm'
 import VehicleForm from './VehicleForm'
 import { AuthorityForm } from './AuthorityForm'
 import { modalService } from '../../../core/overlay/overlay_service'
+import { insert } from '../../../../services/http'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -174,7 +175,7 @@ const MissionForm = ({
 
     }
 
-console.log(missionUnits);
+    console.log(missionUnits);
 
     return (
         <>
@@ -319,7 +320,7 @@ console.log(missionUnits);
                                 const unit = units.filter(x => x.id == id)[0]
                                 if (unit && initValue?.id) {
                                     unit.missionId = initValue?.id;
-                                    let result = await missionUnitsActions.insertFront(unit)
+                                    let result = await insert("mission/unit", { mission_id: initValue.id, unit_id: unit.id })
 
                                     if (result.success) {
                                         modalService.toastSuccess("Unidad agregada")
@@ -334,7 +335,10 @@ console.log(missionUnits);
                                     modalService.toastError("Unidad no encontrado")
                                 }
                             }}
-                            onDeleteButtonClick={missionUnitsActions.remove}
+                            onDeleteButtonClick={async (id) => {
+                                let result = await missionUnitsActions.remove(id)
+                                if (result.success) updateUnits()
+                            }}
                         ></AddableTable>
 
                         <AddableTable
@@ -358,7 +362,8 @@ console.log(missionUnits);
                                 if (firefighter && rank && initValue?.id) {
                                     firefighter.rank = rank
                                     firefighter.missionId = initValue?.id
-                                    let result = await missionFirefightersActions.insertFront(firefighter)
+
+                                    let result = await insert("mission/firefighter", { mission_id: initValue.id, user_id: firefighter.id, service_role: rank })
                                     if (result.success) {
                                         modalService.toastSuccess("Bombero agregado")
                                         updateFirefighters()
@@ -372,7 +377,10 @@ console.log(missionUnits);
                                     modalService.toastError("Bombero no encontrado")
                                 }
                             }}
-                            onDeleteButtonClick={missionFirefightersActions.remove}
+                            onDeleteButtonClick={async (id) => {
+                                let result = await missionFirefightersActions.remove(id)
+                                if (result.success) updateFirefighters()
+                            }}
                         ></AddableTable>
                     </div>
 
@@ -597,7 +605,8 @@ console.log(missionUnits);
                     initValue={locationModalData}
                     closeOverlay={() => {
                         updateMissionLocations()
-                        setLocationModalOpen(false)}
+                        setLocationModalOpen(false)
+                    }
                     } />}
 
             {infrastructureModalOpen &&
@@ -605,7 +614,8 @@ console.log(missionUnits);
                     initValue={infrastructureModalData}
                     closeOverlay={() => {
                         updateMissionInfrastructure()
-                        setInfrastructureModalOpen(false)}
+                        setInfrastructureModalOpen(false)
+                    }
                     } />}
 
             {vehicleModalOpen &&
@@ -613,7 +623,8 @@ console.log(missionUnits);
                     initValue={vehicleModalData}
                     closeOverlay={() => {
                         updateMissionVehicle()
-                        setVehicleModalOpen(false)}
+                        setVehicleModalOpen(false)
+                    }
                     } />}
 
             {personModalOpen &&
@@ -621,7 +632,8 @@ console.log(missionUnits);
                     initValue={personModalData}
                     closeOverlay={() => {
                         updateMissionPeople
-                        setPersonModalOpen(false)}
+                        setPersonModalOpen(false)
+                    }
                     } />}
 
             {authorityModalOpen &&
@@ -629,7 +641,8 @@ console.log(missionUnits);
                     initValue={authorityModalData}
                     closeOverlay={() => {
                         updateMissionAuthorities()
-                        setAuthorityModalOpen(false)}
+                        setAuthorityModalOpen(false)
+                    }
                     } />}
         </>
     )
