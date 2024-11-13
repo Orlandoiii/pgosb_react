@@ -60,4 +60,3 @@ export function useIsEmpty<T extends FieldValues>(name: FieldPath<T>, control: C
   }
   return isEmpty;
 }
-

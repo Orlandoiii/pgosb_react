@@ -174,7 +174,7 @@ async function refreshToken(config, signal) {
     }
 }
 async function logIn(data, config, signal, dispatch) {
-    try {
+    try {        
         const url = `${config.back_url}/api/v1/auth/login`;
 
         const response = await axios.post(url, data, { signal });

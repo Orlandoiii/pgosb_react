@@ -99,6 +99,8 @@ const MissionForm = ({
     const cancelReasons = useMemo(() => ["ALARMA FALSA", "ALARMA INFUNDADA", "ATENDIDO NO EFECTUADO", "ATENCION NO REALIZADA"], [])
     const operativeAreas = useMemo(() => EnumToStringArray(OperativeAreas), [])
     const levels = useMemo(() => ["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"], [])
+
+    const [action, setAction] = useState<'add' | 'update' | undefined>(undefined);
     // async function addNewAuthority() {
     //     var errorMessage: string = ''
     //     try {
@@ -175,7 +177,7 @@ const MissionForm = ({
 
     }
 
-    console.log(missionUnits);
+    console.log(initValue);
 
     return (
         <>
@@ -511,15 +513,22 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una ubicación"
                         nameConverter={MissionLocationNameConverter}
-                        onAddButtonClick={() => setLocationModalOpen(true)}
+                        onAddButtonClick={() => {
+                            setLocationModalOpen(true)
+                            setAction('add')
+                        }}
                         onEditButtonClick={async (id) => {
                             const location = await missionLocationsActions.getById(id)
                             if (location.success && location.result) {
                                 setLocationModalData(location.result)
                                 setLocationModalOpen(true)
+                                setAction('update')
                             }
                         }}
-                        onDeleteButtonClick={missionLocationsActions.remove}
+                        onDeleteButtonClick={async (id) => {
+                            let result = await missionLocationsActions.remove(id)
+                            if (result.success) updateMissionLocations()
+                        }}
                     ></AddableTable>
 
                     <div className="h-8"></div>
@@ -530,15 +539,22 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una infraestructura"
                         nameConverter={MissionInfraestructureNameConverter}
-                        onAddButtonClick={() => setInfrastructureModalOpen(true)}
+                        onAddButtonClick={() => {
+                            setInfrastructureModalOpen(true)
+                            setAction('add')
+                        }}
                         onEditButtonClick={async (id) => {
                             const infrastructure = await missionInfrastructuresActions.getById(id)
                             if (infrastructure.success && infrastructure.result) {
                                 setInfrastructureModalData(infrastructure.result)
                                 setInfrastructureModalOpen(true)
+                                setAction('update')
                             }
                         }}
-                        onDeleteButtonClick={missionInfrastructuresActions.remove}
+                        onDeleteButtonClick={async (id) => {
+                            let result = await missionInfrastructuresActions.remove(id)
+                            if (result.success) updateMissionInfrastructure()
+                        }}
                     />
 
                     <div className="h-8"></div>
@@ -549,15 +565,22 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar un vehiculo"
                         nameConverter={MissionVehicleNameConverter}
-                        onAddButtonClick={() => setVehicleModalOpen(true)}
+                        onAddButtonClick={() => {
+                            setVehicleModalOpen(true)
+                            setAction('add')
+                        }}
                         onEditButtonClick={async (id) => {
                             const vehicle = await missionVehiclesActions.getById(id)
                             if (vehicle.success && vehicle.result) {
                                 setVehicleModalData(vehicle.result)
                                 setVehicleModalOpen(true)
+                                setAction('update')
                             }
                         }}
-                        onDeleteButtonClick={missionVehiclesActions.remove}
+                        onDeleteButtonClick={async (id) => {
+                            let result = await missionVehiclesActions.remove(id)
+                            if (result.success) updateMissionVehicle()
+                        }}
                     />
 
                     <div className="h-8"></div>
@@ -568,15 +591,22 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una persona"
                         nameConverter={MissionPersonNameConverter}
-                        onAddButtonClick={() => setPersonModalOpen(true)}
+                        onAddButtonClick={() => {
+                            setPersonModalOpen(true)
+                            setAction('add')
+                        }}
                         onEditButtonClick={async (id) => {
                             const person = await missionPeopleActions.getById(id)
                             if (person.success && person.result) {
                                 setPersonModalData(person.result)
                                 setPersonModalOpen(true)
+                                setAction('update')
                             }
                         }}
-                        onDeleteButtonClick={missionPeopleActions.remove}
+                        onDeleteButtonClick={async (id) => {
+                            let result = await missionPeopleActions.remove(id)
+                            if (result.success) updateMissionPeople()
+                        }}
                     />
 
                     <AddableTable
@@ -586,15 +616,22 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una autoridad"
                         nameConverter={MissionAuthorityNameConverter}
-                        onAddButtonClick={() => setAuthorityModalOpen(true)}
+                        onAddButtonClick={() => {
+                            setAuthorityModalOpen(true)
+                            setAction('add')
+                        }}
                         onEditButtonClick={async (id) => {
                             const authority = await missionAuthoritiesActions.getById(id)
                             if (authority.success && authority.result) {
                                 setAuthorityModalData(authority.result)
                                 setAuthorityModalOpen(true)
+                                setAction('update')
                             }
                         }}
-                        onDeleteButtonClick={missionAuthoritiesActions.remove}
+                        onDeleteButtonClick={async (id) => {
+                            let result = await missionAuthoritiesActions.remove(id)
+                            if (result.success) updateMissionAuthorities()
+                        }}
                     ></AddableTable>
                 </Form>
             </ModalLayout>
@@ -602,7 +639,8 @@ const MissionForm = ({
 
             {locationModalOpen &&
                 <LocationForm
-                    initValue={locationModalData}
+                    initValue={action == "add" ? { missionId: initValue!.id } : { ...locationModalData, missionId: initValue!.id }}
+                    add={action == "add"}
                     closeOverlay={() => {
                         updateMissionLocations()
                         setLocationModalOpen(false)
@@ -611,7 +649,8 @@ const MissionForm = ({
 
             {infrastructureModalOpen &&
                 <InfrastructureForm
-                    initValue={infrastructureModalData}
+                    initValue={action == "add" ? { missionId: initValue!.id } : { ...infrastructureModalData, missionId: initValue!.id } as any}
+                    add={action == "add"}
                     closeOverlay={() => {
                         updateMissionInfrastructure()
                         setInfrastructureModalOpen(false)
@@ -620,7 +659,8 @@ const MissionForm = ({
 
             {vehicleModalOpen &&
                 <VehicleForm
-                    initValue={vehicleModalData}
+                    initValue={action == "add" ? { missionId: initValue!.id } : { ...vehicleModalData, missionId: initValue!.id } as any}
+                    add={action == "add"}
                     closeOverlay={() => {
                         updateMissionVehicle()
                         setVehicleModalOpen(false)
@@ -629,16 +669,18 @@ const MissionForm = ({
 
             {personModalOpen &&
                 <PersonForm
-                    initValue={personModalData}
+                    initValue={action == "add" ? { missionId: initValue!.id } : { ...personModalData, missionId: initValue!.id } as any}
+                    add={action == "add"}
                     closeOverlay={() => {
-                        updateMissionPeople
+                        updateMissionPeople()
                         setPersonModalOpen(false)
                     }
                     } />}
 
             {authorityModalOpen &&
                 <AuthorityForm
-                    initValue={authorityModalData}
+                    initValue={action == "add" ? { missionId: initValue!.id } : { ...authorityModalData, missionId: initValue!.id } as any}
+                    add={action == "add"}
                     closeOverlay={() => {
                         updateMissionAuthorities()
                         setAuthorityModalOpen(false)

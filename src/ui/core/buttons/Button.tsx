@@ -15,7 +15,6 @@ interface ButtonProps {
     width?: string
     height?: string
     enable?: boolean
-    type?: 'BUTTON' | 'SUBMIT'
 }
 
 export default function Button({
@@ -25,28 +24,19 @@ export default function Button({
     hoverColor = 'hover:bg-[#0069D9]',
     width = '',
     height = '',
-    enable = true,
-    type
+    enable = true
 }: PropsWithChildren<ButtonProps>) {
     console.log('enable', enable)
 
-    if (type == 'BUTTON') return (
-        <button
-            disabled={!enable}
-            className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
-            text-md rounded-md shadow-md text-nowrap ${enable ? hoverColor : 'hover:bg-slate-500 pointer-events-none '} `}
-            onClick={(e) => {
-                if (!enable) return
-                onClick && onClick(e)
-            }}
-        >
-            {children}
-        </button >
-    )
-
-    else if (type == 'SUBMIT') return <input disabled={!enable} type='submit'
-        className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
+    return <button
+    disabled={!enable}
+    className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
     text-md rounded-md shadow-md text-nowrap ${enable ? hoverColor : 'hover:bg-slate-500 pointer-events-none '} `}
-        value={String(children)}
-    />
+    onClick={(e) => {
+        if (!enable) return
+        onClick && onClick(e)
+    }}
+>
+    {children}
+</button >
 }

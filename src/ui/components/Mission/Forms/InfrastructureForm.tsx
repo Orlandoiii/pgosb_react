@@ -1,16 +1,10 @@
 import { FieldValues } from 'react-hook-form'
 import React, { useState } from 'react'
 
-import {
-    TInfrastructure,
-    InfrastructureSchema,
-} from '../../../../domain/models/infrastructure/infrastructure'
 import FormTitle from '../../../core/titles/FormTitle'
 import Button from '../../../core/buttons/Button'
 
 import CustomForm from '../../../core/context/CustomFormContext.tsx'
-import FormInput from '../../../core/inputs/FormInput.tsx'
-import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
@@ -24,9 +18,14 @@ import { CeilingTypes } from '../../../../domain/abstractions/enums/ceiling_type
 import { numberMask } from '../../../core/inputs/Common/Mask.ts'
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import { useMissionInfrastructureActions } from '../../../../domain/models/mission/infraestructure/use_collection.ts'
+import { MissionInfraestructureFront, MissionInfraestructureFrontSchema } from '../../../../domain/models/mission/infraestructure/mission_infraestructure.ts'
+import Form from '../../../optimized/components/form/form.tsx'
+import FormSelect from '../../../optimized/components/form_inputs/form_select.tsx'
+import FormInput from '../../../optimized/components/form_inputs/form_input.tsx'
+import FormSubmit from '../../../optimized/components/form_inputs/form_submit.tsx'
 
 interface InfrastructureFormProps {
-    initValue?: TInfrastructure | null
+    initValue?: MissionInfraestructureFront | null
     closeOverlay?: () => void
     add?: boolean
 }
@@ -37,7 +36,7 @@ export default function InfrastructureForm({
     initValue,
     closeOverlay,
     add = true,
-}: InfrastructureFormProps){
+}: InfrastructureFormProps) {
     const infrastructureActions = useMissionInfrastructureActions();
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
@@ -50,10 +49,8 @@ export default function InfrastructureForm({
         setLoading(true)
 
         try {
-            console.log('data', data)
-            const parsed = InfrastructureSchema.parse(data)
-            console.log('parsed', parsed)
-            var result: ResultErr<TInfrastructure>
+            const parsed = MissionInfraestructureFrontSchema.parse(data)
+            var result: ResultErr<MissionInfraestructureFront>
 
             if (add) result = await infrastructureActions.insertFront(parsed)
             else result = await infrastructureActions.updateFront(parsed)
@@ -80,21 +77,21 @@ export default function InfrastructureForm({
                 title={'Registro de Infrastructura'}
                 isVisible={isVisible}
                 onClosed={closeOverlay}
-                className="min-w-[54rem]"
+                className="min-w-[70vw]"
                 onClose={() => {
                     setIsVisible(false)
                 }}
             >
-                <CustomForm
-                    schema={InfrastructureSchema}
+                <Form
+                    schema={MissionInfraestructureFrontSchema}
                     initValue={{ ...initValue, missionId: initValue?.missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <FormTitle title="Datos de la Infraestructura" />
 
-                    <div className="space-y-3 px-2 w-full max-w-[820px]">
+                    <div className="space-y-3 px-2 w-full">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormSelect<TInfrastructure>
+                            <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildType'}
                                 description={'Tipo de infrastructura:'}
                                 options={EnumToStringArray(InfrastructureType)}
@@ -104,7 +101,7 @@ export default function InfrastructureForm({
                                 description={'Ocupación:'}
                                 options={areaCodes}
                             /> */}
-                            <FormInput<TInfrastructure>
+                            <FormInput<MissionInfraestructureFront>
                                 fieldName={'buildOccupation'}
                                 description="Ocupación:"
                             />
@@ -114,12 +111,12 @@ export default function InfrastructureForm({
                                 description={'Area de ubicación:'}
                                 options={areaCodes}
                             /> */}
-                            <FormInput<TInfrastructure>
+                            <FormInput<MissionInfraestructureFront>
                                 fieldName={'buildArea'}
                                 description="Área de ubicación:"
                             />
 
-                            <FormSelect<TInfrastructure>
+                            <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildAccess'}
                                 description={'Acceso:'}
                                 options={areaCodes}
@@ -127,20 +124,18 @@ export default function InfrastructureForm({
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormSelect<TInfrastructure>
+                            <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'goodsType'}
                                 description={'Tipo de bienes:'}
                                 options={EnumToStringArray(Goods)}
                             />
-                            <FormInput<TInfrastructure>
+                            <FormInput<MissionInfraestructureFront>
                                 fieldName={'levels'}
                                 description="N° Niveles:"
-                                mask={numberMask}
                             />
-                            <FormInput<TInfrastructure>
+                            <FormInput<MissionInfraestructureFront>
                                 fieldName={'people'}
                                 description="N° personas:"
-                                mask={numberMask}
                             />
                         </div>
 
@@ -150,22 +145,22 @@ export default function InfrastructureForm({
                                 description={'Tipo de habitación:'}
                                 options={areaCodes}
                             /> */}
-                            <FormInput<TInfrastructure>
+                            <FormInput<MissionInfraestructureFront>
                                 fieldName={'buildRoomType'}
                                 description="Tipo de habitación:"
                             />
 
-                            <FormSelect<TInfrastructure>
+                            <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildFloor'}
                                 description={'Pisos:'}
                                 options={EnumToStringArray(FloorTypes)}
                             />
-                            <FormSelect<TInfrastructure>
+                            <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildWall'}
                                 description={'Paredes:'}
                                 options={EnumToStringArray(WallTypes)}
                             />
-                            <FormSelect<TInfrastructure>
+                            <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildRoof'}
                                 description={'Techos:'}
                                 options={EnumToStringArray(CeilingTypes)}
@@ -175,7 +170,7 @@ export default function InfrastructureForm({
                         <div className="h-4"></div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormInput<TInfrastructure>
+                            <FormInput<MissionInfraestructureFront>
                                 fieldName={'observations'}
                                 description="Dirección:"
                             />
@@ -185,14 +180,13 @@ export default function InfrastructureForm({
 
                     <div className="flex flex-col space-y-4">
                         <div className="flex justify-end space-x-8">
-                            <Button
+                            <FormSubmit
                                 colorType="bg-[#3C50E0]"
-                                onClick={(e) => { }}
-                                children={'Aceptar'}
-                            ></Button>
+                                description={'Aceptar'}
+                            />
                         </div>
                     </div>
-                </CustomForm>
+                </Form>
             </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />

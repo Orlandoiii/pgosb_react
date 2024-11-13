@@ -67,10 +67,10 @@ export function AuthorityForm({
         if (
             authorityResult.success &&
             authorityResult.result &&
-            (authorityResult.result?.alias != alias || authorityResult.result?.institution_id != type)
+            (authorityResult.result?.alias != alias || authorityResult.result?.institutionId != type)
         ) {
             authorityResult.result.alias = alias
-            authorityResult.result.institution_id = type
+            authorityResult.result.institutionId = type
             const updateResult = await authorityActions.updateFront(authorityResult.result)
 
             if (updateResult.success)

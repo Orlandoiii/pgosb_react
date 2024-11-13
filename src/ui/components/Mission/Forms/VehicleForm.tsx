@@ -2,12 +2,8 @@ import { FieldValues } from 'react-hook-form'
 import React, { useEffect, useMemo, useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
-import Button from '../../../core/buttons/Button'
 
-import {
-    TVehicleInvolved,
-    VehicleInvolvedSchema,
-} from '../../../../domain/models/vehicle/vehicle_involved'
+
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes.ts'
 
@@ -15,17 +11,18 @@ import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { get, post } from '../../../../services/http.tsx'
 import { Colors } from '../../../../domain/abstractions/colors/colors.ts'
-import FormSelectWithSearch from '../../../alter/components/form_inputs/form_select_with_search.tsx'
-import FormInput from '../../../alter/components/form_inputs/form_input.tsx'
-import Form from '../../../alter/components/form/form.tsx'
 import { VehicleTypes } from '../../../../domain/abstractions/enums/vehicle_type.ts'
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { useMissionVehicleActions } from '../../../../domain/models/mission/vehicle/use_collection.ts'
 import { MissionVehicleFront, MissionVehicleFrontSchema } from '../../../../domain/models/mission/vehicle/mission_vehicle.ts'
+import FormSelectWithSearch from '../../../optimized/components/form_inputs/form_select_with_search.tsx'
+import FormInput from '../../../optimized/components/form_inputs/form_input.tsx'
+import Form from '../../../optimized/components/form/form.tsx'
+import FormSubmit from '../../../optimized/components/form_inputs/form_submit.tsx'
 
 interface VehicleFormProps {
-    initValue?: TVehicleInvolved | null
+    initValue?: MissionVehicleFront | null
     closeOverlay?: () => void
     add?: boolean
 }
@@ -47,7 +44,7 @@ export default function VehicleForm({
     )
 
     useEffect(() => {
-        if (initValue) {
+        if (!add) {
             const getBrands = async () => {
                 const result = await get<any>('vehicles/types')
                 if (result.success) return setBrands(result.result)
@@ -133,7 +130,7 @@ export default function VehicleForm({
     // }, [marca])
 
     const areaCodes = EnumToStringArray(AreaCodes)
-    const buttonText = initValue ? 'Actualizar' : 'Guardar'
+    const buttonText = add ? 'Guardar' : 'Actualizar'
 
     const vehicleTypes = useMemo(() => EnumToStringArray(VehicleTypes), [])
 
@@ -179,7 +176,7 @@ export default function VehicleForm({
                     setIsVisible(false)
                 }}>
                 <Form
-                    schema={VehicleInvolvedSchema}
+                    schema={MissionVehicleFrontSchema}
                     initValue={{ ...initValue, missionId: initValue?.missionId }}
                     onSubmit={handleSubmitInternal}
                 >
@@ -187,20 +184,20 @@ export default function VehicleForm({
 
                     <div className="w-full space-y-3 px-2 max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormSelectWithSearch<TVehicleInvolved, string>
+                            <FormSelectWithSearch<MissionVehicleFront, string>
                                 description={'Tipo'}
                                 fieldName={'type'}
                                 options={vehicleTypes}
                             />
 
-                            <FormSelectWithSearch<TVehicleInvolved, string>
+                            <FormSelectWithSearch<MissionVehicleFront, string>
                                 description={'Marca'}
                                 fieldName={'brand'}
                                 options={getBrands}
                                 selectionChange={(e) => setSelectedBrand(e)}
                             />
 
-                            <FormSelectWithSearch<TVehicleInvolved, string>
+                            <FormSelectWithSearch<MissionVehicleFront, string>
                                 description={'Modelo'}
                                 fieldName={'model'}
                                 options={models}
@@ -208,18 +205,18 @@ export default function VehicleForm({
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormInput<TVehicleInvolved>
+                            <FormInput<MissionVehicleFront>
                                 description="Placa"
                                 fieldName={'licensePlate'}
                             />
 
-                            <FormInput<TVehicleInvolved>
+                            <FormInput<MissionVehicleFront>
                                 description="Año"
                                 fieldName={'year'}
                                 type={'Integer'}
                             />
 
-                            <FormSelectWithSearch<TVehicleInvolved, string>
+                            <FormSelectWithSearch<MissionVehicleFront, string>
                                 description={'Color'}
                                 fieldName={'color'}
                                 options={Colors}
@@ -227,7 +224,7 @@ export default function VehicleForm({
                         </div>
                         <div className="h-4"></div>
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormInput<TVehicleInvolved>
+                            <FormInput<MissionVehicleFront>
                                 description="Condición"
                                 fieldName={'condition'}
                             />
@@ -237,11 +234,10 @@ export default function VehicleForm({
 
                     <div className="flex flex-col space-y-4">
                         <div className="flex justify-end space-x-8">
-                            <Button
+                            <FormSubmit
                                 colorType="bg-[#3C50E0]"
-                                onClick={() => { }}
-                                children={buttonText}
-                            ></Button>
+                                description={buttonText}
+                            />
                         </div>
                     </div>
                 </Form>

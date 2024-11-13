@@ -22,7 +22,7 @@ function FormInput<T extends FieldValues>({
   const { fieldRegister, fieldError, isSubmitted } = useFormFieldContext<T>(fieldName);
 
   return (
-    <div>
+    <div className="w-full">
       <TextInput
         disable={disable}
         type={type}

@@ -37,7 +37,6 @@ export default function Form<T extends FieldValues>({ schema, initValue = null, 
   }
 
   function manualSubmit() {
-    console.log("manual submit", formRef);
     if (formRef) formRef.current.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }))
   }
 
@@ -55,11 +54,7 @@ export default function Form<T extends FieldValues>({ schema, initValue = null, 
         manualSubmit: manualSubmit
       }}
     >
-      <form ref={formRef} className={`${className}`} onSubmit={() => {
-        console.log("handle submit");
-
-        return methods.handleSubmit((data) => onSubmit(schema.parse(data)))
-      }} onReset={formReset}>
+      <form noValidate ref={formRef} className={`${className}`} onSubmit={methods.handleSubmit((data) => onSubmit(schema.parse(data)))} onReset={formReset}>
         {children}
       </form>
     </FormContext.Provider>

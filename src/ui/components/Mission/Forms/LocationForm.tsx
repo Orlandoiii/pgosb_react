@@ -11,10 +11,7 @@ import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { useLocation } from '../../../core/hooks/useLocation.tsx'
-import {
-    ServiceLocationSchema,
-    ServiceLocationSchemaType,
-} from '../../../../domain/models/location/location.ts'
+
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import { useStationCollection } from '../../../../domain/models/mission/station/use_collection.ts'
 import { useHealthCareCenterCollection } from '../../../../domain/models/mission/health_care_center/use_collection.ts'
@@ -22,10 +19,12 @@ import { useMissionLocationActions, useMissionLocationCollection } from '../../.
 import Form from '../../../optimized/components/form/form.tsx'
 import { SelectWithSearch } from '../../../optimized/components/inputs/select_with_search.tsx'
 import TextInput from '../../../optimized/components/inputs/text_input.tsx'
+import FormSubmit from '../../../optimized/components/form_inputs/form_submit.tsx'
+import { MissionLocationFront, MissionLocationFrontSchema } from '../../../../domain/models/mission/location/mission_location.ts'
 
 
 interface LocationFormProps {
-    initValue?: ServiceLocationSchemaType | null
+    initValue?: MissionLocationFront | null
     closeOverlay?: () => void
     add?: boolean
 }
@@ -65,7 +64,7 @@ export default function LocationForm({
         stations.forEach(station => {
             newStaticLocations.push(
                 {
-                    display: `${station.abbreviation} - ${station.description}`,
+                    display: `${station?.abbreviation ?? ""} - ${station?.description ?? ""}`,
                     ...station
                 }
             )
@@ -79,7 +78,7 @@ export default function LocationForm({
         healthCareCenters.forEach(careCenter => {
             newStaticLocations.push(
                 {
-                    display: `${careCenter.id} - ${careCenter.name}`,
+                    display: `${careCenter?.id ?? ""} - ${careCenter?.name ?? ""}`,
                     ...careCenter
                 }
             )
@@ -88,8 +87,11 @@ export default function LocationForm({
         return newStaticLocations
     }
 
+    console.log(stations);
+
+
     const [isVisible, setIsVisible] = useState(true)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(!add)
 
     const [alias, setAlias] = useState(initValue ? initValue?.alias : '')
     const {
@@ -135,7 +137,6 @@ export default function LocationForm({
             const staticLocation = staticLocations.filter(x => x.display === alias)[0]
 
             if (staticLocation) {
-                setLoading(true)
 
                 setState(staticLocation.state)
                 setMunicipality(staticLocation.municipality)
@@ -143,24 +144,25 @@ export default function LocationForm({
                 setSector(staticLocation.sector)
                 setUrbanizacion(staticLocation.urb)
                 setAddress(staticLocation.address)
-
+                
                 setTimeout(() => {
                     setLoading(false)
                 }, 1000);
             }
         }
-    }, [alias])
+
+    }, [alias,staticLocations])
 
     console.log(parishs.length);
 
 
-    const buttonText = initValue ? 'Actualizar' : 'Guardar'
+    const buttonText = add ? 'Guardar' : 'Actualizar'
 
     async function handleSubmitInternal(data: FieldValues) {
         console.log("here", data);
         try {
-            const defaultValue = getDefaults<ServiceLocationSchemaType>(
-                ServiceLocationSchema
+            const defaultValue = getDefaults<MissionLocationFront>(
+                MissionLocationFrontSchema
             )
 
 
@@ -168,24 +170,22 @@ export default function LocationForm({
 
             defaultValue.address = address
             defaultValue.state = state
-            defaultValue.state_id = String(estadoId)
+            defaultValue.stateId = String(estadoId)
             defaultValue.municipality = municipality
-            defaultValue.municipality_id = String(municipioId)
+            defaultValue.municipalityId = String(municipioId)
             defaultValue.parish = parish
-            defaultValue.parish_id = String(parroquiaId)
+            defaultValue.parishId = String(parroquiaId)
             defaultValue.sector = sector
-            defaultValue.sector_id = String(sectorId)
+            defaultValue.sectorId = String(sectorId)
             defaultValue.urb = urbanizacion
-            defaultValue.urb_id = String(urbanizationId)
+            defaultValue.urbId = String(urbanizationId)
             defaultValue.alias = alias
-            defaultValue.mission_id = initValue?.id
+            defaultValue.missionId = initValue?.id
 
-            if (!add) {
-                defaultValue.mission_id = initValue?.mission_id
-                defaultValue.id = initValue?.id
-            }
+            defaultValue.missionId = initValue?.missionId
+            if (initValue?.id) defaultValue.id = initValue?.id
 
-            let result: ResultErr<ServiceLocationSchemaType>
+            let result: ResultErr<MissionLocationFront>
             console.log('Result', defaultValue)
 
             if (add) result = await locationActions.insertFront(defaultValue)
@@ -219,7 +219,7 @@ export default function LocationForm({
                 }}
             >
                 <Form
-                    schema={ServiceLocationSchema}
+                    schema={MissionLocationFrontSchema}
                     initValue={{ ...initValue, missionId: initValue?.id }}
                     onSubmit={handleSubmitInternal}
                 >
@@ -345,8 +345,7 @@ export default function LocationForm({
 
                     <div className="flex flex-col space-y-4">
                         <div className="flex justify-end space-x-8">
-                            <Button
-                                type={'BUTTON'}
+                            <FormSubmit
                                 enable={
                                     !(
                                         state == '' ||
@@ -354,19 +353,11 @@ export default function LocationForm({
                                         parish == '' ||
                                         sector == ''
                                     )
+
                                 }
                                 colorType="bg-[#3C50E0]"
-                                children={buttonText}
-                                onClick={() =>
-                                {
-                                    submitButtonRef.current.click();
-                                    console.log("Clicked");
-                                }
-                                   
-                                }
-                                
-                            ></Button>
-                            <button ref={submitButtonRef}></button>
+                                description={buttonText}
+                            />
                         </div>
                     </div>
                 </Form>

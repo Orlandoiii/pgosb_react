@@ -2,25 +2,16 @@ import { FieldValues } from 'react-hook-form'
 import React, { useEffect, useState } from 'react'
 
 import FormTitle from '../../../core/titles/FormTitle'
-import Button from '../../../core/buttons/Button'
 
-import {
-    TPersonInvolved,
-    PersonInvolvedSchema,
-} from '../../../../domain/models/person/person_involved'
+
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 import { AreaCodes } from '../../../../domain/abstractions/enums/area_codes'
-
-import CustomForm from '../../../core/context/CustomFormContext.tsx'
-import FormInput from '../../../core/inputs/FormInput.tsx'
-import FormSelect from '../../../core/inputs/FormSelect.tsx'
 
 import LoadingModal from '../../../core/modal/LoadingModal'
 
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr.ts'
 import { Genders } from '../../../../domain/abstractions/enums/genders.ts'
-import FormSelectSearch from '../../../core/inputs/FormSelectSearch.tsx'
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection.ts'
 import InfrastructureForm from './InfrastructureForm.tsx'
 import { infrastructureCrud } from '../../../../domain/models/infrastructure/infrastructure.ts'
@@ -30,12 +21,17 @@ import { UnitSimple } from '../../../../domain/models/unit/unit.ts'
 import { get } from '../../../../services/http.tsx'
 import { Condition } from '../../../../domain/abstractions/enums/condition.ts'
 import { PersonState } from '../../../../domain/abstractions/enums/person_state.ts'
-import { documentIdMask, numberMask } from '../../../core/inputs/Common/Mask.ts'
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import { useMissionPersonActions } from '../../../../domain/models/mission/person/use_collection.ts'
+import { MissionPersonFront, MissionPersonFrontSchema } from '../../../../domain/models/mission/person/mission_person.ts'
+import FormInput from '../../../optimized/components/form_inputs/form_input.tsx'
+import FormSelect from '../../../optimized/components/form_inputs/form_select.tsx'
+import Form from '../../../optimized/components/form/form.tsx'
+import FormSubmit from '../../../optimized/components/form_inputs/form_submit.tsx'
+import FormSelectWithSearch from '../../../optimized/components/form_inputs/form_select_with_search.tsx'
 
 interface PersonFormProps {
-    initValue?: TPersonInvolved | null
+    initValue?: MissionPersonFront | null
     closeOverlay?: () => void
     add?: boolean
 }
@@ -104,7 +100,7 @@ export default function PersonForm({
     }, [vehicles])
 
 
-    const buttonText = initValue ? 'Actualizar' : 'Guardar'
+    const buttonText = add ? 'Guardar' : 'Actualizar'
 
     async function updateUnits() {
         const result = await get<UnitSimple[]>(
@@ -119,7 +115,7 @@ export default function PersonForm({
         setLoading(true)
 
         try {
-            const parsed = PersonInvolvedSchema.parse(data)
+            const parsed = MissionPersonFrontSchema.parse(data)
 
             //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
             if (parsed.vehicleId && parsed.vehicleId != "" && parsed.vehicleId != initValue?.vehicleId) {
@@ -135,7 +131,7 @@ export default function PersonForm({
             parsed.infrastructureId = parsed.infrastructureId;
 
 
-            var result: ResultErr<TPersonInvolved>
+            var result: ResultErr<MissionPersonFront>
 
             if (add) result = await personActions.insertFront(parsed)
             else result = await personActions.updateFront(parsed)
@@ -170,30 +166,27 @@ export default function PersonForm({
                     setIsVisible(false)
                 }}
             >
-                <CustomForm
-                    schema={PersonInvolvedSchema}
+                <Form
+                    schema={MissionPersonFrontSchema}
                     initValue={{ ...initValue, serviceId: initValue?.missionId }}
                     onSubmit={handleSubmitInternal}
                 >
                     <div className="md:flex md:md:items-start md:space-x-2 pb-8">
-                        <FormSelectSearch<TPersonInvolved>
+                        <FormSelectWithSearch<MissionPersonFront, any>
                             fieldName={'vehicleId'}
                             description={'Vehiculo Involucrado:'}
-                            initialValue={vehicle ?? ""}
                             options={vehicles.map(
                                 (x) => `${x.id} - ${x.licensePlate}`
                             )}
                         />
-                        <FormSelectSearch<TPersonInvolved>
+                        <FormSelectWithSearch<MissionPersonFront, any>
                             fieldName={'infrastructureId'}
                             description={'Infraestructura Involucrada:'}
-                            initialValue={infrastructure ?? ""}
                             options={infrastructures.map((x) => String(x.id))}
                         />
-                        <FormSelectSearch<TPersonInvolved>
+                        <FormSelectWithSearch<MissionPersonFront, any>
                             fieldName={'unitId'}
                             description={'Vehiculo de Traslado:'}
-                            initialValue={unit ?? ""}
                             options={serviceUnits.map((x) => x.plate)}
                         />
                     </div>
@@ -202,18 +195,18 @@ export default function PersonForm({
 
                     <div className="space-y-3 px-2 w-full max-w-[820px]">
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormInput<TPersonInvolved>
+                            <FormInput<MissionPersonFront>
                                 fieldName={'firstName'}
                                 description="Nombre:"
                             />
 
-                            <FormInput<TPersonInvolved>
+                            <FormInput<MissionPersonFront>
                                 fieldName={'lastName'}
                                 description="Apellido:"
                             />
 
                             <div className="w-[30rem]">
-                                <FormSelect<TPersonInvolved>
+                                <FormSelect<MissionPersonFront, any>
                                     fieldName={'gender'}
                                     description={'Genero:'}
                                     options={EnumToStringArray(Genders)}
@@ -221,44 +214,41 @@ export default function PersonForm({
                             </div>
 
                             <div className="w-44">
-                                <FormInput<TPersonInvolved>
+                                <FormInput<MissionPersonFront>
                                     fieldName={'age'}
                                     description="Edad:"
-                                    mask={numberMask}
                                 />
                             </div>
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <div className="w-full">
-                                <FormInput<TPersonInvolved>
+                                <FormInput<MissionPersonFront>
                                     fieldName={'idDocument'}
                                     description="Documento de Identidad:"
-                                    mask={documentIdMask}
                                 />
                             </div>
 
-                            <FormInput<TPersonInvolved>
-                                mask={numberMask}
+                            <FormInput<MissionPersonFront>
                                 fieldName={'phoneNumber'}
                                 description="Número de Teléfono:"
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormSelect<TPersonInvolved>
+                            <FormSelect<MissionPersonFront, any>
                                 fieldName={'employmentStatus'}
                                 description={'Estado físico:'}
                                 options={EnumToStringArray(PersonState)}
                             />
 
-                            <FormInput<TPersonInvolved>
+                            <FormInput<MissionPersonFront>
                                 fieldName={'pathology'}
                                 description="Patología:"
                             />
                         </div>
 
-                        <FormSelect<TPersonInvolved>
+                        <FormSelect<MissionPersonFront, any>
                             fieldName={'condition'}
                             description={'Condición:'}
                             options={EnumToStringArray(Condition)}
@@ -267,7 +257,7 @@ export default function PersonForm({
                         <div className="h-4"></div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
-                            <FormInput<TPersonInvolved>
+                            <FormInput<MissionPersonFront>
                                 fieldName={'observations'}
                                 description="Observaciones:"
                             />
@@ -296,7 +286,7 @@ export default function PersonForm({
                             />
                         </div> */}
 
-                        <FormInput<TPersonInvolved>
+                        <FormInput<MissionPersonFront>
                             fieldName={'address'}
                             description="Dirección:"
                         />
@@ -306,14 +296,13 @@ export default function PersonForm({
 
                     <div className="flex flex-col space-y-4">
                         <div className="flex justify-end space-x-8">
-                            <Button
+                            <FormSubmit
                                 colorType="bg-[#3C50E0]"
-                                onClick={() => { }}
-                                children={buttonText}
-                            ></Button>
+                                description={buttonText}
+                            />
                         </div>
                     </div>
-                </CustomForm>
+                </Form>
             </ModalLayout>
 
             <LoadingModal initOpen={loading} children={null} />
