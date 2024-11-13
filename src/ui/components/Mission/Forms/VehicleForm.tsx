@@ -34,7 +34,9 @@ export default function VehicleForm({
 }: VehicleFormProps) {
     const vehicleActions = useMissionVehicleActions();
     const [isVisible, setIsVisible] = useState(true)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(!add)
+    const [brandsLoaded, setBrandsLoaded] = useState(add)
+    const [modelsLoaded, setModelsLoaded] = useState(add)
 
     const [brands, setBrands] = useState<string[]>([])
     const [models, setModels] = useState<string[]>([])
@@ -45,46 +47,39 @@ export default function VehicleForm({
 
     useEffect(() => {
         if (!add) {
-            const getBrands = async () => {
-                const result = await get<any>('vehicles/types')
-                if (result.success) return setBrands(result.result)
-                return []
-            }
-
-            const models = async () => {
-                const result = await getModels(selectedBrand)
-                if (result.length > 0) {
-                    const options = result.map((x) => (x as any).model)
-                    setModels(options)
-                } else setModels(result)
-            }
-            models()
+            getModelsFunc()
             getBrands()
+
+            setTimeout(() => {
+                setLoading(false)
+            }, 100);
         } else {
-            const getBrands = async () => {
-                const result = await get<any>('vehicles/types')
-                if (result.success) return setBrands(result.result)
-                return []
-            }
             getBrands()
         }
     }, [])
 
+
     useEffect(() => {
-        const models = async () => {
-            const result = await getModels(selectedBrand)
-            if (result.length > 0) {
-                const options = result.map((x) => (x as any).model)
-                setModels(options)
-            } else setModels(result)
-        }
-        models()
+        getModelsFunc()
     }, [selectedBrand])
 
+
     async function getBrands(): Promise<string[]> {
+        setBrandsLoaded(false)
         const result = await get<any>('vehicles/types')
+        setBrandsLoaded(true)
         if (result.success) return result.result
         return []
+    }
+
+    const getModelsFunc = async () => {
+        setModelsLoaded(false)
+        const result = await getModels(selectedBrand)
+        if (result.length > 0) {
+            const options = result.map((x) => (x as any).model)
+            setModels(options)
+        } else setModels(result)
+        setModelsLoaded(true)
     }
 
     async function getModels(selectedBrandInternal: string): Promise<string[]> {
@@ -195,12 +190,14 @@ export default function VehicleForm({
                                 fieldName={'brand'}
                                 options={getBrands}
                                 selectionChange={(e) => setSelectedBrand(e)}
+                                fatherLoading={!brandsLoaded}
                             />
 
                             <FormSelectWithSearch<MissionVehicleFront, string>
                                 description={'Modelo'}
                                 fieldName={'model'}
                                 options={models}
+                                fatherLoading={!modelsLoaded}
                             />
                         </div>
 

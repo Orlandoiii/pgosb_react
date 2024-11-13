@@ -29,6 +29,8 @@ import FormSelect from '../../../optimized/components/form_inputs/form_select.ts
 import Form from '../../../optimized/components/form/form.tsx'
 import FormSubmit from '../../../optimized/components/form_inputs/form_submit.tsx'
 import FormSelectWithSearch from '../../../optimized/components/form_inputs/form_select_with_search.tsx'
+import { useMissionVehicleCollection } from '../../../../domain/models/mission/vehicle/use_collection.ts'
+import { useMissionUnitCollection } from '../../../../domain/models/mission/unit/use_collection.ts'
 
 interface PersonFormProps {
     initValue?: MissionPersonFront | null
@@ -45,7 +47,8 @@ export default function PersonForm({
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
 
-    const [serviceUnits, setServiceUnits] = useState<UnitSimple[]>([])
+    const [missionVehicles] = useMissionVehicleCollection(initValue?.missionId ?? '')
+    const [missionUnits] = useMissionUnitCollection(initValue?.missionId ?? '')
 
     const [infrastructureActions, infrastructures] =
         useActionModalAndCollection(
@@ -55,30 +58,10 @@ export default function PersonForm({
             initValue?.missionId ?? ""
         )
 
-    const [vehicleActions, vehicles] = useActionModalAndCollection(
-        VehicleForm,
-        vehicleCrud,
-        { missionId: initValue?.missionId } as any,
-        initValue?.missionId ?? ""
-    )
-
     const [unit, setUnit] = useState('')
     const [infrastructure, setInfrastructure] = useState('')
     const [vehicle, setVehicle] = useState('')
 
-    useEffect(() => {
-        updateUnits()
-    }, [])
-
-    useEffect(() => {
-        if (initValue && serviceUnits && serviceUnits.length > 0) {
-            const x = serviceUnits.filter((x) =>
-                x.id == initValue!.unitId)[0];
-
-            if (x)
-                setUnit(`${x.plate}`)
-        }
-    }, [serviceUnits])
 
     useEffect(() => {
         if (initValue && infrastructures && infrastructures.length > 0) {
@@ -92,23 +75,15 @@ export default function PersonForm({
     }, [infrastructures])
 
     useEffect(() => {
-        if (initValue && vehicles && vehicles.length > 0) {
-            const x = vehicles.filter((x) => x.id == initValue!.vehicleId)[0]
+        if (initValue && missionVehicles && missionVehicles.length > 0) {
+            const x = missionVehicles.filter((x) => x.id == initValue!.vehicleId)[0]
             if (x)
                 setVehicle(`${x.id} - ${x.licensePlate}`)
         }
-    }, [vehicles])
+    }, [missionVehicles])
 
 
     const buttonText = add ? 'Guardar' : 'Actualizar'
-
-    async function updateUnits() {
-        const result = await get<UnitSimple[]>(
-            `mission/service/unit/${initValue?.missionId}`
-        )
-        if (result.success && result.result) setServiceUnits(result.result)
-        console.log(result)
-    }
 
 
     async function handleSubmitInternal(data: FieldValues) {
@@ -124,7 +99,7 @@ export default function PersonForm({
 
             //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
             if (parsed.unitId && parsed.unitId != "" && parsed.unitId != initValue?.unitId) {
-                parsed.unitId = serviceUnits.filter(x => x.plate == parsed.unitId)?.[0]?.id
+                parsed.unitId = missionUnits.filter(x => x.plate == parsed.unitId)?.[0]?.id
             }
 
             //SIN CAMBIOS PORQUE ES EL ID
@@ -174,20 +149,20 @@ export default function PersonForm({
                     <div className="md:flex md:md:items-start md:space-x-2 pb-8">
                         <FormSelectWithSearch<MissionPersonFront, any>
                             fieldName={'vehicleId'}
-                            description={'Vehiculo Involucrado:'}
-                            options={vehicles.map(
+                            description={'Vehiculo Involucrado'}
+                            options={missionVehicles.map(
                                 (x) => `${x.id} - ${x.licensePlate}`
                             )}
                         />
                         <FormSelectWithSearch<MissionPersonFront, any>
                             fieldName={'infrastructureId'}
-                            description={'Infraestructura Involucrada:'}
+                            description={'Infraestructura Involucrada'}
                             options={infrastructures.map((x) => String(x.id))}
                         />
                         <FormSelectWithSearch<MissionPersonFront, any>
                             fieldName={'unitId'}
                             description={'Vehiculo de Traslado:'}
-                            options={serviceUnits.map((x) => x.plate)}
+                            options={missionUnits.map((x) => x.plate)}
                         />
                     </div>
 
@@ -197,18 +172,18 @@ export default function PersonForm({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<MissionPersonFront>
                                 fieldName={'firstName'}
-                                description="Nombre:"
+                                description="Nombre"
                             />
 
                             <FormInput<MissionPersonFront>
                                 fieldName={'lastName'}
-                                description="Apellido:"
+                                description="Apellido"
                             />
 
                             <div className="w-[30rem]">
                                 <FormSelect<MissionPersonFront, any>
                                     fieldName={'gender'}
-                                    description={'Genero:'}
+                                    description={'Genero'}
                                     options={EnumToStringArray(Genders)}
                                 />
                             </div>
@@ -216,7 +191,7 @@ export default function PersonForm({
                             <div className="w-44">
                                 <FormInput<MissionPersonFront>
                                     fieldName={'age'}
-                                    description="Edad:"
+                                    description="Edad"
                                 />
                             </div>
                         </div>
@@ -225,32 +200,32 @@ export default function PersonForm({
                             <div className="w-full">
                                 <FormInput<MissionPersonFront>
                                     fieldName={'idDocument'}
-                                    description="Documento de Identidad:"
+                                    description="Documento de Identidad"
                                 />
                             </div>
 
                             <FormInput<MissionPersonFront>
                                 fieldName={'phoneNumber'}
-                                description="Número de Teléfono:"
+                                description="Número de Teléfono"
                             />
                         </div>
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormSelect<MissionPersonFront, any>
                                 fieldName={'employmentStatus'}
-                                description={'Estado físico:'}
+                                description={'Estado físico'}
                                 options={EnumToStringArray(PersonState)}
                             />
 
                             <FormInput<MissionPersonFront>
                                 fieldName={'pathology'}
-                                description="Patología:"
+                                description="Patología"
                             />
                         </div>
 
                         <FormSelect<MissionPersonFront, any>
                             fieldName={'condition'}
-                            description={'Condición:'}
+                            description={'Condición'}
                             options={EnumToStringArray(Condition)}
                         />
 
@@ -259,7 +234,7 @@ export default function PersonForm({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<MissionPersonFront>
                                 fieldName={'observations'}
-                                description="Observaciones:"
+                                description="Observaciones"
                             />
                         </div>
                     </div>
@@ -288,7 +263,7 @@ export default function PersonForm({
 
                         <FormInput<MissionPersonFront>
                             fieldName={'address'}
-                            description="Dirección:"
+                            description="Dirección"
                         />
                     </div>
 
