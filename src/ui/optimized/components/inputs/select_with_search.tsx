@@ -39,7 +39,8 @@ export function SelectWithSearch<T>({
   ...rest
 }: Props<T>) {
   const { state: select, dispatch } = useSelect<T>(options, selectedOption, valueKey, displayKeys, selectionChange, isLoading, allowNewValue)
-if (description == 'Marca') console.log('yep', options);
+  if (description == 'Marca') console.log('yep', options);
+  if (description == 'Vehiculo de Traslado') console.log(select.options, select.state.innerSelectedOption, select.state.preSelectedOption, selectedOption);
 
   return (
     <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`} >

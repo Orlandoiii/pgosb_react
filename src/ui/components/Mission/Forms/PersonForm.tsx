@@ -31,6 +31,10 @@ import FormSubmit from '../../../optimized/components/form_inputs/form_submit.ts
 import FormSelectWithSearch from '../../../optimized/components/form_inputs/form_select_with_search.tsx'
 import { useMissionVehicleCollection } from '../../../../domain/models/mission/vehicle/use_collection.ts'
 import { useMissionUnitCollection } from '../../../../domain/models/mission/unit/use_collection.ts'
+import { useMissionInfrastructureCollection } from '../../../../domain/models/mission/infraestructure/use_collection.ts'
+import { MissionVehicleFront } from '../../../../domain/models/mission/vehicle/mission_vehicle.ts'
+import { MissionInfraestructureFront } from '../../../../domain/models/mission/infraestructure/mission_infraestructure.ts'
+import { MissionUnitFront } from '../../../../domain/models/mission/unit/mission_unit.ts'
 
 interface PersonFormProps {
     initValue?: MissionPersonFront | null
@@ -45,43 +49,17 @@ export default function PersonForm({
 }: PersonFormProps) {
     const personActions = useMissionPersonActions();
     const [isVisible, setIsVisible] = useState(true)
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(!add)
 
+    const [missionInfrastructures] = useMissionInfrastructureCollection(initValue?.missionId ?? '')
     const [missionVehicles] = useMissionVehicleCollection(initValue?.missionId ?? '')
     const [missionUnits] = useMissionUnitCollection(initValue?.missionId ?? '')
 
-    const [infrastructureActions, infrastructures] =
-        useActionModalAndCollection(
-            InfrastructureForm,
-            infrastructureCrud,
-            { missionId: initValue?.missionId } as any,
-            initValue?.missionId ?? ""
-        )
-
-    const [unit, setUnit] = useState('')
-    const [infrastructure, setInfrastructure] = useState('')
-    const [vehicle, setVehicle] = useState('')
-
-
     useEffect(() => {
-        if (initValue && infrastructures && infrastructures.length > 0) {
-            const x = infrastructures.filter(
-                (x) => x.id == initValue!.infrastructureId
-            )[0]
-
-            if (x)
-                setInfrastructure(`${x.id}`)
-        }
-    }, [infrastructures])
-
-    useEffect(() => {
-        if (initValue && missionVehicles && missionVehicles.length > 0) {
-            const x = missionVehicles.filter((x) => x.id == initValue!.vehicleId)[0]
-            if (x)
-                setVehicle(`${x.id} - ${x.licensePlate}`)
-        }
-    }, [missionVehicles])
-
+        setTimeout(() => {
+            setLoading(false);
+        }, 500);
+    }, [])
 
     const buttonText = add ? 'Guardar' : 'Actualizar'
 
@@ -147,22 +125,29 @@ export default function PersonForm({
                     onSubmit={handleSubmitInternal}
                 >
                     <div className="md:flex md:md:items-start md:space-x-2 pb-8">
-                        <FormSelectWithSearch<MissionPersonFront, any>
+                        <FormSelectWithSearch<MissionPersonFront, MissionVehicleFront>
                             fieldName={'vehicleId'}
                             description={'Vehiculo Involucrado'}
-                            options={missionVehicles.map(
-                                (x) => `${x.id} - ${x.licensePlate}`
-                            )}
+                            options={missionVehicles}
+                            valueKey={'id'}
+                            displayKeys={['id','licensePlate']}
+                            fatherLoading={loading}
                         />
-                        <FormSelectWithSearch<MissionPersonFront, any>
+                        <FormSelectWithSearch<MissionPersonFront, MissionInfraestructureFront>
                             fieldName={'infrastructureId'}
                             description={'Infraestructura Involucrada'}
-                            options={infrastructures.map((x) => String(x.id))}
+                            options={missionInfrastructures}
+                            valueKey={'id'}
+                            displayKeys={['id']}
+                            fatherLoading={loading}
                         />
-                        <FormSelectWithSearch<MissionPersonFront, any>
+                        <FormSelectWithSearch<MissionPersonFront, MissionUnitFront>
                             fieldName={'unitId'}
-                            description={'Vehiculo de Traslado:'}
-                            options={missionUnits.map((x) => x.plate)}
+                            description={'Vehiculo de Traslado'}
+                            options={missionUnits}
+                            valueKey={'id'}
+                            displayKeys={['id', 'plate']}
+                            fatherLoading={loading}
                         />
                     </div>
 

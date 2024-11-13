@@ -71,14 +71,20 @@ function getNewSelectedOption(options: SelectOption[], option: SelectOption | st
 
     if (typeof option === 'string') {
         if (allowNewValue) return { value: option, display: option }
-        else newOption = options.filter(x => x.display === option)[0]
+        else newOption = options.filter(x => x.value === option)[0]
     } else newOption = options.filter(x => x === option)[0]
 
     return newOption && (newOption.display != "Sin datos" && newOption.value != "") ? newOption : { value: "", display: "" }
 }
 function selectedOptionChangedHandler<T>(state: SelectStoreState<T>, option?: SelectOption | string): SelectStoreState<T> {
+
+    
+    
     let newPreSelectedOption = getNewSelectedOption(state.options.all, option ?? '', state.config.allowNewValue)
     const newSelectedOption = newPreSelectedOption.value == '' ? { value: "", display: "" } : newPreSelectedOption
+
+    console.log(option, option ?? '', state.config.allowNewValue, state.options.all, newPreSelectedOption, newSelectedOption);
+    
 
     return ({
         ...state,
