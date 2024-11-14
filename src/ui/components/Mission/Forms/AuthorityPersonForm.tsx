@@ -1,21 +1,22 @@
 import React, { useEffect, useMemo, useState } from "react"
 
-import { ApiMissionAuthorityPersonSchema, ApiMissionAuthorityPersonType, missionAuthorityPersonCrud } from "../../../../domain/models/authority/authority_person"
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import LoadingModal from "../../../core/modal/LoadingModal"
 import Button from "../../../core/buttons/Button"
 import CustomForm from "../../../core/context/CustomFormContext"
 import { modalService } from "../../../core/overlay/overlay_service"
 import { FieldValues } from "react-hook-form"
-import FormInput from "../../../alter/components/form_inputs/form_input"
-import Form from "../../../alter/components/form/form"
 import { EnumToStringArray } from "../../../../utilities/converters/enum_converter"
 import { Genders } from "../../../../domain/abstractions/enums/genders"
-import FormSelectWithSearch from "../../../alter/components/form_inputs/form_select_with_search"
 import { ResultErr } from "../../../../domain/abstractions/types/resulterr"
+import { useMissionAuthorityPersonActions } from "../../../../domain/models/mission/authority_person/use_collection.ts"
+import { MissionAuthorityPersonFront, MissionAuthorityPersonFrontSchema } from "../../../../domain/models/mission/authority_person/mission_authority_person.ts"
+import Form from "../../../optimized/components/form/form.tsx"
+import FormInput from "../../../optimized/components/form_inputs/form_input.tsx"
+import FormSelectWithSearch from "../../../optimized/components/form_inputs/form_select_with_search.tsx"
 
 interface Props {
-    initValue?: ApiMissionAuthorityPersonType | null
+    initValue?: MissionAuthorityPersonFront | null
     closeOverlay?: () => void
     add?: boolean
 }
@@ -25,6 +26,7 @@ export function AuthorityPersonForm({
     closeOverlay,
     add = true,
 }: Props) {
+    const authorityPersonActions = useMissionAuthorityPersonActions();
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
 
@@ -39,14 +41,14 @@ export function AuthorityPersonForm({
     console.log(initValue);
 
 
-    async function handleSubmitInternal(data: ApiMissionAuthorityPersonType) {
+    async function handleSubmitInternal(data: MissionAuthorityPersonFront) {
         setLoading(true)
 
         try {
-            let result: ResultErr<ApiMissionAuthorityPersonType>
+            let result: ResultErr<MissionAuthorityPersonFront>
 
-            if (add) result = await missionAuthorityPersonCrud.insert(data)
-            else result = await missionAuthorityPersonCrud.update(data)
+            if (add) result = await authorityPersonActions.insertFront(data)
+            else result = await authorityPersonActions.updateFront(data)
 
             if (result.success) {
                 modalService.toastSuccess(
@@ -76,40 +78,40 @@ export function AuthorityPersonForm({
         >
 
             <Form
-                schema={ApiMissionAuthorityPersonSchema as any}
-                initValue={{ ...initValue, mission_id: initValue?.mission_id, authority_id: initValue?.authority_id } as any}
+                schema={MissionAuthorityPersonFrontSchema as any}
+                initValue={{ ...initValue, mission_id: initValue?.missionId, authority_id: initValue?.authorityId } as any}
                 onSubmit={handleSubmitInternal}
             >
                 <div className="w-full space-y-3 px-2">
                     <div className="w-full md:flex md:md:items-start md:space-x-2">
-                        <FormInput<ApiMissionAuthorityPersonType>
+                        <FormInput<MissionAuthorityPersonFront>
                             description="Nombre"
                             fieldName={'name'}
                         />
 
-                        <FormInput<ApiMissionAuthorityPersonType>
+                        <FormInput<MissionAuthorityPersonFront>
                             description="Apellido"
-                            fieldName={'last_name'}
+                            fieldName={'lastName'}
                         />
 
-                        <FormInput<ApiMissionAuthorityPersonType>
+                        <FormInput<MissionAuthorityPersonFront>
                             description="N° Identificación"
-                            fieldName={'identification_number'}
+                            fieldName={'identificationNumber'}
                         />
                     </div>
 
                     <div className="w-full md:flex md:md:items-start md:space-x-2">
-                        <FormInput<ApiMissionAuthorityPersonType>
+                        <FormInput<MissionAuthorityPersonFront>
                             description="Doc Identidad"
-                            fieldName={'legal_id'}
+                            fieldName={'legalId'}
                         />
 
-                        <FormInput<ApiMissionAuthorityPersonType>
+                        <FormInput<MissionAuthorityPersonFront>
                             description="Teléfono"
                             fieldName={'phone'}
                         />
 
-                        <FormSelectWithSearch<ApiMissionAuthorityPersonType, string>
+                        <FormSelectWithSearch<MissionAuthorityPersonFront, string>
                             description="Genero"
                             options={genders}
                             fieldName={"gender"}

@@ -6,17 +6,27 @@ import { mapEntity } from "../../../../services/mapper"
 export const MissionAuthorityPersonApiSchema = z.object({
     id: z.string().optional().default(''),
     mission_id: z.string().optional().default(''),
-    alias: z.string().optional().default(''),
-    institution_id: z.string().optional().default(''),
-    type: z.string().optional().default(''),
+    authority_id: z.string().optional().default(''),
+    name: z.string().optional().default(''),
+    last_name: z.string().optional().default(''),
+    legal_id: z.string().optional().default(''),
+    identification_number: z.string().optional().default(''),
+    phone: z.string().optional().default(''),
+    gender: z.string().optional().default(''),
+    observations: z.string().optional().default(''),
 })
 
 export const MissionAuthorityPersonFrontSchema = z.object({
     id: z.string().optional().default(''),
     missionId: z.string().optional().default(''),
-    alias: z.string().optional().default(''),
-    institutionId: z.string().optional().default(''),
-    type: z.string().optional().default(''),
+    authorityId: z.string().optional().default(''),
+    name: z.string().optional().default(''),
+    lastName: z.string().optional().default(''),
+    legalId: z.string().optional().default(''),
+    identificationNumber: z.string().optional().default(''),
+    phone: z.string().optional().default(''),
+    gender: z.string().optional().default(''),
+    observations: z.string().optional().default(''),
 })
 
 
@@ -29,9 +39,14 @@ function fromApiInternal(data: MissionAuthorityPersonApi): MissionAuthorityPerso
     return {
         id: data.id,
         missionId: data.mission_id,
-        alias: data.alias,
-        institutionId: data.institution_id,
-        type: data.type
+        authorityId: data.authority_id,
+        name: data.name,
+        lastName: data.last_name,
+        legalId: data.legal_id,
+        identificationNumber: data.identification_number,
+        phone: data.phone,
+        gender: data.gender,
+        observations: data.observations,
     }
 }
 
@@ -39,9 +54,14 @@ function toApiInternal(data: MissionAuthorityPersonFront): MissionAuthorityPerso
     return {
         id: data.id,
         mission_id: data.missionId,
-        alias: data.alias,
-        institution_id: data.institutionId,
-        type: data.type
+        authority_id: data.authorityId,
+        name: data.name,
+        last_name: data.lastName,
+        legal_id: data.legalId,
+        identification_number: data.identificationNumber,
+        phone: data.phone,
+        gender: data.gender,
+        observations: data.observations,
     }
 }
 
@@ -67,9 +87,10 @@ export const MissionAuthorityPersonToApi = (
 export const MissionAuthorityNameConverter: {
     [K in keyof MissionAuthorityPersonFront]?: string
 } = {
-    type: 'Tipo',
-    alias: 'Alias',
-    missionId: 'Id de Misión',
-    // vehicles: 'N° Vehículos',
-    // people: 'N° Functionarios',
+    name: "Nombre",
+    lastName: "Apellido",
+    identificationNumber: "N° Identificación",
+    legalId: "Doc Identidad",
+    phone: "Teléfono",
+    gender: "Genero"
 }

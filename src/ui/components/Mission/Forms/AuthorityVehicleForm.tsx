@@ -1,20 +1,19 @@
 import React, { useEffect, useMemo, useState } from "react"
 
-import { ApiMissionAuthorityVehicleSchema, ApiMissionAuthorityVehicleType, missionAuthorityVehicleCrud } from "../../../../domain/models/authority/authority_vehicle"
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
-import FormInput from "../../../alter/components/form_inputs/form_input"
 import Button from "../../../core/buttons/Button"
 import { modalService } from "../../../core/overlay/overlay_service"
-import Form from "../../../alter/components/form/form"
 import { get, post } from "../../../../services/http"
-import FormSelectWithSearch from "../../../alter/components/form_inputs/form_select_with_search"
 import { EnumToStringArray } from "../../../../utilities/converters/enum_converter"
 import { Colors } from "../../../../domain/abstractions/colors/colors"
 import { ResultErr } from "../../../../domain/abstractions/types/resulterr"
 import { VehicleTypes } from "../../../../domain/abstractions/enums/vehicle_type"
 import { useMissionAuthorityPersonActions } from "../../../../domain/models/mission/authority_person/use_collection.ts"
 import { useMissionAuthorityVehicleActions } from "../../../../domain/models/mission/authority_vehicle/use_collection.ts"
-import { MissionAuthorityVehicleFront } from "../../../../domain/models/mission/authority_vehicle/mission_authority_vehicle.ts"
+import { MissionAuthorityVehicleFront, MissionAuthorityVehicleFrontSchema } from "../../../../domain/models/mission/authority_vehicle/mission_authority_vehicle.ts"
+import Form from "../../../optimized/components/form/form.tsx"
+import FormSelectWithSearch from "../../../optimized/components/form_inputs/form_select_with_search.tsx"
+import FormInput from "../../../optimized/components/form_inputs/form_input.tsx"
 
 interface Props {
     initValue?: MissionAuthorityVehicleFront | null
@@ -27,7 +26,7 @@ export function AuthorityVehicleForm({
     closeOverlay,
     add = true,
  }: Props) {
-    const infrastructureActions = useMissionAuthorityVehicleActions();
+    const authorityVehicleActions = useMissionAuthorityVehicleActions();
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
 
@@ -101,12 +100,12 @@ export function AuthorityVehicleForm({
     }
 
 
-    async function handleSubmitInternal(data: ApiMissionAuthorityVehicleType) {
+    async function handleSubmitInternal(data: MissionAuthorityVehicleFront) {
         try {
-            let result: ResultErr<ApiMissionAuthorityVehicleType>
+            let result: ResultErr<MissionAuthorityVehicleFront>
 
-            if (add) result = await missionAuthorityVehicleCrud.insert(data)
-            else result = await missionAuthorityVehicleCrud.update(data)
+            if (add) result = await authorityVehicleActions.insertFront(data)
+            else result = await authorityVehicleActions.updateFront(data)
 
             if (result.success) {
                 modalService.toastSuccess(
@@ -136,13 +135,13 @@ export function AuthorityVehicleForm({
         >
 
             <Form
-                schema={ApiMissionAuthorityVehicleSchema as any}
-                initValue={{ ...initValue, mission_id: initValue?.mission_id, authority_id: initValue?.authority_id } as any}
+                schema={MissionAuthorityVehicleFrontSchema as any}
+                initValue={{ ...initValue, mission_id: initValue?.missionId, authority_id: initValue?.authorityId } as any}
                 onSubmit={handleSubmitInternal}
             >
                 <div className="w-full space-y-3 px-2">
                     <div className="w-full md:flex md:md:items-start md:space-x-2">
-                        <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
+                        <FormSelectWithSearch<MissionAuthorityVehicleFront, string>
                             description="Tipo"
                             options={vehicleTypes}
                             fieldName={'type'}
@@ -150,7 +149,7 @@ export function AuthorityVehicleForm({
                             selectionChange={(e) => { updateModels(e) }}
                         />
 
-                        <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
+                        <FormSelectWithSearch<MissionAuthorityVehicleFront, string>
                             description="Marca"
                             allowNewValue={true}
                             options={brands}
@@ -159,7 +158,7 @@ export function AuthorityVehicleForm({
                             selectionChange={(e) => { updateModels(e) }}
                         />
 
-                        <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
+                        <FormSelectWithSearch<MissionAuthorityVehicleFront, string>
                             description="Modelo"
                             allowNewValue={true}
                             options={models}
@@ -170,18 +169,18 @@ export function AuthorityVehicleForm({
                     </div>
 
                     <div className="w-full md:flex md:md:items-start md:space-x-2">
-                        <FormInput<ApiMissionAuthorityVehicleType>
+                        <FormInput<MissionAuthorityVehicleFront>
                             description="Placa"
                             fieldName={'plate'}
                         />
 
-                        <FormInput<ApiMissionAuthorityVehicleType>
+                        <FormInput<MissionAuthorityVehicleFront>
                             description="Año"
                             fieldName={'year'}
                             type={'Integer'}
                         />
 
-                        <FormSelectWithSearch<ApiMissionAuthorityVehicleType, string>
+                        <FormSelectWithSearch<MissionAuthorityVehicleFront, string>
                             description="Color"
                             allowNewValue={true}
                             options={Colors}
