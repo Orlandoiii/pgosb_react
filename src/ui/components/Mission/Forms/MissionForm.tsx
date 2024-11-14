@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 
 
 import LoadingModal from '../../../core/modal/LoadingModal'
@@ -49,6 +49,13 @@ import { AuthorityForm } from './AuthorityForm'
 import { modalService } from '../../../core/overlay/overlay_service'
 import { insert } from '../../../../services/http'
 import FormSubmit from '../../../optimized/components/form_inputs/form_submit'
+import { FormDatePicker } from '../../../optimized/components/form_inputs/form_date_picker'
+import { formatDateString, parseDateString } from '../../../optimized/Utilities/date_string_formatter'
+import Chips from '../../../alter/components/menus/chips'
+import { Controller } from 'react-hook-form'
+import Chip from '../../../alter/components/data_presenters/chip'
+import { useFormFieldContext } from '../../../optimized/components/form/form_context'
+import { useMissionCollection } from '../../../../domain/models/mission/use_collection'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -62,8 +69,9 @@ const MissionForm = ({
     closeOverlay,
 }: MissionFormProps) => {
     const [loading, setLoading] = useState(false)
+    const [locationsLoading, setLocationsLoading] = useState(true)
 
-    // const [missionServices, missionServicesActions] = useMissionServiceCollection(initValue?.id ?? '')
+    const [_, missionsActions] = useMissionCollection()
 
     const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(initValue?.id ?? '')
     const [units] = useMissionUnitCollection('', 'ALL', 'unit')
@@ -92,6 +100,8 @@ const MissionForm = ({
 
     const [stations, stationsActions, updatestations] = useStationCollection();
 
+    const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : new Date())
+    const [currentOperativeAreas, setCurrentOperativeAreas] = useState<string[]>(initValue?.operativeAreas ? initValue?.operativeAreas : [])
     const roles = useMemo(() => {
         if (missionFirefighters.length == 0 || missionFirefighters.filter(x => x.serviceRole?.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
         else return [Roles.Auxiliary.toString(), Roles.Driver.toString()]
@@ -102,6 +112,13 @@ const MissionForm = ({
     const levels = useMemo(() => ["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"], [])
 
     const [action, setAction] = useState<'add' | 'update' | undefined>(undefined);
+
+    useEffect(() => {
+        setTimeout(() => {
+            setLocationsLoading(false);
+        }, 1000);
+    }, [])
+
     // async function addNewAuthority() {
     //     var errorMessage: string = ''
     //     try {
@@ -174,8 +191,13 @@ const MissionForm = ({
     //     )
     // }
 
-    async function submit(data: any) {
+    async function submit(data: MissionFront) {
+        data.manualMissionDate = formatDateString(new Date())
+        data.operativeAreas = currentOperativeAreas;
 
+        const result = await missionsActions.updateFront(data);
+        if (result.success) modalService.toastSuccess("Missión actualizada!");
+        else modalService.toastError("No se pudo actualizar la missión");
     }
 
     console.log(initValue);
@@ -184,7 +206,7 @@ const MissionForm = ({
         <>
             <ModalLayout
                 isVisible={isVisible}
-                className="min-w-[80vw]"
+                className="min-w-[80vw] max-w-[95vw]"
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
@@ -206,9 +228,9 @@ const MissionForm = ({
 
                             <DateTimePicker
                                 onChange={(date) => {
-                                    //  setServiceDate(date);
+                                    if (date) setManualDate(date);
                                 }}
-                                selected={new Date()}
+                                selected={manualDate}
                                 height='h-10'
                                 timeInterval={1}
                             />
@@ -218,8 +240,8 @@ const MissionForm = ({
                             <div className="font-semibold text-slate-700 text-xl">
                                 Código:
                             </div>
-                            <div className="bg-white px-4 py-2 rounded-md h-10">
-                                {initValue?.code}
+                            <div className="bg-white px-4 py-2 rounded-md h-10 font-semibold text-lg">
+                                {initValue?.id}
                             </div>
                         </div>
 
@@ -263,7 +285,7 @@ const MissionForm = ({
                     <div className="h-2"></div>
 
 
-                    <div className=' absolute top-0 left-0 w-full h-full pointer-events-none'>
+                    <div className=' absolute top-0 left-0 w-full h-full pointer-events-none pt-32'>
                         <div className='relative h-full w-full flex'>
                             <div className='w-full'></div>
                             <div className="sticky h-fit z-50 top-[-48px] right-6 pointer-events-auto">
@@ -395,6 +417,7 @@ const MissionForm = ({
                                 options={missionLocations}
                                 valueKey={'id'}
                                 displayKeys={['id', 'alias']}
+                                fatherLoading={locationsLoading}
                             />
 
                             <div className="flex-none pt-8 h-11">
@@ -405,6 +428,9 @@ const MissionForm = ({
                                         // lastLocationButtonPressedRef.current = 'ORIGEN'
 
                                         // locationActions.add()
+                                        setLocationModalOpen(true)
+                                        setAction('add')
+
                                         e.preventDefault()
                                         e.stopPropagation()
                                     }}
@@ -421,6 +447,7 @@ const MissionForm = ({
                                 options={missionLocations}
                                 valueKey={'id'}
                                 displayKeys={['id', 'alias']}
+                                fatherLoading={locationsLoading}
                             />
 
                             <div className="flex-none pt-8 h-11">
@@ -428,9 +455,12 @@ const MissionForm = ({
                                     colorType="bg-[#3C50E0]"
                                     onClick={(e) => {
                                         // preLocationRef.current = locations;
-                                        // lastLocationButtonPressedRef.current = 'DESTINO'
+                                        // lastLocationButtonPressedRef.current = 'ORIGEN'
 
                                         // locationActions.add()
+                                        setLocationModalOpen(true)
+                                        setAction('add')
+
                                         e.preventDefault()
                                         e.stopPropagation()
                                     }}
@@ -443,24 +473,8 @@ const MissionForm = ({
 
                     <div className="h-8"></div>
 
-                    <div className='flex space-x-8'>
-                        <SelectWithSearch
-                            description="Áreas operativas"
-                            options={operativeAreas}
-                            selectionChange={(e) => {
-                                if (e == '') return
-
-                                // setValue('operativeAreas', (prevValue) => {
-                                //     const newOperativeAreas = new Set(prevValue as string[] ?? []);
-                                //     newOperativeAreas.add(e);
-                                //     setExternal(Array.from(newOperativeAreas))
-                                //     return Array.from(newOperativeAreas);
-                                // });
-                            }}
-                        />
-                        <div className='w-full'>
-
-                        </div>
+                    <div className='flex space-x-8 w-full'>
+                        <AddOperativeAreaComponent options={operativeAreas} setExternal={setCurrentOperativeAreas} />
                     </div>
 
                     <div className="flex space-x-6 w-full">
@@ -484,24 +498,10 @@ const MissionForm = ({
                                 description="Motivo de Cancelación"
                                 fieldName={'cancelReason'}
                                 options={cancelReasons}
+                                addClearButton={true}
                             />
                         </div>
                     </div>
-
-                    {/* 
-                <div className="h-8"></div>
-
-                <AddableTable
-                    title="Servicios"
-                    data={missionServices ?? []}
-                    defaultSort={'id'}
-                    idPropertyName="id"
-                    addButtonText="Agregar un servicio"
-                    nameConverter={MissionServiceNameConverter}
-                    // onAddButtonClick={servicesActions}
-                    // onEditButtonClick={serviceActions.edit}
-                    onDeleteButtonClick={missionServicesActions.remove}
-                ></AddableTable> */}
 
                     <div className="h-8"></div>
 
@@ -615,9 +615,15 @@ const MissionForm = ({
                         idPropertyName="id"
                         addButtonText="Agregar una autoridad"
                         nameConverter={MissionAuthorityNameConverter}
-                        onAddButtonClick={() => {
-                            setAuthorityModalOpen(true)
-                            setAction('add')
+                        onAddButtonClick={async () => {
+                            const result = await missionAuthoritiesActions.insertFront({ missionId: initValue!.id } as any)
+                            
+                            if (result.success){
+                                setAuthorityModalData(result.result)
+                                setAuthorityModalOpen(true)
+                                setAction('add')
+                            }else modalService.toastError("No se pudo crear la autoridad")
+
                         }}
                         onEditButtonClick={async (id) => {
                             const authority = await missionAuthoritiesActions.getById(id)
@@ -678,8 +684,7 @@ const MissionForm = ({
 
             {authorityModalOpen &&
                 <AuthorityForm
-                    initValue={action == "add" ? { missionId: initValue!.id } : { ...authorityModalData, missionId: initValue!.id } as any}
-                    add={action == "add"}
+                    initValue={{ ...authorityModalData, missionId: initValue!.id } as any}
                     closeOverlay={() => {
                         updateMissionAuthorities()
                         setAuthorityModalOpen(false)
@@ -690,3 +695,51 @@ const MissionForm = ({
 }
 
 export default MissionForm
+
+
+interface AddOperativeAreaComponentProps {
+    options: string[]
+    setExternal: React.Dispatch<React.SetStateAction<string[]>>
+}
+function AddOperativeAreaComponent({ options, setExternal }: AddOperativeAreaComponentProps) {
+    const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
+
+    return <Controller
+        name={"operativeAreas"}
+        control={control}
+        render={({ field }) => {
+
+            return <div className='flex items-center space-x-6 w-full'>
+                <div className="flex-none w-1/2">
+                    <SelectWithSearch
+                        description="Áreas operativas"
+                        options={options}
+                        selectionChange={(e) => {
+                            if (e == '') return
+
+                            setValue('operativeAreas', (prevValue) => {
+                                const newOperativeAreas = new Set(prevValue as string[] ?? []);
+                                newOperativeAreas.add(e);
+                                setExternal(Array.from(newOperativeAreas))
+                                return Array.from(newOperativeAreas);
+                            });
+                        }}
+                        showSelected={false}
+                    />
+                </div>
+
+                <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
+                    {field.value && (field.value as string[]).length > 0 && field.value.map((item) => (
+                        <Chip
+                            text={item}
+                            onDelete={(e) => {
+                                field.onChange((field.value as string[]).filter(x => x !== e))
+                                setExternal((field.value as string[]).filter(x => x !== e))
+                            }}
+                        ></Chip>
+                    ))}
+                </div>
+            </div>
+        }}
+    ></Controller>
+}

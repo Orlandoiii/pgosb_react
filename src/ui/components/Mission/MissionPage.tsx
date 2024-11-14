@@ -29,6 +29,7 @@ import { useConfirmationModal } from '../../core/modal/ModalConfirmation'
 import { ResultErr } from '../../../domain/abstractions/types/resulterr'
 import { executeAndValidate } from '../../optimized/Utilities/execute_and_validate'
 import { useMissionCollection } from '../../../domain/models/mission/use_collection'
+import { formatDateString } from '../../optimized/Utilities/date_string_formatter'
 
 const alertController = new AlertController();
 
@@ -233,14 +234,15 @@ const MissionPage = () => {
                 <LoadingModal initOpen={loading} children={null} />
             </LayoutContexProvider>
 
-            <MissionForm
+            {mission && <MissionForm
                 isVisible={mission != null}
                 initValue={mission}
                 closeOverlay={() => {
                     setMission(null)
                     updateMissions()
                 }}
-            />
+            />}
+
         </>
     )
 }

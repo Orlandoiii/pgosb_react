@@ -20,6 +20,7 @@ interface Props<T> extends React.InputHTMLAttributes<HTMLInputElement> {
   isLoading?: boolean;
   addClearButton?: boolean;
   allowNewValue?: boolean;
+  showSelected?: boolean;
   selectionChange?: (option: string) => void;
 }
 
@@ -35,6 +36,7 @@ export function SelectWithSearch<T>({
   isLoading = false,
   allowNewValue = false,
   addClearButton = false,
+  showSelected = true,
   selectionChange,
   ...rest
 }: Props<T>) {
@@ -58,7 +60,7 @@ export function SelectWithSearch<T>({
             ref={select.refs.input}
             disabled={disable}
             value={
-              isLoading
+              isLoading || !showSelected
                 ? ""
                 : select.state.isFocus && select.state.optionsOpen
                   ? select.state.search

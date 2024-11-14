@@ -46,7 +46,9 @@ export const useFormFieldContext = <T extends FieldValues, TFieldName extends Fi
     const control = context.control;
     const resetCount = context.resetCount;
     const setError = context.setError;
-    return { fieldError, fieldRegister, control, isSubmitted, resetCount, setError };
+    const setValue = context.setValue;
+
+    return { fieldError, fieldRegister, control, isSubmitted, resetCount, setError, setValue };
   } else throw new Error("useFormFieldContext must be used within a FormProvider");
 };
 

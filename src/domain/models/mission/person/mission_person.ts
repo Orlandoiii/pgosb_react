@@ -80,7 +80,7 @@ function toApiInternal(data: MissionPersonFront): MissionPersonApi {
     return {
         id: data.id,
         mission_id: data.missionId,
-        unit_id: String(data.unitId),
+        unit_id: data.unitId,
         infrastructure_id: String(data.infrastructureId),
         vehicle_id: String(data.vehicleId),
         first_name: data.firstName,

@@ -70,20 +70,6 @@ export default function PersonForm({
         try {
             const parsed = MissionPersonFrontSchema.parse(data)
 
-            //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
-            if (parsed.vehicleId && parsed.vehicleId != "" && parsed.vehicleId != initValue?.vehicleId) {
-                parsed.vehicleId = parsed.vehicleId.split(" - ")[0].trim()
-            }
-
-            //SE MAPEA ID PORQUE ES LO QUE ESPERA EL BACKEND 
-            if (parsed.unitId && parsed.unitId != "" && parsed.unitId != initValue?.unitId) {
-                parsed.unitId = missionUnits.filter(x => x.plate == parsed.unitId)?.[0]?.id
-            }
-
-            //SIN CAMBIOS PORQUE ES EL ID
-            parsed.infrastructureId = parsed.infrastructureId;
-
-
             var result: ResultErr<MissionPersonFront>
 
             if (add) result = await personActions.insertFront(parsed)

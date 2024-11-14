@@ -18,14 +18,14 @@ import { useMissionAuthorityActions } from '../../../../domain/models/mission/au
 interface AutorityFormProps {
     initValue: MissionAuthorityFront | undefined
     closeOverlay?: () => void
-    add?: boolean
 }
 
 export function AuthorityForm({ 
     initValue,
     closeOverlay,
-    add = true,
 }: AutorityFormProps) {
+    console.log(initValue);
+    
     const authorityActions = useMissionAuthorityActions();
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)

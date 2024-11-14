@@ -2,24 +2,22 @@ import React, { useEffect, useMemo, useState } from "react"
 
 import { ApiMissionAuthorityVehicleSchema, ApiMissionAuthorityVehicleType, missionAuthorityVehicleCrud } from "../../../../domain/models/authority/authority_vehicle"
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
-import LoadingModal from "../../../core/modal/LoadingModal"
 import FormInput from "../../../alter/components/form_inputs/form_input"
 import Button from "../../../core/buttons/Button"
-import CustomForm, { getDefaults } from "../../../core/context/CustomFormContext"
-import { ApiMissionAuthorityPersonSchema, ApiMissionAuthorityPersonType } from "../../../../domain/models/authority/authority_person"
 import { modalService } from "../../../core/overlay/overlay_service"
-import { FieldValues } from "react-hook-form"
 import Form from "../../../alter/components/form/form"
 import { get, post } from "../../../../services/http"
 import FormSelectWithSearch from "../../../alter/components/form_inputs/form_select_with_search"
 import { EnumToStringArray } from "../../../../utilities/converters/enum_converter"
-import { UnitTypes } from "../../../../domain/abstractions/enums/unit_types"
 import { Colors } from "../../../../domain/abstractions/colors/colors"
 import { ResultErr } from "../../../../domain/abstractions/types/resulterr"
 import { VehicleTypes } from "../../../../domain/abstractions/enums/vehicle_type"
+import { useMissionAuthorityPersonActions } from "../../../../domain/models/mission/authority_person/use_collection.ts"
+import { useMissionAuthorityVehicleActions } from "../../../../domain/models/mission/authority_vehicle/use_collection.ts"
+import { MissionAuthorityVehicleFront } from "../../../../domain/models/mission/authority_vehicle/mission_authority_vehicle.ts"
 
 interface Props {
-    initValue?: ApiMissionAuthorityVehicleType | null
+    initValue?: MissionAuthorityVehicleFront | null
     closeOverlay?: () => void
     add?: boolean
 }
@@ -29,7 +27,7 @@ export function AuthorityVehicleForm({
     closeOverlay,
     add = true,
  }: Props) {
-    const infrastructureActions = useMissionInfrastructureActions();
+    const infrastructureActions = useMissionAuthorityVehicleActions();
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
 

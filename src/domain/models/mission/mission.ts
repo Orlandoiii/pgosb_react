@@ -44,7 +44,7 @@ export const MissionFrontSchema = z.object({
     deceased: z.string().optional().default(''),
     stationId: z.string().optional().default(''),
     locationId: z.string().optional().default(''),
-    manualMissionDate: z.string().optional().default(''),
+    manualMissionDate: z.string().optional().default(String(new Date())),
     isImportant: z.boolean().optional().default(false),
     centerId: z.string().optional().default(''),
     sendingUserId: z.string().optional().default(''),
