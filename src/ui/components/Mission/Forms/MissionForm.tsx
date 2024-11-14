@@ -48,6 +48,7 @@ import VehicleForm from './VehicleForm'
 import { AuthorityForm } from './AuthorityForm'
 import { modalService } from '../../../core/overlay/overlay_service'
 import { insert } from '../../../../services/http'
+import FormSubmit from '../../../optimized/components/form_inputs/form_submit'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -266,14 +267,12 @@ const MissionForm = ({
                         <div className='relative h-full w-full flex'>
                             <div className='w-full'></div>
                             <div className="sticky h-fit z-50 top-[-48px] right-6 pointer-events-auto">
-                                <Button
+                                <FormSubmit
                                     height='h-12'
                                     width='w-44'
                                     colorType="bg-[#3C50E0]"
-
-                                >
-                                    <span className='text-lg font-semibold'>Guardar</span>
-                                </Button>
+                                    description={"Guardar"}
+                                />
                             </div>
                         </div>
                     </div>
