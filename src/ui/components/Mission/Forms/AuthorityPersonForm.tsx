@@ -14,6 +14,7 @@ import { MissionAuthorityPersonFront, MissionAuthorityPersonFrontSchema } from "
 import Form from "../../../optimized/components/form/form.tsx"
 import FormInput from "../../../optimized/components/form_inputs/form_input.tsx"
 import FormSelectWithSearch from "../../../optimized/components/form_inputs/form_select_with_search.tsx"
+import FormSubmit from "../../../optimized/components/form_inputs/form_submit.tsx"
 
 interface Props {
     initValue?: MissionAuthorityPersonFront | null
@@ -21,7 +22,7 @@ interface Props {
     add?: boolean
 }
 
-export function AuthorityPersonForm({ 
+export function AuthorityPersonForm({
     initValue,
     closeOverlay,
     add = true,
@@ -124,10 +125,10 @@ export function AuthorityPersonForm({
 
                 <div className="flex flex-col space-y-4">
                     <div className="flex justify-end space-x-8">
-                        <Button
+                        <FormSubmit
                             colorType="bg-[#3C50E0]"
-                            children={buttonText}
-                        ></Button>
+                            description={'Aceptar'}
+                        />
                     </div>
                 </div>
             </Form>

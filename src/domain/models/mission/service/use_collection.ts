@@ -4,7 +4,7 @@ import { HttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
 
 export function useMissionServiceCollection(id: string, type: 'ALL' | 'GROUP' = 'GROUP'): [collection: MissionServiceFront[], actions: HttpActions<MissionServiceFront, MissionServiceApi>, updateCollection: () => void] {
     const [services, actions, updateServices] = useCollection({
-        endpointCompound: 'mission/unit',
+        endpointCompound: 'mission/service',
         fromApiMapper: MissionServiceFromApi,
         toApiMapper: MissionServiceToApi,
         type: type,

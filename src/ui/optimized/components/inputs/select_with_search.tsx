@@ -60,7 +60,7 @@ export function SelectWithSearch<T>({
             ref={select.refs.input}
             disabled={disable}
             value={
-              isLoading || !showSelected
+              isLoading
                 ? ""
                 : select.state.isFocus && select.state.optionsOpen
                   ? select.state.search
@@ -73,7 +73,7 @@ export function SelectWithSearch<T>({
             onBlur={() => dispatch({ type: 'FOCUS_OUT' })}
             onMouseEnter={() => dispatch({ type: 'HOVER_IN' })}
             onMouseLeave={() => dispatch({ type: 'HOVER_OUT' })}
-            className={`pointer-events-auto`}
+            className={`pointer-events-auto ${!select.state.optionsOpen && !showSelected ? 'text-transparent select-none' : ''}`}
           />
           <div className="top-0 left-0 absolute flex justify-end items-center space-x-1 pr-2 w-full h-full pointer-events-none">
             <div

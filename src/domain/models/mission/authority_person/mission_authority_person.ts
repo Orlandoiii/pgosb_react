@@ -84,7 +84,7 @@ export const MissionAuthorityPersonToApi = (
         toApiInternal
     )
 
-export const MissionAuthorityNameConverter: {
+export const MissionAuthorityPersonNameConverter: {
     [K in keyof MissionAuthorityPersonFront]?: string
 } = {
     name: "Nombre",

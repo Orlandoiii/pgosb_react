@@ -84,7 +84,7 @@ export const MissionAuthorityVehicleToApi = (
         toApiInternal
     )
 
-export const MissionAuthorityNameConverter: {
+export const MissionAuthorityVehicleNameConverter: {
     [K in keyof MissionAuthorityVehicleFront]?: string
 } = {
     type: "Tipo",

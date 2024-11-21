@@ -18,7 +18,7 @@ import { useMissionInfrastructureCollection } from '../../../../domain/models/mi
 import { useMissionVehicleCollection } from '../../../../domain/models/mission/vehicle/use_collection'
 import { useMissionPersonCollection } from '../../../../domain/models/mission/person/use_collection'
 import { useMissionServiceCollection } from '../../../../domain/models/mission/service/use_collection'
-import { MissionServiceNameConverter } from '../../../../domain/models/mission/service/mission_service'
+import { MissionServiceFront, MissionServiceFrontSchema, MissionServiceNameConverter } from '../../../../domain/models/mission/service/mission_service'
 import { MissionLocationFront, MissionLocationNameConverter } from '../../../../domain/models/mission/location/mission_location'
 import { MissionInfraestructureFront, MissionInfraestructureNameConverter } from '../../../../domain/models/mission/infraestructure/mission_infraestructure'
 import { MissionVehicleFront, MissionVehicleNameConverter } from '../../../../domain/models/mission/vehicle/mission_vehicle'
@@ -56,6 +56,8 @@ import { Controller } from 'react-hook-form'
 import Chip from '../../../alter/components/data_presenters/chip'
 import { useFormFieldContext } from '../../../optimized/components/form/form_context'
 import { useMissionCollection } from '../../../../domain/models/mission/use_collection'
+import { useAntaresCollection } from '../../../../domain/models/mission/antares/use_collection'
+import { getDefaults } from '../../../core/context/CustomFormContext'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -72,6 +74,8 @@ const MissionForm = ({
     const [locationsLoading, setLocationsLoading] = useState(true)
 
     const [_, missionsActions] = useMissionCollection()
+
+    const [missionServices, missionServicesActions, updateMissionServices] = useMissionServiceCollection(initValue?.id ?? '')
 
     const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(initValue?.id ?? '')
     const [units] = useMissionUnitCollection('', 'ALL', 'unit')
@@ -99,6 +103,7 @@ const MissionForm = ({
     const [authorityModalOpen, setAuthorityModalOpen] = useState(false)
 
     const [stations, stationsActions, updatestations] = useStationCollection();
+    const [antares] = useAntaresCollection();
 
     const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : new Date())
     const [currentOperativeAreas, setCurrentOperativeAreas] = useState<string[]>(initValue?.operativeAreas ? initValue?.operativeAreas : [])
@@ -192,7 +197,9 @@ const MissionForm = ({
     // }
 
     async function submit(data: MissionFront) {
-        data.manualMissionDate = formatDateString(new Date())
+        console.log("submited");
+
+        data.manualMissionDate = formatDateString(manualDate)
         data.operativeAreas = currentOperativeAreas;
 
         const result = await missionsActions.updateFront(data);
@@ -206,7 +213,7 @@ const MissionForm = ({
         <>
             <ModalLayout
                 isVisible={isVisible}
-                className="min-w-[80vw] max-w-[95vw]"
+                className="min-w-[80vw]"
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
@@ -276,6 +283,7 @@ const MissionForm = ({
                                 options={stations}
                                 valueKey={'id'}
                                 displayKeys={['abbreviation', 'name']}
+                                fatherLoading={stations.length < 1}
                             />
                         </div>
 
@@ -303,25 +311,28 @@ const MissionForm = ({
 
                     <AddableTable
                         title="Servicios"
-                        data={missionUnits ?? []}
+                        data={missionServices ?? []}
                         defaultSort={'id'}
                         idPropertyName="id"
-                        nameConverter={MissionUnitNameConverter}
+                        nameConverter={MissionServiceNameConverter}
 
-                        addButtonText="Agregar una unidad"
-                        options={units}
+                        addButtonText="Agregar un servicio"
+                        options={antares}
                         optionsDescription={'Placa'}
                         valueKey={'id'}
-                        displayKeys={['plate', 'unitType']}
-                        onAddButtonClick={(id) => {
-                            // const firefighter = firefighters.filter(x => x.id == id)[0]
-                            // if (firefighter && rank && initValue?.id) {
-                            //     firefighter.rank = rank
-                            //     firefighter.missionId = initValue?.id
-                            //     missionFirefightersActions.insertFront(firefighter)
-                            // }
+                        displayKeys={['id', 'description']}
+                        onAddOption={(id, _) => {
+                            console.log(id);
+
+                            if (id) {
+                                let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
+                                defaultValue.missionId = initValue!.id
+                                defaultValue.antaresId = id
+
+                                missionServicesActions.insertFront(defaultValue)
+                            }
                         }}
-                        onDeleteButtonClick={missionUnitsActions.remove}
+                        onDeleteButtonClick={missionServicesActions.remove}
                     ></AddableTable>
 
                     <div className="h-8"></div>
@@ -483,6 +494,7 @@ const MissionForm = ({
                                 description="Nivel"
                                 fieldName={'level'}
                                 options={levels}
+                                addClearButton={true}
                             />
                         </div>
 
@@ -493,7 +505,7 @@ const MissionForm = ({
                             />
                         </div>
 
-                        <div className=" w-64">
+                        <div className=" w-72">
                             <FormSelectWithSearch<MissionFront, string>
                                 description="Motivo de Cancelación"
                                 fieldName={'cancelReason'}
@@ -617,12 +629,12 @@ const MissionForm = ({
                         nameConverter={MissionAuthorityNameConverter}
                         onAddButtonClick={async () => {
                             const result = await missionAuthoritiesActions.insertFront({ missionId: initValue!.id } as any)
-                            
-                            if (result.success){
+
+                            if (result.success) {
                                 setAuthorityModalData(result.result)
                                 setAuthorityModalOpen(true)
                                 setAction('add')
-                            }else modalService.toastError("No se pudo crear la autoridad")
+                            } else modalService.toastError("No se pudo crear la autoridad")
 
                         }}
                         onEditButtonClick={async (id) => {
@@ -717,12 +729,11 @@ function AddOperativeAreaComponent({ options, setExternal }: AddOperativeAreaCom
                         selectionChange={(e) => {
                             if (e == '') return
 
-                            setValue('operativeAreas', (prevValue) => {
-                                const newOperativeAreas = new Set(prevValue as string[] ?? []);
-                                newOperativeAreas.add(e);
-                                setExternal(Array.from(newOperativeAreas))
-                                return Array.from(newOperativeAreas);
-                            });
+                            let newOperativeAreas = field.value as string[]
+                            newOperativeAreas.push(e);
+
+                            field.onChange(Array.from(newOperativeAreas))
+                            setExternal(Array.from(newOperativeAreas))
                         }}
                         showSelected={false}
                     />

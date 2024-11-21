@@ -14,6 +14,7 @@ import { MissionAuthorityVehicleFront, MissionAuthorityVehicleFrontSchema } from
 import Form from "../../../optimized/components/form/form.tsx"
 import FormSelectWithSearch from "../../../optimized/components/form_inputs/form_select_with_search.tsx"
 import FormInput from "../../../optimized/components/form_inputs/form_input.tsx"
+import FormSubmit from "../../../optimized/components/form_inputs/form_submit.tsx"
 
 interface Props {
     initValue?: MissionAuthorityVehicleFront | null
@@ -21,11 +22,11 @@ interface Props {
     add?: boolean
 }
 
-export function AuthorityVehicleForm({ 
+export function AuthorityVehicleForm({
     initValue,
     closeOverlay,
     add = true,
- }: Props) {
+}: Props) {
     const authorityVehicleActions = useMissionAuthorityVehicleActions();
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
@@ -195,10 +196,10 @@ export function AuthorityVehicleForm({
 
                 <div className="flex flex-col space-y-4">
                     <div className="flex justify-end space-x-8">
-                        <Button
+                        <FormSubmit
                             colorType="bg-[#3C50E0]"
-                            children={buttonText}
-                        ></Button>
+                            description={'Aceptar'}
+                        />
                     </div>
                 </div>
             </Form>

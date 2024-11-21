@@ -260,7 +260,6 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
     }, [options])
 
     useEffect(() => {
-
         if (selectedOption != state.state.innerSelectedOption.value && !isLoading) {
             optionChanged?.(state.state.innerSelectedOption.value)
         }

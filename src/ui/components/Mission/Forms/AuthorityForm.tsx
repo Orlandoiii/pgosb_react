@@ -4,8 +4,6 @@ import { AddableTable } from '../../Temp/AddableTable.tsx'
 import TextInput from '../../../alter/components/inputs/text_input.tsx'
 import LoadingModal from '../../../core/modal/LoadingModal.tsx'
 import { useActionModalAndCollection } from '../../../core/hooks/useActionModalAndCollection.ts'
-import { missionAuthorityPersonCrud, MissionAuthorityPersonNameConverter } from '../../../../domain/models/authority/authority_person.ts'
-import { missionAuthorityVehicleCrud, MissionAuthorityVehicleNameConverter } from '../../../../domain/models/authority/authority_vehicle.ts'
 import { AuthorityPersonForm } from './AuthorityPersonForm.tsx'
 import { AuthorityVehicleForm } from './AuthorityVehicleForm.tsx'
 import { modalService } from '../../../core/overlay/overlay_service.tsx'
@@ -13,6 +11,10 @@ import { SelectWithSearch } from '../../../alter/components/inputs/select_with_s
 import { getAll } from '../../../../services/http.tsx'
 import { MissionAuthorityFront } from '../../../../domain/models/mission/authority/mission_authority.ts'
 import { useMissionAuthorityActions } from '../../../../domain/models/mission/authority/use_collection.ts'
+import { useMissionAuthorityPersonCollection } from '../../../../domain/models/mission/authority_person/use_collection.ts'
+import { useMissionAuthorityVehicleCollection } from '../../../../domain/models/mission/authority_vehicle/use_collection.ts'
+import { MissionAuthorityPersonFront, MissionAuthorityPersonNameConverter } from '../../../../domain/models/mission/authority_person/mission_authority_person.ts'
+import { MissionAuthorityVehicleFront, MissionAuthorityVehicleNameConverter } from '../../../../domain/models/mission/authority_vehicle/mission_authority_vehicle.ts'
 
 
 interface AutorityFormProps {
@@ -20,12 +22,20 @@ interface AutorityFormProps {
     closeOverlay?: () => void
 }
 
-export function AuthorityForm({ 
+export function AuthorityForm({
     initValue,
     closeOverlay,
 }: AutorityFormProps) {
-    console.log(initValue);
-    
+    const [authorityPeople, authorityPeopleActions, updateAuthorityPerson] = useMissionAuthorityPersonCollection(initValue?.id ?? '')
+    const [authorityPersonModalData, setAuthorityPersonModalData] = useState<MissionAuthorityPersonFront>()
+    const [authorityPersonModalOpen, setAuthorityPersonModalOpen] = useState(false)
+
+    const [authorityVehicles, authorityVehiclesActions, updateAuthorityVehicle] = useMissionAuthorityVehicleCollection(initValue?.id ?? '')
+    const [authorityVehicleModalData, setAuthorityVehicleModalData] = useState<MissionAuthorityVehicleFront>()
+    const [authorityVehicleModalOpen, setAuthorityVehicleModalOpen] = useState(false)
+
+    const [action, setAction] = useState<'add' | 'update' | undefined>(undefined);
+
     const authorityActions = useMissionAuthorityActions();
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(false)
@@ -33,20 +43,6 @@ export function AuthorityForm({
     const [alias, setAlias] = useState(initValue ? initValue.alias : '')
     const [type, setType] = useState(initValue ? initValue.institutionId : '')
     const [typesCollection, setTypesCollection] = useState<{ id: string, name: string, abbreviation: string, government: string }[]>([])
-
-    const [authorityVehicleActions, vehicles] = useActionModalAndCollection(
-        AuthorityVehicleForm,
-        missionAuthorityVehicleCrud,
-        { mission_id: initValue?.missionId, authorityId: initValue?.id } as any,
-        initValue!.id
-    )
-
-    const [authorityPersonActions, people] = useActionModalAndCollection(
-        AuthorityPersonForm,
-        missionAuthorityPersonCrud,
-        { mission_id: initValue?.missionId, authorityId: initValue?.id } as any,
-        initValue!.id
-    )
 
     useEffect(() => {
         getAuthorityTypes()
@@ -125,31 +121,77 @@ export function AuthorityForm({
 
                 <AddableTable
                     title="Vehiculos"
-                    data={vehicles ?? []}
+                    data={authorityVehicles ?? []}
                     defaultSort={'id'}
                     idPropertyName="id"
                     addButtonText="Agregar un vehículo"
                     nameConverter={MissionAuthorityVehicleNameConverter}
-                    onAddButtonClick={authorityVehicleActions.add}
-                    onEditButtonClick={authorityVehicleActions.edit}
-                    onDeleteButtonClick={authorityVehicleActions.delete}
+                    onAddButtonClick={() => {
+                        setAuthorityVehicleModalOpen(true)
+                        setAction('add')
+                    }}
+                    onEditButtonClick={async (id) => {
+                        const authorityVehicle = await authorityVehiclesActions.getById(id)
+                        if (authorityVehicle.success && authorityVehicle.result) {
+                            setAuthorityVehicleModalData(authorityVehicle.result)
+                            setAuthorityVehicleModalOpen(true)
+                            setAction('update')
+                        }
+                    }}
+                    onDeleteButtonClick={async (id) => {
+                        let result = await authorityVehiclesActions.remove(id)
+                        if (result.success) updateAuthorityVehicle()
+                    }}
                 ></AddableTable>
 
                 <div className="h-8"></div>
 
                 <AddableTable
                     title="Funcionarios"
-                    data={people ?? []}
+                    data={authorityPeople ?? []}
                     defaultSort={'id'}
                     idPropertyName="id"
                     addButtonText="Agregar un funcionario"
                     nameConverter={MissionAuthorityPersonNameConverter}
-                    onAddButtonClick={authorityPersonActions.add}
-                    onEditButtonClick={authorityPersonActions.edit}
-                    onDeleteButtonClick={authorityPersonActions.delete}
+                    onAddButtonClick={() => {
+                        setAuthorityPersonModalOpen(true)
+                        setAction('add')
+                    }}
+                    onEditButtonClick={async (id) => {
+                        const authorityPerson = await authorityPeopleActions.getById(id)
+                        if (authorityPerson.success && authorityPerson.result) {
+                            setAuthorityPersonModalData(authorityPerson.result)
+                            setAuthorityPersonModalOpen(true)
+                            setAction('update')
+                        }
+                    }}
+                    onDeleteButtonClick={async (id) => {
+                        let result = await authorityPeopleActions.remove(id)
+                        if (result.success) updateAuthorityPerson()
+                    }}
                 ></AddableTable>
             </ModalLayout>
             <LoadingModal initOpen={loading} children={null} />
+
+            {authorityPersonModalOpen &&
+                <AuthorityPersonForm
+                    initValue={action == "add" ? { authorityId: initValue!.id, missionId: initValue!.missionId } : { ...authorityPersonModalData, authorityId: initValue!.id, missionId: initValue!.id } as any}
+                    add={action == "add"}
+                    closeOverlay={() => {
+                        updateAuthorityPerson()
+                        setAuthorityPersonModalOpen(false)
+                    }
+                    } />}
+
+            {authorityVehicleModalOpen &&
+                <AuthorityVehicleForm
+                    initValue={action == "add" ? { authorityId: initValue!.id, missionId: initValue!.missionId } : { ...authorityVehicleModalData, authorityId: initValue!.id, missionId: initValue!.id } as any}
+                    add={action == "add"}
+                    closeOverlay={() => {
+                        updateAuthorityVehicle()
+                        setAuthorityVehicleModalOpen(false)
+                    }
+                    } />}
         </>
     )
 }

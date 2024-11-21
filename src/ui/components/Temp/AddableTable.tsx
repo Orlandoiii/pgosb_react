@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Button from '../../core/buttons/Button'
-import SelectSearch from '../../core/inputs/SelectSearch'
-import { SelectWithSearch } from '../../alter/components/inputs/select_with_search'
+import { SelectWithSearch } from '../../optimized/components/inputs/select_with_search'
 
 type FriendlyNames<T> = {
     [K in keyof T]: string
@@ -28,6 +27,7 @@ interface AddableTableProps<T> {
     valueKey2?: string
     displayKeys2?: string[]
     optionsDescription2?: string
+    closeAfterAdd?: boolean
     onAddOption?: (data: any, data2: any) => void
 }
 
@@ -52,7 +52,8 @@ export function AddableTable<T>({
     optionsDescription2,
     onAddOption,
     preSelectFirstOption1,
-    preSelectFirstOption2
+    preSelectFirstOption2,
+    closeAfterAdd = false
 }: AddableTableProps<T>) {
     const [internalData, setInternalData] = useState(data)
 
@@ -65,6 +66,21 @@ export function AddableTable<T>({
 
     console.log(selectedOption, selectedOption2);
 
+    useEffect(() => {
+        if (options && !selectedOption || options2 && !selectedOption2) return
+        onAddOption
+            ? onAddOption(
+                selectedOption,
+                selectedOption2
+            )
+            : undefined
+
+        setSelectedOption('');
+    }, [selectedOption, selectedOption2])
+
+    useEffect(() => {
+        if (options2) setSelectedOption2(options2[0]);
+    }, [options2])
 
     useEffect(() => {
         if (sort == '') return
@@ -139,7 +155,7 @@ export function AddableTable<T>({
         return anyElement() ? Array<number>(length).fill(0) : []
     }
 
-    console.log('Table', selectedOption2)
+    console.log('Table', selectedOption)
 
     return (
         <div
@@ -279,11 +295,13 @@ export function AddableTable<T>({
                                 {showInnerAdd && <SelectWithSearch
                                     description={optionsDescription}
                                     options={options}
-                                    value={selectedOption}
+                                    value={''}
+                                    showSelected={false}
                                     valueKey={valueKey as any}
                                     displayKeys={displayKeys as any}
-                                    selectionChange={(e) =>
+                                    selectionChange={(e) => {
                                         setSelectedOption(e)
+                                    }
                                     }
                                 ></SelectWithSearch>}
 
@@ -313,7 +331,7 @@ export function AddableTable<T>({
                                 /> */}
 
                                 <div className="flex items-center space-x-4 pt-4 h-full">
-                                    <Button
+                                    {/* <Button
                                         enable={selectedOption != ''}
                                         colorType="bg-[#3C50E0]"
                                         onClick={(e) => {
@@ -323,14 +341,14 @@ export function AddableTable<T>({
                                                     selectedOption2
                                                 )
                                                 : undefined
-                                            setShowInnerAdd(false)
+                                            if (closeAfterAdd) setShowInnerAdd(false)
                                             setSelectedOption('')
                                             setSelectedOption2('')
                                             e.preventDefault()
                                             e.stopPropagation()
                                         }}
                                         children={'Guardar'}
-                                    ></Button>
+                                    ></Button> */}
 
                                     <button
                                         onClick={(e) => {
@@ -353,12 +371,11 @@ export function AddableTable<T>({
                                     if (options && preSelectFirstOption1) setSelectedOption(options[0])
                                     if (options2 && preSelectFirstOption2) setSelectedOption2(options2[0])
 
-                                    setTimeout(() => 
-                                    {
+                                    setTimeout(() => {
                                         options
-                                        ? setShowInnerAdd(true)
-                                        : onAddButtonClick && onAddButtonClick(selectedOption, selectedOption2)
-                                    } , 10)
+                                            ? setShowInnerAdd(true)
+                                            : onAddButtonClick && onAddButtonClick(selectedOption, selectedOption2)
+                                    }, 10)
 
                                     e.preventDefault()
                                     e.stopPropagation()
