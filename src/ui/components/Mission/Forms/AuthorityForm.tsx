@@ -105,7 +105,7 @@ export function AuthorityForm({
                         ></TextInput>
                     </div>
 
-                    <div className=" w-80">
+                    <div className=" w-2/3">
                         <SelectWithSearch
                             description="Tipo"
                             options={typesCollection}

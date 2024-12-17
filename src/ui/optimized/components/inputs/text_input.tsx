@@ -11,13 +11,15 @@ interface TextInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   disable?: boolean;
   isEmpty?: boolean;
   isSubmited?: boolean;
+  minLength?: number;
+  maxLength?: number;
   onValidationError?: (error: string) => void;
 }
 
 // eslint-disable-next-line react/display-name
 const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
   (
-    { type = "Any", description = "", error = "", disable = false, isSubmited = false, onValidationError, ...rest },
+    { type = "Any", description = "", error = "", disable = false, isSubmited = false, onValidationError, minLength = 0 , maxLength = 200, ...rest },
     ref
   ) => {
     const [isHover, setIsHover] = useState(false);
@@ -29,9 +31,10 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
     }
 
     return (
-      <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} w-full`}>
-        <div className="relative">
+      <div className={`${description ? 'pt-7 pb-3 translate-y-0.5' : ''} h-full w-full`}>
+        <div className="relative h-12 w-full">
           <TextInputBase
+            className="h-full w-full"
             type={type}
             {...rest}
             ref={ref}
@@ -40,6 +43,8 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             onHoverChanged={(isHovered) => setIsHover(isHovered)}
             onIsEmptyChanged={isEmptyChanged}
             onValidationError={onValidationError}
+            minLength={minLength}
+            maxLength={maxLength}
           />
           <InputController
             description={description}

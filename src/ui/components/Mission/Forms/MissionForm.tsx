@@ -58,6 +58,8 @@ import { useFormFieldContext } from '../../../optimized/components/form/form_con
 import { useMissionCollection } from '../../../../domain/models/mission/use_collection'
 import { useAntaresCollection } from '../../../../domain/models/mission/antares/use_collection'
 import { getDefaults } from '../../../core/context/CustomFormContext'
+import FormTextArea from '../../../optimized/components/form_inputs/form_text_area'
+import { TApiAntares } from '../../../../domain/models/antares/antares'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -102,7 +104,7 @@ const MissionForm = ({
     const [authorityModalData, setAuthorityModalData] = useState<MissionAuthorityFront>()
     const [authorityModalOpen, setAuthorityModalOpen] = useState(false)
 
-    const [stations, stationsActions, updatestations] = useStationCollection();
+    const [stations] = useStationCollection();
     const [antares] = useAntaresCollection();
 
     const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : new Date())
@@ -286,8 +288,22 @@ const MissionForm = ({
                                 fatherLoading={stations.length < 1}
                             />
                         </div>
+                        <AddServiceComponent options={antares} selectedChanged={async (id) => {
+                            if (id) {
+                                let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
+                                defaultValue.missionId = initValue!.id
+                                defaultValue.antaresId = id
 
-                        <div className='w-full'></div>
+                                const result = await missionServicesActions.insertFront(defaultValue)
+                                if (result.success) modalService.toastSuccess("Servicio agregado")
+                                else {
+                                    modalService.toastError("No se pudo agregar el servicio!")
+                                    console.error("No se pudo agregar el servicio por: ", result.error);
+                                }
+                            }
+                        }} />
+
+                        <div className='w-44 flex-none'></div>
                     </div>
 
                     <div className="h-2"></div>
@@ -313,25 +329,26 @@ const MissionForm = ({
                         title="Servicios"
                         data={missionServices ?? []}
                         defaultSort={'id'}
+                        defaultSortAsc={true}
                         idPropertyName="id"
                         nameConverter={MissionServiceNameConverter}
 
-                        addButtonText="Agregar un servicio"
+                        addButtonText=""
                         options={antares}
-                        optionsDescription={'Placa'}
+                        optionsDescription={'Antares'}
                         valueKey={'id'}
                         displayKeys={['id', 'description']}
-                        onAddOption={(id, _) => {
-                            console.log(id);
+                        // onAddOption={(id, _) => {
+                        //     console.log(id);
 
-                            if (id) {
-                                let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
-                                defaultValue.missionId = initValue!.id
-                                defaultValue.antaresId = id
+                        //     if (id) {
+                        //         let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
+                        //         defaultValue.missionId = initValue!.id
+                        //         defaultValue.antaresId = id
 
-                                missionServicesActions.insertFront(defaultValue)
-                            }
-                        }}
+                        //         missionServicesActions.insertFront(defaultValue)
+                        //     }
+                        // }}
                         onDeleteButtonClick={missionServicesActions.remove}
                     ></AddableTable>
 
@@ -513,6 +530,41 @@ const MissionForm = ({
                                 addClearButton={true}
                             />
                         </div>
+                    </div>
+
+                    <div className='h-8'></div>
+                    <div className='space-y-2'>
+                        <div className="font-semibold text-slate-700 text-xl">Bitacora / Descripción</div>
+                        <div className='h-40 w-full'>
+                            <FormTextArea<MissionFront>
+                                description={''}
+                                fieldName={'description'}
+                            />
+                        </div>
+                    </div>
+
+                    <div className='h-4'></div>
+                    <div className="flex space-x-6 h-20 w-full">
+                        <FormInput<MissionFront>
+                            description={'Ilesos'}
+                            fieldName={'unharmed'}
+                            type={'Number'}
+                        />
+                        <FormInput<MissionFront>
+                            description={'Heridos'}
+                            fieldName={'injured'}
+                            type={'Number'}
+                        />
+                        <FormInput<MissionFront>
+                            description={'Transportados'}
+                            fieldName={'transported'}
+                            type={'Number'}
+                        />
+                        <FormInput<MissionFront>
+                            description={'Fallecidos'}
+                            fieldName={'deceased'}
+                            type={'Number'}
+                        />
                     </div>
 
                     <div className="h-8"></div>
@@ -749,6 +801,38 @@ function AddOperativeAreaComponent({ options, setExternal }: AddOperativeAreaCom
                             }}
                         ></Chip>
                     ))}
+                </div>
+            </div>
+        }}
+    ></Controller>
+}
+
+interface AddServiceComponentProps {
+    options: TApiAntares[]
+    selectedChanged: (string) => void
+}
+
+function AddServiceComponent({ options, selectedChanged }: AddServiceComponentProps) {
+    const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
+
+    return <Controller
+        name={"operativeAreas"}
+        control={control}
+        render={({ field }) => {
+
+            return <div className='flex items-center w-full'>
+                <div className="flex-none w-full">
+                    <SelectWithSearch
+                        description="Antares"
+                        options={options}
+                        valueKey={'id'}
+                        displayKeys={['id', 'description']}
+                        selectionChange={(e) => {
+                            if (e == '') return
+                            selectedChanged(e)
+                        }}
+                        showSelected={false}
+                    />
                 </div>
             </div>
         }}

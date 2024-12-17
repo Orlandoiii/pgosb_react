@@ -91,7 +91,10 @@ const TextInputBase = forwardRef<HTMLInputElement, TextInputBaseProps>(
         type="text"
         {...rest}
         ref={selfRef}
-        onChange={onChangeHandler}
+        onChange={(e) =>{
+          e.target.value = e.target.value.toUpperCase()
+          onChangeHandler(e as any)
+        }}
         onFocus={onFocusHandler}
         onBlur={onBlurHandler}
         onMouseEnter={onMouseEnterHandler}

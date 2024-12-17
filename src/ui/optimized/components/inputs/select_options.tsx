@@ -57,7 +57,7 @@ export function SelectOptions({ options, preSelectedOption, onSelect, ...rest }:
               data-id={index}
               key={`${option.display}${option.value}`}
               onClick={() => onSelect(option)}
-              className={`${optionBackground(option)} h-10 w-full cursor-pointer px-6 py-2`}
+              className={`${optionBackground(option)} h-10 w-full text-ellipsis overflow-hidden whitespace-nowrap cursor-pointer px-6 py-2`}
             >
               {option.display}
             </div>

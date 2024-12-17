@@ -15,6 +15,7 @@ interface AddableTableProps<T> {
     preSelectFirstOption2?: boolean
     data: T[]
     defaultSort?: keyof T
+    defaultSortAsc?: boolean
     idPropertyName: string
     nameConverter?: { [K in keyof T]?: string }
     onEditButtonClick?: (id: string) => void
@@ -38,6 +39,7 @@ export function AddableTable<T>({
     enable = true,
     data = [],
     defaultSort,
+    defaultSortAsc = false,
     idPropertyName = '',
     nameConverter,
     onEditButtonClick,
@@ -57,7 +59,7 @@ export function AddableTable<T>({
 }: AddableTableProps<T>) {
     const [internalData, setInternalData] = useState(data)
 
-    const [sortAsc, setSortAsc] = useState(false)
+    const [sortAsc, setSortAsc] = useState(defaultSortAsc)
     const [sort, setSort] = useState(defaultSort ? defaultSort : idPropertyName)
 
     const [selectedOption, setSelectedOption] = useState('')
@@ -284,118 +286,120 @@ export function AddableTable<T>({
                                 </td>
                             </tr>
                         ))}
-                    <tr
-                        className={`relative ${showInnerAdd ? 'h-24' : 'h-12'}  ${enable ? 'cursor-pointer' : ''} duration-200 hover:bg-slate-300 overflow-x-hidden`}
-                    >
-                        <td>
-                            <div
-                                className={`${showInnerAdd && options ? '' : '-translate-x-full opacity-0 pointer-events-none'} absolute left-0 top-0 flex h-full w-full items-center bg-slate-200 space-x-4 px-2`}
-                            >
-
-                                {showInnerAdd && <SelectWithSearch
-                                    description={optionsDescription}
-                                    options={options}
-                                    value={''}
-                                    showSelected={false}
-                                    valueKey={valueKey as any}
-                                    displayKeys={displayKeys as any}
-                                    selectionChange={(e) => {
-                                        setSelectedOption(e)
-                                    }
-                                    }
-                                ></SelectWithSearch>}
-
-
-                                {showInnerAdd && options2 && options2.length > 0 && (
-                                    <SelectWithSearch
-                                        description={optionsDescription2}
-                                        options={options2}
-                                        valueKey={valueKey2 as any}
-                                        value={selectedOption2}
-                                        displayKeys={displayKeys2 as any}
+                        {addButtonText && (
+                            <tr
+                            className={`relative ${showInnerAdd ? 'h-24' : 'h-12'}  ${enable ? 'cursor-pointer' : ''} duration-200 hover:bg-slate-300 overflow-x-hidden`}
+                        >
+                            <td>
+                                <div
+                                    className={`${showInnerAdd && options ? '' : '-translate-x-full opacity-0 pointer-events-none'} absolute left-0 top-0 flex h-full w-full items-center bg-slate-200 space-x-4 px-2`}
+                                >
+    
+                                    {showInnerAdd && <SelectWithSearch
+                                        description={optionsDescription}
+                                        options={options}
+                                        value={''}
+                                        showSelected={false}
+                                        valueKey={valueKey as any}
+                                        displayKeys={displayKeys as any}
                                         selectionChange={(e) => {
-                                            setSelectedOption2(e);
+                                            setSelectedOption(e)
                                         }
                                         }
-                                    ></SelectWithSearch>
-                                )}
-
-                                {/* <SelectSearch
-                                    tabIndex={showInnerAdd ? undefined : -1}
-                                    inputName={'model'}
-                                    options={options!}
-                                    searhValue={selectedOption}
-                                    setSearhValue={setSelectedOption}
-                                    onBlur={blurOptionsHandler}
-                                    openUp={false}
-                                /> */}
-
-                                <div className="flex items-center space-x-4 pt-4 h-full">
-                                    {/* <Button
-                                        enable={selectedOption != ''}
-                                        colorType="bg-[#3C50E0]"
-                                        onClick={(e) => {
-                                            onAddOption
-                                                ? onAddOption(
-                                                    selectedOption,
-                                                    selectedOption2
-                                                )
-                                                : undefined
-                                            if (closeAfterAdd) setShowInnerAdd(false)
-                                            setSelectedOption('')
-                                            setSelectedOption2('')
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                        }}
-                                        children={'Guardar'}
-                                    ></Button> */}
-
-                                    <button
-                                        onClick={(e) => {
-                                            setShowInnerAdd(false)
-                                            setSelectedOption('')
-                                            setSelectedOption2('')
-                                            e.preventDefault()
-                                            e.stopPropagation()
-                                        }}
-                                        className="flex justify-center items-center border-2 border-white bg-slate-400 hover:bg-rose-500 rounded-md h-7 text-lg text-white duration-200 pointer-events-auto aspect-square"
-                                    >
-                                        X
-                                    </button>
+                                    ></SelectWithSearch>}
+    
+    
+                                    {showInnerAdd && options2 && options2.length > 0 && (
+                                        <SelectWithSearch
+                                            description={optionsDescription2}
+                                            options={options2}
+                                            valueKey={valueKey2 as any}
+                                            value={selectedOption2}
+                                            displayKeys={displayKeys2 as any}
+                                            selectionChange={(e) => {
+                                                setSelectedOption2(e);
+                                            }
+                                            }
+                                        ></SelectWithSearch>
+                                    )}
+    
+                                    {/* <SelectSearch
+                                        tabIndex={showInnerAdd ? undefined : -1}
+                                        inputName={'model'}
+                                        options={options!}
+                                        searhValue={selectedOption}
+                                        setSearhValue={setSelectedOption}
+                                        onBlur={blurOptionsHandler}
+                                        openUp={false}
+                                    /> */}
+    
+                                    <div className="flex items-center space-x-4 pt-4 h-full">
+                                        {/* <Button
+                                            enable={selectedOption != ''}
+                                            colorType="bg-[#3C50E0]"
+                                            onClick={(e) => {
+                                                onAddOption
+                                                    ? onAddOption(
+                                                        selectedOption,
+                                                        selectedOption2
+                                                    )
+                                                    : undefined
+                                                if (closeAfterAdd) setShowInnerAdd(false)
+                                                setSelectedOption('')
+                                                setSelectedOption2('')
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                            }}
+                                            children={'Guardar'}
+                                        ></Button> */}
+    
+                                        <button
+                                            onClick={(e) => {
+                                                setShowInnerAdd(false)
+                                                setSelectedOption('')
+                                                setSelectedOption2('')
+                                                e.preventDefault()
+                                                e.stopPropagation()
+                                            }}
+                                            className="flex justify-center items-center border-2 border-white bg-slate-400 hover:bg-rose-500 rounded-md h-7 text-lg text-white duration-200 pointer-events-auto aspect-square"
+                                        >
+                                            X
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-
-                            <button
-                                className={`${showInnerAdd && options ? 'translate-x-full opacity-0 pointer-events-none w-[0%]' : 'w-[100%]'} absolute left-0 top-0 flex h-full items-center px-2 bg-slate-200 text-slate-500 duration-200 hover:text-slate-800 hover:bg-slate-300`}
-                                onClick={(e) => {
-                                    if (options && preSelectFirstOption1) setSelectedOption(options[0])
-                                    if (options2 && preSelectFirstOption2) setSelectedOption2(options2[0])
-
-                                    setTimeout(() => {
-                                        options
-                                            ? setShowInnerAdd(true)
-                                            : onAddButtonClick && onAddButtonClick(selectedOption, selectedOption2)
-                                    }, 10)
-
-                                    e.preventDefault()
-                                    e.stopPropagation()
-                                }}
-                                disabled={!enable}
-                            >
-                                <span className="font-bold">+</span>
-                                <span className="text-xs">
-                                    {' '}
-                                    {addButtonText}{' '}
-                                </span>
-                            </button>
-                        </td>
-                        {anyElement() && <td className="w-0"></td>}
-                        {arrayOfLength(propertiesCount() - 1).map(
-                            (property, index) => (
-                                <td key={index}></td>
-                            )
+    
+                                <button
+                                    className={`${showInnerAdd && options ? 'translate-x-full opacity-0 pointer-events-none w-[0%]' : 'w-[100%]'} absolute left-0 top-0 flex h-full items-center px-2 bg-slate-200 text-slate-500 duration-200 hover:text-slate-800 hover:bg-slate-300`}
+                                    onClick={(e) => {
+                                        if (options && preSelectFirstOption1) setSelectedOption(options[0])
+                                        if (options2 && preSelectFirstOption2) setSelectedOption2(options2[0])
+    
+                                        setTimeout(() => {
+                                            options
+                                                ? setShowInnerAdd(true)
+                                                : onAddButtonClick && onAddButtonClick(selectedOption, selectedOption2)
+                                        }, 10)
+    
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                    }}
+                                    disabled={!enable}
+                                >
+                                    <span className="font-bold">+</span>
+                                    <span className="text-xs">
+                                        {' '}
+                                        {addButtonText}{' '}
+                                    </span>
+                                </button>
+                            </td>
+                            {anyElement() && <td className="w-0"></td>}
+                            {arrayOfLength(propertiesCount() - 1).map(
+                                (property, index) => (
+                                    <td key={index}></td>
+                                )
+                            )}
+                        </tr>
                         )}
-                    </tr>
                 </tbody>
             </table>
             <div></div>

@@ -109,10 +109,11 @@ const MissionPage = () => {
         if (result.success && result.result) setMission(result.result)
     }
 
-    function openPrintModal(service: any) {
-        const list = service.data.map(s => s.id)
-
-        const filters = (Object.entries(service.filters) as [string, any][]).map(([key, { value }]) => ({
+    function openPrintModal(missions: any) {
+        const missionsIDs = missions.data.map(s => s.id)
+        console.log(missions);
+        
+        const filters = (Object.entries(missions.filters) as [string, any][]).map(([key, { value }]) => ({
             name: key,
             value: value
         }))
@@ -120,7 +121,7 @@ const MissionPage = () => {
         modalService.pushModal(
             MissionReports,
             {
-                servicesIds: list,
+                missionsIds: missionsIDs,
                 filters: filters,
                 closeOverlay: undefined,
             },
@@ -178,22 +179,22 @@ const MissionPage = () => {
                         className={`${toggle ? '' : '-translate-x-full opacity-0'} absolute top-0 left-0 h-full w-full duration-200`}
                     >
                         <TableDataGrid
-                            child={
-                                <Toggle
-                                    useActiveColors={false}
-                                    toggle={toggle}
-                                    toggleChanged={() => setToggle(!toggle)}
-                                    option1="Misiones"
-                                    option2="Servicios"
-                                />
-                            }
+                            // child={
+                            //     <Toggle
+                            //         useActiveColors={false}
+                            //         toggle={toggle}
+                            //         toggleChanged={() => setToggle(!toggle)}
+                            //         option1="Misiones"
+                            //         option2="Servicios"
+                            //     />
+                            // }
                             showDownloadButton={true}
                             exportFileName="Missiones"
                             rawData={missions}
                             showDeleteButton={false}
                             onAdd={openAddMissionModal}
                             onUpdate={openMission}
-                            showPrintButton={false}
+                            showPrintButton={true}
                             onPrint={openPrintModal}
                             onDoubleClickRow={() => { }}
                             permissions={permissions}

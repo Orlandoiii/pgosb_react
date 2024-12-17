@@ -62,8 +62,6 @@ export const MissionServiceFrontSchema = z.object({
 export type MissionServiceApi = z.infer<typeof MissionServiceApiSchema>
 export type MissionServiceFront = z.infer<typeof MissionServiceFrontSchema>
 
-
-
 function fromApiInternal(data: MissionServiceApi): MissionServiceFront {
     return {
         id: data.id ?? "",
@@ -145,9 +143,9 @@ export const MissionServiceToApi = (
 
 export const MissionServiceNameConverter: { [K in keyof MissionServiceFront]?: string } = {
     id: 'Código',
+    antaresId: 'Antares',
     antaresType: 'Tipo',
     antaresDescription: 'Descripción',
-    // antaresId: 'Antares',
     // isImportant: "Relevante",
     // firefighter: 'Bomberos',
     // units: 'Unidades',

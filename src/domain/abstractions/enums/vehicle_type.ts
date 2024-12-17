@@ -1,5 +1,6 @@
 export enum VehicleTypes {
- Sedan = 'Sedan',
+ Moto = 'MOTO',
+ Sedan = 'SEDAN',
  Cargalivian = 'CARGA LIVIANA',
  CargaPesada = 'CARGA PESADA',
  Pickup = 'PICK UP',

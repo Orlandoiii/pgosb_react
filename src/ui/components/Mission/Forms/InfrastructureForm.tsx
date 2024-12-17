@@ -30,7 +30,7 @@ interface InfrastructureFormProps {
     add?: boolean
 }
 
-const areaCodes = ['N/A', 'Sin Pavimento', 'Inestable']
+const areaCodes = ['N/A', 'SIN PAVIMENTO', 'INESTABLE']
 
 export default function InfrastructureForm({
     initValue,
@@ -93,7 +93,7 @@ export default function InfrastructureForm({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildType'}
-                                description={'Tipo de infrastructura:'}
+                                description={'Tipo de infrastructura'}
                                 options={EnumToStringArray(InfrastructureType)}
                             />
                             {/* <FormSelect<TInfrastructure>
@@ -103,7 +103,7 @@ export default function InfrastructureForm({
                             /> */}
                             <FormInput<MissionInfraestructureFront>
                                 fieldName={'buildOccupation'}
-                                description="Ocupación:"
+                                description="Ocupación"
                             />
 
                             {/* <FormSelect<TInfrastructure>
@@ -113,12 +113,12 @@ export default function InfrastructureForm({
                             /> */}
                             <FormInput<MissionInfraestructureFront>
                                 fieldName={'buildArea'}
-                                description="Área de ubicación:"
+                                description="Área de ubicación"
                             />
 
                             <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildAccess'}
-                                description={'Acceso:'}
+                                description={'Acceso'}
                                 options={areaCodes}
                             />
                         </div>
@@ -126,16 +126,18 @@ export default function InfrastructureForm({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'goodsType'}
-                                description={'Tipo de bienes:'}
+                                description={'Tipo de bienes'}
                                 options={EnumToStringArray(Goods)}
                             />
                             <FormInput<MissionInfraestructureFront>
                                 fieldName={'levels'}
-                                description="N° Niveles:"
+                                description="N° Niveles"
+                                type={'Number'}
                             />
                             <FormInput<MissionInfraestructureFront>
                                 fieldName={'people'}
-                                description="N° personas:"
+                                description="N° personas"
+                                type={'Number'}
                             />
                         </div>
 
@@ -147,22 +149,22 @@ export default function InfrastructureForm({
                             /> */}
                             <FormInput<MissionInfraestructureFront>
                                 fieldName={'buildRoomType'}
-                                description="Tipo de habitación:"
+                                description="Tipo de habitación"
                             />
 
                             <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildFloor'}
-                                description={'Pisos:'}
+                                description={'Pisos'}
                                 options={EnumToStringArray(FloorTypes)}
                             />
                             <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildWall'}
-                                description={'Paredes:'}
+                                description={'Paredes'}
                                 options={EnumToStringArray(WallTypes)}
                             />
                             <FormSelect<MissionInfraestructureFront, any>
                                 fieldName={'buildRoof'}
-                                description={'Techos:'}
+                                description={'Techos'}
                                 options={EnumToStringArray(CeilingTypes)}
                             />
                         </div>
@@ -172,7 +174,7 @@ export default function InfrastructureForm({
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <FormInput<MissionInfraestructureFront>
                                 fieldName={'observations'}
-                                description="Dirección:"
+                                description="Dirección"
                             />
                         </div>
                     </div>

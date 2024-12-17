@@ -48,8 +48,8 @@ type Action<T> =
 
 function getSelectOptions<T>(options: T[] | string[] | undefined, valueKey?: string, displayKeys?: string[]) {
     if (!options || options.length == 0 || options.some(x => x == undefined)) return [{ value: "", display: "Sin datos" }];
-    console.log("options",options, valueKey);
-    
+    console.log("options", options, valueKey);
+
     return options.map(option => {
         const value = typeof option === 'string' || !valueKey ? String(option) : String((option as Record<string, any>)[valueKey]);
         const display = typeof option === 'string' || !displayKeys
@@ -78,13 +78,13 @@ function getNewSelectedOption(options: SelectOption[], option: SelectOption | st
 }
 function selectedOptionChangedHandler<T>(state: SelectStoreState<T>, option?: SelectOption | string): SelectStoreState<T> {
 
-    
-    
+
+
     let newPreSelectedOption = getNewSelectedOption(state.options.all, option ?? '', state.config.allowNewValue)
     const newSelectedOption = newPreSelectedOption.value == '' ? { value: "", display: "" } : newPreSelectedOption
 
     console.log(option, option ?? '', state.config.allowNewValue, state.options.all, newPreSelectedOption, newSelectedOption);
-    
+
 
     return ({
         ...state,
@@ -264,6 +264,12 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
             optionChanged?.(state.state.innerSelectedOption.value)
         }
     }, [state.state.innerSelectedOption])
+
+    useEffect(() => {
+        if (selectedOption != state.state.innerSelectedOption.value) {
+            // dispatch({ type: 'CHANGE_SELECTED_OPTION', payload: selectedOption })
+        }
+    }, [selectedOption])
 
     return {
         state,

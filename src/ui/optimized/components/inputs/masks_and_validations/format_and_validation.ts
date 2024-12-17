@@ -19,6 +19,7 @@ export type InputType =
   | "Ip"
   | "Amount"
   | "Account"
+  | "Number"
   | "Integer"
   | "Decimal"
   | "AgentAccount"
@@ -59,6 +60,7 @@ function cleanValue(value: string, type: InputType): string {
       break;
     case "Amount":
     case "Decimal":
+    case "Number":
     case "Account":
     case "Integer":
     case "AgentAccount":

@@ -1,6 +1,6 @@
 import { MissionServiceApi, MissionServiceFromApi, MissionServiceFront, MissionServiceToApi } from "./mission_service";
 import { useCollection } from "../../../../ui/optimized/hooks/useCollection";
-import { HttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
+import { HttpActions, useHttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
 
 export function useMissionServiceCollection(id: string, type: 'ALL' | 'GROUP' = 'GROUP'): [collection: MissionServiceFront[], actions: HttpActions<MissionServiceFront, MissionServiceApi>, updateCollection: () => void] {
     const [services, actions, updateServices] = useCollection({
@@ -12,4 +12,12 @@ export function useMissionServiceCollection(id: string, type: 'ALL' | 'GROUP' = 
     })
 
     return [services, actions, updateServices]
+}
+
+export function useMissionServiceActions() {
+    return useHttpActions({
+        endpointCompound: 'mission/service',
+        fromApiMapper: MissionServiceFromApi,
+        toApiMapper: MissionServiceToApi,
+    })
 }
