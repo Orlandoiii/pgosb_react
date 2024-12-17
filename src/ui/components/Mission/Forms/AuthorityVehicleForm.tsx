@@ -178,7 +178,8 @@ export function AuthorityVehicleForm({
                         <FormInput<MissionAuthorityVehicleFront>
                             description="Año"
                             fieldName={'year'}
-                            type={'Integer'}
+                            type={'Number'}
+                            maxLength={4}
                         />
 
                         <FormSelectWithSearch<MissionAuthorityVehicleFront, string>

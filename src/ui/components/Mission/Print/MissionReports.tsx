@@ -9,7 +9,7 @@ import { EnumToStringArray } from "../../../../utilities/converters/enum_convert
 import { NewsSummaryPrint } from "./NewsSummaryPrint";
 
 interface MissionReportsProps {
-    servicesIds: string[]
+    missionsIds: string[]
     filters: { name: string, value: string }[]
     closeOverlay?: () => void
 }
@@ -22,7 +22,7 @@ enum reportTypes {
     NewsSummary = "Resumen de Novedades",
 }
 
-export function MissionReports({ servicesIds, filters, closeOverlay }: MissionReportsProps) {
+export function MissionReports({ missionsIds: servicesIds, filters, closeOverlay }: MissionReportsProps) {
     const [selectedReport, setSelectedReport] = useState<string>(reportTypes.StatisticsForAntares)
     const reports: string[] = EnumToStringArray(reportTypes)
 
@@ -38,23 +38,23 @@ export function MissionReports({ servicesIds, filters, closeOverlay }: MissionRe
                 <div className="h-full w-full flex flex-col rounded-lg border border-slate-400 bg-slate-300 overflow-auto">
                     <PrintView>
                         {selectedReport === reportTypes.StatisticsForAntares &&
-                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'Antares'} filters={filters} />
+                            <DetailServicesSummaryPrint missionsIds={servicesIds} groupBy={'Antares'} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.StatisticsForAntaresTypes &&
-                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'AntaresTypes'} filters={filters} />
+                            <DetailServicesSummaryPrint missionsIds={servicesIds} groupBy={'AntaresTypes'} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.StatisticsForStation &&
-                            <DetailServicesSummaryPrint servicesIds={servicesIds} groupBy={'Stations'} filters={filters} />
+                            <DetailServicesSummaryPrint missionsIds={servicesIds} groupBy={'Stations'} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.ServiceDetails &&
-                            <RelevantServicesReportPrint servicesIds={servicesIds} filters={filters} />
+                            <RelevantServicesReportPrint missionsIds={servicesIds} filters={filters} />
                         }
 
                         {selectedReport === reportTypes.NewsSummary &&
-                            <NewsSummaryPrint servicesIds={servicesIds} filters={filters} />
+                            <NewsSummaryPrint missionsIds={servicesIds} filters={filters} />
                         }
 
                     </PrintView>

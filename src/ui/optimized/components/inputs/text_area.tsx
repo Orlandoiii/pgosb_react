@@ -24,7 +24,7 @@ const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
     }
 
     return (
-      <div className="relative">
+      <div className="relative h-full w-full">
         <TextAreaBase
           {...rest}
           ref={ref}

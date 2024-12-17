@@ -11,6 +11,8 @@ interface FormInputProps<T extends FieldValues, TFieldName extends FieldPath<T> 
   description?: string;
   placeholder?: string;
   disable?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }
 
 function FormInput<T extends FieldValues>({
@@ -18,11 +20,13 @@ function FormInput<T extends FieldValues>({
   fieldName,
   description = '',
   disable = false,
+  minLength = 0,
+  maxLength = 200,
 }: FormInputProps<T>) {
   const { fieldRegister, fieldError, isSubmitted } = useFormFieldContext<T>(fieldName);
 
   return (
-    <div className="w-full">
+    <div className="h-full w-full">
       <TextInput
         disable={disable}
         type={type}
@@ -30,6 +34,8 @@ function FormInput<T extends FieldValues>({
         error={fieldError}
         isSubmited={isSubmitted}
         {...fieldRegister}
+        minLength={minLength}
+        maxLength={maxLength}
       ></TextInput>
     </div>
   );

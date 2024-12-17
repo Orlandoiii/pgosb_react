@@ -210,7 +210,8 @@ export default function VehicleForm({
                             <FormInput<MissionVehicleFront>
                                 description="Año"
                                 fieldName={'year'}
-                                type={'Integer'}
+                                type={'Number'}
+                                maxLength={4}
                             />
 
                             <FormSelectWithSearch<MissionVehicleFront, string>

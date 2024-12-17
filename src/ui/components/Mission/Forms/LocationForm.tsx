@@ -144,14 +144,14 @@ export default function LocationForm({
                 setSector(staticLocation.sector)
                 setUrbanizacion(staticLocation.urb)
                 setAddress(staticLocation.address)
-                
+
                 setTimeout(() => {
                     setLoading(false)
                 }, 1000);
             }
         }
 
-    }, [alias,staticLocations])
+    }, [alias, staticLocations])
 
     console.log(parishs.length);
 

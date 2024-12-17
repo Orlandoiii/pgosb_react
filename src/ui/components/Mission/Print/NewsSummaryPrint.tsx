@@ -7,13 +7,20 @@ import { AntaresFromApi } from "../../../../domain/models/antares/antares"
 import React from "react"
 import { LocationFromApi, ServiceLocationSchemaType } from "../../../../domain/models/location/location"
 import Overlay from "../../../core/overlay/overlay"
+import { MissionServiceFront } from "../../../../domain/models/mission/service/mission_service"
+import { useStationCollection } from "../../../../domain/models/mission/station/use_collection"
+import { useAntaresCollection } from "../../../../domain/models/mission/antares/use_collection"
+import { useMissionServiceActions } from "../../../../domain/models/mission/service/use_collection"
 
-function getServiceData(services: TService[]): {
+function getServiceData(services: MissionServiceFront[]): {
     antaresSummary: AnteresSummary[]
     stationsSummary: StationsSummary[]
     antaresDetail: AntaresDetail[]
     stationsDetail: StationsDetail[]
 } {
+
+    services = services.sort((a, b) => (a.id as any) - (b.id as any))
+
     const antaresSummary = groupByAntaresId(services)
     const stationsSummary = groupServicesByStation(services)
 
@@ -24,22 +31,29 @@ function getServiceData(services: TService[]): {
 }
 
 type AnteresSummary = { antaresId: string; count: number, percentage: string }
-function groupByAntaresId(services: TService[]): AnteresSummary[] {
+function groupByAntaresId(services: MissionServiceFront[]): AnteresSummary[] {
     let antares: AnteresSummary[] = []
+    let missions: string[] = []
 
     services.forEach((service) => {
-        const antaresId = service.antaresId
-        const antaresItem = antares.find((item) => item.antaresId === antaresId)
+        const already = missions.filter(x => x == service.missionId).length > 0
 
-        if (antaresItem) {
-            antaresItem.count++
-        } else if (antaresId) {
-            antares.push({ antaresId, count: 1, percentage: "0" })
+        if (!already) {
+            missions.push(service.missionId)
+
+            const antaresId = service.antaresId
+            const antaresItem = antares.find((item) => item.antaresId === antaresId)
+
+            if (antaresItem) {
+                antaresItem.count++
+            } else if (antaresId) {
+                antares.push({ antaresId, count: 1, percentage: "0" })
+            }
         }
     })
 
     antares.forEach(antares => {
-        antares.percentage = ((antares.count / services.length) * 100).toFixed(2)
+        antares.percentage = ((antares.count / missions.length) * 100).toFixed(2)
     })
 
     antares = antares.sort((a, b) => b.count - a.count)
@@ -48,7 +62,7 @@ function groupByAntaresId(services: TService[]): AnteresSummary[] {
 }
 
 type StationsSummary = { stationId: string; count: number, percentage: string }
-function groupServicesByStation(services: TService[]): StationsSummary[] {
+function groupServicesByStation(services: MissionServiceFront[]): StationsSummary[] {
     let stations: StationsSummary[] = []
 
     services.forEach((service) => {
@@ -93,43 +107,35 @@ type AntaresDetail = {
         percentage: string
     }
 }
-function detailByAntares(services: TService[]): AntaresDetail[] {
+function detailByAntares(services: MissionServiceFront[]): AntaresDetail[] {
     let antaresDetail: AntaresDetail[] = []
     let servicesCount: number = 0
+    let missions: string[] = []
 
     services.forEach((service) => {
-        const antaresId = service.antaresId
-        const stationId = service.stationId
-        const antaresItem = antaresDetail.find(
-            (item) => item.antaresId === antaresId
-        )
+        const already = missions.filter(x => x == service.missionId).length > 0
+        console.log(service.missionId, service.id ,already,);
+        if (!already) {
+            missions.push(service.missionId)
 
-        if (antaresItem) {
-            const stationItem = antaresItem.details.find(
-                (item) => item.stationId === stationId
+            const antaresId = service.antaresId
+            const stationId = service.stationId
+            const antaresItem = antaresDetail.find(
+                (item) => item.antaresId === antaresId
             )
-            if (stationItem) {
-                stationItem.services++
-                stationItem.unharmed += Number(service.unharmed)
-                stationItem.injured += Number(service.injured)
-                stationItem.transported += Number(service.transported)
-                stationItem.deceased += Number(service.deceased)
-            } else if (stationId) {
-                antaresItem.details.push({
-                    stationId,
-                    services: 1,
-                    unharmed: Number(service.unharmed),
-                    injured: Number(service.injured),
-                    transported: Number(service.transported),
-                    deceased: Number(service.deceased),
-                    percentage: "0",
-                })
-            }
-        } else if (antaresId && stationId) {
-            antaresDetail.push({
-                antaresId,
-                details: [
-                    {
+
+            if (antaresItem) {
+                const stationItem = antaresItem.details.find(
+                    (item) => item.stationId === stationId
+                )
+                if (stationItem) {
+                    stationItem.services++
+                    stationItem.unharmed += Number(service.unharmed)
+                    stationItem.injured += Number(service.injured)
+                    stationItem.transported += Number(service.transported)
+                    stationItem.deceased += Number(service.deceased)
+                } else if (stationId) {
+                    antaresItem.details.push({
                         stationId,
                         services: 1,
                         unharmed: Number(service.unharmed),
@@ -137,20 +143,35 @@ function detailByAntares(services: TService[]): AntaresDetail[] {
                         transported: Number(service.transported),
                         deceased: Number(service.deceased),
                         percentage: "0",
+                    })
+                }
+            } else if (antaresId && stationId) {
+                antaresDetail.push({
+                    antaresId,
+                    details: [
+                        {
+                            stationId,
+                            services: 1,
+                            unharmed: Number(service.unharmed),
+                            injured: Number(service.injured),
+                            transported: Number(service.transported),
+                            deceased: Number(service.deceased),
+                            percentage: "0",
+                        },
+                    ],
+                    summatory: {
+                        services: 0,
+                        unharmed: 0,
+                        injured: 0,
+                        transported: 0,
+                        deceased: 0,
+                        percentage: "0",
                     },
-                ],
-                summatory: {
-                    services: 0,
-                    unharmed: 0,
-                    injured: 0,
-                    transported: 0,
-                    deceased: 0,
-                    percentage: "0",
-                },
-            })
-        }
+                })
+            }
 
-        servicesCount++
+            servicesCount++
+        }
     })
 
     antaresDetail.forEach((antaresDetail) => {
@@ -171,6 +192,8 @@ function detailByAntares(services: TService[]): AntaresDetail[] {
 
     antaresDetail = antaresDetail.sort((a, b) => b.summatory.services - a.summatory.services)
 
+    console.log("detail", antaresDetail, missions);
+    
     return antaresDetail
 }
 
@@ -194,43 +217,35 @@ type StationsDetail = {
         percentage: string
     }
 }
-function detailByStation(services: TService[]): StationsDetail[] {
+function detailByStation(services: MissionServiceFront[]): StationsDetail[] {
     let stationDetail: StationsDetail[] = []
+    let missions: string[] = []
     let servicesCount = 0
 
     services.forEach((service) => {
-        const antaresId = service.antaresId
-        const stationId = service.stationId
-        const stationItem = stationDetail.find(
-            (item) => item.stationId === stationId
-        )
+        const already = missions.filter(x => x === service.missionId).length > 0
 
-        if (stationItem) {
-            const antaresItem = stationItem.details.find(
-                (item) => item.antaresId === antaresId
+        if (!already) {
+            missions.push(service.missionId)
+            
+            const antaresId = service.antaresId
+            const stationId = service.stationId
+            const stationItem = stationDetail.find(
+                (item) => item.stationId === stationId
             )
-            if (antaresItem) {
-                antaresItem.services++
-                antaresItem.unharmed += Number(service.unharmed)
-                antaresItem.injured += Number(service.injured)
-                antaresItem.transported += Number(service.transported)
-                antaresItem.deceased += Number(service.deceased)
-            } else if (antaresId) {
-                stationItem.details.push({
-                    antaresId,
-                    services: 1,
-                    unharmed: Number(service.unharmed),
-                    injured: Number(service.injured),
-                    transported: Number(service.transported),
-                    deceased: Number(service.deceased),
-                    percentage: "0",
-                })
-            }
-        } else if (stationId && antaresId) {
-            stationDetail.push({
-                stationId,
-                details: [
-                    {
+    
+            if (stationItem) {
+                const antaresItem = stationItem.details.find(
+                    (item) => item.antaresId === antaresId
+                )
+                if (antaresItem) {
+                    antaresItem.services++
+                    antaresItem.unharmed += Number(service.unharmed)
+                    antaresItem.injured += Number(service.injured)
+                    antaresItem.transported += Number(service.transported)
+                    antaresItem.deceased += Number(service.deceased)
+                } else if (antaresId) {
+                    stationItem.details.push({
                         antaresId,
                         services: 1,
                         unharmed: Number(service.unharmed),
@@ -238,20 +253,35 @@ function detailByStation(services: TService[]): StationsDetail[] {
                         transported: Number(service.transported),
                         deceased: Number(service.deceased),
                         percentage: "0",
+                    })
+                }
+            } else if (stationId && antaresId) {
+                stationDetail.push({
+                    stationId,
+                    details: [
+                        {
+                            antaresId,
+                            services: 1,
+                            unharmed: Number(service.unharmed),
+                            injured: Number(service.injured),
+                            transported: Number(service.transported),
+                            deceased: Number(service.deceased),
+                            percentage: "0",
+                        },
+                    ],
+                    summatory: {
+                        services: 0,
+                        unharmed: 0,
+                        injured: 0,
+                        transported: 0,
+                        deceased: 0,
+                        percentage: "0",
                     },
-                ],
-                summatory: {
-                    services: 0,
-                    unharmed: 0,
-                    injured: 0,
-                    transported: 0,
-                    deceased: 0,
-                    percentage: "0",
-                },
-            })
-        }
-
-        servicesCount++
+                })
+            }
+    
+            servicesCount++
+        } 
     })
 
     stationDetail.forEach((stationItem) => {
@@ -276,17 +306,15 @@ function detailByStation(services: TService[]): StationsDetail[] {
 }
 
 interface NewsSummaryPrintProps {
-    servicesIds: string[]
+    missionsIds: string[]
     filters: { name: string, value: string }[]
 }
 
-export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps) {
-    const antaresCollection = useCollection('mission/antares', AntaresFromApi)
-    const stationCollection = useCollection('station', (data: StationSchemaBasicDataType) => {
-        return { success: true, result: data }
-    })
+export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSummaryPrintProps) {
+    const serviceActions = useMissionServiceActions();
 
-
+    const [stationCollection] = useStationCollection();
+    const [antaresCollection] = useAntaresCollection();
 
     const [services, setServices] = useState<NewsSummary[]>([])
     const [servicesByAntares, setServicesByAntares] = useState<{ antaresId: string, antaresDescription: string, count: number }[]>([])
@@ -343,7 +371,7 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
                     locationsSet = true
                 }
                 if (serviceSummary) {
-                    const servicesRequest = await getById<TService>("mission/service", serviceId, ServiceFromApi)
+                    const servicesRequest = await getById<TService>("mission", serviceId, ServiceFromApi)
 
                     const serviceLocation = serviceLocations?.filter(x => x.id == servicesRequest.result?.locationId)[0]
                     servicesList.push({
@@ -413,9 +441,9 @@ export function NewsSummaryPrint({ servicesIds, filters }: NewsSummaryPrintProps
 
                     {services.filter(x => x.is_important).map(importantService => (
                         <div className="pt-8">
-                            <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {importantService.description}</span></div>
-                            <div className="font-semibold">HORA: <span className="font-normal">{importantService.manual_service_date}</span></div>
-                            <div className="font-semibold">CODIGO: <span className="font-normal">{importantService.mission_id.split("-")[0]}</span></div>
+                            <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {importantService.antares_description}</span></div>
+                            <div className="font-semibold">HORA: <span className="font-normal">{importantService.manual_mission_date}</span></div>
+                            <div className="font-semibold">CODIGO: <span className="font-normal">{importantService.id.split("-")[0]}</span></div>
                             <div className="font-semibold">ESTACION: <span className="font-normal">{importantService.station_name} - {importantService.stationDescription}</span></div>
                             <div className="font-semibold">DIRECCION: <span className="font-normal">{importantService.serviceLocation}</span></div>
                         </div>
