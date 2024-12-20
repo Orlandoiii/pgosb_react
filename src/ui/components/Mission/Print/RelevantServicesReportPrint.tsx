@@ -19,7 +19,7 @@ interface DetailByStation {
 interface Station {
     abbreviation: string;
     name: string;
-    missions:Array<{
+    missions: Array<{
         missionCode: string;
         missionId: string;
         missionDescription: string;
@@ -29,7 +29,18 @@ interface Station {
         transported: string;
         deceased: string;
         isImportant: boolean;
+        level: string;
+        peaceQuadrant: string;
+        cancelReason: string;
         locations: Array<{
+            state?: string;
+            municipality?: string;
+            parish?: string;
+            sector?: string;
+            urb?: string;
+            address?: string;
+        }>;
+        destination: Array<{
             state?: string;
             municipality?: string;
             parish?: string;
@@ -88,6 +99,39 @@ interface Station {
             sector?: string;
             urb?: string;
         }>;
+
+        authoritiesData: {
+            authorities: Array<{
+                authority_name: string;
+                authority_abbreviation: string;
+                government: string;
+            }>;
+            person: Array<{
+                authority_name: string;
+                authority_abbreviation: string;
+                government: string;
+                name: string;
+                legal_id: string;
+                identification_number: string;
+                phone: string;
+                gender: string;
+                observations: string;
+                created_at: string;
+            }>;
+            vehicle: Array<{
+                authority_name: string;
+                authority_abbreviation: string;
+                government: string;
+                type: string;
+                make: string;
+                model: string;
+                plate: string;
+                year: string;
+                color: string;
+                description: string;
+                created_at: string;
+            }>;
+        }
     }>
 }
 
@@ -122,32 +166,37 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
                         regionAreaId: data.id,
                         regionAreaName: data.region_area,
                         stations:
-                        [
-                            {
-                                abbreviation: station.abbreviation,
-                                name: station.name,
-                                missions: [{
-                                    missionCode: data.mission_code,
-                                    missionId: data.service_id,
-                                    missionDescription: data.service_description,
-                                    missionDate: data.service_date,
-                                    unharmed: data.unharmed,
-                                    injured: data.injured,
-                                    transported: data.transported,
-                                    deceased: data.deceased,
-                                    isImportant: data.is_important,
-                                    locations: item.service_locations,
-                                    services: item.antares,
-                                    units: item.units,
-                                    firefighters: item.firefighters,
-                                    operativeAreas: item.operative_area_name,
-                                    people: item.people,
-                                    infrastructures: item.infrastructures,
-                                    vehicles: item.vehicles,
-                                    careCenters: item.centers
-                                }]
-                            }
-                        ],
+                            [
+                                {
+                                    abbreviation: station?.abbreviation ?? '',
+                                    name: station?.name ?? '',
+                                    missions: [{
+                                        missionCode: data.mission_code,
+                                        missionId: data.service_id,
+                                        missionDescription: data.service_description,
+                                        missionDate: data.service_date,
+                                        unharmed: data.unharmed,
+                                        injured: data.injured,
+                                        transported: data.transported,
+                                        deceased: data.deceased,
+                                        isImportant: data.is_important,
+                                        locations: item.service_locations,
+                                        services: item.antares,
+                                        units: item.units,
+                                        firefighters: item.firefighters,
+                                        operativeAreas: item.operative_area_name,
+                                        people: item.people,
+                                        infrastructures: item.infrastructures,
+                                        vehicles: item.vehicles,
+                                        careCenters: item.centers,
+                                        level: item.level,
+                                        peaceQuadrant: item.peace_quadrant,
+                                        cancelReason: item.cancel_reason,
+                                        destination: item.destiny,
+                                        authoritiesData: item.authority_data
+                                    }]
+                                }
+                            ],
                     }
                     if (first.success && first.data) {
                         const parset = a as DetailByStation
@@ -243,7 +292,7 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
 
                                         <div className="flex w-full justify-between">
                                             <div className="pt-2">
-                                                <span className="font-semibold text-base"> {mission?.services[0].id!} - {mission?.services[0].antaresDescription} {mission.isImportant ? "( Relevante )" : ""}</span>
+                                                <span className="font-semibold text-base"> {mission?.services[0].id!} - {mission?.services[0].antaresDescription} {mission.isImportant ? "( RELEVANTE )" : ""}</span>
                                             </div>
 
                                             <div className="flex pt-2">
@@ -256,35 +305,35 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
                                             <p className="pt-2">
                                                 <span className="font-semibold pr-2">DIRECCIÓN DE ORIGEN:</span>
                                                 <span className="text-xs">
-                                                    {station?.location?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${station?.location?.urb},`}</span></span>}
-                                                    {station?.location?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${station?.location?.sector},`}</span></span>}
-                                                    {station?.location?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${station?.location?.parish},`}</span></span>}
-                                                    {station?.location?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${station?.location?.municipality},`}</span></span>}
-                                                    {station?.location?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${station?.location?.state}`}`</span></span>}
+                                                    {mission?.locations[0]?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission?.locations[0]?.urb},`}</span></span>}
+                                                    {mission?.locations[0]?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission?.locations[0]?.sector},`}</span></span>}
+                                                    {mission?.locations[0]?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission?.locations[0]?.parish},`}</span></span>}
+                                                    {mission?.locations[0]?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission?.locations[0]?.municipality},`}</span></span>}
+                                                    {mission?.locations[0]?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission?.locations[0]?.state}`}`</span></span>}
                                                 </span>
                                             </p>
 
                                             <p className="pt-2">
-                                                <span className="font-semibold pr-2">DIRECCIÓN DEL SERVICIO:</span>
+                                                <span className="font-semibold pr-2">DIRECCIÓN DE DESTINO:</span>
                                                 <span className="text-xs">
-                                                    {mission?.location?.address && `${mission?.location?.address},`}
-                                                    {mission?.location?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission?.location?.urb},`}</span></span>}
-                                                    {mission?.location?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission?.location?.sector},`}</span></span>}
-                                                    {mission?.location?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission?.location?.parish},`}</span></span>}
-                                                    {mission?.location?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission?.location?.municipality},`}</span></span>}
-                                                    {mission?.location?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission?.location?.state}`}`</span></span>}
+                                                    {mission?.destination[0]?.address && `${mission?.destination[0]?.address},`}
+                                                    {mission?.destination[0]?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission?.destination[0]?.urb},`}</span></span>}
+                                                    {mission?.destination[0]?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission?.destination[0]?.sector},`}</span></span>}
+                                                    {mission?.destination[0]?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission?.destination[0]?.parish},`}</span></span>}
+                                                    {mission?.destination[0]?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission?.destination[0]?.municipality},`}</span></span>}
+                                                    {mission?.destination[0]?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission?.destination[0]?.state}`}`</span></span>}
                                                 </span>
                                             </p>
 
-                                            {mission.careCenter[0] &&
+                                            {mission?.careCenters?.[0] &&
                                                 <p className="pt-2">
                                                     <span className="font-semibold pr-2">DIRECCIÓN DEL CENTRO DE ATENCIÓN:</span>
                                                     <span className="text-xs">
-                                                        {mission.careCenter[0]?.location?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission?.location?.urb},`}</span></span>}
-                                                        {mission.careCenter[0]?.location?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission?.location?.sector},`}</span></span>}
-                                                        {mission.careCenter[0]?.location?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission?.location?.parish},`}</span></span>}
-                                                        {mission.careCenter[0]?.location?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission?.location?.municipality},`}</span></span>}
-                                                        {mission.careCenter[0]?.location?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission?.location?.state}`}`</span></span>}
+                                                        {mission.careCenters[0]?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission.careCenters[0]?.urb},`}</span></span>}
+                                                        {mission.careCenters[0]?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission.careCenters[0]?.sector},`}</span></span>}
+                                                        {mission.careCenters[0]?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission.careCenters[0]?.parish},`}</span></span>}
+                                                        {mission.careCenters[0]?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission.careCenters[0]?.municipality},`}</span></span>}
+                                                        {mission.careCenters[0]?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission.careCenters[0]?.state}`}`</span></span>}
                                                     </span>
                                                 </p>
                                             }
@@ -334,7 +383,6 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
                                                     {mission.vehicles.map(vehicle => (
 
                                                         <div>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">TIPO: </span> {`${vehicle.type},`}</span>
                                                             <span className="pl-2"><span className="font-semibold pr-1">MARCA: </span> {`${vehicle.make},`}</span>
                                                             <span className="pl-2"><span className="font-semibold pr-1">MODELO: </span> {`${vehicle.model},`}</span>
                                                             <span className="pl-2"><span className="font-semibold pr-1">PLACA: </span> {`${vehicle.plate},`}</span>
@@ -365,12 +413,12 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
                                             </div>
                                         }
 
-                                        {mission.authorities.length > 0 &&
+                                        {/* {mission?.authoritiesData?.length > 0 &&
                                             <div className="pt-6">
                                                 <span className="text-base font-semibold">AUTORIDADES:</span>
 
                                                 <div className="pl-8">
-                                                    {mission.authorities.map(authority => (
+                                                    {mission?.authoritiesData?.map(authority => (
                                                         <>
                                                             <div>
                                                                 <span>{authority.authority_abbreviation}:</span>
@@ -420,7 +468,7 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
                                                     }
                                                 </div>
                                             </div>
-                                        }F
+                                        } */}
 
 
 

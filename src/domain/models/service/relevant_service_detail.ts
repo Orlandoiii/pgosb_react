@@ -86,6 +86,50 @@ z.object({
         urb: z.string().optional().default('')
     })).optional().default([]),
     is_important:z.boolean().optional().default(false),
+    cancel_reason: z.string().optional().default(''),
+    peace_quadrant: z.string().optional().default(''),
+    level: z.string().optional().default(''),
+    destiny: z.array(z.object({
+        state: z.string().optional().default(''),
+        municipality: z.string().optional().default(''),
+        parish: z.string().optional().default(''),
+        sector: z.string().optional().default(''),
+        urb: z.string().optional().default(''),
+        address: z.string().optional().default(''),
+    })).optional().default([]),
+
+    authority_data: z.object({
+        authorities: z.array(z.object({
+            authority_name: z.coerce.string().optional().default(''),
+            authority_abbreviation: z.coerce.string().optional().default(''),
+            government: z.coerce.string().optional().default('')
+        })).optional().default([]),
+        person: z.array(z.object({
+            authority_name: z.coerce.string().optional().default(''),
+            authority_abbreviation: z.coerce.string().optional().default(''),
+            government: z.coerce.string().optional().default(''),
+            name: z.coerce.string().optional().default(''),
+            legal_id: z.coerce.string().optional().default(''),
+            identification_number: z.coerce.string().optional().default(''),
+            phone: z.coerce.string().optional().default(''),
+            gender: z.coerce.string().optional().default(''),
+            observations: z.coerce.string().optional().default(''),
+            created_at: z.coerce.string().optional().default(''),
+        })).optional().default([]),
+        vehicle: z.array(z.object({
+            authority_name: z.coerce.string().optional().default(''),
+            authority_abbreviation: z.coerce.string().optional().default(''),
+            government: z.coerce.string().optional().default(''),
+            type: z.coerce.string().optional().default(''),
+            make: z.coerce.string().optional().default(''),
+            model: z.coerce.string().optional().default(''),
+            plate: z.coerce.string().optional().default(''),
+            year: z.coerce.string().optional().default(''),
+            color: z.coerce.string().optional().default(''),
+            description: z.coerce.string().optional().default(''),
+            created_at: z.coerce.string().optional().default(''),
+        })).optional().default([]),
+    }).optional().default({}),
 });
 
 
@@ -103,8 +147,8 @@ export const ApiRelevantServiceDetail = z.object({
     deceased:z.string().optional().default(''),
     antares: z.array(z.object({
         id: z.string().optional().default(''),
-        type: z.string().optional().default(''),
-        antaresDescription: z.string().optional().default('')
+        type: z.coerce.string().optional().default(''),
+        antaresDescription: z.coerce.string().optional().default('')
     })).optional().default([]),
     units:z.array(z.string()).optional().default([]),
     firefighters:z.array(z.object({
@@ -171,6 +215,50 @@ export const ApiRelevantServiceDetail = z.object({
         urb: z.string().optional().default('')
     })).optional().default([]),
     is_important:z.boolean().optional().default(false),
+    cancel_reason: z.string().optional().default(''),
+    peace_quadrant: z.string().optional().default(''),
+    level: z.string().optional().default(''),
+    destiny: z.array(z.object({
+        state: z.string().optional().default(''),
+        municipality: z.string().optional().default(''),
+        parish: z.string().optional().default(''),
+        sector: z.string().optional().default(''),
+        urb: z.string().optional().default(''),
+        address: z.string().optional().default(''),
+    })).optional().default([]),
+
+    authority_data: z.object({
+        authorities: z.array(z.object({
+            authority_name: z.coerce.string().optional().default(''),
+            authority_abbreviation: z.coerce.string().optional().default(''),
+            government: z.coerce.string().optional().default('')
+        })).optional().default([]),
+        person: z.array(z.object({
+            authority_name: z.coerce.string().optional().default(''),
+            authority_abbreviation: z.coerce.string().optional().default(''),
+            government: z.coerce.string().optional().default(''),
+            name: z.coerce.string().optional().default(''),
+            legal_id: z.coerce.string().optional().default(''),
+            identification_number: z.coerce.string().optional().default(''),
+            phone: z.coerce.string().optional().default(''),
+            gender: z.coerce.string().optional().default(''),
+            observations: z.coerce.string().optional().default(''),
+            created_at: z.coerce.string().optional().default(''),
+        })).optional().default([]),
+        vehicle: z.array(z.object({
+            authority_name: z.coerce.string().optional().default(''),
+            authority_abbreviation: z.coerce.string().optional().default(''),
+            government: z.coerce.string().optional().default(''),
+            type: z.coerce.string().optional().default(''),
+            make: z.coerce.string().optional().default(''),
+            model: z.coerce.string().optional().default(''),
+            plate: z.coerce.string().optional().default(''),
+            year: z.coerce.string().optional().default(''),
+            color: z.coerce.string().optional().default(''),
+            description: z.coerce.string().optional().default(''),
+            created_at: z.coerce.string().optional().default(''),
+        })).optional().default([]),
+    }).optional().default({}),
 });
 
 export type TRelevantServiceDetail = z.infer<typeof RelevantServiceDetail>

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 
 import LoadingModal from '../../../core/modal/LoadingModal'
@@ -52,7 +52,7 @@ import FormSubmit from '../../../optimized/components/form_inputs/form_submit'
 import { FormDatePicker } from '../../../optimized/components/form_inputs/form_date_picker'
 import { formatDateString, parseDateString } from '../../../optimized/Utilities/date_string_formatter'
 import Chips from '../../../alter/components/menus/chips'
-import { Controller } from 'react-hook-form'
+import { Controller, UseFormSetValue } from 'react-hook-form'
 import Chip from '../../../alter/components/data_presenters/chip'
 import { useFormFieldContext } from '../../../optimized/components/form/form_context'
 import { useMissionCollection } from '../../../../domain/models/mission/use_collection'
@@ -120,96 +120,32 @@ const MissionForm = ({
 
     const [action, setAction] = useState<'add' | 'update' | undefined>(undefined);
 
+    const [originLocation, setOriginLocation] = useState<string>(initValue?.locationId ? initValue.locationId : "");
+    const [destinationLocation, setDestinationLocation] = useState<string>(initValue?.locationDestinyId ? initValue.locationDestinyId : "");
+
+    const [addingLocationFor, setAddingLocationFor] = useState<'origin' | 'destination' | undefined>(undefined);
+
+    console.log("Opened", originLocation, addingLocationFor);
+    
+
     useEffect(() => {
         setTimeout(() => {
             setLocationsLoading(false);
-        }, 1000);
+        }, 1500);
     }, [])
 
-    // async function addNewAuthority() {
-    //     var errorMessage: string = ''
-    //     try {
-    //         setLoading(true)
-
-    //         const newAuthority = getDefaults<ApiMissionAuthorityType>(ApiMissionAuthoritySchema)
-    //         newAuthority.mission_id = missionId
-
-    //         const authorityResult = await missionAuthorityCrud.insert(
-    //             newAuthority
-    //         )
-
-    //         if (authorityResult.success && authorityResult.result?.id) {
-    //             modalService.pushModal(
-    //                 AuthorityForm,
-    //                 {
-    //                     initValue: authorityResult.result,
-    //                     closeOverlay: undefined,
-    //                 },
-    //                 new OverlayModalConfig(),
-    //                 updateAuthoritiesData
-    //             )
-    //         } else if (!authorityResult.success)
-    //             errorMessage =
-    //                 'Lo sentimos tenemos problemas para agregar la autoridad'
-    //         else if (!authorityResult.result?.id) {
-    //             errorMessage = 'El Id no fue retornado en el agregar la autoridad'
-    //         }
-    //     } catch (error) {
-    //         errorMessage =
-    //             'Lo sentimos ocurrio un error inesperado al agregar la autoridad'
-    //         console.error(error)
-    //     } finally {
-    //         setLoading(false)
-    //     }
-    //     if (errorMessage != '') modalService.pushAlert('Error', errorMessage)
-    // }
-
-    // async function openAuthority(authority: any) {
-    //     const result = await missionAuthorityCrud.getById(authority)
-
-    //     if (result.success && result.result) {
-    //         modalService.pushModal(
-    //             AuthorityForm,
-    //             {
-    //                 initValue: result.result,
-    //                 closeOverlay: undefined,
-    //             },
-    //             new OverlayModalConfig(),
-    //             updateAuthoritiesData
-    //         )
-    //     } else {
-    //         modalService.pushAlert(
-    //             'Error',
-    //             `No se pudo abrir la autoridad por: ${result.error}`
-    //         )
-    //     }
-    // }
-
-    // async function deleteAuthority(authority: any) {
-    //     const result = await missionAuthorityCrud.remove(authority)
-
-    //     if (result.success) {
-    //         modalService.toastSuccess("Autoridad eliminada")
-    //         updateAuthoritiesData()
-    //     }
-    //     else modalService.pushAlert(
-    //         'Error',
-    //         `No se pudo abrir la autoridad por: ${result.error}`
-    //     )
-    // }
-
     async function submit(data: MissionFront) {
-        console.log("submited");
+        console.log("submited", data);
 
         data.manualMissionDate = formatDateString(manualDate)
         data.operativeAreas = currentOperativeAreas;
+        data.locationId = originLocation;
+        data.description = destinationLocation;
 
         const result = await missionsActions.updateFront(data);
         if (result.success) modalService.toastSuccess("Missión actualizada!");
         else modalService.toastError("No se pudo actualizar la missión");
     }
-
-    console.log(initValue);
 
     return (
         <>
@@ -219,7 +155,7 @@ const MissionForm = ({
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
-                <Form className='relative' schema={MissionFrontSchema as any} initValue={initValue} onSubmit={submit} >
+                <Form className='relative' schema={MissionFrontSchema as any} initValue={initValue} onSubmit={submit}>
                     <div className="flex space-x-6 w-full">
                         <div className="flex items-center space-x-4">
                             <div className="font-semibold text-slate-700 text-xl">
@@ -439,13 +375,14 @@ const MissionForm = ({
 
                     <div className='flex space-x-8'>
                         <div className="flex flex-auto space-x-1 w-24">
-                            <FormSelectWithSearch<MissionFront, MissionLocationFront>
-                                description="Ubicación de origen del servicio"
-                                fieldName={'locationId'}
-                                options={missionLocations}
+                            <SelectWithSearch<MissionLocationFront>
+                                description="Ubicación de origen"
                                 valueKey={'id'}
                                 displayKeys={['id', 'alias']}
-                                fatherLoading={locationsLoading}
+                                options={missionLocations}
+                                isLoading={locationsLoading}
+                                selectedOption={originLocation}
+                                selectionChange={(value) => setOriginLocation(value ?? "")}
                             />
 
                             <div className="flex-none pt-8 h-11">
@@ -458,6 +395,8 @@ const MissionForm = ({
                                         // locationActions.add()
                                         setLocationModalOpen(true)
                                         setAction('add')
+
+                                        setAddingLocationFor("origin");
 
                                         e.preventDefault()
                                         e.stopPropagation()
@@ -469,13 +408,14 @@ const MissionForm = ({
                         </div>
 
                         <div className="flex flex-auto space-x-1 w-24">
-                            <FormSelectWithSearch<MissionFront, MissionLocationFront>
+                            <SelectWithSearch<MissionLocationFront>
                                 description="Ubicación de destino"
-                                fieldName={'locationDestinyId'}
-                                options={missionLocations}
                                 valueKey={'id'}
                                 displayKeys={['id', 'alias']}
-                                fatherLoading={locationsLoading}
+                                options={missionLocations}
+                                isLoading={locationsLoading}
+                                selectedOption={destinationLocation}
+                                selectionChange={(value) => setDestinationLocation(value ?? "")}
                             />
 
                             <div className="flex-none pt-8 h-11">
@@ -488,6 +428,8 @@ const MissionForm = ({
                                         // locationActions.add()
                                         setLocationModalOpen(true)
                                         setAction('add')
+
+                                        setAddingLocationFor("destination");
 
                                         e.preventDefault()
                                         e.stopPropagation()
@@ -710,6 +652,13 @@ const MissionForm = ({
                 <LocationForm
                     initValue={action == "add" ? { missionId: initValue!.id } : { ...locationModalData, missionId: initValue!.id }}
                     add={action == "add"}
+                    locationAdded={(location) => {
+                        if (addingLocationFor == 'origin') setOriginLocation(location.id ?? "0")
+                        else if (addingLocationFor == 'destination') setDestinationLocation(location.id ?? "0")
+
+                        setAddingLocationFor(undefined)
+                        updateMissionLocations()
+                    }}
                     closeOverlay={() => {
                         updateMissionLocations()
                         setLocationModalOpen(false)

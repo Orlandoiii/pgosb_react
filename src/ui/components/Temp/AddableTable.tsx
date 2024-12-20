@@ -62,11 +62,11 @@ export function AddableTable<T>({
     const [sortAsc, setSortAsc] = useState(defaultSortAsc)
     const [sort, setSort] = useState(defaultSort ? defaultSort : idPropertyName)
 
-    const [selectedOption, setSelectedOption] = useState('')
-    const [selectedOption2, setSelectedOption2] = useState('')
+    const [selectedOption, setSelectedOption] = useState(preSelectFirstOption1 && options ? options[0] : "")
+    const [selectedOption2, setSelectedOption2] = useState(preSelectFirstOption2 && options2 ? options2[0] : "")
     const [showInnerAdd, setShowInnerAdd] = useState(false)
 
-    console.log(selectedOption, selectedOption2);
+    console.log("Addable",optionsDescription2, selectedOption, selectedOption2 , preSelectFirstOption2 && options2, options2);
 
     useEffect(() => {
         if (options && !selectedOption || options2 && !selectedOption2) return
@@ -78,6 +78,7 @@ export function AddableTable<T>({
             : undefined
 
         setSelectedOption('');
+        if (options2) setSelectedOption2(options2[0]);
     }, [selectedOption, selectedOption2])
 
     useEffect(() => {
@@ -311,16 +312,13 @@ export function AddableTable<T>({
     
                                     {showInnerAdd && options2 && options2.length > 0 && (
                                         <SelectWithSearch
-                                            description={optionsDescription2}
-                                            options={options2}
-                                            valueKey={valueKey2 as any}
-                                            value={selectedOption2}
-                                            displayKeys={displayKeys2 as any}
-                                            selectionChange={(e) => {
-                                                setSelectedOption2(e);
-                                            }
-                                            }
-                                        ></SelectWithSearch>
+                                        description={optionsDescription2}
+                                        valueKey={valueKey2 as any}
+                                        displayKeys={displayKeys2 as any}
+                                        options={options2}
+                                        selectedOption={selectedOption2}
+                                        selectionChange={(value) => {value && setSelectedOption2(value)}}
+                                    />
                                     )}
     
                                     {/* <SelectSearch
@@ -357,7 +355,6 @@ export function AddableTable<T>({
                                             onClick={(e) => {
                                                 setShowInnerAdd(false)
                                                 setSelectedOption('')
-                                                setSelectedOption2('')
                                                 e.preventDefault()
                                                 e.stopPropagation()
                                             }}
@@ -372,7 +369,6 @@ export function AddableTable<T>({
                                     className={`${showInnerAdd && options ? 'translate-x-full opacity-0 pointer-events-none w-[0%]' : 'w-[100%]'} absolute left-0 top-0 flex h-full items-center px-2 bg-slate-200 text-slate-500 duration-200 hover:text-slate-800 hover:bg-slate-300`}
                                     onClick={(e) => {
                                         if (options && preSelectFirstOption1) setSelectedOption(options[0])
-                                        if (options2 && preSelectFirstOption2) setSelectedOption2(options2[0])
     
                                         setTimeout(() => {
                                             options

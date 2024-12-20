@@ -16,7 +16,7 @@ import LayoutContexProvider from '../../core/context/LayoutContext'
 import { OverlayModalConfig } from '../../core/overlay/models/overlay_item'
 import Toggle from '../../alter/components/buttons/toggle'
 import { serviceCrud, ServiceFromApi, TService } from '../../../domain/models/service/service'
-import { get, getById, getSummary } from '../../../services/http'
+import { get, getAll, getById, getSummary } from '../../../services/http'
 import { DetailServicesSummaryPrint } from './Print/DetailServicesSummaryPrint'
 import { RelevantServicesReportPrint } from './Print/RelevantServicesReportPrint'
 import { PrintView } from './Print/PrintView'
@@ -36,6 +36,7 @@ const alertController = new AlertController();
 
 const MissionPage = () => {
     const [missions, missionsActions, updateMissions] = useMissionCollection()
+    const [missionSummaries, setMissionSummaries] = useState<any>([])
     const [mission, setMission] = useState<MissionFront | null>(null)
 
     const navigate = useNavigate();
@@ -51,8 +52,20 @@ const MissionPage = () => {
         modulesPermissions.hasOwnProperty("services") ?
         modulesPermissions["services"] : []
 
+    useEffect(() => {
+        UpdatemissionSummaries();
+    }, [missions])
+
 
     const { showConfirmationModal } = useConfirmationModal();
+
+    async function UpdatemissionSummaries() {
+        const result = await getAll("mission")
+
+        if (result.success) {
+            setMissionSummaries(result.result)
+        }
+    }
 
     useEffect(() => {
         setData([])
@@ -112,7 +125,7 @@ const MissionPage = () => {
     function openPrintModal(missions: any) {
         const missionsIDs = missions.data.map(s => s.id)
         console.log(missions);
-        
+
         const filters = (Object.entries(missions.filters) as [string, any][]).map(([key, { value }]) => ({
             name: key,
             value: value
@@ -190,7 +203,7 @@ const MissionPage = () => {
                             // }
                             showDownloadButton={true}
                             exportFileName="Missiones"
-                            rawData={missions}
+                            rawData={missionSummaries}
                             showDeleteButton={false}
                             onAdd={openAddMissionModal}
                             onUpdate={openMission}

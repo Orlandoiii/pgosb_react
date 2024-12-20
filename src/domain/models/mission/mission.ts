@@ -138,5 +138,3 @@ export const missionCrud = new CRUD<MissionFront>(
     MissionToApi,
     MissionFromApi
 )
-
-

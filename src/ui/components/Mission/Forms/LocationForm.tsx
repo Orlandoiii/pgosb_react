@@ -26,6 +26,7 @@ import { MissionLocationFront, MissionLocationFrontSchema } from '../../../../do
 interface LocationFormProps {
     initValue?: MissionLocationFront | null
     closeOverlay?: () => void
+    locationAdded?: (location: MissionLocationFront) => void
     add?: boolean
 }
 
@@ -48,6 +49,7 @@ type StaticLocation = {
 export default function LocationForm({
     initValue,
     closeOverlay,
+    locationAdded,
     add = true,
 }: LocationFormProps) {
     const locationActions = useMissionLocationActions();
@@ -195,6 +197,7 @@ export default function LocationForm({
                 modalService.toastSuccess(
                     `Ubicación ${buttonText.replace('dar', 'dada')}`
                 )
+                locationAdded?.(result.result ?? {})
                 closeOverlay?.()
             } else
                 modalService.toastError(

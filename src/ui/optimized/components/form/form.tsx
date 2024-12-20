@@ -24,11 +24,11 @@ export default function Form<T extends FieldValues>({ schema, initValue = null, 
     defaultValues: (initValue ?? {}) as DefaultValues<T>,
   });
 
-  useEffect(() => {
-    if (setFormValue) {
-      setFormValue(methods.setValue); // Pass setValue to the parent
-    }
-  }, [methods.setValue, setFormValue]);
+    useEffect(() => {
+        if (setFormValue) {
+            setFormValue(methods.setValue);
+        }
+    }, [setFormValue]);
 
   function formReset(event: React.FormEvent<HTMLFormElement>) {
     methods.reset(getDefaults(schema));

@@ -266,7 +266,7 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
     }, [state.state.innerSelectedOption])
 
     useEffect(() => {
-        if (selectedOption != state.state.innerSelectedOption.value) {
+        if (selectedOption && state.state.innerSelectedOption.value == '' && state.state.innerSelectedOption.display == '') {
             // dispatch({ type: 'CHANGE_SELECTED_OPTION', payload: selectedOption })
         }
     }, [selectedOption])
