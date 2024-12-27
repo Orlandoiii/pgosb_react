@@ -146,7 +146,7 @@ const MissionForm = ({
         data.manualMissionDate = formatDateString(manualDate)
         data.operativeAreas = currentOperativeAreas;
         data.locationId = originLocation;
-        data.description = destinationLocation;
+        data.locationDestinyId = destinationLocation;
 
         const result = await missionsActions.updateFront(data);
         if (result.success) modalService.toastSuccess("Missión actualizada!");
