@@ -7,10 +7,11 @@ import { AntaresFromApi } from "../../../../domain/models/antares/antares"
 import React from "react"
 import { LocationFromApi, ServiceLocationSchemaType } from "../../../../domain/models/location/location"
 import Overlay from "../../../core/overlay/overlay"
-import { MissionServiceFront } from "../../../../domain/models/mission/service/mission_service"
+import { MissionServiceFromApi, MissionServiceFront } from "../../../../domain/models/mission/service/mission_service"
 import { useStationCollection } from "../../../../domain/models/mission/station/use_collection"
 import { useAntaresCollection } from "../../../../domain/models/mission/antares/use_collection"
 import { useMissionServiceActions } from "../../../../domain/models/mission/service/use_collection"
+import { MissionFromApi, MissionFront } from "../../../../domain/models/mission/mission"
 
 function getServiceData(services: MissionServiceFront[]): {
     antaresSummary: AnteresSummary[]
@@ -114,7 +115,7 @@ function detailByAntares(services: MissionServiceFront[]): AntaresDetail[] {
 
     services.forEach((service) => {
         const already = missions.filter(x => x == service.missionId).length > 0
-        console.log(service.missionId, service.id ,already,);
+        console.log(service.missionId, service.id, already,);
         if (!already) {
             missions.push(service.missionId)
 
@@ -193,7 +194,7 @@ function detailByAntares(services: MissionServiceFront[]): AntaresDetail[] {
     antaresDetail = antaresDetail.sort((a, b) => b.summatory.services - a.summatory.services)
 
     console.log("detail", antaresDetail, missions);
-    
+
     return antaresDetail
 }
 
@@ -227,13 +228,13 @@ function detailByStation(services: MissionServiceFront[]): StationsDetail[] {
 
         if (!already) {
             missions.push(service.missionId)
-            
+
             const antaresId = service.antaresId
             const stationId = service.stationId
             const stationItem = stationDetail.find(
                 (item) => item.stationId === stationId
             )
-    
+
             if (stationItem) {
                 const antaresItem = stationItem.details.find(
                     (item) => item.antaresId === antaresId
@@ -279,9 +280,9 @@ function detailByStation(services: MissionServiceFront[]): StationsDetail[] {
                     },
                 })
             }
-    
+
             servicesCount++
-        } 
+        }
     })
 
     stationDetail.forEach((stationItem) => {
@@ -349,34 +350,39 @@ export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSumm
         }
     }
 
-    type NewsSummary = TServiceSummary & {
+    type NewsSummary = MissionFront & {
         stationDescription: string;
         serviceLocation: string;
+        antares_id: string;
     }
 
     async function getServicesList(): Promise<NewsSummary[]> {
 
         const servicesList: NewsSummary[] = []
-        const servicesSummaryRequest = await await getSummary<TServiceSummary>("mission/service")
+        const missionSummaryRequest = await await getAll<MissionFront>("mission", MissionFromApi)
 
         let serviceLocations: ServiceLocationSchemaType[] = []
         let locationsSet = false;
 
-        if (servicesSummaryRequest.success && servicesSummaryRequest.result) {
+        if (missionSummaryRequest.success && missionSummaryRequest.result) {
 
             for (const serviceId of servicesIds) {
-                const serviceSummary = servicesSummaryRequest.result.filter(x => x.id == serviceId)[0]
+                const missionSummary = missionSummaryRequest.result.filter(x => x.id == serviceId)[0]
                 if (!locationsSet) {
                     serviceLocations = (await getAll<ServiceLocationSchemaType>('mission/location', LocationFromApi)).result ?? []
                     locationsSet = true
                 }
-                if (serviceSummary) {
-                    const servicesRequest = await getById<TService>("mission", serviceId, ServiceFromApi)
+                if (missionSummary) {
+                    const servicesRequest = await getById<MissionServiceFront>("mission", serviceId, MissionServiceFromApi)
 
                     const serviceLocation = serviceLocations?.filter(x => x.id == servicesRequest.result?.locationId)[0]
+
+                    let a = `${serviceLocation?.address ? `${serviceLocation.address}, ` : ''}${serviceLocation?.urb ? `URBANIZACIÓN: ${serviceLocation.urb}, ` : ''}${serviceLocation?.sector ? `SECTOR: ${serviceLocation.sector}, ` : ''}${serviceLocation?.parish ? `PARROQUIA: ${serviceLocation.parish}, ` : ''}${serviceLocation?.municipality ? `MUNICIPIO: ${serviceLocation.municipality}, ` : ''}${serviceLocation?.state ? `ESTADO: ${serviceLocation.state}` : ''}`.trim().replace(/,\s*$/, '')
+
                     servicesList.push({
-                        ...serviceSummary,
-                        stationDescription: stationCollection.filter(x => x.id == serviceSummary.station_name.replace("M", ""))[0]?.description ?? "",
+                        ...missionSummary,
+                        antares_id: servicesRequest.result?.stationId ?? "0",
+                        stationDescription: missionSummary.stationName,
                         serviceLocation: `${serviceLocation?.address ? `${serviceLocation.address}, ` : ''}${serviceLocation?.urb ? `URBANIZACIÓN: ${serviceLocation.urb}, ` : ''}${serviceLocation?.sector ? `SECTOR: ${serviceLocation.sector}, ` : ''}${serviceLocation?.parish ? `PARROQUIA: ${serviceLocation.parish}, ` : ''}${serviceLocation?.municipality ? `MUNICIPIO: ${serviceLocation.municipality}, ` : ''}${serviceLocation?.state ? `ESTADO: ${serviceLocation.state}` : ''}`.trim().replace(/,\s*$/, '')
                     })
                 }
@@ -437,14 +443,14 @@ export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSumm
                     <div className="py-2">-------------------------------------------------------------------------</div>
                     <div className="font-semibold">RESUMEN DE NOVEDADES</div>
                     <div className="py-2">-------------------------------------------------------------------------</div>
-                    <div className="font-semibold">EVENTOS DE IMPORTANCIA: <span className="font-normal">{services.filter(x => x.is_important).length}</span></div>
+                    <div className="font-semibold">EVENTOS DE IMPORTANCIA: <span className="font-normal">{services.filter(x => x.isImportant).length}</span></div>
 
-                    {services.filter(x => x.is_important).map(importantService => (
+                    {services.filter(x => x.isImportant).map(importantService => (
                         <div className="pt-8">
-                            <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {importantService.antares_description}</span></div>
-                            <div className="font-semibold">HORA: <span className="font-normal">{importantService.manual_mission_date}</span></div>
+                            <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {antaresCollection.filter(x => x.id == importantService.antares_id)?.[0]?.description ?? ''}</span></div>
+                            <div className="font-semibold">HORA: <span className="font-normal">{importantService.manualMissionDate}</span></div>
                             <div className="font-semibold">CODIGO: <span className="font-normal">{importantService.id.split("-")[0]}</span></div>
-                            <div className="font-semibold">ESTACION: <span className="font-normal">{importantService.station_name} - {importantService.stationDescription}</span></div>
+                            <div className="font-semibold">ESTACION: <span className="font-normal">{importantService.stationName}</span></div>
                             <div className="font-semibold">DIRECCION: <span className="font-normal">{importantService.serviceLocation}</span></div>
                         </div>
                     ))}

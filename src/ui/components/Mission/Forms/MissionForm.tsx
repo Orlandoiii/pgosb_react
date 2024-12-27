@@ -125,8 +125,14 @@ const MissionForm = ({
 
     const [addingLocationFor, setAddingLocationFor] = useState<'origin' | 'destination' | undefined>(undefined);
 
+
+    const [station, setStation] = useState(initValue ? initValue.stationName : "")
+
     console.log("Opened", originLocation, addingLocationFor);
-    
+
+    function enableAll(): boolean {
+        return station?.length > 0 && missionServices.length > 0
+    }
 
     useEffect(() => {
         setTimeout(() => {
@@ -217,11 +223,12 @@ const MissionForm = ({
                         <div className="flex-auto w-full">
                             <FormSelectWithSearch<MissionFront, ApiStationType>
                                 description="Estación"
-                                fieldName={'stationId'}
+                                fieldName={'stationName'}
                                 options={stations}
                                 valueKey={'id'}
                                 displayKeys={['abbreviation', 'name']}
                                 fatherLoading={stations.length < 1}
+                                selectionChange={(option) => setStation(option)}
                             />
                         </div>
                         <AddServiceComponent options={antares} selectedChanged={async (id) => {
@@ -262,6 +269,7 @@ const MissionForm = ({
                     <div className="h-8"></div>
 
                     <AddableTable
+                        enable={enableAll()}
                         title="Servicios"
                         data={missionServices ?? []}
                         defaultSort={'id'}
@@ -292,6 +300,7 @@ const MissionForm = ({
 
                     <div className='flex space-x-8'>
                         <AddableTable
+                            enable={enableAll()}
                             title="Unidades"
                             data={missionUnits ?? []}
                             defaultSort={'id'}
@@ -329,6 +338,7 @@ const MissionForm = ({
                         ></AddableTable>
 
                         <AddableTable
+                            enable={enableAll()}
                             title="Bomberos"
                             data={missionFirefighters ?? []}
                             defaultSort={'id'}
@@ -376,6 +386,7 @@ const MissionForm = ({
                     <div className='flex space-x-8'>
                         <div className="flex flex-auto space-x-1 w-24">
                             <SelectWithSearch<MissionLocationFront>
+                                disable={!enableAll()}
                                 description="Ubicación de origen"
                                 valueKey={'id'}
                                 displayKeys={['id', 'alias']}
@@ -387,6 +398,7 @@ const MissionForm = ({
 
                             <div className="flex-none pt-8 h-11">
                                 <Button
+                                    enable={enableAll()}
                                     colorType="bg-[#3C50E0]"
                                     onClick={(e) => {
                                         // preLocationRef.current = locations;
@@ -409,6 +421,7 @@ const MissionForm = ({
 
                         <div className="flex flex-auto space-x-1 w-24">
                             <SelectWithSearch<MissionLocationFront>
+                                disable={!enableAll()}
                                 description="Ubicación de destino"
                                 valueKey={'id'}
                                 displayKeys={['id', 'alias']}
@@ -420,6 +433,7 @@ const MissionForm = ({
 
                             <div className="flex-none pt-8 h-11">
                                 <Button
+                                    enable={enableAll()}
                                     colorType="bg-[#3C50E0]"
                                     onClick={(e) => {
                                         // preLocationRef.current = locations;
@@ -444,12 +458,13 @@ const MissionForm = ({
                     <div className="h-8"></div>
 
                     <div className='flex space-x-8 w-full'>
-                        <AddOperativeAreaComponent options={operativeAreas} setExternal={setCurrentOperativeAreas} />
+                        <AddOperativeAreaComponent options={operativeAreas} setExternal={setCurrentOperativeAreas} enable={enableAll()} />
                     </div>
 
                     <div className="flex space-x-6 w-full">
                         <div className="w-32">
                             <FormSelectWithSearch<MissionFront, string>
+                                disable={!enableAll()}
                                 description="Nivel"
                                 fieldName={'level'}
                                 options={levels}
@@ -459,6 +474,7 @@ const MissionForm = ({
 
                         <div className="w-40">
                             <FormInput<MissionFront>
+                                disable={!enableAll()}
                                 description={'Cuadrante de Paz'}
                                 fieldName={'peaceQuadrant'}
                             />
@@ -466,6 +482,7 @@ const MissionForm = ({
 
                         <div className=" w-72">
                             <FormSelectWithSearch<MissionFront, string>
+                                disable={!enableAll()}
                                 description="Motivo de Cancelación"
                                 fieldName={'cancelReason'}
                                 options={cancelReasons}
@@ -479,6 +496,7 @@ const MissionForm = ({
                         <div className="font-semibold text-slate-700 text-xl">Bitacora / Descripción</div>
                         <div className='h-40 w-full'>
                             <FormTextArea<MissionFront>
+                                disable={!enableAll()}
                                 description={''}
                                 fieldName={'description'}
                             />
@@ -488,21 +506,25 @@ const MissionForm = ({
                     <div className='h-4'></div>
                     <div className="flex space-x-6 h-20 w-full">
                         <FormInput<MissionFront>
+                            disable={!enableAll()}
                             description={'Ilesos'}
                             fieldName={'unharmed'}
                             type={'Number'}
                         />
                         <FormInput<MissionFront>
+                            disable={!enableAll()}
                             description={'Heridos'}
                             fieldName={'injured'}
                             type={'Number'}
                         />
                         <FormInput<MissionFront>
+                            disable={!enableAll()}
                             description={'Transportados'}
                             fieldName={'transported'}
                             type={'Number'}
                         />
                         <FormInput<MissionFront>
+                            disable={!enableAll()}
                             description={'Fallecidos'}
                             fieldName={'deceased'}
                             type={'Number'}
@@ -512,6 +534,7 @@ const MissionForm = ({
                     <div className="h-8"></div>
 
                     <AddableTable
+                        enable={enableAll()}
                         title="Ubicaciones"
                         data={missionLocations ?? []}
                         defaultSort={'state'}
@@ -539,6 +562,7 @@ const MissionForm = ({
                     <div className="h-8"></div>
 
                     <AddableTable
+                        enable={enableAll()}
                         title="Infraestructuras"
                         data={missionInfrastructures ?? []}
                         idPropertyName="id"
@@ -565,6 +589,7 @@ const MissionForm = ({
                     <div className="h-8"></div>
 
                     <AddableTable
+                        enable={enableAll()}
                         title="Vehiculos"
                         data={missionVehicles ?? []}
                         idPropertyName="id"
@@ -591,6 +616,7 @@ const MissionForm = ({
                     <div className="h-8"></div>
 
                     <AddableTable
+                        enable={enableAll()}
                         title="Personas"
                         data={missionPeople ?? []}
                         idPropertyName="id"
@@ -615,6 +641,7 @@ const MissionForm = ({
                     />
 
                     <AddableTable
+                        enable={enableAll()}
                         title="Autoridades"
                         data={missionAuthorities ?? []}
                         defaultSort={'id'}
@@ -712,9 +739,10 @@ export default MissionForm
 
 interface AddOperativeAreaComponentProps {
     options: string[]
+    enable: boolean
     setExternal: React.Dispatch<React.SetStateAction<string[]>>
 }
-function AddOperativeAreaComponent({ options, setExternal }: AddOperativeAreaComponentProps) {
+function AddOperativeAreaComponent({ options, setExternal, enable }: AddOperativeAreaComponentProps) {
     const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
 
     return <Controller
@@ -725,6 +753,7 @@ function AddOperativeAreaComponent({ options, setExternal }: AddOperativeAreaCom
             return <div className='flex items-center space-x-6 w-full'>
                 <div className="flex-none w-1/2">
                     <SelectWithSearch
+                        disable={!enable}
                         description="Áreas operativas"
                         options={options}
                         selectionChange={(e) => {

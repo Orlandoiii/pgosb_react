@@ -16,6 +16,7 @@ interface FormSelectWithSearchProps<T extends FieldValues, O, TFieldName extends
   fatherLoading?: boolean;
   allowNewValue?: boolean;
   addClearButton?: boolean;
+  disable?: boolean;
   selectionChange?: (option: string) => void;
 }
 
@@ -30,6 +31,7 @@ function FormSelectWithSearch<T extends FieldValues, O>({
   allowNewValue = false,
   fatherLoading = false,
   addClearButton = false,
+  disable = false,
 }: FormSelectWithSearchProps<T, O>) {
   const { control, fieldError, isSubmitted } = useFormFieldContext<T>(fieldName);
 
@@ -37,12 +39,13 @@ function FormSelectWithSearch<T extends FieldValues, O>({
   const { value, isLoading } = useValueOrAsyncFunc(options, optionsDeps);
 
   return (
-    <div className="relative w-full rounded-lg overflow-hidden" ref={selectContainer}>
+    <div className={`relative w-full rounded-lg overflow-hidden`} ref={selectContainer}>
       <Controller
         name={fieldName}
         control={control}
         render={({ field }) => (
           <SelectWithSearch
+            disable={disable}
             description={description}
             options={value}
             displayKeys={displayKeys}

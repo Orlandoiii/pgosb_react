@@ -73,7 +73,7 @@ export function SelectWithSearch<T>({
             onBlur={() => dispatch({ type: 'FOCUS_OUT' })}
             onMouseEnter={() => dispatch({ type: 'HOVER_IN' })}
             onMouseLeave={() => dispatch({ type: 'HOVER_OUT' })}
-            className={`pointer-events-auto ${!select.state.optionsOpen && !showSelected ? 'text-transparent select-none' : ''}`}
+            className={`${disable ? " pointer-events-none": "pointer-events-auto"} ${!select.state.optionsOpen && !showSelected ? 'text-transparent select-none' : ''}`}
           />
           <div className="top-0 left-0 absolute flex justify-end items-center space-x-1 pr-2 w-full h-full pointer-events-none">
             <div
@@ -89,7 +89,7 @@ export function SelectWithSearch<T>({
             <button
               tabIndex={-1}
               onClick={() => dispatch({ type: 'CLEAR_CLICKED' })}
-              className="flex justify-center items-center hover:bg-slate-200 rounded-full w-6 h-6 font-semibold text-gray-400 text-xs hover:text-red-500 duration-150 pointer-events-auto aspect-square"
+              className={`flex justify-center items-center hover:bg-slate-200 rounded-full w-6 h-6 font-semibold text-gray-400 text-xs hover:text-red-500 duration-150 ${disable ? " pointer-events-none": "pointer-events-auto"} aspect-square`}
             >
               ✕
             </button>
