@@ -1,4 +1,4 @@
-import React, { PropsWithChildren, ReactNode } from 'react'
+import React, { PropsWithChildren, ReactNode, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import logger from '../../../logic/Logger/logger'
 import Backdrop from './Backdrop'
@@ -52,16 +52,53 @@ export default function ModalContainer({
     downStikyChildren,
 }: PropsWithChildren<ModalContainerProps>) {
     logger.log('Renderizo Modal Container')
+    const modalRef = useRef<HTMLDivElement>(null)
 
+    useEffect(() => {
+        const modalElement = modalRef.current;
+
+        const focusableElements = modalElement?.querySelectorAll(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+        );
+
+        const firstElement = focusableElements?.[0];
+        const lastElement = focusableElements?.[focusableElements.length - 1];
+
+
+        const handleTabKeyPress = (event) => {
+            if (event.key === 'Tab') {
+                if (event.shiftKey && document.activeElement === firstElement) {
+                    event.preventDefault();
+                    (lastElement as HTMLElement)?.focus();
+                } else if (!event.shiftKey && document.activeElement === lastElement) {
+                    event.preventDefault();
+                    (firstElement as HTMLElement)?.focus();
+                }
+            }
+        };
+
+        (firstElement as HTMLElement)?.focus()
+
+        modalElement?.addEventListener('keydown', handleTabKeyPress);
+
+        return () => {
+            modalElement?.removeEventListener('keydown', handleTabKeyPress);
+        };
+
+    }, [show])
+   
+   
     return (
         <AnimatePresence
             initial={false}
+            
             mode="wait"
             onExitComplete={() => null}
         >
             {show && (
                 <Backdrop>
                     <motion.div
+                        ref={modalRef}
                         initial={scaleAnimation.initial}
                         animate={scaleAnimation.animate}
                         exit={scaleAnimation.exit}
