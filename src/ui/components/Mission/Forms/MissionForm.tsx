@@ -126,7 +126,7 @@ const MissionForm = ({
     const [addingLocationFor, setAddingLocationFor] = useState<'origin' | 'destination' | undefined>(undefined);
 
 
-    const [station, setStation] = useState(initValue ? initValue.stationName : "")
+    const [station, setStation] = useState(initValue ? initValue.stationId : "")
 
     console.log("Opened", originLocation, addingLocationFor);
 
@@ -223,7 +223,7 @@ const MissionForm = ({
                         <div className="flex-auto w-full">
                             <FormSelectWithSearch<MissionFront, ApiStationType>
                                 description="Estación"
-                                fieldName={'stationName'}
+                                fieldName={'stationId'}
                                 options={stations}
                                 valueKey={'id'}
                                 displayKeys={['abbreviation', 'name']}
