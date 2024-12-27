@@ -271,7 +271,7 @@ export function useSelect<T>(options: T[] | string[] | undefined, selectedOption
         }
     }, [selectedOption])
 
-    return {
+    return { 
         state,
         dispatch
     };
