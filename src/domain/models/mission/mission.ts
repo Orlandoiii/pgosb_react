@@ -28,6 +28,7 @@ export const MissionApiSchema = z.object({
     peace_quadrant: z.string().optional().default(''),
     cancel_reason: z.string().optional().default(''),
     pending_for_data: z.boolean().optional().default(true),
+    antares_id: z.string().optional().default(''),
 })
 
 export const MissionFrontSchema = z.object({
@@ -54,6 +55,7 @@ export const MissionFrontSchema = z.object({
     peaceQuadrant: z.string().optional().default(''),
     cancelReason: z.string().optional().default(''),
     pendingForData: z.boolean().optional().default(true),
+    antaresId: z.string().optional().default(''),
 })
 
 
@@ -86,6 +88,7 @@ function fromApiInternal(data: MissionApi): MissionFront {
         peaceQuadrant: data.peace_quadrant,
         cancelReason: data.cancel_reason,
         pendingForData: data.pending_for_data,
+        antaresId: data.antares_id,
     }
 }
 
@@ -114,6 +117,7 @@ function toApiInternal(data: MissionFront): MissionApi {
         peace_quadrant: data.peaceQuadrant,
         cancel_reason: data.cancelReason,
         pending_for_data: data.pendingForData,
+        antares_id: data.antaresId,
     }
 }
 

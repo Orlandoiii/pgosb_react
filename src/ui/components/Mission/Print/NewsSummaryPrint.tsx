@@ -380,7 +380,7 @@ export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSumm
 
                     servicesList.push({
                         ...missionSummary,
-                        antares_id: servicesRequest.result?.stationId ?? "0",
+                        antares_id: missionSummary.antaresId ?? "0",
                         stationDescription: missionSummary.stationId,
                         serviceLocation: `${serviceLocation?.address ? `${serviceLocation.address}, ` : ''}${serviceLocation?.urb ? `URBANIZACIÓN: ${serviceLocation.urb}, ` : ''}${serviceLocation?.sector ? `SECTOR: ${serviceLocation.sector}, ` : ''}${serviceLocation?.parish ? `PARROQUIA: ${serviceLocation.parish}, ` : ''}${serviceLocation?.municipality ? `MUNICIPIO: ${serviceLocation.municipality}, ` : ''}${serviceLocation?.state ? `ESTADO: ${serviceLocation.state}` : ''}`.trim().replace(/,\s*$/, '')
                     })
