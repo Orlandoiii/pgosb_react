@@ -50,7 +50,7 @@ import { modalService } from '../../../core/overlay/overlay_service'
 import { insert } from '../../../../services/http'
 import FormSubmit from '../../../optimized/components/form_inputs/form_submit'
 import { FormDatePicker } from '../../../optimized/components/form_inputs/form_date_picker'
-import { formatDateString, parseDateString } from '../../../optimized/Utilities/date_string_formatter'
+import { formatDateString, formatDateString2, parseDateString } from '../../../optimized/Utilities/date_string_formatter'
 import Chips from '../../../alter/components/menus/chips'
 import { Controller, UseFormSetValue } from 'react-hook-form'
 import Chip from '../../../alter/components/data_presenters/chip'
@@ -111,7 +111,8 @@ const MissionForm = ({
     const [stations] = useStationCollection();
     const [antares] = useAntaresCollection();
 
-    const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : new Date())
+    const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : 
+    new Date())
     const [currentOperativeAreas, setCurrentOperativeAreas] = useState<string[]>(initValue?.operativeAreas ? initValue?.operativeAreas : [])
     const roles = useMemo(() => {
         if (missionFirefighters.length == 0 || missionFirefighters.filter(x => x.serviceRole?.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
@@ -148,7 +149,7 @@ const MissionForm = ({
         setLoading(true)
 
         try {
-            data.manualMissionDate = formatDateString(manualDate)
+            data.manualMissionDate = formatDateString2(manualDate)
             data.operativeAreas = currentOperativeAreas;
             data.locationId = originLocation;
             data.locationDestinyId = destinationLocation;
