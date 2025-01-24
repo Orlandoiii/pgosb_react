@@ -12,6 +12,21 @@ export function formatDateString(date: Date) {
     return date.toLocaleString('es-VE', { timeZone: 'America/Caracas', hour12: false }).replace(',', '').replace('/', '-').replace('/', '-')
 }
 
+export function formatDateString2(date: Date) {
+    const formattedDate = date.toLocaleString('es-VE', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false,
+        timeZone: 'America/Caracas'
+    }).replace(/\//g, '-').replace(',', '').trim();
+
+    return formattedDate;
+}
+
 export function parseDateString(dateString: string): Date {
     const parts = dateString.split(' ');
     if (parts.length !== 2) return new Date(2024, 1, 1, 0, 0, 0);// Invalid format
