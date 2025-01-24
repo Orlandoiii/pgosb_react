@@ -81,30 +81,30 @@ const MissionForm = ({
 
     const [_, missionsActions] = useMissionCollection()
 
-    const [missionServices, missionServicesActions, updateMissionServices] = useMissionServiceCollection(initValue?.id ?? '')
+    const [missionServices, missionServicesActions, updateMissionServices] = useMissionServiceCollection(id ?? '')
 
-    const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(initValue?.id ?? '')
+    const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(id ?? '')
     const [units] = useMissionUnitCollection('', 'ALL', 'unit')
-    const [missionFirefighters, missionFirefightersActions, updateFirefighters] = useMissionFirefighterCollection(initValue?.id ?? '')
+    const [missionFirefighters, missionFirefightersActions, updateFirefighters] = useMissionFirefighterCollection(id ?? '')
     const [firefighters] = useMissionFirefighterCollection('', 'SIMPLE', 'user')
 
-    const [missionLocations, missionLocationsActions, updateMissionLocations] = useMissionLocationCollection(initValue?.id ?? '')
+    const [missionLocations, missionLocationsActions, updateMissionLocations] = useMissionLocationCollection(id ?? '')
     const [locationModalData, setLocationModalData] = useState<MissionLocationFront>()
     const [locationModalOpen, setLocationModalOpen] = useState(false)
 
-    const [missionInfrastructures, missionInfrastructuresActions, updateMissionInfrastructure] = useMissionInfrastructureCollection(initValue?.id ?? '')
+    const [missionInfrastructures, missionInfrastructuresActions, updateMissionInfrastructure] = useMissionInfrastructureCollection(id ?? '')
     const [infrastructureModalData, setInfrastructureModalData] = useState<MissionInfraestructureFront>()
     const [infrastructureModalOpen, setInfrastructureModalOpen] = useState(false)
 
-    const [missionVehicles, missionVehiclesActions, updateMissionVehicle] = useMissionVehicleCollection(initValue?.id ?? '')
+    const [missionVehicles, missionVehiclesActions, updateMissionVehicle] = useMissionVehicleCollection(id ?? '')
     const [vehicleModalData, setVehicleModalData] = useState<MissionVehicleFront>()
     const [vehicleModalOpen, setVehicleModalOpen] = useState(false)
 
-    const [missionPeople, missionPeopleActions, updateMissionPeople] = useMissionPersonCollection(initValue?.id ?? '')
+    const [missionPeople, missionPeopleActions, updateMissionPeople] = useMissionPersonCollection(id ?? '')
     const [personModalData, setPersonModalData] = useState<MissionPersonFront>()
     const [personModalOpen, setPersonModalOpen] = useState(false)
 
-    const [missionAuthorities, missionAuthoritiesActions, updateMissionAuthorities] = useMissionAuthorityCollection(initValue?.id ?? '')
+    const [missionAuthorities, missionAuthoritiesActions, updateMissionAuthorities] = useMissionAuthorityCollection(id ?? '')
     const [authorityModalData, setAuthorityModalData] = useState<MissionAuthorityFront>()
     const [authorityModalOpen, setAuthorityModalOpen] = useState(false)
 
@@ -253,7 +253,7 @@ const MissionForm = ({
                         <AddServiceComponent options={antares} enable={enableAll()} selectedChanged={async (id) => {
                             if (id) {
                                 let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
-                                defaultValue.missionId = initValue!.id
+                                defaultValue.missionId = id
                                 defaultValue.antaresId = id
 
                                 const result = await missionServicesActions.insertFront(defaultValue)
@@ -333,9 +333,9 @@ const MissionForm = ({
                             displayKeys={['plate', 'unitType']}
                             onAddOption={async (id) => {
                                 const unit = units.filter(x => x.id == id)[0]
-                                if (unit && initValue?.id) {
-                                    unit.missionId = initValue?.id;
-                                    let result = await insert("mission/unit", { mission_id: initValue.id, unit_id: unit.id })
+                                if (unit && id) {
+                                    unit.missionId = id;
+                                    let result = await insert("mission/unit", { mission_id: id, unit_id: unit.id })
 
                                     if (result.success) {
                                         modalService.toastSuccess("Unidad agregada")
@@ -375,11 +375,11 @@ const MissionForm = ({
                             preSelectFirstOption2={true}
                             onAddOption={async (id, rank) => {
                                 const firefighter = firefighters.filter(x => x.id == id)[0]
-                                if (firefighter && rank && initValue?.id) {
+                                if (firefighter && rank && id) {
                                     firefighter.rank = rank
-                                    firefighter.missionId = initValue?.id
+                                    firefighter.missionId = id
 
-                                    let result = await insert("mission/firefighter", { mission_id: initValue.id, user_id: firefighter.id, service_role: rank })
+                                    let result = await insert("mission/firefighter", { mission_id: id, user_id: firefighter.id, service_role: rank })
                                     if (result.success) {
                                         modalService.toastSuccess("Bombero agregado")
                                         updateFirefighters()
@@ -668,7 +668,7 @@ const MissionForm = ({
                         addButtonText="Agregar una autoridad"
                         nameConverter={MissionAuthorityNameConverter}
                         onAddButtonClick={async () => {
-                            const result = await missionAuthoritiesActions.insertFront({ missionId: initValue!.id } as any)
+                            const result = await missionAuthoritiesActions.insertFront({ missionId: id } as any)
 
                             if (result.success) {
                                 setAuthorityModalData(result.result)
@@ -696,7 +696,7 @@ const MissionForm = ({
 
             {locationModalOpen &&
                 <LocationForm
-                    initValue={action == "add" ? { missionId: initValue!.id } : { ...locationModalData, missionId: initValue!.id }}
+                    initValue={action == "add" ? { missionId: id } : { ...locationModalData, missionId: id }}
                     add={action == "add"}
                     locationAdded={(location) => {
                         if (addingLocationFor == 'origin') setOriginLocation(location.id ?? "0")
@@ -713,7 +713,7 @@ const MissionForm = ({
 
             {infrastructureModalOpen &&
                 <InfrastructureForm
-                    initValue={action == "add" ? { missionId: initValue!.id } : { ...infrastructureModalData, missionId: initValue!.id } as any}
+                    initValue={action == "add" ? { missionId: id } : { ...infrastructureModalData, missionId: id } as any}
                     add={action == "add"}
                     closeOverlay={() => {
                         updateMissionInfrastructure()
@@ -723,7 +723,7 @@ const MissionForm = ({
 
             {vehicleModalOpen &&
                 <VehicleForm
-                    initValue={action == "add" ? { missionId: initValue!.id } : { ...vehicleModalData, missionId: initValue!.id } as any}
+                    initValue={action == "add" ? { missionId: id } : { ...vehicleModalData, missionId: id } as any}
                     add={action == "add"}
                     closeOverlay={() => {
                         updateMissionVehicle()
@@ -733,7 +733,7 @@ const MissionForm = ({
 
             {personModalOpen &&
                 <PersonForm
-                    initValue={action == "add" ? { missionId: initValue!.id } : { ...personModalData, missionId: initValue!.id } as any}
+                    initValue={action == "add" ? { missionId: id } : { ...personModalData, missionId: id } as any}
                     add={action == "add"}
                     closeOverlay={() => {
                         updateMissionPeople()
@@ -743,7 +743,7 @@ const MissionForm = ({
 
             {authorityModalOpen &&
                 <AuthorityForm
-                    initValue={{ ...authorityModalData, missionId: initValue!.id } as any}
+                    initValue={{ ...authorityModalData, missionId: id } as any}
                     closeOverlay={() => {
                         updateMissionAuthorities()
                         setAuthorityModalOpen(false)
