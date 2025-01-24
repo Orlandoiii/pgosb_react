@@ -416,6 +416,10 @@ export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSumm
         ))
     }
 
+    function getCanceledServicesCount(services: NewsSummary[]): number {
+        return services.filter(service => service.cancelReason != '').length
+    }
+
     function getServicesByCancelReason(services: NewsSummary[]): { antaresId: string, antaresDescription: string, count: number }[] {
         const cancelServices = services.filter(service => service.cancelReason != '')
         const cancelReasons: string[] = [
@@ -470,7 +474,7 @@ export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSumm
 
                     <div className="py-2">-------------------------------------------------------------------------</div>
 
-                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.length}</span></div>
+                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.length - getCanceledServicesCount(services)}</span></div>
 
                     <div className="pt-8">
                         {getServicesByAntares(services).sort((a, b) => b.count - a.count).map(antares => (
@@ -484,7 +488,7 @@ export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSumm
 
                     <div className="py-2">-------------------------------------------------------------------------</div>
 
-                    <div className="font-semibold">Servicios Cancelados: <span className="font-normal">{getServicesByCancelReason(services).length}</span></div>
+                    <div className="font-semibold">Servicios Cancelados: <span className="font-normal">{getCanceledServicesCount(services)}</span></div>
 
                     <div className="pt-8">
                         {getServicesByCancelReason(services).sort((a, b) => b.count - a.count).map(antares => (

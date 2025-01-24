@@ -60,6 +60,7 @@ import { useAntaresCollection } from '../../../../domain/models/mission/antares/
 import { getDefaults } from '../../../core/context/CustomFormContext'
 import FormTextArea from '../../../optimized/components/form_inputs/form_text_area'
 import { TApiAntares } from '../../../../domain/models/antares/antares'
+import { ResultErr } from '../../../../domain/abstractions/types/resulterr'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -74,6 +75,9 @@ const MissionForm = ({
 }: MissionFormProps) => {
     const [loading, setLoading] = useState(false)
     const [locationsLoading, setLocationsLoading] = useState(true)
+
+    const [saved, setSaved] = useState(initValue ? true : false)
+    const [id, setId] = useState(initValue ? initValue.id : "")
 
     const [_, missionsActions] = useMissionCollection()
 
@@ -131,7 +135,7 @@ const MissionForm = ({
     console.log("Opened", originLocation, addingLocationFor);
 
     function enableAll(): boolean {
-        return station?.length > 0 && missionServices.length > 0
+        return saved && station?.length > 0
     }
 
     useEffect(() => {
@@ -141,16 +145,31 @@ const MissionForm = ({
     }, [])
 
     async function submit(data: MissionFront) {
-        console.log("submited", data);
+        setLoading(true)
 
-        data.manualMissionDate = formatDateString(manualDate)
-        data.operativeAreas = currentOperativeAreas;
-        data.locationId = originLocation;
-        data.locationDestinyId = destinationLocation;
+        try {
+            data.manualMissionDate = formatDateString(manualDate)
+            data.operativeAreas = currentOperativeAreas;
+            data.locationId = originLocation;
+            data.locationDestinyId = destinationLocation;
 
-        const result = await missionsActions.updateFront(data);
-        if (result.success) modalService.toastSuccess("Missión actualizada!");
-        else modalService.toastError("No se pudo actualizar la missión");
+            let result: ResultErr<MissionFront>
+
+            if (saved) result = await missionsActions.updateFront(data);
+            else result = await missionsActions.insertFront(data);
+
+            if (result.success && result.result) {
+                if (!saved) {
+                    setSaved(true)
+                    setId(result.result.id)
+                }
+                modalService.toastSuccess(`Missión ${saved ? 'actualizada!' : 'guardada!'}`);
+            }
+            else modalService.toastError(`No se pudo ${saved ? 'actualizar' : 'guardar'} la missión`);
+        }
+        finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -192,7 +211,7 @@ const MissionForm = ({
                                 Código:
                             </div>
                             <div className="bg-white px-4 py-2 rounded-md h-10 font-semibold text-lg">
-                                {initValue?.id}
+                                {id}
                             </div>
                         </div>
 
@@ -231,7 +250,7 @@ const MissionForm = ({
                                 selectionChange={(option) => setStation(option)}
                             />
                         </div>
-                        <AddServiceComponent options={antares} selectedChanged={async (id) => {
+                        <AddServiceComponent options={antares} enable={enableAll()} selectedChanged={async (id) => {
                             if (id) {
                                 let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
                                 defaultValue.missionId = initValue!.id
@@ -260,7 +279,7 @@ const MissionForm = ({
                                     height='h-12'
                                     width='w-44'
                                     colorType="bg-[#3C50E0]"
-                                    description={"Guardar"}
+                                    description={`${saved ? 'Actualizar' : 'Guardar'}`}
                                 />
                             </div>
                         </div>
@@ -787,10 +806,11 @@ function AddOperativeAreaComponent({ options, setExternal, enable }: AddOperativ
 
 interface AddServiceComponentProps {
     options: TApiAntares[]
+    enable: boolean
     selectedChanged: (string) => void
 }
 
-function AddServiceComponent({ options, selectedChanged }: AddServiceComponentProps) {
+function AddServiceComponent({ options, selectedChanged, enable = true }: AddServiceComponentProps) {
     const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
 
     return <Controller
@@ -801,6 +821,7 @@ function AddServiceComponent({ options, selectedChanged }: AddServiceComponentPr
             return <div className='flex items-center w-full'>
                 <div className="flex-none w-full">
                     <SelectWithSearch
+                        disable={!enable}
                         description="Antares"
                         options={options}
                         valueKey={'id'}

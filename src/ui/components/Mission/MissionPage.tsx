@@ -28,16 +28,18 @@ import AlertController from '../../core/alerts/AlertController'
 import { useConfirmationModal } from '../../core/modal/ModalConfirmation'
 import { ResultErr } from '../../../domain/abstractions/types/resulterr'
 import { executeAndValidate } from '../../optimized/Utilities/execute_and_validate'
-import { useMissionCollection } from '../../../domain/models/mission/use_collection'
+import { useMissionActions, useMissionCollection } from '../../../domain/models/mission/use_collection'
 import { formatDateString } from '../../optimized/Utilities/date_string_formatter'
 
 const alertController = new AlertController();
 
 
 const MissionPage = () => {
-    const [missions, missionsActions, updateMissions] = useMissionCollection()
     const [missionSummaries, setMissionSummaries] = useState<any>([])
+
     const [mission, setMission] = useState<MissionFront | null>(null)
+    const [openMissionModal, setOpenMissionModal] = useState(false)
+    const missionsActions = useMissionActions()
 
     const navigate = useNavigate();
 
@@ -54,14 +56,15 @@ const MissionPage = () => {
 
     useEffect(() => {
         UpdatemissionSummaries();
-    }, [missions])
+    }, [])
 
 
     const { showConfirmationModal } = useConfirmationModal();
 
     async function UpdatemissionSummaries() {
+        setLoading(true)
         const result = await getAll("mission")
-
+        setLoading(false)
         if (result.success) {
             setMissionSummaries(result.result)
         }
@@ -105,21 +108,29 @@ const MissionPage = () => {
 
 
     async function addNewMission() {
-        const result = await executeAndValidate(
-            "misión", 'FEMALE', 'guardar',
-            async () => await missionsActions.insertFront(
-                getDefaults<MissionFront>(MissionFrontSchema)
-            ),
-            setLoading,
-            'id'
-        );
+        // let defaultMission = getDefaults<MissionFront>(MissionFrontSchema)
+        // defaultMission.manualMissionDate = formatDateString(new Date)
 
-        if (result.success && result.result) setMission(result.result)
+
+        // const result = await executeAndValidate(
+        //     "misión", 'FEMALE', 'guardar',
+        //     async () => await missionsActions.insertFront(
+        //         defaultMission
+        //     ),
+        //     setLoading,
+        //     'id'
+        // );
+
+        // if (result.success && result.result) setMission(result.result)
+        setOpenMissionModal(true)
     }
 
     async function openMission(service: any) {
         const result = await missionsActions.getById(service.id)
-        if (result.success && result.result) setMission(result.result)
+        if (result.success && result.result) {
+            setMission(result.result)
+            setOpenMissionModal(true)
+        }
     }
 
     function openPrintModal(missions: any) {
@@ -248,12 +259,13 @@ const MissionPage = () => {
                 <LoadingModal initOpen={loading} children={null} />
             </LayoutContexProvider>
 
-            {mission && <MissionForm
-                isVisible={mission != null}
+            {openMissionModal && <MissionForm
+                isVisible={openMissionModal}
                 initValue={mission}
                 closeOverlay={() => {
                     setMission(null)
-                    updateMissions()
+                    setOpenMissionModal(false)
+                    UpdatemissionSummaries()
                 }}
             />}
 
@@ -262,4 +274,5 @@ const MissionPage = () => {
 }
 
 export default MissionPage
+
 
