@@ -77,42 +77,41 @@ const MissionForm = ({
     const [locationsLoading, setLocationsLoading] = useState(true)
 
     const [saved, setSaved] = useState(initValue ? true : false)
-    const [id, setId] = useState(initValue ? initValue.id : "")
+    const [missionId, setId] = useState(initValue ? initValue.id : "")
 
     const [_, missionsActions] = useMissionCollection()
 
-    const [missionServices, missionServicesActions, updateMissionServices] = useMissionServiceCollection(id ?? '')
+    const [missionServices, missionServicesActions, updateMissionServices] = useMissionServiceCollection(missionId ?? '')
 
-    const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(id ?? '')
+    const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(missionId ?? '')
     const [units] = useMissionUnitCollection('', 'ALL', 'unit')
-    const [missionFirefighters, missionFirefightersActions, updateFirefighters] = useMissionFirefighterCollection(id ?? '')
+    const [missionFirefighters, missionFirefightersActions, updateFirefighters] = useMissionFirefighterCollection(missionId ?? '')
     const [firefighters] = useMissionFirefighterCollection('', 'SIMPLE', 'user')
 
-    const [missionLocations, missionLocationsActions, updateMissionLocations] = useMissionLocationCollection(id ?? '')
+    const [missionLocations, missionLocationsActions, updateMissionLocations] = useMissionLocationCollection(missionId ?? '')
     const [locationModalData, setLocationModalData] = useState<MissionLocationFront>()
     const [locationModalOpen, setLocationModalOpen] = useState(false)
 
-    const [missionInfrastructures, missionInfrastructuresActions, updateMissionInfrastructure] = useMissionInfrastructureCollection(id ?? '')
+    const [missionInfrastructures, missionInfrastructuresActions, updateMissionInfrastructure] = useMissionInfrastructureCollection(missionId ?? '')
     const [infrastructureModalData, setInfrastructureModalData] = useState<MissionInfraestructureFront>()
     const [infrastructureModalOpen, setInfrastructureModalOpen] = useState(false)
 
-    const [missionVehicles, missionVehiclesActions, updateMissionVehicle] = useMissionVehicleCollection(id ?? '')
+    const [missionVehicles, missionVehiclesActions, updateMissionVehicle] = useMissionVehicleCollection(missionId ?? '')
     const [vehicleModalData, setVehicleModalData] = useState<MissionVehicleFront>()
     const [vehicleModalOpen, setVehicleModalOpen] = useState(false)
 
-    const [missionPeople, missionPeopleActions, updateMissionPeople] = useMissionPersonCollection(id ?? '')
+    const [missionPeople, missionPeopleActions, updateMissionPeople] = useMissionPersonCollection(missionId ?? '')
     const [personModalData, setPersonModalData] = useState<MissionPersonFront>()
     const [personModalOpen, setPersonModalOpen] = useState(false)
 
-    const [missionAuthorities, missionAuthoritiesActions, updateMissionAuthorities] = useMissionAuthorityCollection(id ?? '')
+    const [missionAuthorities, missionAuthoritiesActions, updateMissionAuthorities] = useMissionAuthorityCollection(missionId ?? '')
     const [authorityModalData, setAuthorityModalData] = useState<MissionAuthorityFront>()
     const [authorityModalOpen, setAuthorityModalOpen] = useState(false)
 
     const [stations] = useStationCollection();
     const [antares] = useAntaresCollection();
 
-    const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : 
-    new Date())
+    const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : new Date())
     const [currentOperativeAreas, setCurrentOperativeAreas] = useState<string[]>(initValue?.operativeAreas ? initValue?.operativeAreas : [])
     const roles = useMemo(() => {
         if (missionFirefighters.length == 0 || missionFirefighters.filter(x => x.serviceRole?.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
@@ -153,6 +152,7 @@ const MissionForm = ({
             data.operativeAreas = currentOperativeAreas;
             data.locationId = originLocation;
             data.locationDestinyId = destinationLocation;
+            data.id = missionId;
 
             let result: ResultErr<MissionFront>
 
@@ -212,7 +212,7 @@ const MissionForm = ({
                                 Código:
                             </div>
                             <div className="bg-white px-4 py-2 rounded-md h-10 font-semibold text-lg">
-                                {id}
+                                {missionId}
                             </div>
                         </div>
 
@@ -254,11 +254,14 @@ const MissionForm = ({
                         <AddServiceComponent options={antares} enable={enableAll()} selectedChanged={async (id) => {
                             if (id) {
                                 let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
-                                defaultValue.missionId = id
+                                defaultValue.missionId = missionId
                                 defaultValue.antaresId = id
 
                                 const result = await missionServicesActions.insertFront(defaultValue)
-                                if (result.success) modalService.toastSuccess("Servicio agregado")
+                                if (result.success) {
+                                    modalService.toastSuccess("Servicio agregado")
+                                    updateMissionServices()
+                                }
                                 else {
                                     modalService.toastError("No se pudo agregar el servicio!")
                                     console.error("No se pudo agregar el servicio por: ", result.error);
@@ -334,9 +337,9 @@ const MissionForm = ({
                             displayKeys={['plate', 'unitType']}
                             onAddOption={async (id) => {
                                 const unit = units.filter(x => x.id == id)[0]
-                                if (unit && id) {
-                                    unit.missionId = id;
-                                    let result = await insert("mission/unit", { mission_id: id, unit_id: unit.id })
+                                if (unit && missionId) {
+                                    unit.missionId = missionId;
+                                    let result = await insert("mission/unit", { mission_id: missionId, unit_id: unit.id })
 
                                     if (result.success) {
                                         modalService.toastSuccess("Unidad agregada")
@@ -376,11 +379,11 @@ const MissionForm = ({
                             preSelectFirstOption2={true}
                             onAddOption={async (id, rank) => {
                                 const firefighter = firefighters.filter(x => x.id == id)[0]
-                                if (firefighter && rank && id) {
+                                if (firefighter && rank && missionId) {
                                     firefighter.rank = rank
-                                    firefighter.missionId = id
+                                    firefighter.missionId = missionId
 
-                                    let result = await insert("mission/firefighter", { mission_id: id, user_id: firefighter.id, service_role: rank })
+                                    let result = await insert("mission/firefighter", { mission_id: missionId, user_id: firefighter.id, service_role: rank })
                                     if (result.success) {
                                         modalService.toastSuccess("Bombero agregado")
                                         updateFirefighters()
@@ -669,7 +672,7 @@ const MissionForm = ({
                         addButtonText="Agregar una autoridad"
                         nameConverter={MissionAuthorityNameConverter}
                         onAddButtonClick={async () => {
-                            const result = await missionAuthoritiesActions.insertFront({ missionId: id } as any)
+                            const result = await missionAuthoritiesActions.insertFront({ missionId: missionId } as any)
 
                             if (result.success) {
                                 setAuthorityModalData(result.result)
@@ -697,7 +700,7 @@ const MissionForm = ({
 
             {locationModalOpen &&
                 <LocationForm
-                    initValue={action == "add" ? { missionId: id } : { ...locationModalData, missionId: id }}
+                    initValue={action == "add" ? { missionId: missionId } : { ...locationModalData, missionId: missionId }}
                     add={action == "add"}
                     locationAdded={(location) => {
                         if (addingLocationFor == 'origin') setOriginLocation(location.id ?? "0")
@@ -714,7 +717,7 @@ const MissionForm = ({
 
             {infrastructureModalOpen &&
                 <InfrastructureForm
-                    initValue={action == "add" ? { missionId: id } : { ...infrastructureModalData, missionId: id } as any}
+                    initValue={action == "add" ? { missionId: missionId } : { ...infrastructureModalData, missionId: missionId } as any}
                     add={action == "add"}
                     closeOverlay={() => {
                         updateMissionInfrastructure()
@@ -724,7 +727,7 @@ const MissionForm = ({
 
             {vehicleModalOpen &&
                 <VehicleForm
-                    initValue={action == "add" ? { missionId: id } : { ...vehicleModalData, missionId: id } as any}
+                    initValue={action == "add" ? { missionId: missionId } : { ...vehicleModalData, missionId: missionId } as any}
                     add={action == "add"}
                     closeOverlay={() => {
                         updateMissionVehicle()
@@ -734,7 +737,7 @@ const MissionForm = ({
 
             {personModalOpen &&
                 <PersonForm
-                    initValue={action == "add" ? { missionId: id } : { ...personModalData, missionId: id } as any}
+                    initValue={action == "add" ? { missionId: missionId } : { ...personModalData, missionId: missionId } as any}
                     add={action == "add"}
                     closeOverlay={() => {
                         updateMissionPeople()
@@ -744,7 +747,7 @@ const MissionForm = ({
 
             {authorityModalOpen &&
                 <AuthorityForm
-                    initValue={{ ...authorityModalData, missionId: id } as any}
+                    initValue={{ ...authorityModalData, missionId: missionId } as any}
                     closeOverlay={() => {
                         updateMissionAuthorities()
                         setAuthorityModalOpen(false)
@@ -779,7 +782,7 @@ function AddOperativeAreaComponent({ options, setExternal, enable }: AddOperativ
                         selectionChange={(e) => {
                             if (e == '') return
 
-                            let newOperativeAreas = field.value as string[]
+                            let newOperativeAreas = (field.value as string[]) ?? []
                             newOperativeAreas.push(e);
 
                             field.onChange(Array.from(newOperativeAreas))
@@ -790,7 +793,7 @@ function AddOperativeAreaComponent({ options, setExternal, enable }: AddOperativ
                 </div>
 
                 <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
-                    {field.value && (field.value as string[]).length > 0 && field.value.map((item) => (
+                    {field.value && ((field.value as string[]) ?? []).length > 0 && field.value.map((item) => (
                         <Chip
                             text={item}
                             onDelete={(e) => {

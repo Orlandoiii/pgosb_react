@@ -466,17 +466,21 @@ export function NewsSummaryPrint({ missionsIds: servicesIds, filters }: NewsSumm
                         <div className="pt-8">
                             <div className="font-semibold">EVENTO: <span className="font-normal">{importantService.antares_id} -  {antaresCollection.filter(x => x.id == importantService.antares_id)?.[0]?.description ?? ''}</span></div>
                             <div className="font-semibold">HORA: <span className="font-normal">{importantService.manualMissionDate}</span></div>
-                            <div className="font-semibold">CODIGO: <span className="font-normal">{importantService.id.split("-")[0]}</span></div>
-                            <div className="font-semibold">ESTACION: <span className="font-normal">{stationCollection.filter(x => x.id == importantService.stationId)?.[0]?.abbreviation} - {stationCollection.filter(x => x.id == importantService.stationId)?.[0]?.name}</span></div>
-                            <div className="font-semibold">DIRECCION: <span className="font-normal">{importantService.serviceLocation}</span></div>
+                            <div className="font-semibold">CÓDIGO: <span className="font-normal">{importantService.id.split("-")[0]}</span></div>
+                            <div className="font-semibold">ESTACIÓN: <span className="font-normal">{stationCollection.filter(x => x.id == importantService.stationId)?.[0]?.abbreviation} - {stationCollection.filter(x => x.id == importantService.stationId)?.[0]?.name}</span></div>
+                            <div className="font-semibold">DIRECCIÓN: <span className="font-normal">{importantService.serviceLocation}</span></div>
                         </div>
                     ))}
 
                     <div className="py-2">-------------------------------------------------------------------------</div>
 
-                    <div className="font-semibold">Total Servicios: <span className="font-normal">{services.length - getCanceledServicesCount(services)}</span></div>
+                    <div className="font-semibold">Total Servicios Efectuados: <span className="font-normal">{services.length - getCanceledServicesCount(services)}</span></div>
 
                     <div className="pt-8">
+                        {services.filter(x => !x.antaresId).length > 0 &&
+                        <>
+                        <div className="font-semibold">{services.filter(x => !x.antaresId).length}<span className="font-normal"> - SERVICIOS SIN ANTARES</span></div>
+                        </> }
                         {getServicesByAntares(services).sort((a, b) => b.count - a.count).map(antares => (
                             <>
                                 {antares.count > 0 &&
