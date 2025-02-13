@@ -2,9 +2,9 @@ import { MissionLocationApi, MissionLocationFromApi, MissionLocationFront, Missi
 import { useCollection } from "../../../../ui/optimized/hooks/useCollection";
 import { HttpActions, useHttpActions } from "../../../../ui/optimized/hooks/useHttpActions";
 
-export function useMissionLocationCollection(id?: string, type: 'ALL' | 'GROUP' = 'GROUP'): [collection: MissionLocationFront[], actions: HttpActions<MissionLocationFront, MissionLocationApi>, updateCollection: () => void] {
+export function useMissionLocationCollection(id?: string, type: 'ALL' | 'GROUP' = 'GROUP',endpoint: string = 'mission/location'): [collection: MissionLocationFront[], actions: HttpActions<MissionLocationFront, MissionLocationApi>, updateCollection: () => void] {
     const [locations, actions, updateLocations] = useCollection({
-        endpointCompound: 'mission/location',
+        endpointCompound: endpoint,
         fromApiMapper: MissionLocationFromApi,
         toApiMapper: MissionLocationToApi,
         type: type,
@@ -14,9 +14,9 @@ export function useMissionLocationCollection(id?: string, type: 'ALL' | 'GROUP' 
     return [locations, actions, updateLocations]
 }
 
-export function useMissionLocationActions(){
+export function useMissionLocationActions(endpoint: string = 'mission/location'){
     return  useHttpActions({ 
-        endpointCompound: 'mission/location',
+        endpointCompound: endpoint,
         fromApiMapper: MissionLocationFromApi,
         toApiMapper: MissionLocationToApi,
     })

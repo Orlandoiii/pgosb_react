@@ -123,6 +123,10 @@ export default function Sidebar({ }) {
                                 <SideBarLink collpase={collapse} link="/services" icon={<ServiceIcon />} name='Servicios' onClick={(e) => {
                                     handleClick(e, "Servicios")
                                 }} />
+                                <SideBarLink collpase={collapse} link="/template" icon={<ServiceIcon />} name='Plantillas' onClick={(e) => {
+                                    handleClick(e, "Plantillas")
+                                }} />
+
                                 <SideBarLink collpase={collapse} link="/users" icon={<UsersIcon />} name='Funcionarios' onClick={(e) => {
                                     handleClick(e, "Usuarios")
                                 }} />

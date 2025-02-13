@@ -8,6 +8,7 @@ export const MissionUnitApiSchema = z.object({
     plate: z.string().optional().default(''),
     station: z.string().optional().default(''),
     unit_type: z.string().optional().default(''),
+    unit_id: z.string().optional().default(''),
     alias: z.string().optional().default(''),
     mission_id: z.string().optional().default(''),
 })
@@ -17,6 +18,7 @@ export const MissionUnitFrontSchema = z.object({
     plate: z.string().optional().default(''),
     station: z.string().optional().default(''),
     unitType: z.string().optional().default(''),
+    unitId: z.string().optional().default(''),
     alias: z.string().optional().default(''),
     missionId: z.string().optional().default(''),
 })
@@ -31,6 +33,7 @@ function fromApiInternal(data: MissionUnitApi): MissionUnitFront {
         id: data.id,
         plate: data.plate,
         station: data.station,
+        unitId: data.unit_id,
         unitType: data.unit_type,
         alias: data.alias,
         missionId: data.mission_id,
@@ -42,6 +45,7 @@ function toApiInternal(data: MissionUnitFront): MissionUnitApi {
         id: data.id,
         plate: data.plate,
         station: data.station,
+        unit_id: data.unitId,
         unit_type: data.unitType,
         alias: data.alias,
         mission_id: data.missionId,

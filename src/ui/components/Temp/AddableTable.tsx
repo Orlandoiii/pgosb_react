@@ -9,8 +9,12 @@ type FriendlyNames<T> = {
 interface AddableTableProps<T> {
     title: string
     addButtonText: string
-    onAddButtonClick?: (selectedOption?: string, selectedOption2?: string) => void
+    onAddButtonClick?: (
+        selectedOption?: string,
+        selectedOption2?: string
+    ) => void
     enable?: boolean
+    enableAdd?: boolean
     preSelectFirstOption1?: boolean
     preSelectFirstOption2?: boolean
     data: T[]
@@ -37,6 +41,7 @@ export function AddableTable<T>({
     addButtonText = 'Agregar',
     onAddButtonClick,
     enable = true,
+    enableAdd = true,
     data = [],
     defaultSort,
     defaultSortAsc = false,
@@ -55,34 +60,41 @@ export function AddableTable<T>({
     onAddOption,
     preSelectFirstOption1,
     preSelectFirstOption2,
-    closeAfterAdd = false
+    closeAfterAdd = false,
 }: AddableTableProps<T>) {
     const [internalData, setInternalData] = useState(data)
 
     const [sortAsc, setSortAsc] = useState(defaultSortAsc)
     const [sort, setSort] = useState(defaultSort ? defaultSort : idPropertyName)
 
-    const [selectedOption, setSelectedOption] = useState(preSelectFirstOption1 && options ? options[0] : "")
-    const [selectedOption2, setSelectedOption2] = useState(preSelectFirstOption2 && options2 ? options2[0] : "")
+    const [selectedOption, setSelectedOption] = useState(
+        preSelectFirstOption1 && options ? options[0] : ''
+    )
+    const [selectedOption2, setSelectedOption2] = useState(
+        preSelectFirstOption2 && options2 ? options2[0] : ''
+    )
     const [showInnerAdd, setShowInnerAdd] = useState(false)
 
-    console.log("Addable",optionsDescription2, selectedOption, selectedOption2 , preSelectFirstOption2 && options2, options2);
+    console.log(
+        'Addable',
+        optionsDescription2,
+        selectedOption,
+        selectedOption2,
+        preSelectFirstOption2 && options2,
+        options2
+    )
 
     useEffect(() => {
-        if (options && !selectedOption || options2 && !selectedOption2) return
-        onAddOption
-            ? onAddOption(
-                selectedOption,
-                selectedOption2
-            )
-            : undefined
+        if ((options && !selectedOption) || (options2 && !selectedOption2))
+            return
+        onAddOption ? onAddOption(selectedOption, selectedOption2) : undefined
 
-        setSelectedOption('');
-        if (options2) setSelectedOption2(options2[0]);
+        setSelectedOption('')
+        if (options2) setSelectedOption2(options2[0])
     }, [selectedOption, selectedOption2])
 
     useEffect(() => {
-        if (options2) setSelectedOption2(options2[0]);
+        if (options2) setSelectedOption2(options2[0])
     }, [options2])
 
     useEffect(() => {
@@ -176,30 +188,30 @@ export function AddableTable<T>({
                                 (property) => (
                                     <>
                                         {!nameConverter ||
-                                            (nameConverter &&
-                                                nameConverter.hasOwnProperty(
-                                                    String(property[0])
-                                                )) ? (
+                                        (nameConverter &&
+                                            nameConverter.hasOwnProperty(
+                                                String(property[0])
+                                            )) ? (
                                             <td
                                                 key={`${title}-${property[0]}-header`}
                                                 className={`  px-4 duration-200 hover:bg-[#1d4368] ${enable ? 'cursor-pointer' : ''}`}
                                                 onClick={
                                                     enable
                                                         ? () =>
-                                                            changeSort(
-                                                                String(
-                                                                    property[0]
-                                                                ) as keyof T
-                                                            )
-                                                        : () => { }
+                                                              changeSort(
+                                                                  String(
+                                                                      property[0]
+                                                                  ) as keyof T
+                                                              )
+                                                        : () => {}
                                                 }
                                             >
                                                 <div className="flex space-x-4">
                                                     <span>
                                                         {nameConverter
                                                             ? nameConverter[
-                                                            property[0]
-                                                            ]
+                                                                  property[0]
+                                                              ]
                                                             : property[0]}
                                                     </span>
                                                     {property[0] == sort && (
@@ -240,9 +252,9 @@ export function AddableTable<T>({
                                 {Object.entries(element as any).map(
                                     (property) =>
                                         !nameConverter ||
-                                            nameConverter.hasOwnProperty(
-                                                String(property[0])
-                                            ) ? (
+                                        nameConverter.hasOwnProperty(
+                                            String(property[0])
+                                        ) ? (
                                             <td
                                                 key={`${title}-${property[0]}-cell`}
                                                 className="px-4 whitespace-nowrap"
@@ -252,16 +264,21 @@ export function AddableTable<T>({
                                                         ? ''
                                                         : typeof property[1] ===
                                                             'object'
-                                                            ? Object?.entries(
+                                                          ? Object?.entries(
                                                                 (property[1] as any) ??
-                                                                {}
+                                                                    {}
                                                             )
                                                                 ?.map(
                                                                     (x) => x[1]
                                                                 )
                                                                 ?.join(',') ??
                                                             ''
-                                                            : (typeof property[1] === 'boolean' ? (property[1] ? "Si" : "No") : (property[1] as any)))
+                                                          : typeof property[1] ===
+                                                              'boolean'
+                                                            ? property[1]
+                                                                ? 'Si'
+                                                                : 'No'
+                                                            : (property[1] as any))
                                                 }
                                             </td>
                                         ) : (
@@ -287,40 +304,52 @@ export function AddableTable<T>({
                                 </td>
                             </tr>
                         ))}
-                        {addButtonText && (
-                            <tr
+                    {addButtonText && (
+                        <tr
                             className={`relative ${showInnerAdd ? 'h-24' : 'h-12'}  ${enable ? 'cursor-pointer' : ''} duration-200 hover:bg-slate-300 overflow-x-hidden`}
                         >
                             <td>
                                 <div
                                     className={`${showInnerAdd && options ? '' : '-translate-x-full opacity-0 pointer-events-none'} absolute left-0 top-0 flex h-full w-full items-center bg-slate-200 space-x-4 px-2`}
                                 >
-    
-                                    {showInnerAdd && <SelectWithSearch
-                                        description={optionsDescription}
-                                        options={options}
-                                        value={''}
-                                        showSelected={false}
-                                        valueKey={valueKey as any}
-                                        displayKeys={displayKeys as any}
-                                        selectionChange={(e) => {
-                                            setSelectedOption(e)
-                                        }
-                                        }
-                                    ></SelectWithSearch>}
-    
-    
-                                    {showInnerAdd && options2 && options2.length > 0 && (
+                                    {showInnerAdd && (
                                         <SelectWithSearch
-                                        description={optionsDescription2}
-                                        valueKey={valueKey2 as any}
-                                        displayKeys={displayKeys2 as any}
-                                        options={options2}
-                                        selectedOption={selectedOption2}
-                                        selectionChange={(value) => {value && setSelectedOption2(value)}}
-                                    />
+                                            disable={!enableAdd}
+                                            description={optionsDescription}
+                                            options={options}
+                                            value={''}
+                                            showSelected={false}
+                                            valueKey={valueKey as any}
+                                            displayKeys={displayKeys as any}
+                                            selectionChange={(e) => {
+                                                setSelectedOption(e)
+                                            }}
+                                        ></SelectWithSearch>
                                     )}
-    
+
+                                    {showInnerAdd &&
+                                        options2 &&
+                                        options2.length > 0 && (
+                                            <SelectWithSearch
+                                                disable={!enableAdd}
+                                                description={
+                                                    optionsDescription2
+                                                }
+                                                valueKey={valueKey2 as any}
+                                                displayKeys={
+                                                    displayKeys2 as any
+                                                }
+                                                options={options2}
+                                                selectedOption={selectedOption2}
+                                                selectionChange={(value) => {
+                                                    value &&
+                                                        setSelectedOption2(
+                                                            value
+                                                        )
+                                                }}
+                                            />
+                                        )}
+
                                     {/* <SelectSearch
                                         tabIndex={showInnerAdd ? undefined : -1}
                                         inputName={'model'}
@@ -330,7 +359,7 @@ export function AddableTable<T>({
                                         onBlur={blurOptionsHandler}
                                         openUp={false}
                                     /> */}
-    
+
                                     <div className="flex items-center space-x-4 pt-4 h-full">
                                         {/* <Button
                                             enable={selectedOption != ''}
@@ -350,7 +379,7 @@ export function AddableTable<T>({
                                             }}
                                             children={'Guardar'}
                                         ></Button> */}
-    
+
                                         <button
                                             onClick={(e) => {
                                                 setShowInnerAdd(false)
@@ -364,18 +393,23 @@ export function AddableTable<T>({
                                         </button>
                                     </div>
                                 </div>
-    
+
                                 <button
                                     className={`${showInnerAdd && options ? 'translate-x-full opacity-0 pointer-events-none w-[0%]' : 'w-[100%]'} absolute left-0 top-0 flex h-full items-center px-2 bg-slate-200 text-slate-500 duration-200 hover:text-slate-800 hover:bg-slate-300`}
                                     onClick={(e) => {
-                                        if (options && preSelectFirstOption1) setSelectedOption(options[0])
-    
+                                        if (options && preSelectFirstOption1)
+                                            setSelectedOption(options[0])
+
                                         setTimeout(() => {
                                             options
                                                 ? setShowInnerAdd(true)
-                                                : onAddButtonClick && onAddButtonClick(selectedOption, selectedOption2)
+                                                : onAddButtonClick &&
+                                                  onAddButtonClick(
+                                                      selectedOption,
+                                                      selectedOption2
+                                                  )
                                         }, 10)
-    
+
                                         e.preventDefault()
                                         e.stopPropagation()
                                     }}
@@ -395,7 +429,7 @@ export function AddableTable<T>({
                                 )
                             )}
                         </tr>
-                        )}
+                    )}
                 </tbody>
             </table>
             <div></div>

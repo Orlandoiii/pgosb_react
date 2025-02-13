@@ -1,16 +1,23 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
 
-
 import LoadingModal from '../../../core/modal/LoadingModal'
 import { AddableTable } from '../../Temp/AddableTable'
 import DateTimePicker from '../../../core/datetime_picker/DateTimePicker'
 import TextInput from '../../../alter/components/inputs/text_input'
 
 import { useMissionFirefighterCollection } from '../../../../domain/models/mission/firefighter/use_collection'
-import { MissionFirefighterNameConverter } from '../../../../domain/models/mission/firefighter/mission_firefighter'
+import {
+    MissionFirefighterFromApi,
+    MissionFirefighterNameConverter,
+    MissionFirefighterToApi,
+} from '../../../../domain/models/mission/firefighter/mission_firefighter'
 
 import { useMissionUnitCollection } from '../../../../domain/models/mission/unit/use_collection'
-import { MissionUnitNameConverter } from '../../../../domain/models/mission/unit/mission_unit'
+import {
+    MissionUnitFromApi,
+    MissionUnitNameConverter,
+    MissionUnitToApi,
+} from '../../../../domain/models/mission/unit/mission_unit'
 
 import { useMissionLocationCollection } from '../../../../domain/models/mission/location/use_collection'
 import { useMissionAuthorityCollection } from '../../../../domain/models/mission/authority/use_collection'
@@ -18,18 +25,43 @@ import { useMissionInfrastructureCollection } from '../../../../domain/models/mi
 import { useMissionVehicleCollection } from '../../../../domain/models/mission/vehicle/use_collection'
 import { useMissionPersonCollection } from '../../../../domain/models/mission/person/use_collection'
 import { useMissionServiceCollection } from '../../../../domain/models/mission/service/use_collection'
-import { MissionServiceFront, MissionServiceFrontSchema, MissionServiceNameConverter } from '../../../../domain/models/mission/service/mission_service'
-import { MissionLocationFront, MissionLocationNameConverter } from '../../../../domain/models/mission/location/mission_location'
-import { MissionInfraestructureFront, MissionInfraestructureNameConverter } from '../../../../domain/models/mission/infraestructure/mission_infraestructure'
-import { MissionVehicleFront, MissionVehicleNameConverter } from '../../../../domain/models/mission/vehicle/mission_vehicle'
-import { MissionPersonFront, MissionPersonNameConverter } from '../../../../domain/models/mission/person/mission_person'
-import { MissionAuthorityFront, MissionAuthorityNameConverter } from '../../../../domain/models/mission/authority/mission_authority'
-
+import {
+    MissionServiceFromApi,
+    MissionServiceFront,
+    MissionServiceFrontSchema,
+    MissionServiceNameConverter,
+    MissionServiceToApi,
+} from '../../../../domain/models/mission/service/mission_service'
+import {
+    MissionLocationFromApi,
+    MissionLocationFront,
+    MissionLocationNameConverter,
+    MissionLocationToApi,
+} from '../../../../domain/models/mission/location/mission_location'
+import {
+    MissionInfraestructureFront,
+    MissionInfraestructureNameConverter,
+} from '../../../../domain/models/mission/infraestructure/mission_infraestructure'
+import {
+    MissionVehicleFront,
+    MissionVehicleNameConverter,
+} from '../../../../domain/models/mission/vehicle/mission_vehicle'
+import {
+    MissionPersonFront,
+    MissionPersonNameConverter,
+} from '../../../../domain/models/mission/person/mission_person'
+import {
+    MissionAuthorityFront,
+    MissionAuthorityNameConverter,
+} from '../../../../domain/models/mission/authority/mission_authority'
 
 import { Roles } from '../../../../domain/abstractions/enums/roles'
 import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
 
-import { MissionFront, MissionFrontSchema } from '../../../../domain/models/mission/mission'
+import {
+    MissionFront,
+    MissionFrontSchema,
+} from '../../../../domain/models/mission/mission'
 import ModalLayout from '../../../optimized/components/layouts/modal_layout'
 import Button from '../../../core/buttons/Button'
 
@@ -47,12 +79,16 @@ import PersonForm from './PersonForm'
 import VehicleForm from './VehicleForm'
 import { AuthorityForm } from './AuthorityForm'
 import { modalService } from '../../../core/overlay/overlay_service'
-import { insert } from '../../../../services/http'
+import { getGroup, insert } from '../../../../services/http'
 import FormSubmit from '../../../optimized/components/form_inputs/form_submit'
 import { FormDatePicker } from '../../../optimized/components/form_inputs/form_date_picker'
-import { formatDateString, formatDateString2, parseDateString } from '../../../optimized/Utilities/date_string_formatter'
+import {
+    formatDateString,
+    formatDateString2,
+    parseDateString,
+} from '../../../optimized/Utilities/date_string_formatter'
 import Chips from '../../../alter/components/menus/chips'
-import { Controller, UseFormSetValue } from 'react-hook-form'
+import { Controller, DefaultValues, UseFormSetValue } from 'react-hook-form'
 import Chip from '../../../alter/components/data_presenters/chip'
 import { useFormFieldContext } from '../../../optimized/components/form/form_context'
 import { useMissionCollection } from '../../../../domain/models/mission/use_collection'
@@ -66,73 +102,137 @@ interface MissionFormProps {
     isVisible: boolean
     initValue?: MissionFront | null
     closeOverlay?: () => void
+    reOpen?: (id: string) => void
 }
 
 const MissionForm = ({
     isVisible,
     initValue,
     closeOverlay,
+    reOpen,
 }: MissionFormProps) => {
     const [loading, setLoading] = useState(false)
     const [locationsLoading, setLocationsLoading] = useState(true)
 
     const [saved, setSaved] = useState(initValue ? true : false)
-    const [missionId, setId] = useState(initValue ? initValue.id : "")
+    const [saving, setSaving] = useState(false)
+    const [addingToServices, setAddingToServices] = useState(false)
+    const [addingToUnits, setAddingToUnits] = useState(false)
+    const [addingToFirefighters, setAddingToFirefighters] = useState(false)
+    const [templateUsed, setTemplateUsed] = useState(false)
+    const [missionId, setId] = useState(initValue ? initValue.id : '')
 
     const [_, missionsActions] = useMissionCollection()
 
-    const [missionServices, missionServicesActions, updateMissionServices] = useMissionServiceCollection(missionId ?? '')
+    const [missionTemplates, missionTemplatesActions] =
+        useMissionCollection('mission/template')
 
-    const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(missionId ?? '')
+    const [missionServices, missionServicesActions, updateMissionServices] =
+        useMissionServiceCollection(missionId ?? '')
+
+    const [missionUnits, missionUnitsActions, updateUnits] =
+        useMissionUnitCollection(missionId ?? '')
     const [units] = useMissionUnitCollection('', 'ALL', 'unit')
-    const [missionFirefighters, missionFirefightersActions, updateFirefighters] = useMissionFirefighterCollection(missionId ?? '')
+    const [
+        missionFirefighters,
+        missionFirefightersActions,
+        updateFirefighters,
+    ] = useMissionFirefighterCollection(missionId ?? '')
     const [firefighters] = useMissionFirefighterCollection('', 'SIMPLE', 'user')
 
-    const [missionLocations, missionLocationsActions, updateMissionLocations] = useMissionLocationCollection(missionId ?? '')
-    const [locationModalData, setLocationModalData] = useState<MissionLocationFront>()
+    const [missionLocations, missionLocationsActions, updateMissionLocations] =
+        useMissionLocationCollection(missionId ?? '')
+    const [locationModalData, setLocationModalData] =
+        useState<MissionLocationFront>()
     const [locationModalOpen, setLocationModalOpen] = useState(false)
 
-    const [missionInfrastructures, missionInfrastructuresActions, updateMissionInfrastructure] = useMissionInfrastructureCollection(missionId ?? '')
-    const [infrastructureModalData, setInfrastructureModalData] = useState<MissionInfraestructureFront>()
-    const [infrastructureModalOpen, setInfrastructureModalOpen] = useState(false)
+    const [
+        missionInfrastructures,
+        missionInfrastructuresActions,
+        updateMissionInfrastructure,
+    ] = useMissionInfrastructureCollection(missionId ?? '')
+    const [infrastructureModalData, setInfrastructureModalData] =
+        useState<MissionInfraestructureFront>()
+    const [infrastructureModalOpen, setInfrastructureModalOpen] =
+        useState(false)
 
-    const [missionVehicles, missionVehiclesActions, updateMissionVehicle] = useMissionVehicleCollection(missionId ?? '')
-    const [vehicleModalData, setVehicleModalData] = useState<MissionVehicleFront>()
+    const [missionVehicles, missionVehiclesActions, updateMissionVehicle] =
+        useMissionVehicleCollection(missionId ?? '')
+    const [vehicleModalData, setVehicleModalData] =
+        useState<MissionVehicleFront>()
     const [vehicleModalOpen, setVehicleModalOpen] = useState(false)
 
-    const [missionPeople, missionPeopleActions, updateMissionPeople] = useMissionPersonCollection(missionId ?? '')
+    const [missionPeople, missionPeopleActions, updateMissionPeople] =
+        useMissionPersonCollection(missionId ?? '')
     const [personModalData, setPersonModalData] = useState<MissionPersonFront>()
     const [personModalOpen, setPersonModalOpen] = useState(false)
 
-    const [missionAuthorities, missionAuthoritiesActions, updateMissionAuthorities] = useMissionAuthorityCollection(missionId ?? '')
-    const [authorityModalData, setAuthorityModalData] = useState<MissionAuthorityFront>()
+    const [
+        missionAuthorities,
+        missionAuthoritiesActions,
+        updateMissionAuthorities,
+    ] = useMissionAuthorityCollection(missionId ?? '')
+    const [authorityModalData, setAuthorityModalData] =
+        useState<MissionAuthorityFront>()
     const [authorityModalOpen, setAuthorityModalOpen] = useState(false)
 
-    const [stations] = useStationCollection();
-    const [antares] = useAntaresCollection();
+    const [stations] = useStationCollection()
+    const [antares] = useAntaresCollection()
 
-    const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : new Date())
-    const [currentOperativeAreas, setCurrentOperativeAreas] = useState<string[]>(initValue?.operativeAreas ? initValue?.operativeAreas : [])
+    const [manualDate, setManualDate] = useState<Date>(
+        initValue?.manualMissionDate
+            ? parseDateString(initValue?.manualMissionDate)
+            : new Date()
+    )
+    const [currentOperativeAreas, setCurrentOperativeAreas] = useState<
+        string[]
+    >(initValue?.operativeAreas ? initValue?.operativeAreas : [])
     const roles = useMemo(() => {
-        if (missionFirefighters.length == 0 || missionFirefighters.filter(x => x.serviceRole?.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
+        if (
+            missionFirefighters.length == 0 ||
+            missionFirefighters.filter(
+                (x) => x.serviceRole?.toLocaleLowerCase() == 'comandante'
+            ).length == 0
+        )
+            return EnumToStringArray(Roles)
         else return [Roles.Auxiliary.toString(), Roles.Driver.toString()]
     }, [missionFirefighters])
 
-    const cancelReasons = useMemo(() => ["ALARMA FALSA", "ALARMA INFUNDADA", "ATENDIDO NO EFECTUADO", "ATENCION NO REALIZADA"], [])
+    const cancelReasons = useMemo(
+        () => [
+            'ALARMA FALSA',
+            'ALARMA INFUNDADA',
+            'ATENDIDO NO EFECTUADO',
+            'ATENCION NO REALIZADA',
+        ],
+        []
+    )
     const operativeAreas = useMemo(() => EnumToStringArray(OperativeAreas), [])
-    const levels = useMemo(() => ["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"], [])
+    const levels = useMemo(
+        () => ['NIVEL 1', 'NIVEL 2', 'NIVEL 3', 'NIVEL 4'],
+        []
+    )
 
-    const [action, setAction] = useState<'add' | 'update' | undefined>(undefined);
+    const [action, setAction] = useState<'add' | 'update' | undefined>(
+        undefined
+    )
 
-    const [originLocation, setOriginLocation] = useState<string>(initValue?.locationId ? initValue.locationId : "");
-    const [destinationLocation, setDestinationLocation] = useState<string>(initValue?.locationDestinyId ? initValue.locationDestinyId : "");
+    const [originLocation, setOriginLocation] = useState<string>(
+        initValue?.locationId ? initValue.locationId : ''
+    )
+    const [destinationLocation, setDestinationLocation] = useState<string>(
+        initValue?.locationDestinyId ? initValue.locationDestinyId : ''
+    )
 
-    const [addingLocationFor, setAddingLocationFor] = useState<'origin' | 'destination' | undefined>(undefined);
+    const [template, setTemplate] = useState<string>('')
 
+    const [addingLocationFor, setAddingLocationFor] = useState<
+        'origin' | 'destination' | undefined
+    >(undefined)
 
-    const [station, setStation] = useState(initValue ? initValue.stationId : "")
+    const [station, setStation] = useState(initValue ? initValue.stationId : '')
 
-    console.log("Opened", originLocation, addingLocationFor);
+    console.log('Opened', originLocation, addingLocationFor)
 
     function enableAll(): boolean {
         return saved && station?.length > 0
@@ -140,36 +240,68 @@ const MissionForm = ({
 
     useEffect(() => {
         setTimeout(() => {
-            setLocationsLoading(false);
-        }, 1500);
+            setLocationsLoading(false)
+        }, 1500)
     }, [])
+
+    useEffect(() => {
+        if (template) reOpen?.(template)
+    }, [template])
+
+    async function UpdateMissionFromTemplate() {
+        const missionTemplate = await missionTemplatesActions.getById(template)
+
+        if (initValue && missionTemplate.success) {
+            initValue.alias = `${missionTemplate.result?.alias} - Template`
+            initValue.stationId = missionTemplate.result?.stationId ?? ''
+
+            initValue.locationId = missionTemplate.result?.locationId ?? ''
+            initValue.locationDestinyId =
+                missionTemplate.result?.locationDestinyId ?? ''
+            initValue.operativeAreas =
+                missionTemplate.result?.operativeAreas ?? []
+            initValue.level = missionTemplate.result?.level ?? ''
+            initValue.peaceQuadrant =
+                missionTemplate.result?.peaceQuadrant ?? ''
+
+            const result = await submit(initValue)
+
+            console.log('summited data: ', initValue)
+        }
+    }
 
     async function submit(data: MissionFront) {
         setLoading(true)
+        setSaving(true)
 
         try {
             data.manualMissionDate = formatDateString2(manualDate)
-            data.operativeAreas = currentOperativeAreas;
-            data.locationId = originLocation;
-            data.locationDestinyId = destinationLocation;
-            data.id = missionId;
+            data.operativeAreas = currentOperativeAreas
+            data.locationId = originLocation
+            data.locationDestinyId = destinationLocation
+            data.id = missionId
 
             let result: ResultErr<MissionFront>
 
-            if (saved) result = await missionsActions.updateFront(data);
-            else result = await missionsActions.insertFront(data);
+            if (saved) result = await missionsActions.updateFront(data)
+            else result = await missionsActions.insertFront(data)
 
             if (result.success && result.result) {
                 if (!saved) {
                     setSaved(true)
+                    if (initValue) initValue.id = result.result.id
                     setId(result.result.id)
                 }
-                modalService.toastSuccess(`Missión ${saved ? 'actualizada!' : 'guardada!'}`);
-            }
-            else modalService.toastError(`No se pudo ${saved ? 'actualizar' : 'guardar'} la missión`);
-        }
-        finally {
+                modalService.toastSuccess(
+                    `Missión ${saved ? 'actualizada!' : 'guardada!'}`
+                )
+            } else
+                modalService.toastError(
+                    `No se pudo ${saved ? 'actualizar' : 'guardar'} la missión`
+                )
+        } finally {
             setLoading(false)
+            setSaving(false)
         }
     }
 
@@ -181,15 +313,41 @@ const MissionForm = ({
                 title={'Registro de la Misión'}
                 onClose={closeOverlay}
             >
-                <Form className='relative' schema={MissionFrontSchema as any} initValue={initValue} onSubmit={submit}>
+                <Form
+                    className="relative"
+                    schema={MissionFrontSchema as any}
+                    initValue={initValue}
+                    onSubmit={submit}
+                >
                     <div className="flex space-x-6 w-full">
+                        {!enableAll() && (
+                            <>
+                                <div className="flex items-center space-x-4">
+                                    <div className="font-semibold text-slate-700 text-xl">
+                                        Plantilla:
+                                    </div>
+                                    <div className="w-44">
+                                        <SelectWithSearch<MissionFront>
+                                            valueKey={'id'}
+                                            displayKeys={['id', 'alias']}
+                                            options={missionTemplates}
+                                            isLoading={locationsLoading}
+                                            selectedOption={template}
+                                            selectionChange={(value) =>
+                                                setTemplate(value ?? '')
+                                            }
+                                        />
+                                    </div>
+                                </div>
+                            </>
+                        )}
+
                         <div className="flex items-center space-x-4">
                             <div className="font-semibold text-slate-700 text-xl">
                                 Alias:
                             </div>
 
-                            <FormInput<MissionFront>
-                                fieldName={'alias'} />
+                            <FormInput<MissionFront> fieldName={'alias'} />
                         </div>
 
                         <div className="flex items-center space-x-4 flex-none w-72">
@@ -199,10 +357,10 @@ const MissionForm = ({
 
                             <DateTimePicker
                                 onChange={(date) => {
-                                    if (date) setManualDate(date);
+                                    if (date) setManualDate(date)
                                 }}
                                 selected={manualDate}
-                                height='h-10'
+                                height="h-10"
                                 timeInterval={1}
                             />
                         </div>
@@ -251,37 +409,59 @@ const MissionForm = ({
                                 selectionChange={(option) => setStation(option)}
                             />
                         </div>
-                        <AddServiceComponent options={antares} enable={enableAll()} selectedChanged={async (id) => {
-                            if (id) {
-                                let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
-                                defaultValue.missionId = missionId
-                                defaultValue.antaresId = id
+                        <AddServiceComponent
+                            options={antares}
+                            enable={enableAll() && !addingToServices}
+                            selectedChanged={async (id) => {
+                                try {
+                                    setAddingToServices(true)
 
-                                const result = await missionServicesActions.insertFront(defaultValue)
-                                if (result.success) {
-                                    modalService.toastSuccess("Servicio agregado")
-                                    updateMissionServices()
-                                }
-                                else {
-                                    modalService.toastError("No se pudo agregar el servicio!")
-                                    console.error("No se pudo agregar el servicio por: ", result.error);
-                                }
-                            }
-                        }} />
+                                    if (id) {
+                                        let defaultValue =
+                                            getDefaults<MissionServiceFront>(
+                                                MissionServiceFrontSchema
+                                            )
+                                        defaultValue.missionId = missionId
+                                        defaultValue.antaresId = id
 
-                        <div className='w-44 flex-none'></div>
+                                        const result =
+                                            await missionServicesActions.insertFront(
+                                                defaultValue
+                                            )
+                                        if (result.success) {
+                                            modalService.toastSuccess(
+                                                'Servicio agregado'
+                                            )
+                                            updateMissionServices()
+                                        } else {
+                                            modalService.toastError(
+                                                'No se pudo agregar el servicio!'
+                                            )
+                                            console.error(
+                                                'No se pudo agregar el servicio por: ',
+                                                result.error
+                                            )
+                                        }
+                                    }
+                                } finally {
+                                    setAddingToServices(false)
+                                }
+                            }}
+                        />
+
+                        <div className="w-44 flex-none"></div>
                     </div>
 
                     <div className="h-2"></div>
 
-
-                    <div className=' absolute top-0 left-0 w-full h-full pointer-events-none pt-32'>
-                        <div className='relative h-full w-full flex'>
-                            <div className='w-full'></div>
+                    <div className=" absolute top-0 left-0 w-full h-full pointer-events-none pt-32">
+                        <div className="relative h-full w-full flex">
+                            <div className="w-full"></div>
                             <div className="sticky h-fit z-50 top-[-48px] right-6 pointer-events-auto">
                                 <FormSubmit
-                                    height='h-12'
-                                    width='w-44'
+                                    enable={!saving}
+                                    height="h-12"
+                                    width="w-44"
                                     colorType="bg-[#3C50E0]"
                                     description={`${saved ? 'Actualizar' : 'Guardar'}`}
                                 />
@@ -299,7 +479,6 @@ const MissionForm = ({
                         defaultSortAsc={true}
                         idPropertyName="id"
                         nameConverter={MissionServiceNameConverter}
-
                         addButtonText=""
                         options={antares}
                         optionsDescription={'Antares'}
@@ -321,84 +500,122 @@ const MissionForm = ({
 
                     <div className="h-8"></div>
 
-                    <div className='flex space-x-8'>
+                    <div className="flex space-x-8">
                         <AddableTable
                             enable={enableAll()}
+                            enableAdd={!addingToUnits}
                             title="Unidades"
                             data={missionUnits ?? []}
                             defaultSort={'id'}
                             idPropertyName="id"
                             nameConverter={MissionUnitNameConverter}
-
                             addButtonText="Agregar una unidad"
                             options={units}
                             optionsDescription={'Placa'}
                             valueKey={'id'}
                             displayKeys={['plate', 'unitType']}
                             onAddOption={async (id) => {
-                                const unit = units.filter(x => x.id == id)[0]
-                                if (unit && missionId) {
-                                    unit.missionId = missionId;
-                                    let result = await insert("mission/unit", { mission_id: missionId, unit_id: unit.id })
+                                try {
+                                    setAddingToUnits(true)
 
-                                    if (result.success) {
-                                        modalService.toastSuccess("Unidad agregada")
-                                        updateUnits()
+                                    const unit = units.filter(
+                                        (x) => x.id == id
+                                    )[0]
+                                    if (unit && missionId) {
+                                        unit.missionId = missionId
+                                        let result = await insert(
+                                            'mission/unit',
+                                            {
+                                                mission_id: missionId,
+                                                unit_id: unit.id,
+                                            }
+                                        )
+
+                                        if (result.success) {
+                                            modalService.toastSuccess(
+                                                'Unidad agregada'
+                                            )
+                                            updateUnits()
+                                        } else {
+                                            modalService.toastError(
+                                                'No se pudo agregar la unidad'
+                                            )
+                                            console.log(result.error)
+                                        }
+                                    } else {
+                                        modalService.toastError(
+                                            'Unidad no encontrado'
+                                        )
                                     }
-                                    else {
-                                        modalService.toastError("No se pudo agregar la unidad")
-                                        console.log(result.error);
-                                    }
-                                }
-                                else {
-                                    modalService.toastError("Unidad no encontrado")
+                                } finally {
+                                    setAddingToUnits(false)
                                 }
                             }}
                             onDeleteButtonClick={async (id) => {
-                                let result = await missionUnitsActions.remove(id)
+                                let result =
+                                    await missionUnitsActions.remove(id)
                                 if (result.success) updateUnits()
                             }}
                         ></AddableTable>
 
                         <AddableTable
                             enable={enableAll()}
+                            enableAdd={!addingToFirefighters}
                             title="Bomberos"
                             data={missionFirefighters ?? []}
                             defaultSort={'id'}
                             idPropertyName="id"
                             nameConverter={MissionFirefighterNameConverter}
-
                             addButtonText="Agregar un bombero"
                             options={firefighters}
                             optionsDescription={'Usuario'}
                             valueKey={'id'}
                             displayKeys={['personalCode', 'legalId']}
-
                             options2={roles}
                             optionsDescription2={'Rol'}
                             preSelectFirstOption2={true}
                             onAddOption={async (id, rank) => {
-                                const firefighter = firefighters.filter(x => x.id == id)[0]
-                                if (firefighter && rank && missionId) {
-                                    firefighter.rank = rank
-                                    firefighter.missionId = missionId
+                                try {
+                                    setAddingToFirefighters(true)
 
-                                    let result = await insert("mission/firefighter", { mission_id: missionId, user_id: firefighter.id, service_role: rank })
-                                    if (result.success) {
-                                        modalService.toastSuccess("Bombero agregado")
-                                        updateFirefighters()
+                                    const firefighter = firefighters.filter(
+                                        (x) => x.id == id
+                                    )[0]
+                                    if (firefighter && rank && missionId) {
+                                        firefighter.rank = rank
+                                        firefighter.missionId = missionId
+
+                                        let result = await insert(
+                                            'mission/firefighter',
+                                            {
+                                                mission_id: missionId,
+                                                user_id: firefighter.id,
+                                                service_role: rank,
+                                            }
+                                        )
+                                        if (result.success) {
+                                            modalService.toastSuccess(
+                                                'Bombero agregado'
+                                            )
+                                            updateFirefighters()
+                                        } else {
+                                            modalService.toastError(
+                                                'No se pudo agregar al bombero'
+                                            )
+                                            console.log(result.error)
+                                        }
+                                    } else {
+                                        modalService.toastError(
+                                            'Bombero no encontrado'
+                                        )
                                     }
-                                    else {
-                                        modalService.toastError("No se pudo agregar al bombero")
-                                        console.log(result.error);
-                                    }
-                                }
-                                else {
-                                    modalService.toastError("Bombero no encontrado")
+                                } finally {
+                                    setAddingToFirefighters(false)
                                 }
                             }}
                             onDeleteButtonClick={async (id) => {
-                                let result = await missionFirefightersActions.remove(id)
+                                let result =
+                                    await missionFirefightersActions.remove(id)
                                 if (result.success) updateFirefighters()
                             }}
                         ></AddableTable>
@@ -406,7 +623,7 @@ const MissionForm = ({
 
                     <div className="h-8"></div>
 
-                    <div className='flex space-x-8'>
+                    <div className="flex space-x-8">
                         <div className="flex flex-auto space-x-1 w-24">
                             <SelectWithSearch<MissionLocationFront>
                                 disable={!enableAll()}
@@ -416,7 +633,9 @@ const MissionForm = ({
                                 options={missionLocations}
                                 isLoading={locationsLoading}
                                 selectedOption={originLocation}
-                                selectionChange={(value) => setOriginLocation(value ?? "")}
+                                selectionChange={(value) =>
+                                    setOriginLocation(value ?? '')
+                                }
                             />
 
                             <div className="flex-none pt-8 h-11">
@@ -431,7 +650,7 @@ const MissionForm = ({
                                         setLocationModalOpen(true)
                                         setAction('add')
 
-                                        setAddingLocationFor("origin");
+                                        setAddingLocationFor('origin')
 
                                         e.preventDefault()
                                         e.stopPropagation()
@@ -451,7 +670,9 @@ const MissionForm = ({
                                 options={missionLocations}
                                 isLoading={locationsLoading}
                                 selectedOption={destinationLocation}
-                                selectionChange={(value) => setDestinationLocation(value ?? "")}
+                                selectionChange={(value) =>
+                                    setDestinationLocation(value ?? '')
+                                }
                             />
 
                             <div className="flex-none pt-8 h-11">
@@ -466,7 +687,7 @@ const MissionForm = ({
                                         setLocationModalOpen(true)
                                         setAction('add')
 
-                                        setAddingLocationFor("destination");
+                                        setAddingLocationFor('destination')
 
                                         e.preventDefault()
                                         e.stopPropagation()
@@ -480,8 +701,12 @@ const MissionForm = ({
 
                     <div className="h-8"></div>
 
-                    <div className='flex space-x-8 w-full'>
-                        <AddOperativeAreaComponent options={operativeAreas} setExternal={setCurrentOperativeAreas} enable={enableAll()} />
+                    <div className="flex space-x-8 w-full">
+                        <AddOperativeAreaComponent
+                            options={operativeAreas}
+                            setExternal={setCurrentOperativeAreas}
+                            enable={enableAll()}
+                        />
                     </div>
 
                     <div className="flex space-x-6 w-full">
@@ -514,10 +739,12 @@ const MissionForm = ({
                         </div>
                     </div>
 
-                    <div className='h-8'></div>
-                    <div className='space-y-2'>
-                        <div className="font-semibold text-slate-700 text-xl">Bitacora / Descripción</div>
-                        <div className='h-40 w-full'>
+                    <div className="h-8"></div>
+                    <div className="space-y-2">
+                        <div className="font-semibold text-slate-700 text-xl">
+                            Bitacora / Descripción
+                        </div>
+                        <div className="h-40 w-full">
                             <FormTextArea<MissionFront>
                                 disable={!enableAll()}
                                 description={''}
@@ -526,7 +753,7 @@ const MissionForm = ({
                         </div>
                     </div>
 
-                    <div className='h-4'></div>
+                    <div className="h-4"></div>
                     <div className="flex space-x-6 h-20 w-full">
                         <FormInput<MissionFront>
                             disable={!enableAll()}
@@ -569,7 +796,8 @@ const MissionForm = ({
                             setAction('add')
                         }}
                         onEditButtonClick={async (id) => {
-                            const location = await missionLocationsActions.getById(id)
+                            const location =
+                                await missionLocationsActions.getById(id)
                             if (location.success && location.result) {
                                 setLocationModalData(location.result)
                                 setLocationModalOpen(true)
@@ -577,7 +805,8 @@ const MissionForm = ({
                             }
                         }}
                         onDeleteButtonClick={async (id) => {
-                            let result = await missionLocationsActions.remove(id)
+                            let result =
+                                await missionLocationsActions.remove(id)
                             if (result.success) updateMissionLocations()
                         }}
                     ></AddableTable>
@@ -596,15 +825,22 @@ const MissionForm = ({
                             setAction('add')
                         }}
                         onEditButtonClick={async (id) => {
-                            const infrastructure = await missionInfrastructuresActions.getById(id)
-                            if (infrastructure.success && infrastructure.result) {
-                                setInfrastructureModalData(infrastructure.result)
+                            const infrastructure =
+                                await missionInfrastructuresActions.getById(id)
+                            if (
+                                infrastructure.success &&
+                                infrastructure.result
+                            ) {
+                                setInfrastructureModalData(
+                                    infrastructure.result
+                                )
                                 setInfrastructureModalOpen(true)
                                 setAction('update')
                             }
                         }}
                         onDeleteButtonClick={async (id) => {
-                            let result = await missionInfrastructuresActions.remove(id)
+                            let result =
+                                await missionInfrastructuresActions.remove(id)
                             if (result.success) updateMissionInfrastructure()
                         }}
                     />
@@ -623,7 +859,8 @@ const MissionForm = ({
                             setAction('add')
                         }}
                         onEditButtonClick={async (id) => {
-                            const vehicle = await missionVehiclesActions.getById(id)
+                            const vehicle =
+                                await missionVehiclesActions.getById(id)
                             if (vehicle.success && vehicle.result) {
                                 setVehicleModalData(vehicle.result)
                                 setVehicleModalOpen(true)
@@ -650,7 +887,8 @@ const MissionForm = ({
                             setAction('add')
                         }}
                         onEditButtonClick={async (id) => {
-                            const person = await missionPeopleActions.getById(id)
+                            const person =
+                                await missionPeopleActions.getById(id)
                             if (person.success && person.result) {
                                 setPersonModalData(person.result)
                                 setPersonModalOpen(true)
@@ -672,17 +910,23 @@ const MissionForm = ({
                         addButtonText="Agregar una autoridad"
                         nameConverter={MissionAuthorityNameConverter}
                         onAddButtonClick={async () => {
-                            const result = await missionAuthoritiesActions.insertFront({ missionId: missionId } as any)
+                            const result =
+                                await missionAuthoritiesActions.insertFront({
+                                    missionId: missionId,
+                                } as any)
 
                             if (result.success) {
                                 setAuthorityModalData(result.result)
                                 setAuthorityModalOpen(true)
                                 setAction('add')
-                            } else modalService.toastError("No se pudo crear la autoridad")
-
+                            } else
+                                modalService.toastError(
+                                    'No se pudo crear la autoridad'
+                                )
                         }}
                         onEditButtonClick={async (id) => {
-                            const authority = await missionAuthoritiesActions.getById(id)
+                            const authority =
+                                await missionAuthoritiesActions.getById(id)
                             if (authority.success && authority.result) {
                                 setAuthorityModalData(authority.result)
                                 setAuthorityModalOpen(true)
@@ -690,7 +934,8 @@ const MissionForm = ({
                             }
                         }}
                         onDeleteButtonClick={async (id) => {
-                            let result = await missionAuthoritiesActions.remove(id)
+                            let result =
+                                await missionAuthoritiesActions.remove(id)
                             if (result.success) updateMissionAuthorities()
                         }}
                     ></AddableTable>
@@ -698,13 +943,19 @@ const MissionForm = ({
             </ModalLayout>
             <LoadingModal initOpen={loading} children={null} />
 
-            {locationModalOpen &&
+            {locationModalOpen && (
                 <LocationForm
-                    initValue={action == "add" ? { missionId: missionId } : { ...locationModalData, missionId: missionId }}
-                    add={action == "add"}
+                    initValue={
+                        action == 'add'
+                            ? { missionId: missionId }
+                            : { ...locationModalData, missionId: missionId }
+                    }
+                    add={action == 'add'}
                     locationAdded={(location) => {
-                        if (addingLocationFor == 'origin') setOriginLocation(location.id ?? "0")
-                        else if (addingLocationFor == 'destination') setDestinationLocation(location.id ?? "0")
+                        if (addingLocationFor == 'origin')
+                            setOriginLocation(location.id ?? '0')
+                        else if (addingLocationFor == 'destination')
+                            setDestinationLocation(location.id ?? '0')
 
                         setAddingLocationFor(undefined)
                         updateMissionLocations()
@@ -712,100 +963,148 @@ const MissionForm = ({
                     closeOverlay={() => {
                         updateMissionLocations()
                         setLocationModalOpen(false)
-                    }
-                    } />}
+                    }}
+                />
+            )}
 
-            {infrastructureModalOpen &&
+            {infrastructureModalOpen && (
                 <InfrastructureForm
-                    initValue={action == "add" ? { missionId: missionId } : { ...infrastructureModalData, missionId: missionId } as any}
-                    add={action == "add"}
+                    initValue={
+                        action == 'add'
+                            ? { missionId: missionId }
+                            : ({
+                                  ...infrastructureModalData,
+                                  missionId: missionId,
+                              } as any)
+                    }
+                    add={action == 'add'}
                     closeOverlay={() => {
                         updateMissionInfrastructure()
                         setInfrastructureModalOpen(false)
-                    }
-                    } />}
+                    }}
+                />
+            )}
 
-            {vehicleModalOpen &&
+            {vehicleModalOpen && (
                 <VehicleForm
-                    initValue={action == "add" ? { missionId: missionId } : { ...vehicleModalData, missionId: missionId } as any}
-                    add={action == "add"}
+                    initValue={
+                        action == 'add'
+                            ? { missionId: missionId }
+                            : ({
+                                  ...vehicleModalData,
+                                  missionId: missionId,
+                              } as any)
+                    }
+                    add={action == 'add'}
                     closeOverlay={() => {
                         updateMissionVehicle()
                         setVehicleModalOpen(false)
-                    }
-                    } />}
+                    }}
+                />
+            )}
 
-            {personModalOpen &&
+            {personModalOpen && (
                 <PersonForm
-                    initValue={action == "add" ? { missionId: missionId } : { ...personModalData, missionId: missionId } as any}
-                    add={action == "add"}
+                    initValue={
+                        action == 'add'
+                            ? { missionId: missionId }
+                            : ({
+                                  ...personModalData,
+                                  missionId: missionId,
+                              } as any)
+                    }
+                    add={action == 'add'}
                     closeOverlay={() => {
                         updateMissionPeople()
                         setPersonModalOpen(false)
-                    }
-                    } />}
+                    }}
+                />
+            )}
 
-            {authorityModalOpen &&
+            {authorityModalOpen && (
                 <AuthorityForm
-                    initValue={{ ...authorityModalData, missionId: missionId } as any}
+                    initValue={
+                        { ...authorityModalData, missionId: missionId } as any
+                    }
                     closeOverlay={() => {
                         updateMissionAuthorities()
                         setAuthorityModalOpen(false)
-                    }
-                    } />}
+                    }}
+                />
+            )}
         </>
     )
 }
 
 export default MissionForm
 
-
 interface AddOperativeAreaComponentProps {
     options: string[]
     enable: boolean
     setExternal: React.Dispatch<React.SetStateAction<string[]>>
 }
-function AddOperativeAreaComponent({ options, setExternal, enable }: AddOperativeAreaComponentProps) {
-    const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
+function AddOperativeAreaComponent({
+    options,
+    setExternal,
+    enable,
+}: AddOperativeAreaComponentProps) {
+    const { setValue, control } =
+        useFormFieldContext<MissionFront>('operativeAreas')
 
-    return <Controller
-        name={"operativeAreas"}
-        control={control}
-        render={({ field }) => {
+    return (
+        <Controller
+            name={'operativeAreas'}
+            control={control}
+            render={({ field }) => {
+                return (
+                    <div className="flex items-center space-x-6 w-full">
+                        <div className="flex-none w-1/2">
+                            <SelectWithSearch
+                                disable={!enable}
+                                description="Áreas operativas"
+                                options={options}
+                                selectionChange={(e) => {
+                                    if (e == '') return
 
-            return <div className='flex items-center space-x-6 w-full'>
-                <div className="flex-none w-1/2">
-                    <SelectWithSearch
-                        disable={!enable}
-                        description="Áreas operativas"
-                        options={options}
-                        selectionChange={(e) => {
-                            if (e == '') return
+                                    let newOperativeAreas =
+                                        (field.value as string[]) ?? []
+                                    newOperativeAreas.push(e)
 
-                            let newOperativeAreas = (field.value as string[]) ?? []
-                            newOperativeAreas.push(e);
+                                    field.onChange(
+                                        Array.from(newOperativeAreas)
+                                    )
+                                    setExternal(Array.from(newOperativeAreas))
+                                }}
+                                showSelected={false}
+                            />
+                        </div>
 
-                            field.onChange(Array.from(newOperativeAreas))
-                            setExternal(Array.from(newOperativeAreas))
-                        }}
-                        showSelected={false}
-                    />
-                </div>
-
-                <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
-                    {field.value && ((field.value as string[]) ?? []).length > 0 && field.value.map((item) => (
-                        <Chip
-                            text={item}
-                            onDelete={(e) => {
-                                field.onChange((field.value as string[]).filter(x => x !== e))
-                                setExternal((field.value as string[]).filter(x => x !== e))
-                            }}
-                        ></Chip>
-                    ))}
-                </div>
-            </div>
-        }}
-    ></Controller>
+                        <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
+                            {field.value &&
+                                ((field.value as string[]) ?? []).length > 0 &&
+                                field.value.map((item) => (
+                                    <Chip
+                                        text={item}
+                                        onDelete={(e) => {
+                                            field.onChange(
+                                                (
+                                                    field.value as string[]
+                                                ).filter((x) => x !== e)
+                                            )
+                                            setExternal(
+                                                (
+                                                    field.value as string[]
+                                                ).filter((x) => x !== e)
+                                            )
+                                        }}
+                                    ></Chip>
+                                ))}
+                        </div>
+                    </div>
+                )
+            }}
+        ></Controller>
+    )
 }
 
 interface AddServiceComponentProps {
@@ -814,30 +1113,38 @@ interface AddServiceComponentProps {
     selectedChanged: (string) => void
 }
 
-function AddServiceComponent({ options, selectedChanged, enable = true }: AddServiceComponentProps) {
-    const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
+function AddServiceComponent({
+    options,
+    selectedChanged,
+    enable = true,
+}: AddServiceComponentProps) {
+    const { setValue, control } =
+        useFormFieldContext<MissionFront>('operativeAreas')
 
-    return <Controller
-        name={"operativeAreas"}
-        control={control}
-        render={({ field }) => {
-
-            return <div className='flex items-center w-full'>
-                <div className="flex-none w-full">
-                    <SelectWithSearch
-                        disable={!enable}
-                        description="Antares"
-                        options={options}
-                        valueKey={'id'}
-                        displayKeys={['id', 'description']}
-                        selectionChange={(e) => {
-                            if (e == '') return
-                            selectedChanged(e)
-                        }}
-                        showSelected={false}
-                    />
-                </div>
-            </div>
-        }}
-    ></Controller>
+    return (
+        <Controller
+            name={'operativeAreas'}
+            control={control}
+            render={({ field }) => {
+                return (
+                    <div className="flex items-center w-full">
+                        <div className="flex-none w-full">
+                            <SelectWithSearch
+                                disable={!enable}
+                                description="Antares"
+                                options={options}
+                                valueKey={'id'}
+                                displayKeys={['id', 'description']}
+                                selectionChange={(e) => {
+                                    if (e == '') return
+                                    selectedChanged(e)
+                                }}
+                                showSelected={false}
+                            />
+                        </div>
+                    </div>
+                )
+            }}
+        ></Controller>
+    )
 }

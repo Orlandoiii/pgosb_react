@@ -1,0 +1,603 @@
+import React, { useEffect, useMemo, useRef, useState } from 'react'
+
+
+import LoadingModal from '../../../core/modal/LoadingModal'
+import { AddableTable } from '../../Temp/AddableTable'
+import DateTimePicker from '../../../core/datetime_picker/DateTimePicker'
+import TextInput from '../../../alter/components/inputs/text_input'
+
+import { useMissionFirefighterCollection } from '../../../../domain/models/mission/firefighter/use_collection'
+import { MissionFirefighterNameConverter } from '../../../../domain/models/mission/firefighter/mission_firefighter'
+
+import { useMissionUnitCollection } from '../../../../domain/models/mission/unit/use_collection'
+import { MissionUnitNameConverter } from '../../../../domain/models/mission/unit/mission_unit'
+
+import { useMissionLocationCollection } from '../../../../domain/models/mission/location/use_collection'
+import { useMissionAuthorityCollection } from '../../../../domain/models/mission/authority/use_collection'
+import { useMissionInfrastructureCollection } from '../../../../domain/models/mission/infraestructure/use_collection'
+import { useMissionVehicleCollection } from '../../../../domain/models/mission/vehicle/use_collection'
+import { useMissionPersonCollection } from '../../../../domain/models/mission/person/use_collection'
+import { useMissionServiceCollection } from '../../../../domain/models/mission/service/use_collection'
+import { MissionServiceFront, MissionServiceFrontSchema, MissionServiceNameConverter } from '../../../../domain/models/mission/service/mission_service'
+import { MissionLocationFront, MissionLocationNameConverter } from '../../../../domain/models/mission/location/mission_location'
+import { MissionInfraestructureFront, MissionInfraestructureNameConverter } from '../../../../domain/models/mission/infraestructure/mission_infraestructure'
+import { MissionVehicleFront, MissionVehicleNameConverter } from '../../../../domain/models/mission/vehicle/mission_vehicle'
+import { MissionPersonFront, MissionPersonNameConverter } from '../../../../domain/models/mission/person/mission_person'
+import { MissionAuthorityFront, MissionAuthorityNameConverter } from '../../../../domain/models/mission/authority/mission_authority'
+
+
+import { Roles } from '../../../../domain/abstractions/enums/roles'
+import { EnumToStringArray } from '../../../../utilities/converters/enum_converter'
+
+import { MissionFront, MissionFrontSchema } from '../../../../domain/models/mission/mission'
+import ModalLayout from '../../../optimized/components/layouts/modal_layout'
+import Button from '../../../core/buttons/Button'
+
+import Form from '../../../optimized/components/form/form'
+import FormInput from '../../../optimized/components/form_inputs/form_input'
+import FormToggle from '../../../optimized/components/form_inputs/form_toggle'
+import FormSelectWithSearch from '../../../optimized/components/form_inputs/form_select_with_search'
+import { useStationCollection } from '../../../../domain/models/mission/station/use_collection'
+import { ApiStationType } from '../../../../domain/models/stations/station'
+import { SelectWithSearch } from '../../../optimized/components/inputs/select_with_search'
+import { OperativeAreas } from '../../../../domain/abstractions/enums/operative_areas'
+import LocationForm from './LocationForm'
+import { modalService } from '../../../core/overlay/overlay_service'
+import { insert } from '../../../../services/http'
+import FormSubmit from '../../../optimized/components/form_inputs/form_submit'
+import { FormDatePicker } from '../../../optimized/components/form_inputs/form_date_picker'
+import { formatDateString, formatDateString2, parseDateString } from '../../../optimized/Utilities/date_string_formatter'
+import Chips from '../../../alter/components/menus/chips'
+import { Controller, UseFormSetValue } from 'react-hook-form'
+import Chip from '../../../alter/components/data_presenters/chip'
+import { useFormFieldContext } from '../../../optimized/components/form/form_context'
+import { useMissionCollection } from '../../../../domain/models/mission/use_collection'
+import { useAntaresCollection } from '../../../../domain/models/mission/antares/use_collection'
+import { getDefaults } from '../../../core/context/CustomFormContext'
+import FormTextArea from '../../../optimized/components/form_inputs/form_text_area'
+import { TApiAntares } from '../../../../domain/models/antares/antares'
+import { ResultErr } from '../../../../domain/abstractions/types/resulterr'
+
+interface MissionFormProps {
+    isVisible: boolean
+    initValue?: MissionFront | null
+    closeOverlay?: () => void
+}
+
+const MissionForm = ({
+    isVisible,
+    initValue,
+    closeOverlay,
+}: MissionFormProps) => {
+    const [loading, setLoading] = useState(false)
+    const [locationsLoading, setLocationsLoading] = useState(true)
+
+    const [saved, setSaved] = useState(initValue ? true : false)
+    const [missionId, setId] = useState(initValue ? initValue.id : "")
+
+    const [_, missionsActions] = useMissionCollection("mission/template")
+
+    const [missionServices, missionServicesActions, updateMissionServices] = useMissionServiceCollection(missionId ?? '', 'GROUP', "mission/service/template")
+
+    const [missionUnits, missionUnitsActions, updateUnits] = useMissionUnitCollection(missionId ?? '', 'GROUP', "mission/unit/template")
+    const [units] = useMissionUnitCollection('', 'ALL', 'unit')
+    const [missionFirefighters, missionFirefightersActions, updateFirefighters] = useMissionFirefighterCollection(missionId ?? '', 'GROUP', "mission/firefighter/template")
+    const [firefighters] = useMissionFirefighterCollection('', 'SIMPLE', 'user')
+
+    const [missionLocations, missionLocationsActions, updateMissionLocations] = useMissionLocationCollection(missionId ?? '', 'GROUP', "mission/location/template")
+    const [locationModalData, setLocationModalData] = useState<MissionLocationFront>()
+    const [locationModalOpen, setLocationModalOpen] = useState(false)
+
+    const [stations] = useStationCollection();
+    const [antares] = useAntaresCollection();
+
+    const [manualDate, setManualDate] = useState<Date>(initValue?.manualMissionDate ? parseDateString(initValue?.manualMissionDate) : new Date())
+    const [currentOperativeAreas, setCurrentOperativeAreas] = useState<string[]>(initValue?.operativeAreas ? initValue?.operativeAreas : [])
+    const roles = useMemo(() => {
+        if (missionFirefighters.length == 0 || missionFirefighters.filter(x => x.serviceRole?.toLocaleLowerCase() == 'comandante').length == 0) return EnumToStringArray(Roles)
+        else return [Roles.Auxiliary.toString(), Roles.Driver.toString()]
+    }, [missionFirefighters])
+
+    const cancelReasons = useMemo(() => ["ALARMA FALSA", "ALARMA INFUNDADA", "ATENDIDO NO EFECTUADO", "ATENCION NO REALIZADA"], [])
+    const operativeAreas = useMemo(() => EnumToStringArray(OperativeAreas), [])
+    const levels = useMemo(() => ["NIVEL 1", "NIVEL 2", "NIVEL 3", "NIVEL 4"], [])
+
+    const [action, setAction] = useState<'add' | 'update' | undefined>(undefined);
+
+    const [originLocation, setOriginLocation] = useState<string>(initValue?.locationId ? initValue.locationId : "");
+    const [destinationLocation, setDestinationLocation] = useState<string>(initValue?.locationDestinyId ? initValue.locationDestinyId : "");
+
+    const [addingLocationFor, setAddingLocationFor] = useState<'origin' | 'destination' | undefined>(undefined);
+
+
+    const [station, setStation] = useState(initValue ? initValue.stationId : "")
+
+    console.log("Opened", originLocation, addingLocationFor);
+
+    function enableAll(): boolean {
+        return saved && station?.length > 0
+    }
+
+    useEffect(() => {
+        setTimeout(() => {
+            setLocationsLoading(false);
+        }, 1500);
+    }, [])
+
+    async function submit(data: MissionFront) {
+        setLoading(true)
+
+        try {
+            data.manualMissionDate = formatDateString2(manualDate)
+            data.operativeAreas = currentOperativeAreas;
+            data.locationId = originLocation;
+            data.locationDestinyId = destinationLocation;
+            data.id = missionId;
+
+            let result: ResultErr<MissionFront>
+
+            if (saved) result = await missionsActions.updateFront(data);
+            else result = await missionsActions.insertFront(data);
+
+            if (result.success && result.result) {
+                if (!saved) {
+                    setSaved(true)
+                    setId(result.result.id)
+                }
+                modalService.toastSuccess(`Missión ${saved ? 'actualizada!' : 'guardada!'}`);
+            }
+            else modalService.toastError(`No se pudo ${saved ? 'actualizar' : 'guardar'} la missión`);
+        }
+        finally {
+            setLoading(false)
+        }
+    }
+
+    return (
+        <>
+            <ModalLayout
+                isVisible={isVisible}
+                className="min-w-[80vw]"
+                title={'Registro de Plantilla para Misión'}
+                onClose={closeOverlay}
+            >
+                <Form className='relative' schema={MissionFrontSchema as any} initValue={initValue} onSubmit={submit}>
+                    <div className="flex space-x-6 w-full">
+                        <div className="flex items-center space-x-4">
+                            <div className="font-semibold text-slate-700 text-xl">
+                                Alias:
+                            </div>
+
+                            <FormInput<MissionFront>
+                                fieldName={'alias'} />
+                        </div>
+
+                        <div className="flex items-center space-x-4 flex-none w-72">
+                            <div className="font-semibold text-slate-700 text-xl">
+                                Fecha:
+                            </div>
+
+                            <DateTimePicker
+                                onChange={(date) => {
+                                    if (date) setManualDate(date);
+                                }}
+                                selected={manualDate}
+                                height='h-10'
+                                timeInterval={1}
+                            />
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                            <div className="font-semibold text-slate-700 text-xl">
+                                Código:
+                            </div>
+                            <div className="bg-white px-4 py-2 rounded-md h-10 font-semibold text-lg">
+                                {missionId}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="h-12"></div>
+
+                    <div className="flex space-x-8 w-full">
+                        <div className="flex-auto w-full">
+                            <FormSelectWithSearch<MissionFront, ApiStationType>
+                                description="Estación"
+                                fieldName={'stationId'}
+                                options={stations}
+                                valueKey={'id'}
+                                displayKeys={['abbreviation', 'name']}
+                                fatherLoading={stations.length < 1}
+                                selectionChange={(option) => setStation(option)}
+                            />
+                        </div>
+                        <AddServiceComponent options={antares} enable={enableAll()} selectedChanged={async (id) => {
+                            if (id) {
+                                let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
+                                defaultValue.missionId = missionId
+                                defaultValue.antaresId = id
+
+                                const result = await missionServicesActions.insertFront(defaultValue)
+                                if (result.success) {
+                                    modalService.toastSuccess("Servicio agregado")
+                                    updateMissionServices()
+                                }
+                                else {
+                                    modalService.toastError("No se pudo agregar el servicio!")
+                                    console.error("No se pudo agregar el servicio por: ", result.error);
+                                }
+                            }
+                        }} />
+
+                        <div className='w-44 flex-none'></div>
+                    </div>
+
+                    <div className="h-2"></div>
+
+
+                    <div className=' absolute top-0 left-0 w-full h-full pointer-events-none pt-32'>
+                        <div className='relative h-full w-full flex'>
+                            <div className='w-full'></div>
+                            <div className="sticky h-fit z-50 top-[-48px] right-6 pointer-events-auto">
+                                <FormSubmit
+                                    height='h-12'
+                                    width='w-44'
+                                    colorType="bg-[#3C50E0]"
+                                    description={`${saved ? 'Actualizar' : 'Guardar'}`}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="h-8"></div>
+
+                    <AddableTable
+                        enable={enableAll()}
+                        title="Servicios"
+                        data={missionServices ?? []}
+                        defaultSort={'id'}
+                        defaultSortAsc={true}
+                        idPropertyName="id"
+                        nameConverter={MissionServiceNameConverter}
+
+                        addButtonText=""
+                        options={antares}
+                        optionsDescription={'Antares'}
+                        valueKey={'id'}
+                        displayKeys={['id', 'description']}
+                        // onAddOption={(id, _) => {
+                        //     console.log(id);
+
+                        //     if (id) {
+                        //         let defaultValue = getDefaults<MissionServiceFront>(MissionServiceFrontSchema)
+                        //         defaultValue.missionId = initValue!.id
+                        //         defaultValue.antaresId = id
+
+                        //         missionServicesActions.insertFront(defaultValue)
+                        //     }
+                        // }}
+                        onDeleteButtonClick={missionServicesActions.remove}
+                    ></AddableTable>
+
+                    <div className="h-8"></div>
+
+                    <div className='flex space-x-8'>
+                        <AddableTable
+                            enable={enableAll()}
+                            title="Unidades"
+                            data={missionUnits ?? []}
+                            defaultSort={'id'}
+                            idPropertyName="id"
+                            nameConverter={MissionUnitNameConverter}
+
+                            addButtonText="Agregar una unidad"
+                            options={units}
+                            optionsDescription={'Placa'}
+                            valueKey={'id'}
+                            displayKeys={['plate', 'unitType']}
+                            onAddOption={async (id) => {
+                                const unit = units.filter(x => x.id == id)[0]
+                                if (unit && missionId) {
+                                    unit.missionId = missionId;
+                                    let result = await insert("mission/unit/template", { mission_id: missionId, unit_id: unit.id })
+
+                                    if (result.success) {
+                                        modalService.toastSuccess("Unidad agregada")
+                                        updateUnits()
+                                    }
+                                    else {
+                                        modalService.toastError("No se pudo agregar la unidad")
+                                        console.log(result.error);
+                                    }
+                                }
+                                else {
+                                    modalService.toastError("Unidad no encontrado")
+                                }
+                            }}
+                            onDeleteButtonClick={async (id) => {
+                                let result = await missionUnitsActions.remove(id)
+                                if (result.success) updateUnits()
+                            }}
+                        ></AddableTable>
+
+                        <AddableTable
+                            enable={enableAll()}
+                            title="Bomberos"
+                            data={missionFirefighters ?? []}
+                            defaultSort={'id'}
+                            idPropertyName="id"
+                            nameConverter={MissionFirefighterNameConverter}
+
+                            addButtonText="Agregar un bombero"
+                            options={firefighters}
+                            optionsDescription={'Usuario'}
+                            valueKey={'id'}
+                            displayKeys={['personalCode', 'legalId']}
+
+                            options2={roles}
+                            optionsDescription2={'Rol'}
+                            preSelectFirstOption2={true}
+                            onAddOption={async (id, rank) => {
+                                const firefighter = firefighters.filter(x => x.id == id)[0]
+                                if (firefighter && rank && missionId) {
+                                    firefighter.rank = rank
+                                    firefighter.missionId = missionId
+
+                                    let result = await insert("mission/firefighter/template", { mission_id: missionId, user_id: firefighter.id, service_role: rank })
+                                    if (result.success) {
+                                        modalService.toastSuccess("Bombero agregado")
+                                        updateFirefighters()
+                                    }
+                                    else {
+                                        modalService.toastError("No se pudo agregar al bombero")
+                                        console.log(result.error);
+                                    }
+                                }
+                                else {
+                                    modalService.toastError("Bombero no encontrado")
+                                }
+                            }}
+                            onDeleteButtonClick={async (id) => {
+                                let result = await missionFirefightersActions.remove(id)
+                                if (result.success) updateFirefighters()
+                            }}
+                        ></AddableTable>
+                    </div>
+
+                    <div className="h-8"></div>
+
+                    <div className='flex space-x-8'>
+                        <div className="flex flex-auto space-x-1 w-24">
+                            <SelectWithSearch<MissionLocationFront>
+                                disable={!enableAll()}
+                                description="Ubicación de origen"
+                                valueKey={'id'}
+                                displayKeys={['id', 'alias']}
+                                options={missionLocations}
+                                isLoading={locationsLoading}
+                                selectedOption={originLocation}
+                                selectionChange={(value) => setOriginLocation(value ?? "")}
+                            />
+
+                            <div className="flex-none pt-8 h-11">
+                                <Button
+                                    enable={enableAll()}
+                                    colorType="bg-[#3C50E0]"
+                                    onClick={(e) => {
+                                        // preLocationRef.current = locations;
+                                        // lastLocationButtonPressedRef.current = 'ORIGEN'
+
+                                        // locationActions.add()
+                                        setLocationModalOpen(true)
+                                        setAction('add')
+
+                                        setAddingLocationFor("origin");
+
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                    }}
+                                    children={'+'}
+                                    width="w-10"
+                                ></Button>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-auto space-x-1 w-24">
+                            <SelectWithSearch<MissionLocationFront>
+                                disable={!enableAll()}
+                                description="Ubicación de destino"
+                                valueKey={'id'}
+                                displayKeys={['id', 'alias']}
+                                options={missionLocations}
+                                isLoading={locationsLoading}
+                                selectedOption={destinationLocation}
+                                selectionChange={(value) => setDestinationLocation(value ?? "")}
+                            />
+
+                            <div className="flex-none pt-8 h-11">
+                                <Button
+                                    enable={enableAll()}
+                                    colorType="bg-[#3C50E0]"
+                                    onClick={(e) => {
+                                        // preLocationRef.current = locations;
+                                        // lastLocationButtonPressedRef.current = 'ORIGEN'
+
+                                        // locationActions.add()
+                                        setLocationModalOpen(true)
+                                        setAction('add')
+
+                                        setAddingLocationFor("destination");
+
+                                        e.preventDefault()
+                                        e.stopPropagation()
+                                    }}
+                                    children={'+'}
+                                    width="w-10"
+                                ></Button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="h-8"></div>
+
+                    <div className='flex space-x-8 w-full'>
+                        <AddOperativeAreaComponent options={operativeAreas} setExternal={setCurrentOperativeAreas} enable={enableAll()} />
+                    </div>
+
+                    <div className="flex space-x-6 w-full">
+                        <div className="w-32">
+                            <FormSelectWithSearch<MissionFront, string>
+                                disable={!enableAll()}
+                                description="Nivel"
+                                fieldName={'level'}
+                                options={levels}
+                                addClearButton={true}
+                            />
+                        </div>
+
+                        <div className="w-40">
+                            <FormInput<MissionFront>
+                                disable={!enableAll()}
+                                description={'Cuadrante de Paz'}
+                                fieldName={'peaceQuadrant'}
+                            />
+                        </div>
+                    </div>
+
+                    <div className="h-8"></div>
+
+                    <AddableTable
+                        enable={enableAll()}
+                        title="Ubicaciones"
+                        data={missionLocations ?? []}
+                        defaultSort={'state'}
+                        idPropertyName="id"
+                        addButtonText="Agregar una ubicación"
+                        nameConverter={MissionLocationNameConverter}
+                        onAddButtonClick={() => {
+                            setLocationModalOpen(true)
+                            setAction('add')
+                        }}
+                        onEditButtonClick={async (id) => {
+                            const location = await missionLocationsActions.getById(id)
+                            if (location.success && location.result) {
+                                setLocationModalData(location.result)
+                                setLocationModalOpen(true)
+                                setAction('update')
+                            }
+                        }}
+                        onDeleteButtonClick={async (id) => {
+                            let result = await missionLocationsActions.remove(id)
+                            if (result.success) updateMissionLocations()
+                        }}
+                    ></AddableTable>
+
+                    <div className="h-8"></div>
+                </Form>
+            </ModalLayout>
+            <LoadingModal initOpen={loading} children={null} />
+
+            {locationModalOpen &&
+                <LocationForm
+                    initValue={action == "add" ? { missionId: missionId } : { ...locationModalData, missionId: missionId }}
+                    add={action == "add"}
+                    locationAdded={(location) => {
+                        if (addingLocationFor == 'origin') setOriginLocation(location.id ?? "0")
+                        else if (addingLocationFor == 'destination') setDestinationLocation(location.id ?? "0")
+
+                        setAddingLocationFor(undefined)
+                        updateMissionLocations()
+                    }}
+                    closeOverlay={() => {
+                        updateMissionLocations()
+                        setLocationModalOpen(false)
+                    }
+                    } />}   
+        </>
+    )
+}
+
+export default MissionForm
+
+
+interface AddOperativeAreaComponentProps {
+    options: string[]
+    enable: boolean
+    setExternal: React.Dispatch<React.SetStateAction<string[]>>
+}
+function AddOperativeAreaComponent({ options, setExternal, enable }: AddOperativeAreaComponentProps) {
+    const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
+
+    return <Controller
+        name={"operativeAreas"}
+        control={control}
+        render={({ field }) => {
+
+            return <div className='flex items-center space-x-6 w-full'>
+                <div className="flex-none w-1/2">
+                    <SelectWithSearch
+                        disable={!enable}
+                        description="Áreas operativas"
+                        options={options}
+                        selectionChange={(e) => {
+                            if (e == '') return
+
+                            let newOperativeAreas = (field.value as string[]) ?? []
+                            newOperativeAreas.push(e);
+
+                            field.onChange(Array.from(newOperativeAreas))
+                            setExternal(Array.from(newOperativeAreas))
+                        }}
+                        showSelected={false}
+                    />
+                </div>
+
+                <div className="flex flex-wrap gap-y-2 space-x-4 w-full translate-y-3">
+                    {field.value && ((field.value as string[]) ?? []).length > 0 && field.value.map((item) => (
+                        <Chip
+                            text={item}
+                            onDelete={(e) => {
+                                field.onChange((field.value as string[]).filter(x => x !== e))
+                                setExternal((field.value as string[]).filter(x => x !== e))
+                            }}
+                        ></Chip>
+                    ))}
+                </div>
+            </div>
+        }}
+    ></Controller>
+}
+
+interface AddServiceComponentProps {
+    options: TApiAntares[]
+    enable: boolean
+    selectedChanged: (string) => void
+}
+
+function AddServiceComponent({ options, selectedChanged, enable = true }: AddServiceComponentProps) {
+    const { setValue, control } = useFormFieldContext<MissionFront>('operativeAreas')
+
+    return <Controller
+        name={"operativeAreas"}
+        control={control}
+        render={({ field }) => {
+
+            return <div className='flex items-center w-full'>
+                <div className="flex-none w-full">
+                    <SelectWithSearch
+                        disable={!enable}
+                        description="Antares"
+                        options={options}
+                        valueKey={'id'}
+                        displayKeys={['id', 'description']}
+                        selectionChange={(e) => {
+                            if (e == '') return
+                            selectedChanged(e)
+                        }}
+                        showSelected={false}
+                    />
+                </div>
+            </div>
+        }}
+    ></Controller>
+}

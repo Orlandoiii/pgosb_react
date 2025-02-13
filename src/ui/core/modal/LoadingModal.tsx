@@ -5,11 +5,9 @@ import logger from '../../../logic/Logger/logger'
 import { motion, AnimatePresence } from 'framer-motion'
 import Backdrop from './Backdrop'
 
-
 interface LoadingModalProps {
     open: boolean
 }
-
 
 export function LoadingModal({ open }: LoadingModalProps) {
     logger.log('Renderizo LoadModal', open)
@@ -32,24 +30,22 @@ export function LoadingModal({ open }: LoadingModalProps) {
 }
 
 const LoadingModalContext = createContext({
-    openLoadModal: () => { },
-    closeLoadModal: () => { },
+    openLoadModal: () => {},
+    closeLoadModal: () => {},
 })
 
 export function useLoadModal() {
     return useContext(LoadingModalContext)
 }
 
-
-
 interface LoadModalContextProps {
-    initOpen: boolean,
+    initOpen: boolean
 }
 
-
-export default function LoadModalContextProvider({ initOpen,
-    children }: PropsWithChildren<LoadModalContextProps>) {
-
+export default function LoadModalContextProvider({
+    initOpen,
+    children,
+}: PropsWithChildren<LoadModalContextProps>) {
     const [open, setOpen] = useState(initOpen)
 
     function openLoadModal() {
@@ -71,4 +67,8 @@ export default function LoadModalContextProvider({ initOpen,
             <LoadingModal open={open} />
         </LoadingModalContext.Provider>
     )
+}
+
+export function ReactiveLoadModalContextProvider({ open = false }) {
+    return <LoadingModal open={open} />
 }

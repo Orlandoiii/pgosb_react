@@ -17,9 +17,9 @@ import RolesPages from "./ui/components/Roles/RolesPages";
 import OverlayProvider from './ui/core/overlay/overlay_provider'
 import ComingSoonPage from './ui/core/errors/ComingSoonPage'
 import MissionPage from './ui/components/Mission/MissionPage'
+import MissionTemplatePage from './ui/components/MissionTemplate/MissionTemplatePage'
 import ConfigContextProvider from "./ui/core/context/ConfigContext";
 import AuthorityPage from "./ui/components/Authority/AuthorityPage";
-
 
 const router = createBrowserRouter([
    {
@@ -32,6 +32,10 @@ const router = createBrowserRouter([
             path: "users/",
             element: <UserPage />
 
+         },
+         {
+            path: "template/",
+            element: <MissionTemplatePage />
          },
          {
             path: "services/",

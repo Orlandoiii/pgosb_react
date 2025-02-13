@@ -3,9 +3,9 @@ import { MissionApi, MissionFromApi, MissionFront, MissionToApi } from "./missio
 import { useCollection } from "../../../ui/optimized/hooks/useCollection";
 import { HttpActions, useHttpActions } from "../../../ui/optimized/hooks/useHttpActions";
 
-export function useMissionCollection(): [collection: MissionFront[], actions: HttpActions<MissionFront, MissionApi>, updateCollection: () => void] {
+export function useMissionCollection(endpoint: string = 'mission'): [collection: MissionFront[], actions: HttpActions<MissionFront, MissionApi>, updateCollection: () => void] {
     const [vehicles, actions, updateVehicles] = useCollection({
-        endpointCompound: 'mission',
+        endpointCompound: endpoint,
         fromApiMapper: MissionFromApi,
         toApiMapper: MissionToApi,
         type: 'ALL'
@@ -14,9 +14,9 @@ export function useMissionCollection(): [collection: MissionFront[], actions: Ht
     return [vehicles, actions, updateVehicles]
 }
 
-export function useMissionActions(){
+export function useMissionActions(endpoint: string = 'mission'){
     return  useHttpActions({ 
-        endpointCompound: 'mission',
+        endpointCompound: endpoint,
         fromApiMapper: MissionFromApi,
         toApiMapper: MissionToApi,
     })
