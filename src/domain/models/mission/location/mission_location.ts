@@ -1,7 +1,7 @@
-import { z } from "zod"
+import { z } from 'zod'
 
-import { ResultErr } from "../../../abstractions/types/resulterr"
-import { mapEntity } from "../../../../services/mapper"
+import { ResultErr } from '../../../abstractions/types/resulterr'
+import { mapEntity } from '../../../../services/mapper'
 
 export const MissionLocationApiSchema = z.object({
     id: z.string().optional(),
@@ -18,6 +18,8 @@ export const MissionLocationApiSchema = z.object({
     urb_id: z.string().optional(),
     urb: z.string().optional(),
     address: z.string().optional(),
+    street: z.string().optional(),
+    beach: z.string().optional(),
 })
 
 export const MissionLocationFrontSchema = z.object({
@@ -35,6 +37,8 @@ export const MissionLocationFrontSchema = z.object({
     urbId: z.string().optional(),
     urb: z.string().optional(),
     address: z.string().optional(),
+    street: z.string().optional(),
+    beach: z.string().optional(),
 })
 
 export type MissionLocationApi = z.infer<typeof MissionLocationApiSchema>
@@ -56,6 +60,8 @@ const FromApiInternal = (data: MissionLocationApi): MissionLocationFront => {
         urbId: data.urb_id,
         urb: data.urb,
         address: data.address,
+        street: data.street,
+        beach: data.beach,
     }
 }
 
@@ -75,6 +81,8 @@ const ToApiInternal = (data: MissionLocationFront): MissionLocationApi => {
         urb_id: data.urbId,
         urb: data.urb,
         address: data.address,
+        street: data.street,
+        beach: data.beach,
     }
 }
 
@@ -96,7 +104,6 @@ export const MissionLocationToApi = (
         MissionLocationApiSchema as any,
         ToApiInternal
     )
-
 
 export const MissionLocationNameConverter: {
     [K in keyof MissionLocationFront]?: string

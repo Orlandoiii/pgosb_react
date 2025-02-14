@@ -15,13 +15,18 @@ import { useLocation } from '../../../core/hooks/useLocation.tsx'
 import ModalLayout from '../../../optimized/components/layouts/modal_layout.tsx'
 import { useStationCollection } from '../../../../domain/models/mission/station/use_collection.ts'
 import { useHealthCareCenterCollection } from '../../../../domain/models/mission/health_care_center/use_collection.ts'
-import { useMissionLocationActions, useMissionLocationCollection } from '../../../../domain/models/mission/location/use_collection.ts'
+import {
+    useMissionLocationActions,
+    useMissionLocationCollection,
+} from '../../../../domain/models/mission/location/use_collection.ts'
 import Form from '../../../optimized/components/form/form.tsx'
 import { SelectWithSearch } from '../../../optimized/components/inputs/select_with_search.tsx'
 import TextInput from '../../../optimized/components/inputs/text_input.tsx'
 import FormSubmit from '../../../optimized/components/form_inputs/form_submit.tsx'
-import { MissionLocationFront, MissionLocationFrontSchema } from '../../../../domain/models/mission/location/mission_location.ts'
-
+import {
+    MissionLocationFront,
+    MissionLocationFrontSchema,
+} from '../../../../domain/models/mission/location/mission_location.ts'
 
 interface LocationFormProps {
     initValue?: MissionLocationFront | null
@@ -31,19 +36,19 @@ interface LocationFormProps {
 }
 
 type StaticLocation = {
-    display,
-    state_id,
-    state,
-    municipality_id,
-    municipality,
-    parish_id,
-    parish,
-    sector_id,
-    sector,
-    urb_id,
-    urb,
-    street,
-    address,
+    display
+    state_id
+    state
+    municipality_id
+    municipality
+    parish_id
+    parish
+    sector_id
+    sector
+    urb_id
+    urb
+    street
+    address
 }
 
 export default function LocationForm({
@@ -52,45 +57,46 @@ export default function LocationForm({
     locationAdded,
     add = true,
 }: LocationFormProps) {
-    const locationActions = useMissionLocationActions();
-    const [healthCareCenters] = useHealthCareCenterCollection();
-    const [stations] = useStationCollection();
+    const locationActions = useMissionLocationActions()
+    const [healthCareCenters] = useHealthCareCenterCollection()
+    const [stations] = useStationCollection()
 
-    const staticLocations = useMemo<StaticLocation[]>(() => stations.length > 0 && healthCareCenters.length > 0 ? [
-        ...StationsAsStaticLocation(),
-        ...CareCenterAsStaticLocation(),
-    ] : [], [stations, healthCareCenters])
+    const staticLocations = useMemo<StaticLocation[]>(
+        () =>
+            stations.length > 0 && healthCareCenters.length > 0
+                ? [
+                      ...StationsAsStaticLocation(),
+                      ...CareCenterAsStaticLocation(),
+                  ]
+                : [],
+        [stations, healthCareCenters]
+    )
     function StationsAsStaticLocation(): StaticLocation[] {
         const newStaticLocations: StaticLocation[] = []
 
-        stations.forEach(station => {
-            newStaticLocations.push(
-                {
-                    display: `${station?.abbreviation ?? ""} - ${station?.description ?? ""}`,
-                    ...station
-                }
-            )
-        });
+        stations.forEach((station) => {
+            newStaticLocations.push({
+                display: `${station?.abbreviation ?? ''} - ${station?.description ?? ''}`,
+                ...station,
+            })
+        })
 
         return newStaticLocations
     }
     function CareCenterAsStaticLocation(): StaticLocation[] {
         const newStaticLocations: StaticLocation[] = []
 
-        healthCareCenters.forEach(careCenter => {
-            newStaticLocations.push(
-                {
-                    display: `${careCenter?.id ?? ""} - ${careCenter?.name ?? ""}`,
-                    ...careCenter
-                }
-            )
-        });
+        healthCareCenters.forEach((careCenter) => {
+            newStaticLocations.push({
+                display: `${careCenter?.id ?? ''} - ${careCenter?.name ?? ''}`,
+                ...careCenter,
+            })
+        })
 
         return newStaticLocations
     }
 
-    console.log(stations);
-
+    console.log(stations)
 
     const [isVisible, setIsVisible] = useState(true)
     const [loading, setLoading] = useState(!add)
@@ -131,15 +137,22 @@ export default function LocationForm({
 
     const [address, setAddress] = useState(initValue ? initValue?.address : '')
 
+    const [highwayRoadAvenueStreet, setHighwayRoadAvenueStreet] = useState(
+        initValue ? initValue?.street : ''
+    )
+    const [beachRiverCreek, setBeachRiverCreek] = useState(
+        initValue ? initValue?.beach : ''
+    )
 
-    const submitButtonRef = useRef<any>(null);
+    const submitButtonRef = useRef<any>(null)
 
     useEffect(() => {
         if (alias && staticLocations.length > 0) {
-            const staticLocation = staticLocations.filter(x => x.display === alias)[0]
+            const staticLocation = staticLocations.filter(
+                (x) => x.display === alias
+            )[0]
 
             if (staticLocation) {
-
                 setState(staticLocation.state)
                 setMunicipality(staticLocation.municipality)
                 setParish(staticLocation.parish)
@@ -149,28 +162,25 @@ export default function LocationForm({
 
                 setTimeout(() => {
                     setLoading(false)
-                }, 1000);
+                }, 1000)
             }
         }
-
     }, [alias, staticLocations])
 
-    console.log(parishs.length);
-
+    console.log(parishs.length)
 
     const buttonText = add ? 'Guardar' : 'Actualizar'
 
     async function handleSubmitInternal(data: FieldValues) {
-        console.log("here", data);
+        console.log('here', data)
         try {
             const defaultValue = getDefaults<MissionLocationFront>(
                 MissionLocationFrontSchema
             )
 
-
-
-
             defaultValue.address = address
+            defaultValue.street = highwayRoadAvenueStreet
+            defaultValue.beach = beachRiverCreek
             defaultValue.state = state
             defaultValue.stateId = String(estadoId)
             defaultValue.municipality = municipality
@@ -206,7 +216,6 @@ export default function LocationForm({
         } catch (error) {
             modalService.toastError(`Error inesperado por: ${error.message}`)
         } finally {
-
         }
     }
 
@@ -241,12 +250,10 @@ export default function LocationForm({
 
                         <div className="md:flex md:md:items-start md:space-x-2">
                             <TextInput
-                                description='Alias'
+                                description="Alias"
                                 value={alias}
-                                onChange={(e) => setAlias(e.target.value)}>
-
-                            </TextInput>
-
+                                onChange={(e) => setAlias(e.target.value)}
+                            ></TextInput>
 
                             <SelectWithSearch
                                 isLoading={loading || (states?.length ?? 0) < 2}
@@ -324,6 +331,25 @@ export default function LocationForm({
                             />
                         </div>
 
+                        <div className="md:flex md:md:items-start md:space-x-2">
+                            <TextInput
+                                description="Autopista / Carretera / Avenida / Calle"
+                                value={highwayRoadAvenueStreet}
+                                onChange={(e) =>
+                                    setHighwayRoadAvenueStreet(
+                                        e.currentTarget.value
+                                    )
+                                }
+                            ></TextInput>
+                            <TextInput
+                                description="Playa / Rio / Quebrada"
+                                value={beachRiverCreek}
+                                onChange={(e) =>
+                                    setBeachRiverCreek(e.currentTarget.value)
+                                }
+                            ></TextInput>
+                        </div>
+
                         <div className={` w-full`}>
                             <TextInput
                                 description="Dirección"
@@ -356,7 +382,6 @@ export default function LocationForm({
                                         parish == '' ||
                                         sector == ''
                                     )
-
                                 }
                                 colorType="bg-[#3C50E0]"
                                 description={buttonText}
