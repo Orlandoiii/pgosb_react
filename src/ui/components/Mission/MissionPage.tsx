@@ -261,7 +261,7 @@ const MissionPage = () => {
             )
 
             if (newMission && missionTemplate.success) {
-                newMission.alias = `PLANTILLA - ${missionTemplate.result?.alias}`
+                newMission.alias = `${missionTemplate.result?.alias}`
                 newMission.stationId = missionTemplate.result?.stationId ?? ''
 
                 newMission.locationId = missionTemplate.result?.locationId ?? ''
