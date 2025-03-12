@@ -1,143 +1,98 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState } from 'react'
 
-import { PrintLayout } from "./PrintLayout";
-import { ApiRelevantServiceDetail, RelevantServiceDetail, TApiRelevantServiceDetail, TRelevantServiceDetail } from "../../../../domain/models/service/relevant_service_detail";
-import { get } from "../../../../services/http";
-import { modalService } from "../../../core/overlay/overlay_service";
+import { PrintLayout } from './PrintLayout'
+import { post } from '../../../../services/http'
+import { modalService } from '../../../core/overlay/overlay_service'
 
 interface ServicePrintProps {
     missionsIds: string[]
-    filters: { name: string, value: string }[]
+    filters: { name: string; value: string }[]
 }
 
-interface DetailByStation {
-    regionAreaId: string;
-    regionAreaName: string;
-    stations: Station[];
+interface RegionReport {
+    region_id: string
+    region_name: string
+    stations: StationReport[]
 }
 
-interface Station {
-    abbreviation: string;
-    name: string;
-    missions: Array<{
-        missionCode: string;
-        missionId: string;
-        missionDescription: string;
-        missionDate: string;
-        unharmed: string;
-        injured: string;
-        transported: string;
-        deceased: string;
-        isImportant: boolean;
-        level: string;
-        peaceQuadrant: string;
-        cancelReason: string;
-        locations: Array<{
-            state?: string;
-            municipality?: string;
-            parish?: string;
-            sector?: string;
-            urb?: string;
-            address?: string;
-        }>;
-        destination: Array<{
-            state?: string;
-            municipality?: string;
-            parish?: string;
-            sector?: string;
-            urb?: string;
-            address?: string;
-        }>;
-        services: Array<{
-            id?: string;
-            type?: string;
-            antaresDescription?: string;
-        }>;
-        firefighters: Array<{
-            rank?: string;
-            name?: string;
-            document?: string;
-            role?: string;
-            team?: string;
-        }>;
-        units: Array<string>;
-        operativeAreas: Array<string>;
-        people: Array<{
-            condition?: string;
-            name?: string;
-            gender?: string;
-            age?: string;
-            document?: string;
-            phone?: string;
-            person_condition?: string;
-            unit?: string;
-            address?: string;
-            building?: string;
-            vehicle?: string;
-        }>;
-        infrastructures: Array<{
-            type?: string;
-            floor?: string;
-            occupation?: string;
-            levels?: string;
-        }>;
-        vehicles: Array<{
-            plate?: string;
-            make?: string;
-            model?: string;
-            year?: string;
-            color?: string;
-            vehicle_type?: string;
-            motor_serial?: string;
-        }>;
-        careCenters: Array<{
-            name?: string;
-            abbreviation?: string;
-            state?: string;
-            municipality?: string;
-            parish?: string;
-            sector?: string;
-            urb?: string;
-        }>;
-
-        authoritiesData: {
-            authorities: Array<{
-                authority_name: string;
-                authority_abbreviation: string;
-                government: string;
-            }>;
-            person: Array<{
-                authority_name: string;
-                authority_abbreviation: string;
-                government: string;
-                name: string;
-                legal_id: string;
-                identification_number: string;
-                phone: string;
-                gender: string;
-                observations: string;
-                created_at: string;
-            }>;
-            vehicle: Array<{
-                authority_name: string;
-                authority_abbreviation: string;
-                government: string;
-                type: string;
-                make: string;
-                model: string;
-                plate: string;
-                year: string;
-                color: string;
-                description: string;
-                created_at: string;
-            }>;
-        }
-    }>
+interface StationReport {
+    station_id: string
+    station_name: string
+    station_short_name: string
+    missions: MissionReport[]
 }
 
+interface MissionReport {
+    id: string
+    date: string
+    code: string
+    level: string
+    is_important: boolean
+    peace_quadrant: string
+    description: string
+    operative_areas: string[]
+    unharmed: string
+    injured: string
+    transported: string
+    deceased: string
+    units: string[]
+    firefighters: FirefightersReport[]
+    first_service_id: string
+    first_service_antares_description: string
+    origin_location: LocationReport
+    destination_location: LocationReport
+    carecenter_location: LocationReport
+    people: PersonReport[]
+    vehicles: VehicleReport[]
+    infrastructures: InfrastructureReport[]
+}
 
-export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters }: ServicePrintProps) {
-    const [relevantServices, setRelevantServices] = useState<DetailByStation[]>([]);
+interface FirefightersReport {
+    name: string
+    rank: string
+    document_id: string
+    role: string
+    team: string
+}
+interface LocationReport {
+    state: string
+    municipality: string
+    parish: string
+    sector: string
+    urbanization: string
+    address: string
+}
+
+interface PersonReport {
+    person_state: string
+    condition: string
+    name: string
+    gender: string
+    age: string
+    document_id: string
+    phone: string
+    transfer_vehicle: string
+}
+
+interface VehicleReport {
+    brand: string
+    model: string
+    plate: string
+    year: string
+    color: string
+}
+
+interface InfrastructureReport {
+    type: string
+    occupation: string
+    levels: string
+}
+
+export function RelevantServicesReportPrint({
+    missionsIds: servicesIds,
+    filters,
+}: ServicePrintProps) {
+    const [relevantServices, setRelevantServices] = useState<RegionReport[]>([])
     const [loading, setLoading] = useState(false)
 
     useEffect(() => {
@@ -147,273 +102,534 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
     async function updateRelevantServices() {
         try {
             setLoading(true)
-            const result = await get<TApiRelevantServiceDetail[]>(`mission/relevant/'${servicesIds.join("','")}'`)
+            const result = await post<{ regions: RegionReport[] }>(
+                `mission-reports/hierarchical/in`,
+                servicesIds
+            )
 
             if (result.success && result.result) {
-                let newRelevantServices: DetailByStation[] = []
-
-                result.result.forEach(item => {
-                    const first = ApiRelevantServiceDetail.safeParse(item)
-                    const data = first.data!
-
-                    const station = item.service_stations && item.service_stations[0]
-
-                    console.log(item.unharmed, first.data);
-                    console.log(first.error);
-
-                    const a =
-                    {
-                        regionAreaId: data.id,
-                        regionAreaName: data.region_area,
-                        stations:
-                            [
-                                {
-                                    abbreviation: station?.abbreviation ?? '',
-                                    name: station?.name ?? '',
-                                    missions: [{
-                                        missionCode: data.mission_code,
-                                        missionId: data.service_id,
-                                        missionDescription: data.service_description,
-                                        missionDate: data.service_date,
-                                        unharmed: data.unharmed,
-                                        injured: data.injured,
-                                        transported: data.transported,
-                                        deceased: data.deceased,
-                                        isImportant: data.is_important,
-                                        locations: item.service_locations,
-                                        services: item.antares,
-                                        units: item.units,
-                                        firefighters: item.firefighters,
-                                        operativeAreas: item.operative_area_name,
-                                        people: item.people,
-                                        infrastructures: item.infrastructures,
-                                        vehicles: item.vehicles,
-                                        careCenters: item.centers,
-                                        level: item.level,
-                                        peaceQuadrant: item.peace_quadrant,
-                                        cancelReason: item.cancel_reason,
-                                        destination: item.destiny,
-                                        authoritiesData: item.authority_data
-                                    }]
-                                }
-                            ],
-                    }
-                    if (first.success && first.data) {
-                        const parset = a as DetailByStation
-
-                        const regionIndex = newRelevantServices.findIndex(x => x?.regionAreaId && x.regionAreaId === parset.regionAreaId);
-                        if (regionIndex === -1) {
-                            newRelevantServices.push(parset);
-                        } else {
-                            const region = newRelevantServices[regionIndex];
-                            const stationIndex = region.stations.findIndex(x => x?.abbreviation && x.abbreviation === parset.stations[0].abbreviation);
-
-                            if (stationIndex === -1) {
-                                region.stations.push(parset.stations[0]);
-                            } else {
-                                const station = region.stations[stationIndex];
-                                const newMission = parset.stations[0].missions[0];
-                                const missionIndex = station.missions.findIndex(x => x?.missionId && x.missionId === newMission.missionId);
-
-                                if (missionIndex === -1) {
-                                    station.missions.push(newMission);
-                                } else {
-                                    // Merge existing service with new service data
-                                    const existingService = station.missions[missionIndex];
-                                    Object.keys(newMission).forEach(key => {
-                                        if (Array.isArray(newMission[key])) {
-                                            existingService[key] = [...new Set([...existingService[key], ...newMission[key]])];
-                                        } else if (typeof newMission[key] === 'object' && newMission[key] !== null) {
-                                            existingService[key] = { ...existingService[key], ...newMission[key] };
-                                        } else {
-                                            existingService[key] = newMission[key];
-                                        }
-                                    });
-                                }
-                            }
-                        }
-                    } else {
-                        console.log("Falla", first);
-                    }
-                })
-                newRelevantServices = newRelevantServices.sort((a, b) => (a.regionAreaId as any) - (b.regionAreaId as any))
-
-                setRelevantServices(newRelevantServices)
-            }
-            else modalService.toastError("No se pudo cargar la data de los servicios relevantes")
-        }
-        finally {
+                setRelevantServices(result.result.regions)
+            } else
+                modalService.toastError(
+                    'No se pudo cargar la data de los servicios relevantes'
+                )
+        } finally {
             setLoading(false)
         }
     }
+    console.log(
+        'relevantServices',
+        relevantServices,
+        relevantServices?.length > 0
+    )
 
-    return <div id={'PrintThis'} className='h-full w-full'>
-        <PrintLayout loading={loading} title={"INFORME DE SERVICIOS POR REGIONES OPERATIVAS"} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })} filters={filters}>
-            <div className="text-sm">
-                {relevantServices.map(relevantService => (
-                    relevantService && <div className="pb-16">
-
-                        <div className="font-bold text-2xl w-full text-center pb-6">{relevantService.regionAreaName}</div>
-
-                        {relevantService.stations.map(station => (
-                            <>
-                                <div className="w-full text-lg flex items-center justify-center pb-4">
-                                    <span className="font-semibold text-[#1C2434]"><span>ESTACIÓN N°{station?.abbreviation?.replace("M", "")} : {station?.abbreviation}</span> ( {station?.name?.toUpperCase()} )</span>
-
-                                </div>
-                                {station?.missions?.map((mission, index) => (
-                                    <>
-
-                                        {index != 0 && <div className="py-6 px-4 opacity-50">
-                                            <div className="w-full h-0.5 bg-[#1C2434] rounded-full"></div>
-                                        </div>}
-
-                                        <div className="flex justify-between">
-                                            <div>
-                                                <span>FECHA:</span>
-                                                <span className="font-semibold">{mission?.missionDate?.split(" ")[0] ?? ""}</span>
-                                            </div>
-
-                                            <div>
-                                                <span>HORA:</span>
-                                                <span className="font-semibold">{mission?.missionDate?.split(" ")[1] ?? ""}</span>
-                                            </div>
-
-                                            <div>
-                                                <span>CÓDIGO:</span>
-                                                <span className="font-semibold">{mission?.missionCode?.split("-")[0]}</span>
-                                            </div>
-
-                                            <div>
-                                                <span >NIVEL:</span>
-                                                <span className="font-semibold">{mission?.level}</span>
-                                            </div>
+    return (
+        <div id={'PrintThis'} className="h-full w-full">
+            <PrintLayout
+                loading={loading}
+                title={'INFORME DE SERVICIOS POR REGIONES OPERATIVAS'}
+                subtitle={new Date().toLocaleString('en-GB', {
+                    timeZone: 'UTC',
+                    hour12: false,
+                })}
+                filters={filters}
+            >
+                <div className="text-sm">
+                    {relevantServices &&
+                        relevantServices.length > 0 &&
+                        relevantServices.map(
+                            (region) =>
+                                region && (
+                                    <div className="pb-16">
+                                        <div className="font-bold text-2xl w-full text-center pb-6">
+                                            {region.region_name}
                                         </div>
 
-                                        <div className="flex w-full justify-between">
-                                            <div className="pt-2">
-                                                <span className="font-semibold text-base"> {mission?.services[0].id!} - {mission?.services[0].antaresDescription} {mission.isImportant ? "( RELEVANTE )" : ""}</span>
-                                            </div>
-
-                                            <div className="flex pt-2">
-                                                <span>CUADRANTE DE PAZ:</span>
-                                                <span className="font-semibold">{mission?.peaceQuadrant}</span>
-                                            </div>
-                                        </div>
-
-                                        <div>
-                                            <p className="pt-2">
-                                                <span className="font-semibold pr-2">DIRECCIÓN DE ORIGEN:</span>
-                                                <span className="text-xs">
-                                                    {mission?.locations[0]?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission?.locations[0]?.urb},`}</span></span>}
-                                                    {mission?.locations[0]?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission?.locations[0]?.sector},`}</span></span>}
-                                                    {mission?.locations[0]?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission?.locations[0]?.parish},`}</span></span>}
-                                                    {mission?.locations[0]?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission?.locations[0]?.municipality},`}</span></span>}
-                                                    {mission?.locations[0]?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission?.locations[0]?.state}`}`</span></span>}
-                                                </span>
-                                            </p>
-
-                                            <p className="pt-2">
-                                                <span className="font-semibold pr-2">DIRECCIÓN DE DESTINO:</span>
-                                                <span className="text-xs">
-                                                    {mission?.destination[0]?.address && `${mission?.destination[0]?.address},`}
-                                                    {mission?.destination[0]?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission?.destination[0]?.urb},`}</span></span>}
-                                                    {mission?.destination[0]?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission?.destination[0]?.sector},`}</span></span>}
-                                                    {mission?.destination[0]?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission?.destination[0]?.parish},`}</span></span>}
-                                                    {mission?.destination[0]?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission?.destination[0]?.municipality},`}</span></span>}
-                                                    {mission?.destination[0]?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission?.destination[0]?.state}`}`</span></span>}
-                                                </span>
-                                            </p>
-
-                                            {mission?.careCenters?.[0] &&
-                                                <p className="pt-2">
-                                                    <span className="font-semibold pr-2">DIRECCIÓN DEL CENTRO DE ATENCIÓN:</span>
-                                                    <span className="text-xs">
-                                                        {mission.careCenters[0]?.urb && <span className="font-semibold pl-2">URBANIZACIÓN: <span className="font-normal pl-1">{`${mission.careCenters[0]?.urb},`}</span></span>}
-                                                        {mission.careCenters[0]?.sector && <span className="font-semibold pl-2">SECTOR:       <span className="font-normal pl-1">{`${mission.careCenters[0]?.sector},`}</span></span>}
-                                                        {mission.careCenters[0]?.parish && <span className="font-semibold pl-2">PARROQUIA:    <span className="font-normal pl-1">{`${mission.careCenters[0]?.parish},`}</span></span>}
-                                                        {mission.careCenters[0]?.municipality && <span className="font-semibold pl-2">MUNICIPIO:    <span className="font-normal pl-1">{`${mission.careCenters[0]?.municipality},`}</span></span>}
-                                                        {mission.careCenters[0]?.state && <span className="font-semibold pl-2">ESTADO:       <span className="font-normal pl-1">{`${mission.careCenters[0]?.state}`}`</span></span>}
-                                                    </span>
-                                                </p>
-                                            }
-
-                                            {mission?.missionDescription &&
-                                                <p className="pt-2">
-                                                    <span className="font-semibold pr-1">Nota:</span>
-                                                    {mission?.missionDescription}
-                                                </p>
-                                            }
-                                        </div>
-
-
-
-                                        {mission.people.length > 0 &&
-                                            <div className="pt-6">
-                                                <span className="text-base font-semibold">PERSONAS:</span>
-
-                                                <div className="pl-8">
-                                                    {mission.people.map(person => (
-                                                        <div>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">ESTADO: </span> {`${person.person_condition},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">CONDICIÓN: </span> {`${person.condition},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">NOMBRE: </span> {`${person.name},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">GÉNERO: </span> {`${person.gender},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">EDAD: </span> {`${person.age},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">CI: </span> {`${person.document},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">TELÉFONO: </span> {`${person.phone}`}</span>
-
-                                                            {person.unit &&
-                                                                <div className="pl-8">
-                                                                    <span className="pl-2"><span className="font-semibold pr-1">VEHÍCULO DE TRASLADO: </span> {`, ${person.unit},`}</span>
-                                                                </div>
+                                        {region.stations.map((station) => (
+                                            <>
+                                                <div className="w-full text-lg flex items-center justify-center pb-4">
+                                                    <span className="pt-6 font-semibold text-[#1C2434]">
+                                                        <span>
+                                                            ESTACIÓN N°
+                                                            {station?.station_short_name?.replace(
+                                                                'M',
+                                                                ''
+                                                            )}{' '}
+                                                            :{' '}
+                                                            {
+                                                                station?.station_short_name
                                                             }
-                                                        </div>
-                                                    ))
-                                                    }
+                                                        </span>{' '}
+                                                        ({' '}
+                                                        {station?.station_name?.toUpperCase()}{' '}
+                                                        )
+                                                    </span>
                                                 </div>
-                                            </div>
-                                        }
-
-                                        {mission.vehicles.length > 0 &&
-                                            <div className="pt-6">
-                                                <span className="text-base font-semibold">VEHÍCULOS:</span>
-
-                                                <div className="pl-8">
-                                                    {mission.vehicles.map(vehicle => (
-
-                                                        <div>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">MARCA: </span> {`${vehicle.make},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">MODELO: </span> {`${vehicle.model},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">PLACA: </span> {`${vehicle.plate},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">AÑO: </span> {`${vehicle.year},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">COLOR: </span> {`${vehicle.color},`}</span>
-                                                        </div>
-
-                                                    ))
-                                                    }
-                                                </div>
-                                            </div>
-                                        }
-
-                                        {mission.infrastructures.length > 0 &&
-                                            <div className="pt-6">
-                                                <span className="text-base font-semibold">INFRAESTRUCTURAS:</span>
-
-                                                <div className="pl-8">
-                                                    {mission.infrastructures.map(infrastructures => (
+                                                {station?.missions?.map(
+                                                    (mission, index) => (
                                                         <>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">TIPO: </span> {`${infrastructures.type},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">OCUPACIÓN: </span> {`${infrastructures.occupation},`}</span>
-                                                            <span className="pl-2"><span className="font-semibold pr-1">NIVELES: </span> {`${infrastructures.levels},`}</span>
-                                                        </>
-                                                    ))
-                                                    }
-                                                </div>
-                                            </div>
-                                        }
+                                                            {index != 0 && (
+                                                                <div className="py-6 px-4 opacity-50">
+                                                                    <div className="w-full h-0.5 bg-[#1C2434] rounded-full"></div>
+                                                                </div>
+                                                            )}
 
-                                        {/* {mission?.authoritiesData?.length > 0 &&
+                                                            <div className="flex justify-between">
+                                                                <div>
+                                                                    <span>
+                                                                        FECHA:
+                                                                    </span>
+                                                                    <span className="font-semibold">
+                                                                        {mission?.date?.split(
+                                                                            'T'
+                                                                        )[0] ??
+                                                                            ''}
+                                                                    </span>
+                                                                </div>
+
+                                                                <div>
+                                                                    <span>
+                                                                        HORA:
+                                                                    </span>
+                                                                    <span className="font-semibold">
+                                                                        {mission?.date
+                                                                            ?.split(
+                                                                                'T'
+                                                                            )[1]
+                                                                            .replace(
+                                                                                'Z',
+                                                                                ''
+                                                                            ) ??
+                                                                            ''}
+                                                                    </span>
+                                                                </div>
+
+                                                                <div>
+                                                                    <span>
+                                                                        CÓDIGO:
+                                                                    </span>
+                                                                    <span className="font-semibold">
+                                                                        {
+                                                                            mission?.code?.split(
+                                                                                '-'
+                                                                            )[0]
+                                                                        }
+                                                                    </span>
+                                                                </div>
+
+                                                                <div>
+                                                                    <span>
+                                                                        NIVEL:
+                                                                    </span>
+                                                                    <span className="font-semibold">
+                                                                        {
+                                                                            mission?.level
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="flex w-full justify-between">
+                                                                <div className="pt-2">
+                                                                    <span className="font-semibold text-base">
+                                                                        {' '}
+                                                                        {
+                                                                            mission?.first_service_id
+                                                                        }{' '}
+                                                                        -{' '}
+                                                                        {
+                                                                            mission?.first_service_antares_description
+                                                                        }{' '}
+                                                                        {mission.is_important
+                                                                            ? '( RELEVANTE )'
+                                                                            : ''}
+                                                                    </span>
+                                                                </div>
+
+                                                                <div className="flex pt-2">
+                                                                    <span>
+                                                                        CUADRANTE
+                                                                        DE PAZ:
+                                                                    </span>
+                                                                    <span className="font-semibold">
+                                                                        {
+                                                                            mission?.peace_quadrant
+                                                                        }
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <p className="pt-2">
+                                                                    <span className="font-semibold pr-2">
+                                                                        DIRECCIÓN
+                                                                        DE
+                                                                        ORIGEN:
+                                                                    </span>
+                                                                    <span className="text-xs">
+                                                                        {mission
+                                                                            ?.origin_location[0]
+                                                                            ?.state && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                ESTADO:{' '}
+                                                                                <span className="font-normal pl-1">
+                                                                                    {`${mission?.origin_location[0]?.state}`}
+
+                                                                                    `
+                                                                                </span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.origin_location
+                                                                            ?.municipality && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                MUNICIPIO:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.origin_location?.municipality},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.origin_location
+                                                                            ?.parish && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                PARROQUIA:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.origin_location?.parish},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.origin_location
+                                                                            ?.sector && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                SECTOR:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.origin_location?.sector},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.origin_location
+                                                                            ?.urbanization && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                URBANIZACIÓN:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.origin_location?.urbanization},`}</span>
+                                                                            </span>
+                                                                        )}
+
+                                                                        {mission
+                                                                            ?.origin_location
+                                                                            ?.address && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                Dirección:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.origin_location?.address},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                    </span>
+                                                                </p>
+
+                                                                <p className="pt-2">
+                                                                    <span className="font-semibold pr-2">
+                                                                        DIRECCIÓN
+                                                                        DE
+                                                                        DESTINO:
+                                                                    </span>
+                                                                    <span className="text-xs">
+                                                                        {mission
+                                                                            ?.destination_location
+                                                                            ?.state && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                ESTADO:{' '}
+                                                                                <span className="font-normal pl-1">
+                                                                                    {`${mission?.destination_location?.state}`}
+
+                                                                                    `
+                                                                                </span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.destination_location
+                                                                            ?.municipality && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                MUNICIPIO:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.destination_location?.municipality},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.destination_location
+                                                                            ?.parish && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                PARROQUIA:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.destination_location?.parish},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.destination_location
+                                                                            ?.sector && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                SECTOR:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.destination_location?.sector},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                        {mission
+                                                                            ?.destination_location
+                                                                            ?.urbanization && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                URBANIZACIÓN:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.destination_location?.urbanization},`}</span>
+                                                                            </span>
+                                                                        )}
+
+                                                                        {mission
+                                                                            ?.destination_location
+                                                                            ?.address && (
+                                                                            <span className="font-semibold pl-2">
+                                                                                Dirección:{' '}
+                                                                                <span className="font-normal pl-1">{`${mission?.destination_location?.address},`}</span>
+                                                                            </span>
+                                                                        )}
+                                                                    </span>
+                                                                </p>
+
+                                                                {mission
+                                                                    ?.carecenter_location?.[0] && (
+                                                                    <p className="pt-2">
+                                                                        <span className="font-semibold pr-2">
+                                                                            DIRECCIÓN
+                                                                            DEL
+                                                                            CENTRO
+                                                                            DE
+                                                                            ATENCIÓN:
+                                                                        </span>
+                                                                        <span className="text-xs">
+                                                                            {mission
+                                                                                .carecenter_location
+                                                                                ?.state && (
+                                                                                <span className="font-semibold pl-2">
+                                                                                    ESTADO:{' '}
+                                                                                    <span className="font-normal pl-1">
+                                                                                        {`${mission.carecenter_location?.state}`}
+
+                                                                                        `
+                                                                                    </span>
+                                                                                </span>
+                                                                            )}
+                                                                            {mission
+                                                                                .carecenter_location
+                                                                                ?.municipality && (
+                                                                                <span className="font-semibold pl-2">
+                                                                                    MUNICIPIO:{' '}
+                                                                                    <span className="font-normal pl-1">{`${mission.carecenter_location?.municipality},`}</span>
+                                                                                </span>
+                                                                            )}
+                                                                            {mission
+                                                                                .carecenter_location
+                                                                                ?.parish && (
+                                                                                <span className="font-semibold pl-2">
+                                                                                    PARROQUIA:{' '}
+                                                                                    <span className="font-normal pl-1">{`${mission.carecenter_location?.parish},`}</span>
+                                                                                </span>
+                                                                            )}
+                                                                            {mission
+                                                                                .carecenter_location
+                                                                                ?.sector && (
+                                                                                <span className="font-semibold pl-2">
+                                                                                    SECTOR:{' '}
+                                                                                    <span className="font-normal pl-1">{`${mission.carecenter_location?.sector},`}</span>
+                                                                                </span>
+                                                                            )}
+                                                                            {mission
+                                                                                .carecenter_location
+                                                                                ?.urbanization && (
+                                                                                <span className="font-semibold pl-2">
+                                                                                    URBANIZACIÓN:{' '}
+                                                                                    <span className="font-normal pl-1">{`${mission.carecenter_location?.urbanization},`}</span>
+                                                                                </span>
+                                                                            )}
+                                                                            {mission
+                                                                                .carecenter_location
+                                                                                ?.address && (
+                                                                                <span className="font-semibold pl-2">
+                                                                                    Dirección:{' '}
+                                                                                    <span className="font-normal pl-1">{`${mission.carecenter_location?.address},`}</span>
+                                                                                </span>
+                                                                            )}
+                                                                        </span>
+                                                                    </p>
+                                                                )}
+
+                                                                {mission?.description && (
+                                                                    <p className="pt-2">
+                                                                        <span className="font-semibold pr-1">
+                                                                            Nota:
+                                                                        </span>
+                                                                        {
+                                                                            mission?.description
+                                                                        }
+                                                                    </p>
+                                                                )}
+                                                            </div>
+
+                                                            {mission.people
+                                                                .length > 0 && (
+                                                                <div className="pt-6">
+                                                                    <span className="text-base font-semibold">
+                                                                        PERSONAS:
+                                                                    </span>
+
+                                                                    <div className="pl-8">
+                                                                        {mission.people.map(
+                                                                            (
+                                                                                person
+                                                                            ) => (
+                                                                                <div>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            ESTADO:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${person.condition},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            CONDICIÓN:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${person.condition},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            NOMBRE:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${person.name},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            GÉNERO:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${person.gender},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            EDAD:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${person.age},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            CI:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${person.document_id},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            TELÉFONO:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${person.phone}`}
+                                                                                    </span>
+
+                                                                                    {person.transfer_vehicle && (
+                                                                                        <div className="pl-8">
+                                                                                            <span className="pl-2">
+                                                                                                <span className="font-semibold pr-1">
+                                                                                                    VEHÍCULO
+                                                                                                    DE
+                                                                                                    TRASLADO:{' '}
+                                                                                                </span>{' '}
+                                                                                                {`, ${person.transfer_vehicle},`}
+                                                                                            </span>
+                                                                                        </div>
+                                                                                    )}
+                                                                                </div>
+                                                                            )
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {mission.vehicles
+                                                                .length > 0 && (
+                                                                <div className="pt-6">
+                                                                    <span className="text-base font-semibold">
+                                                                        VEHÍCULOS:
+                                                                    </span>
+
+                                                                    <div className="pl-8">
+                                                                        {mission.vehicles.map(
+                                                                            (
+                                                                                vehicle
+                                                                            ) => (
+                                                                                <div>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            MARCA:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${vehicle.brand},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            MODELO:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${vehicle.model},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            PLACA:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${vehicle.plate},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            AÑO:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${vehicle.year},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            COLOR:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${vehicle.color},`}
+                                                                                    </span>
+                                                                                </div>
+                                                                            )
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {mission
+                                                                .infrastructures
+                                                                .length > 0 && (
+                                                                <div className="pt-6">
+                                                                    <span className="text-base font-semibold">
+                                                                        INFRAESTRUCTURAS:
+                                                                    </span>
+
+                                                                    <div className="pl-8">
+                                                                        {mission.infrastructures.map(
+                                                                            (
+                                                                                infrastructures
+                                                                            ) => (
+                                                                                <>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            TIPO:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${infrastructures.type},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            OCUPACIÓN:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${infrastructures.occupation},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            NIVELES:{' '}
+                                                                                        </span>{' '}
+                                                                                        {`${infrastructures.levels},`}
+                                                                                    </span>
+                                                                                </>
+                                                                            )
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            )}
+
+                                                            {/* {mission?.authoritiesData?.length > 0 &&
                                             <div className="pt-6">
                                                 <span className="text-base font-semibold">AUTORIDADES:</span>
 
@@ -470,137 +686,252 @@ export function RelevantServicesReportPrint({ missionsIds: servicesIds, filters 
                                             </div>
                                         } */}
 
+                                                            <div className="pt-5">
+                                                                <span className="font-semibold">
+                                                                    RESUMEN:
+                                                                </span>
+                                                                <span className="px-2">
+                                                                    ÁREAS
+                                                                    OPERATIVAS:
+                                                                    <span className="font-semibold pl-1">
+                                                                        {
+                                                                            mission?.operative_areas?.filter(
+                                                                                (
+                                                                                    x
+                                                                                ) =>
+                                                                                    x
+                                                                            )
+                                                                                ?.length
+                                                                        }
+                                                                    </span>
+                                                                </span>
+                                                                <span className="px-2">
+                                                                    UNIDADES:
+                                                                    <span className="font-semibold pl-1">
+                                                                        {
+                                                                            mission?.units?.filter(
+                                                                                (
+                                                                                    x
+                                                                                ) =>
+                                                                                    x
+                                                                            )
+                                                                                ?.length
+                                                                        }
+                                                                    </span>
+                                                                </span>
+                                                                <span className="px-2">
+                                                                    FUNCIONARIOS
+                                                                    PRESENTES:
+                                                                    <span className="font-semibold pl-1">
+                                                                        {
+                                                                            mission
+                                                                                ?.firefighters
+                                                                                ?.length
+                                                                        }
+                                                                    </span>
+                                                                </span>
+                                                            </div>
 
+                                                            <div className="pt-2">
+                                                                <div className="space-x-2">
+                                                                    <span className="font-semibold">
+                                                                        ÁREAS
+                                                                        OPERATIVAS:
+                                                                    </span>
+                                                                    <span>
+                                                                        {mission?.operative_areas?.join(
+                                                                            ' , '
+                                                                        )}
+                                                                    </span>
+                                                                </div>
 
+                                                                <div className="space-x-2">
+                                                                    <span className="font-semibold">
+                                                                        UNIDADES:
+                                                                    </span>
+                                                                    <span>
+                                                                        {mission?.units?.join(
+                                                                            ' , '
+                                                                        )}
+                                                                    </span>
+                                                                </div>
 
-                                        <div className="pt-5">
-                                            <span className="font-semibold">RESUMEN:</span>
-                                            <span className="px-2">ÁREAS OPERATIVAS:<span className="font-semibold pl-1">{mission?.operativeAreas?.filter(x => x)?.length}</span></span>
-                                            <span className="px-2">UNIDADES:<span className="font-semibold pl-1">{mission?.units?.filter(x => x)?.length}</span></span>
-                                            <span className="px-2">FUNCIONARIOS PRESENTES:<span className="font-semibold pl-1">{mission?.firefighters?.length}</span></span>
-                                        </div>
+                                                                <div className="space-x-2">
+                                                                    <span className="font-semibold">
+                                                                        FUNCIONARIOS:
+                                                                    </span>
+                                                                    <span>
+                                                                        {mission?.firefighters.map(
+                                                                            (
+                                                                                firefighter
+                                                                            ) => (
+                                                                                <div className="pl-8">
+                                                                                    <span>
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            RANGO:
+                                                                                        </span>
+                                                                                        {`${firefighter.rank},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            NOMBRE:
+                                                                                        </span>
+                                                                                        {`${firefighter.name},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            CI:
+                                                                                        </span>
+                                                                                        {`${firefighter.document_id},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            ROL:
+                                                                                        </span>
+                                                                                        {`${firefighter.role},`}
+                                                                                    </span>
+                                                                                    <span className="pl-2">
+                                                                                        <span className="font-semibold pr-1">
+                                                                                            EQUIPO:
+                                                                                        </span>
+                                                                                        {`${firefighter.team}`}
+                                                                                    </span>
+                                                                                </div>
+                                                                            )
+                                                                        )}
+                                                                    </span>
+                                                                </div>
 
-                                        <div className="pt-2">
-                                            <div className="space-x-2">
-                                                <span className="font-semibold">ÁREAS OPERATIVAS:</span>
-                                                <span>{mission?.operativeAreas?.join(" , ")}</span>
-                                            </div>
-
-                                            <div className="space-x-2">
-                                                <span className="font-semibold">UNIDADES:</span>
-                                                <span>{mission?.units?.join(" , ")}</span>
-                                            </div>
-
-                                            <div className="space-x-2">
-                                                <span className="font-semibold">FUNCIONARIOS:</span>
-                                                <span>{mission?.firefighters.map(firefighter => (
-                                                    <div className="pl-8">
-                                                        <span><span className="font-semibold pr-1">RANGO:</span>{`${firefighter.rank},`}</span>
-                                                        <span className="pl-2"><span className="font-semibold pr-1">NOMBRE:</span>{`${firefighter.name},`}</span>
-                                                        <span className="pl-2"><span className="font-semibold pr-1">CI:</span>{`${firefighter.document},`}</span>
-                                                        <span className="pl-2"><span className="font-semibold pr-1">ROL:</span>{`${firefighter.role},`}</span>
-                                                        <span className="pl-2"><span className="font-semibold pr-1">EQUIPO:</span>{`${firefighter.team}`}</span>
-                                                    </div>
-                                                ))}</span>
-                                            </div>
-
-                                            <div className="pt-5">
-                                                <span className="font-semibold">PERSONAS SIN IDENTIFICACIÓN:</span>
-                                                <span className="px-2">ILESOS:<span className="font-semibold pl-1">{mission?.unharmed}</span></span>
-                                                <span className="px-2">HERIDOS:<span className="font-semibold pl-1">{mission?.injured}</span></span>
-                                                <span className="px-2">TRANSPORTADOS:<span className="font-semibold pl-1">{mission?.transported}</span></span>
-                                                <span className="px-2">FALLECIDOS:<span className="font-semibold pl-1">{mission?.deceased}</span></span>
-                                            </div>
-                                        </div>
-                                    </>
-
-                                ))}
-                            </>
-                        ))}
-                    </div>
-                ))}
-            </div>
-        </PrintLayout>
-    </div>
+                                                                <div className="pt-5">
+                                                                    <span className="font-semibold">
+                                                                        PERSONAS
+                                                                        SIN
+                                                                        IDENTIFICACIÓN:
+                                                                    </span>
+                                                                    <span className="px-2">
+                                                                        ILESOS:
+                                                                        <span className="font-semibold pl-1">
+                                                                            {
+                                                                                mission?.unharmed
+                                                                            }
+                                                                        </span>
+                                                                    </span>
+                                                                    <span className="px-2">
+                                                                        HERIDOS:
+                                                                        <span className="font-semibold pl-1">
+                                                                            {
+                                                                                mission?.injured
+                                                                            }
+                                                                        </span>
+                                                                    </span>
+                                                                    <span className="px-2">
+                                                                        TRANSPORTADOS:
+                                                                        <span className="font-semibold pl-1">
+                                                                            {
+                                                                                mission?.transported
+                                                                            }
+                                                                        </span>
+                                                                    </span>
+                                                                    <span className="px-2">
+                                                                        FALLECIDOS:
+                                                                        <span className="font-semibold pl-1">
+                                                                            {
+                                                                                mission?.deceased
+                                                                            }
+                                                                        </span>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </>
+                                                    )
+                                                )}
+                                            </>
+                                        ))}
+                                    </div>
+                                )
+                        )}
+                </div>
+            </PrintLayout>
+        </div>
+    )
 }
 
-
 type StationDetail = {
-    abbreviation: string;
-    name: string;
+    abbreviation: string
+    name: string
     locations: Array<{
-        state?: string;
-        municipality?: string;
-        parish?: string;
-        sector?: string;
-        urb?: string;
-        address?: string;
-    }>;
+        state?: string
+        municipality?: string
+        parish?: string
+        sector?: string
+        urb?: string
+        address?: string
+    }>
     services: Array<{
-        id?: string;
-        type?: string;
-        antaresDescription?: string;
-    }>;
+        id?: string
+        type?: string
+        antaresDescription?: string
+    }>
     firefighters: Array<{
-        rank?: string;
-        name?: string;
-        document?: string;
-        role?: string;
-        team?: string;
-    }>;
-    units: Array<string>;
-    operativeArea: Array<string>;
+        rank?: string
+        name?: string
+        document?: string
+        role?: string
+        team?: string
+    }>
+    units: Array<string>
+    operativeArea: Array<string>
     people: Array<{
-        condition?: string;
-        name?: string;
-        gender?: string;
-        age?: string;
-        document?: string;
-        phone?: string;
-        person_condition?: string;
-        unit?: string;
-        address?: string;
-        building?: string;
-        vehicle?: string;
-    }>;
+        condition?: string
+        name?: string
+        gender?: string
+        age?: string
+        document?: string
+        phone?: string
+        person_condition?: string
+        unit?: string
+        address?: string
+        building?: string
+        vehicle?: string
+    }>
     infrastructures: Array<{
-        type?: string;
-        floor?: string;
-        occupation?: string;
-        levels?: string;
-    }>;
+        type?: string
+        floor?: string
+        occupation?: string
+        levels?: string
+    }>
     vehicles: Array<{
-        plate?: string;
-        make?: string;
-        model?: string;
-        year?: string;
-        color?: string;
-        vehicle_type?: string;
-        motor_serial?: string;
-    }>;
+        plate?: string
+        make?: string
+        model?: string
+        year?: string
+        color?: string
+        vehicle_type?: string
+        motor_serial?: string
+    }>
     careCenters: Array<{
-        name?: string;
-        abbreviation?: string;
-        state?: string;
-        municipality?: string;
-        parish?: string;
-        sector?: string;
-        urb?: string;
-    }>;
-};
+        name?: string
+        abbreviation?: string
+        state?: string
+        municipality?: string
+        parish?: string
+        sector?: string
+        urb?: string
+    }>
+}
 
 // Define the type for RelevantMissionDetail
 type RelevantMissionDetail = {
-    regionAreaId: string;
-    regionAreaName: string;
-    missionCode: string;
-    missionId: string;
-    missionDescription: string;
-    missionDate: string;
-    unharmed: string;
-    injured: string;
-    transported: string;
-    deceased: string;
-    isImportant: boolean;
-    stations: StationDetail[];
-};
+    regionAreaId: string
+    regionAreaName: string
+    missionCode: string
+    missionId: string
+    missionDescription: string
+    missionDate: string
+    unharmed: string
+    injured: string
+    transported: string
+    deceased: string
+    isImportant: boolean
+    stations: StationDetail[]
+}

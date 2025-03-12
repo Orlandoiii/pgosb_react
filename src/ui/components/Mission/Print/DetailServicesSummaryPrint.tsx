@@ -5,861 +5,1090 @@ import { useAntaresCollection } from '../../../../domain/models/mission/antares/
 import { useStationCollection } from '../../../../domain/models/mission/station/use_collection'
 import { MissionServiceFront } from '../../../../domain/models/mission/service/mission_service'
 import { useMissionServiceActions } from '../../../../domain/models/mission/service/use_collection'
-import { TApiAntares } from '../../../../domain/models/antares/antares'
-import { getById } from '../../../../services/http'
-import { MissionFromApi, MissionFront } from '../../../../domain/models/mission/mission'
+import { post } from '../../../../services/http'
 
-async function getServiceData(services: MissionServiceFront[]): Promise<
-    {
-        antaresSummary: AnteresSummary[]
-        stationsSummary: StationsSummary[]
-        antaresDetail: AntaresDetail[]
-        stationsDetail: StationsDetail[]
-    }> {
-
-    services = services.sort((a, b) => (a.id as any) - (b.id as any))
-
-    const antaresSummary = groupByAntaresId(services)
-    const stationsSummary = groupServicesByStation(services)
-
-    const antaresDetail = await detailByAntares(services)
-    const stationsDetail = await detailByStation(services)
-
-    return { antaresSummary, stationsSummary, antaresDetail, stationsDetail }
+type GroupReport = {
+    antaresStationAggregationJson: AntaresStationAggregationJson[]
+    antaresStationAggregationCount: number
+    antaresAggregationJson: AntaresAggregationJson[]
+    antaresAggregationCount: number
+    stationAggregationJson: StationAggregationJson[]
+    stationAggregationCount: number
+    antaresTypeAggregationJson: AntaresTypeAggregationJson[]
+    antaresTypeAggregationCount: number
 }
 
-type AnteresSummary = { antaresId: string; count: number, percentage: string }
-function groupByAntaresId(services: MissionServiceFront[]): AnteresSummary[] {
-    let antares: AnteresSummary[] = []
-    let missions: string[] = []
+type AntaresStationAggregationJson = {
+    antares_id: string
+    antares_name: string
+    station_id: string
+    station_name: string
+    station_abbreviation: string
+    count: string
 
-    services.forEach((service) => {
-        const already = missions.filter(x => x == service.missionId).length > 0
-
-        if (!already) {
-            missions.push(service.missionId)
-
-            const antaresId = service.antaresId
-            const antaresItem = antares.find((item) => item.antaresId === antaresId)
-
-            if (antaresItem) {
-                antaresItem.count++
-            } else if (antaresId) {
-                antares.push({ antaresId, count: 1, percentage: "0" })
-            }
-        }
-    })
-
-    antares.forEach(antares => {
-        antares.percentage = ((antares.count / missions.length) * 100).toFixed(2)
-    })
-
-    antares = antares.sort((a, b) => b.count - a.count)
-
-    return antares
+    unharmed: string
+    injured: string
+    transported: string
+    deceased: string
 }
 
-type StationsSummary = { stationId: string; count: number, percentage: string }
-function groupServicesByStation(services: MissionServiceFront[]): StationsSummary[] {
-    let stations: StationsSummary[] = []
-
-    services.forEach((service) => {
-        const stationId = service.stationId
-        const stationItem = stations.find(
-            (item) => item.stationId === stationId
-        )
-
-        if (stationItem) {
-            stationItem.count++
-        } else if (stationId) {
-            stations.push({ stationId, count: 1, percentage: "0" })
-        }
-    })
-
-    stations.forEach(station => {
-        station.percentage = ((station.count / services.length) * 100).toFixed(2)
-    })
-
-    stations = stations.sort((a, b) => b.count - a.count)
-
-    return stations
+type AntaresAggregationJson = {
+    antares_id: string
+    antares_name: string
+    count: string
 }
 
-type AntaresDetail = {
-    antaresId: string
-    details: {
-        stationId: string
-        services: number
-        unharmed: number
-        injured: number
-        transported: number
-        deceased: number
-        percentage: string
-    }[],
-    summatory: {
-        services: number
-        unharmed: number
-        injured: number
-        transported: number
-        deceased: number
-        percentage: string
-    }
+type StationAggregationJson = {
+    station_id: string
+    station_name: string
+    station_abbreviation: string
+    count: string
 }
 
-
-function detailByAntaresInternal() {
-
-}
-async function detailByAntares(services: MissionServiceFront[]): Promise<AntaresDetail[]> {
-    let antaresDetail: AntaresDetail[] = []
-    let servicesCount: number = 0
-    let missions: string[] = []
-
-    for (const service of services) {
-        const already = missions.filter(x => x == service.missionId).length > 0
-        console.log(service.missionId, service.id, already,);
-        if (!already) {
-            missions.push(service.missionId)
-
-            const mission = await getById<MissionFront>("mission", service.missionId, MissionFromApi)
-
-            const antaresId = service.antaresId
-            const stationId = service.stationId
-            const antaresItem = antaresDetail.find(
-                (item) => item.antaresId === antaresId
-            )
-
-            if (antaresItem) {
-                const stationItem = antaresItem.details.find(
-                    (item) => item.stationId === stationId
-                )
-                if (stationItem) {
-                    stationItem.services++
-                    stationItem.unharmed += Number(mission.result?.unharmed)
-                    stationItem.injured += Number(mission.result?.injured)
-                    stationItem.transported += Number(mission.result?.transported)
-                    stationItem.deceased += Number(mission.result?.deceased)
-                } else if (stationId) {
-                    antaresItem.details.push({
-                        stationId,
-                        services: 1,
-                        unharmed: Number(mission.result?.unharmed),
-                        injured: Number(mission.result?.injured),
-                        transported: Number(mission.result?.transported),
-                        deceased: Number(mission.result?.deceased),
-                        percentage: "0",
-                    })
-                }
-            } else if (antaresId && stationId) {
-                antaresDetail.push({
-                    antaresId,
-                    details: [
-                        {
-                            stationId,
-                            services: 1,
-                            unharmed: Number(mission.result?.unharmed),
-                            injured: Number(mission.result?.injured),
-                            transported: Number(mission.result?.transported),
-                            deceased: Number(mission.result?.deceased),
-                            percentage: "0",
-                        },
-                    ],
-                    summatory: {
-                        services: 0,
-                        unharmed: 0,
-                        injured: 0,
-                        transported: 0,
-                        deceased: 0,
-                        percentage: "0",
-                    },
-                })
-            }
-
-            servicesCount++
-        }
-    }
-
-    console.log("antaresDetail", services, antaresDetail);
-
-
-    antaresDetail.forEach((antaresDetail) => {
-        antaresDetail.details.forEach((detail) => {
-            detail.percentage = ((detail.services / servicesCount) * 100).toFixed(2)
-
-            antaresDetail.summatory.services += detail.services
-            antaresDetail.summatory.unharmed += detail.unharmed
-            antaresDetail.summatory.injured += detail.injured
-            antaresDetail.summatory.transported += detail.transported
-            antaresDetail.summatory.deceased += detail.deceased
-
-            antaresDetail.summatory.percentage = Number((Number(antaresDetail.summatory.percentage) + Number(detail.percentage)).toString()).toFixed(2)
-        })
-
-        antaresDetail.details = antaresDetail.details.sort((a, b) => b.services - a.services)
-    })
-
-    antaresDetail = antaresDetail.sort((a, b) => b.summatory.services - a.summatory.services)
-
-    console.log("detail", antaresDetail, missions);
-
-    return antaresDetail
-}
-
-type StationsDetail = {
-    stationId: string
-    details: {
-        antaresId: string
-        services: number
-        unharmed: number
-        injured: number
-        transported: number
-        deceased: number
-        percentage: string
-    }[],
-    summatory: {
-        services: number
-        unharmed: number
-        injured: number
-        transported: number
-        deceased: number
-        percentage: string
-    }
-}
-async function detailByStation(services: MissionServiceFront[]): Promise<StationsDetail[]> {
-    let stationDetail: StationsDetail[] = []
-    let missions: string[] = []
-    let servicesCount = 0
-
-    for (const service of services) {
-        const already = missions.filter(x => x === service.missionId).length > 0
-
-        if (!already) {
-            missions.push(service.missionId)
-
-            const mission = await getById<MissionFront>("mission", service.missionId, MissionFromApi)
-
-            const antaresId = service.antaresId
-            const stationId = service.stationId
-            const stationItem = stationDetail.find(
-                (item) => item.stationId === stationId
-            )
-
-            if (stationItem) {
-                const antaresItem = stationItem.details.find(
-                    (item) => item.antaresId === antaresId
-                )
-                if (antaresItem) {
-                    antaresItem.services++
-                    antaresItem.unharmed += Number(mission.result?.unharmed)
-                    antaresItem.injured += Number(mission.result?.injured)
-                    antaresItem.transported += Number(mission.result?.transported)
-                    antaresItem.deceased += Number(mission.result?.deceased)
-                } else if (antaresId) {
-                    stationItem.details.push({
-                        antaresId,
-                        services: 1,
-                        unharmed: Number(mission.result?.unharmed),
-                        injured: Number(mission.result?.injured),
-                        transported: Number(mission.result?.transported),
-                        deceased: Number(mission.result?.deceased),
-                        percentage: "0",
-                    })
-                }
-            } else if (stationId && antaresId) {
-                stationDetail.push({
-                    stationId,
-                    details: [
-                        {
-                            antaresId,
-                            services: 1,
-                            unharmed: Number(mission.result?.unharmed),
-                            injured: Number(mission.result?.injured),
-                            transported: Number(mission.result?.transported),
-                            deceased: Number(mission.result?.deceased),
-                            percentage: "0",
-                        },
-                    ],
-                    summatory: {
-                        services: 0,
-                        unharmed: 0,
-                        injured: 0,
-                        transported: 0,
-                        deceased: 0,
-                        percentage: "0",
-                    },
-                })
-            }
-
-            servicesCount++
-        }
-    }
-
-    stationDetail.forEach((stationItem) => {
-        stationItem.details.forEach((detail) => {
-            detail.percentage = ((detail.services / servicesCount) * 100).toFixed(2)
-
-            stationItem.summatory.services += detail.services
-            stationItem.summatory.unharmed += detail.unharmed
-            stationItem.summatory.injured += detail.injured
-            stationItem.summatory.transported += detail.transported
-            stationItem.summatory.deceased += detail.deceased
-
-            stationItem.summatory.percentage = Number((Number(stationItem.summatory.percentage) + Number(detail.percentage)).toString()).toFixed(2)
-        })
-
-        stationItem.details = stationItem.details.sort((a, b) => b.services - a.services)
-    })
-
-    stationDetail = stationDetail.sort((a, b) => b.summatory.services - a.summatory.services)
-
-    return stationDetail
+type AntaresTypeAggregationJson = {
+    antares_type: string
+    count: string
 }
 
 interface ServicePrintProps {
     missionsIds: string[]
-    filters: { name: string, value: string }[]
-    groupBy: "Antares" | "Stations" | "AntaresTypes"
+    filters: { name: string; value: string }[]
+    groupBy: 'Antares' | 'Stations' | 'AntaresTypes'
 }
 
-type AnteresTypeSummary = { antaresType: string; count: number, percentage: string }
-
-type AntaresTypeDetail = {
-    antaresType: string
-    details: {
-        stationId: string
-        services: number
-        unharmed: number
-        injured: number
-        transported: number
-        deceased: number
-        percentage: string
-    }[],
-    summatory: {
-        services: number
-        unharmed: number
-        injured: number
-        transported: number
-        deceased: number
-        percentage: string
-    }
+type AgregationByAntares = {
+    antares_id: string
+    antares_name: string
+    count: number
+    stations: SubAgregationStation[]
 }
 
-function getAntaresTypes(antares: TApiAntares[], antaresSummary: AnteresSummary[], antaresDetail: AntaresDetail[]): { antaresTypeSummary: AnteresTypeSummary[], antaresTypeDetail: AntaresTypeDetail[] } {
-    if (!antares || antares.length < 1) return { antaresTypeSummary: [], antaresTypeDetail: [] }
-
-    let antaresTypeSummary: AnteresTypeSummary[] = [];
-    let servicesCount = 0;
-
-    antaresSummary.forEach(item => {
-        var currentAntares = antares.filter(x => x.id == item.antaresId)[0]
-
-        if (currentAntares) {
-            var CurrentAntaresType = antaresTypeSummary.filter(x => x.antaresType == currentAntares.type)[0]
-
-            if (CurrentAntaresType) CurrentAntaresType.count += item.count
-            else antaresTypeSummary.push({ antaresType: currentAntares.type, count: item.count, percentage: '' })
-
-            servicesCount += item.count
-        }
-    });
-
-    antaresTypeSummary = antaresTypeSummary.sort((a, b) => b.count - a.count)
-    antaresTypeSummary.forEach(x => {
-        x.percentage = ((x.count / servicesCount) * 100).toFixed(2)
-    })
-
-    let antaresTypeDetail: AntaresTypeDetail[] = [];
-
-    antaresDetail.forEach(item => {
-        let currentAntares = antares.filter(x => x.id == item.antaresId)[0]
-
-        if (currentAntares) {
-            let CurrentAntaresType = antaresTypeDetail.filter(x => x.antaresType == currentAntares.type)[0]
-
-            if (!CurrentAntaresType) {
-                CurrentAntaresType = {
-                    antaresType: currentAntares.type, details: [], summatory: {
-                        services: 0,
-                        unharmed: 0,
-                        injured: 0,
-                        transported: 0,
-                        deceased: 0,
-                        percentage: "",
-                    }
-                }
-
-                antaresTypeDetail.push(CurrentAntaresType)
-            }
-
-            item.details.forEach(station => {
-                let currentStation = CurrentAntaresType.details.filter(x => x.stationId == station.stationId)[0]
-
-                if (currentStation) {
-                    currentStation.unharmed += station.unharmed
-                    currentStation.injured += station.injured
-                    currentStation.transported += station.transported
-                    currentStation.deceased += station.deceased
-                    currentStation.services += station.services
-
-                    CurrentAntaresType.summatory.unharmed += station.unharmed
-                    CurrentAntaresType.summatory.injured += station.injured
-                    CurrentAntaresType.summatory.transported += station.transported
-                    CurrentAntaresType.summatory.deceased += station.deceased
-                    CurrentAntaresType.summatory.services += station.services
-                }
-                else {
-                    CurrentAntaresType.details.push({ ...station, percentage: '' })
-
-                    CurrentAntaresType.summatory.unharmed += station.unharmed
-                    CurrentAntaresType.summatory.injured += station.injured
-                    CurrentAntaresType.summatory.transported += station.transported
-                    CurrentAntaresType.summatory.deceased += station.deceased
-                    CurrentAntaresType.summatory.services += station.services
-                }
-            })
-        }
-    })
-
-    antaresTypeDetail = antaresTypeDetail.sort((a, b) => b.summatory.services - a.summatory.services)
-    antaresTypeDetail.forEach(item => {
-        item.summatory.percentage = ((item.summatory.services / servicesCount) * 100).toFixed(2)
-
-        item.details.forEach(detail => {
-            detail.percentage = ((detail.services / servicesCount) * 100).toFixed(2)
-        })
-
-        item.details = item.details.sort((a, b) => b.services - a.services)
-    })
-
-    return { antaresTypeSummary, antaresTypeDetail }
+type AgregationByAntaresType = {
+    antares_type: string
+    count: number
+    stations: SubAgregationStation[]
 }
 
-export function DetailServicesSummaryPrint({ missionsIds, groupBy, filters }: ServicePrintProps) {
-    const serviceActions = useMissionServiceActions();
+type SubAgregationStation = {
+    station_id: string
+    station_name: string
+    station_abbreviation: string
+    count: number
+    unharmed: number
+    injured: number
+    transported: number
+    deceased: number
+}
 
-    const [stationCollection] = useStationCollection();
-    const [antaresCollection] = useAntaresCollection();
+type AgregationByStation = {
+    station_id: string
+    station_name: string
+    station_abbreviation: string
+    count: number
+    unharmed: number
+    injured: number
+    transported: number
+    deceased: number
+    antares: SubAgregationAntares[]
+}
 
+type SubAgregationAntares = {
+    antares_id: string
+    antares_name: string
+    count: number
+}
+
+export function DetailServicesSummaryPrint({
+    missionsIds,
+    groupBy,
+    filters,
+}: ServicePrintProps) {
+    const [data, setData] = useState<GroupReport>()
+    const [agregationByAntares, setAgregationByAntares] =
+        useState<AgregationByAntares[]>()
+    const [agregationByAntaresType, setAgregationByAntaresType] =
+        useState<AgregationByAntaresType[]>()
+    const [agregationByStation, setAgregationByStation] =
+        useState<AgregationByStation[]>()
     const [loading, setLoading] = useState(false)
-    const [data, setData] = useState<{
-        antaresSummary: AnteresSummary[]
-        stationsSummary: StationsSummary[]
-        antaresDetail: AntaresDetail[]
-        stationsDetail: StationsDetail[]
-    }>()
+    const [antaresTypes] = useAntaresCollection()
 
     useEffect(() => {
-        getServices(missionsIds)
+        getData(missionsIds)
     }, [])
 
-    async function getServices(servicesIds: string[]) {
+    function sumCount(elements: { count: string }[]): number {
+        let sum = 0
+        elements.forEach((element) => {
+            sum = sum + parseInt(element.count)
+        })
+        return sum
+    }
 
+    async function getData(missionsIds: string[]) {
         try {
             setLoading(true)
-            const servicesList: MissionServiceFront[] = await getServicesList()
-            const data = await getServiceData(servicesList);
 
-            setData(data)
-        }
-        catch (error) {
-            console.log(error);
+            const antaresStationResult = await post<
+                AntaresStationAggregationJson[]
+            >(`mission-reports/aggregations/antares-station/in`, missionsIds)
 
-        }
-        finally {
+            const antaresResult = await post<AntaresAggregationJson[]>(
+                `mission-reports/aggregations/antares/in`,
+                missionsIds
+            )
+
+            const stationResult = await post<StationAggregationJson[]>(
+                `mission-reports/aggregations/station/in`,
+                missionsIds
+            )
+
+            const antaresTypeResult = await post<AntaresTypeAggregationJson[]>(
+                `mission-reports/aggregations/antares-type/in`,
+                missionsIds
+            )
+
+            setData({
+                antaresStationAggregationJson:
+                    antaresStationResult.success && antaresStationResult.result
+                        ? antaresStationResult.result
+                              .sort(
+                                  (a, b) =>
+                                      parseInt(b.count) - parseInt(a.count)
+                              )
+                              .sort(
+                                  (a, b) =>
+                                      parseInt(b.count) - parseInt(a.count)
+                              )
+                        : [],
+                antaresAggregationCount:
+                    antaresStationResult.success && antaresStationResult.result
+                        ? sumCount(antaresStationResult.result)
+                        : 0,
+                antaresAggregationJson:
+                    antaresResult.success && antaresResult.result
+                        ? antaresResult.result.sort(
+                              (a, b) => parseInt(b.count) - parseInt(a.count)
+                          )
+                        : [],
+                antaresStationAggregationCount:
+                    antaresResult.success && antaresResult.result
+                        ? sumCount(antaresResult.result)
+                        : 0,
+                stationAggregationJson:
+                    stationResult.success && stationResult.result
+                        ? stationResult.result.sort(
+                              (a, b) => parseInt(b.count) - parseInt(a.count)
+                          )
+                        : [],
+                stationAggregationCount:
+                    stationResult.success && stationResult.result
+                        ? sumCount(stationResult.result)
+                        : 0,
+                antaresTypeAggregationJson:
+                    antaresTypeResult.success && antaresTypeResult.result
+                        ? antaresTypeResult.result.sort(
+                              (a, b) => parseInt(b.count) - parseInt(a.count)
+                          )
+                        : [],
+                antaresTypeAggregationCount:
+                    antaresTypeResult.success && antaresTypeResult.result
+                        ? sumCount(antaresTypeResult.result)
+                        : 0,
+            })
+        } finally {
             setLoading(false)
         }
     }
 
-    async function getServicesList(): Promise<MissionServiceFront[]> {
-
-        const servicesList: MissionServiceFront[] = []
-
-        for (const missionId of missionsIds) {
-
-            const request = await serviceActions.getGroup(missionId)
-            if (request.success && request.result) {
-                servicesList.push(...request.result)
-            }
+    useEffect(() => {
+        if (data) {
+            createAntaresAgregation()
+            createAntaresTypeAggregation()
+            createStationAggregation()
         }
+    }, [data])
 
-        return servicesList
+    console.log('DataDelRequest', data)
+
+    function createAntaresAgregation() {
+        const antaresMap = new Map<string, AgregationByAntares>()
+        const stationMap = new Map<string, Map<string, SubAgregationStation>>()
+
+        data!.antaresStationAggregationJson.forEach((element) => {
+            // Get or create antares entry
+            const antaresKey = element.antares_id
+            let antaresEntry = antaresMap.get(antaresKey)
+
+            if (!antaresEntry) {
+                antaresEntry = {
+                    antares_id: element.antares_id,
+                    antares_name: element.antares_name,
+                    count: 0,
+                    stations: [],
+                }
+                antaresMap.set(antaresKey, antaresEntry)
+            }
+
+            // Handle stations
+            const stationKey = element.station_id
+            let stationEntry = stationMap.get(antaresKey)?.get(stationKey)
+
+            if (!stationEntry) {
+                stationEntry = {
+                    station_id: element.station_id,
+                    station_name: element.station_name,
+                    station_abbreviation: element.station_abbreviation,
+                    count: 0,
+                    unharmed: 0,
+                    injured: 0,
+                    transported: 0,
+                    deceased: 0,
+                }
+
+                if (!stationMap.has(antaresKey)) {
+                    stationMap.set(antaresKey, new Map())
+                }
+                stationMap.get(antaresKey)!.set(stationKey, stationEntry)
+                antaresEntry.stations.push(stationEntry)
+            }
+
+            // Update counts
+            const numericCount = Number(element.count)
+            const numericUnharmed = Number(element.unharmed)
+            const numericInjured = Number(element.injured)
+            const numericTransported = Number(element.transported)
+            const numericDeceased = Number(element.deceased)
+
+            stationEntry.count += numericCount
+            stationEntry.unharmed += numericUnharmed
+            stationEntry.injured += numericInjured
+            stationEntry.transported += numericTransported
+            stationEntry.deceased += numericDeceased
+
+            antaresEntry.count += numericCount
+        })
+
+        // Convert Map to final array
+        const antaresResult = Array.from(antaresMap.values())
+        setAgregationByAntares(antaresResult)
     }
 
-    function getAntaresDescriptionFor(id: string): string {
-        const antares = antaresCollection.filter(x => x.id == id)[0]
-        if (antares) return antares.description
-        return ""
+    function createAntaresTypeAggregation() {
+        const typeMap = new Map<string, AgregationByAntaresType>()
+        const stationTypeMap = new Map<
+            string,
+            Map<string, SubAgregationStation>
+        >()
+
+        data!.antaresStationAggregationJson.forEach((element) => {
+            const antaresType = getAntaresType(element.antares_id)
+
+            let typeEntry = typeMap.get(antaresType)
+            if (!typeEntry) {
+                typeEntry = {
+                    antares_type: antaresType,
+                    count: 0,
+                    stations: [],
+                }
+                typeMap.set(antaresType, typeEntry)
+            }
+
+            const stationKey = element.station_id
+            let stationEntry = stationTypeMap.get(antaresType)?.get(stationKey)
+
+            if (!stationEntry) {
+                stationEntry = {
+                    station_id: element.station_id,
+                    station_name: element.station_name,
+                    station_abbreviation: element.station_abbreviation,
+                    count: 0,
+                    unharmed: 0,
+                    injured: 0,
+                    transported: 0,
+                    deceased: 0,
+                }
+
+                if (!stationTypeMap.has(antaresType)) {
+                    stationTypeMap.set(antaresType, new Map())
+                }
+                stationTypeMap.get(antaresType)!.set(stationKey, stationEntry)
+                typeEntry.stations.push(stationEntry)
+            }
+
+            // Update counts
+            const numericCount = Number(element.count)
+            const numericUnharmed = Number(element.unharmed)
+            const numericInjured = Number(element.injured)
+            const numericTransported = Number(element.transported)
+            const numericDeceased = Number(element.deceased)
+
+            stationEntry.count += numericCount
+            stationEntry.unharmed += numericUnharmed
+            stationEntry.injured += numericInjured
+            stationEntry.transported += numericTransported
+            stationEntry.deceased += numericDeceased
+
+            typeEntry.count += numericCount
+        })
+
+        setAgregationByAntaresType(Array.from(typeMap.values()))
     }
 
-    function getStationAbbreviationFor(id: string) {
-        const station = stationCollection.filter(x => x.id == id)[0]
-        if (station) return station.abbreviation
-        return ""
+    function createStationAggregation() {
+        const stationMap = new Map<string, AgregationByStation>()
+        const antaresStationMap = new Map<
+            string,
+            Map<string, SubAgregationAntares>
+        >()
+
+        data!.antaresStationAggregationJson.forEach((element) => {
+            // Get or create station entry
+            const stationKey = element.station_id
+            let stationEntry = stationMap.get(stationKey)
+
+            if (!stationEntry) {
+                stationEntry = {
+                    station_id: element.station_id,
+                    station_name: element.station_name,
+                    station_abbreviation: element.station_abbreviation,
+                    count: 0,
+                    unharmed: 0,
+                    injured: 0,
+                    transported: 0,
+                    deceased: 0,
+                    antares: [],
+                }
+                stationMap.set(stationKey, stationEntry)
+            }
+
+            // Get or create antares entry
+            const antaresKey = element.antares_id
+            let antaresEntry = antaresStationMap
+                .get(stationKey)
+                ?.get(antaresKey)
+
+            // Convert string values to numbers
+            const numericCount = Number(element.count)
+            const numericUnharmed = Number(element.unharmed)
+            const numericInjured = Number(element.injured)
+            const numericTransported = Number(element.transported)
+            const numericDeceased = Number(element.deceased)
+
+            if (!antaresEntry) {
+                antaresEntry = {
+                    antares_id: element.antares_id,
+                    antares_name: element.antares_name,
+                    count: 0,
+                }
+
+                if (!antaresStationMap.has(stationKey)) {
+                    antaresStationMap.set(stationKey, new Map())
+                }
+                antaresStationMap.get(stationKey)!.set(antaresKey, antaresEntry)
+                stationEntry.antares.push(antaresEntry)
+            }
+
+            // Update antares counts
+            antaresEntry.count += numericCount
+
+            // Update station counts
+            stationEntry.count += numericCount
+            stationEntry.unharmed += numericUnharmed
+            stationEntry.injured += numericInjured
+            stationEntry.transported += numericTransported
+            stationEntry.deceased += numericDeceased
+        })
+
+        const stationResult = Array.from(stationMap.values())
+        setAgregationByStation(stationResult)
     }
 
-    function getStationDescriptionFor(id: string) {
-        const station = stationCollection.filter(x => x.id == id)[0]
-        if (station) return station.description
-        return ""
+    // Helper to get antares type
+    function getAntaresType(antaresId: string): string {
+        return antaresTypes.find((t) => t.id === antaresId)?.type || 'unknown'
     }
 
+    return (
+        <div id={'PrintThis'} className="h-full w-full">
+            <PrintLayout
+                loading={loading}
+                title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? 'ANTARES' : groupBy === 'Stations' ? 'ESTACIONES' : 'TIPOS DE ANARES'} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`}
+                subtitle={new Date().toLocaleString('en-GB', {
+                    timeZone: 'UTC',
+                    hour12: false,
+                })}
+                filters={filters}
+            >
+                <>
+                    {data && (
+                        <>
+                            <div className="flex">
+                                {groupBy == 'AntaresTypes' && data ? (
+                                    <div className="pt-4 w-1/2">
+                                        <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
+                                            Resumen por tipos de antares
+                                        </div>
 
-    const { antaresTypeSummary, antaresTypeDetail } = data ? getAntaresTypes(antaresCollection, data.antaresSummary, data.antaresDetail) : { antaresTypeSummary: [], antaresTypeDetail: [] }
+                                        <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
+                                            {data.antaresTypeAggregationJson.map(
+                                                (antares) => (
+                                                    <div className="w-fit">
+                                                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                                                            <span>
+                                                                {' '}
+                                                                {
+                                                                    antares.antares_type
+                                                                }{' '}
+                                                            </span>
+                                                            <span>-</span>
+                                                            <span>
+                                                                {antares.count}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                                                            <span>
+                                                                {(
+                                                                    (parseInt(
+                                                                        antares.count
+                                                                    ) /
+                                                                        data.antaresStationAggregationCount) *
+                                                                    100
+                                                                ).toFixed(2)}
+                                                                %
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="pt-4 w-1/2">
+                                        <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
+                                            Resumen de antares
+                                        </div>
 
+                                        <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
+                                            {data.antaresAggregationJson.map(
+                                                (antares) => (
+                                                    <div className="w-fit">
+                                                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                                                            <span>
+                                                                ({' '}
+                                                                {
+                                                                    antares.antares_id
+                                                                }{' '}
+                                                                {
+                                                                    antares.antares_name
+                                                                }{' '}
+                                                                )
+                                                            </span>
+                                                            <span>-</span>
+                                                            <span>
+                                                                {antares.count}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                                                            <span>
+                                                                {(
+                                                                    (parseInt(
+                                                                        antares.count
+                                                                    ) /
+                                                                        data.antaresAggregationCount) *
+                                                                    100
+                                                                ).toFixed(2)}
+                                                                %
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
 
-    return <div id={'PrintThis'} className='h-full w-full'>
-        <PrintLayout loading={loading} title={`ESTADÍSTICAS POR ${groupBy === 'Antares' ? "ANTARES" : "ESTACIONES"} (CLASIFICACIONES Y ESTACIONES DE BOMBEROS)`} subtitle={new Date().toLocaleString('en-GB', { timeZone: 'UTC', hour12: false })} filters={filters}>
-            <>
-                {data && (
-                    <>
-                        <div className='flex'>
-
-                            {groupBy == "AntaresTypes" && data ? (
                                 <div className="pt-4 w-1/2">
                                     <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
-                                        Resumen por tipos de antares
+                                        Resumen de Estaciones
                                     </div>
 
                                     <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
-                                        {antaresTypeSummary.map(antares => (
-                                            <div className="w-fit">
-                                                <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
-                                                    <span> {antares.antaresType} </span>
-                                                    <span>-</span>
-                                                    <span>{antares.count}</span>
+                                        {data.stationAggregationJson.map(
+                                            (station) => (
+                                                <div className="w-fit">
+                                                    <div className="w-full text-center space-x-1 bg-[#1C2434] px-6 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                                                        <span>
+                                                            {
+                                                                station.station_abbreviation
+                                                            }{' '}
+                                                            ({' '}
+                                                            {
+                                                                station.station_name
+                                                            }{' '}
+                                                            )
+                                                        </span>
+                                                        <span>-</span>
+                                                        <span>
+                                                            {station.count}
+                                                        </span>
+                                                    </div>
+                                                    <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                                                        <span>
+                                                            {(
+                                                                (parseInt(
+                                                                    station.count
+                                                                ) /
+                                                                    data.stationAggregationCount) *
+                                                                100
+                                                            ).toFixed(2)}
+                                                            %
+                                                        </span>
+                                                    </div>
                                                 </div>
-                                                <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
-                                                    <span>{antares.percentage}%</span>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            )
+                                        )}
                                     </div>
                                 </div>
-                            ) : (
-                                <div className="pt-4 w-1/2">
-                                    <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
-                                        Resumen de antares
+                            </div>
+
+                            {groupBy == 'Antares' && agregationByAntares && (
+                                <div className="space-y-4 pt-8">
+                                    <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
+                                        Detalles por Antares
                                     </div>
 
-                                    <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
-                                        {data.antaresSummary.map(antares => (
-                                            <div className="w-fit">
-                                                <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
-                                                    <span>( {antares.antaresId} {getAntaresDescriptionFor(antares.antaresId)} )</span>
-                                                    <span>-</span>
-                                                    <span>{antares.count}</span>
+                                    <div className="space-y-8">
+                                        {agregationByAntares
+                                            .sort((a, b) => b.count - a.count)
+                                            .map((antares) => (
+                                                <div>
+                                                    <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
+                                                        Antares{' '}
+                                                        {antares.antares_id} ({' '}
+                                                        {antares.antares_name} )
+                                                        - {antares.count}{' '}
+                                                        Servicios
+                                                    </div>
+
+                                                    <div className="px-2 border rounded-b-md">
+                                                        <table className="w-full">
+                                                            <tr>
+                                                                <td className="py-2 font-semibold text-lg text-slate-600">
+                                                                    Estación
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Servicios
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Ilesos
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Lesionados
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Transladados
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Fallecidos
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Total
+                                                                </td>
+                                                            </tr>
+                                                            {antares.stations.map(
+                                                                (
+                                                                    stationDetail
+                                                                ) => (
+                                                                    <tr className="border-t">
+                                                                        <td className="py-2 text-sm">
+                                                                            {
+                                                                                stationDetail.station_abbreviation
+                                                                            }{' '}
+                                                                            - ({' '}
+                                                                            {
+                                                                                stationDetail.station_name
+                                                                            }{' '}
+                                                                            )
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                stationDetail.count
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                stationDetail.unharmed
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                stationDetail.injured
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                stationDetail.transported
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                stationDetail.deceased
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {(
+                                                                                (stationDetail.count /
+                                                                                    data.antaresAggregationCount) *
+                                                                                100
+                                                                            ).toFixed(
+                                                                                2
+                                                                            )}
+                                                                            %
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            )}
+
+                                                            <tr className="border-t font-semibold">
+                                                                <td className="py-2">
+                                                                    Total
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        antares.count
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {antares.stations.reduce(
+                                                                        (
+                                                                            sum,
+                                                                            station
+                                                                        ) =>
+                                                                            sum +
+                                                                            station.unharmed,
+                                                                        0
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {antares.stations.reduce(
+                                                                        (
+                                                                            sum,
+                                                                            station
+                                                                        ) =>
+                                                                            sum +
+                                                                            station.injured,
+                                                                        0
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {antares.stations.reduce(
+                                                                        (
+                                                                            sum,
+                                                                            station
+                                                                        ) =>
+                                                                            sum +
+                                                                            station.transported,
+                                                                        0
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {antares.stations.reduce(
+                                                                        (
+                                                                            sum,
+                                                                            station
+                                                                        ) =>
+                                                                            sum +
+                                                                            station.deceased,
+                                                                        0
+                                                                    )}
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {(
+                                                                        (antares.count /
+                                                                            data.antaresAggregationCount) *
+                                                                        100
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}
+                                                                    %
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
                                                 </div>
-                                                <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
-                                                    <span>{antares.percentage}%</span>
-                                                </div>
-                                            </div>
-                                        ))}
+                                            ))}
                                     </div>
                                 </div>
                             )}
 
-                            <div className="pt-4 w-1/2">
-                                <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
-                                    Resumen de Estaciones
-                                </div>
-
-                                <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
-                                    {data.stationsSummary.map(station => (
-                                        <div className="w-fit">
-                                            <div className="w-full text-center space-x-1 bg-[#1C2434] px-6 py-1.5 rounded-t-lg font-semibold text-xs text-white">
-                                                <span>{getStationAbbreviationFor(station.stationId)} ( {getStationDescriptionFor(station.stationId)} )</span>
-                                                <span>-</span>
-                                                <span>{station.count}</span>
-                                            </div>
-                                            <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
-                                                <span>{station.percentage}%</span>
-                                            </div>
+                            {groupBy == 'AntaresTypes' &&
+                                agregationByAntaresType && (
+                                    <div className="space-y-4 pt-8">
+                                        <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
+                                            Detalles por Tipos de Antares
                                         </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </div>
 
-                        {groupBy == "Antares" && data && (
-                            <div className="space-y-4 pt-8">
-                                <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
-                                    Detalles por Antares
-                                </div>
-
-                                <div className="space-y-8">
-                                    {data.antaresDetail.map(antares => (
-                                        <div>
-                                            <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
-                                                Antares {antares.antaresId} ( {getAntaresDescriptionFor(antares.antaresId)} ) - {antares.summatory.services} Servicios
-                                            </div>
-
-                                            <div className="px-2 border rounded-b-md">
-                                                <table className="w-full">
-                                                    <tr>
-                                                        <td className="py-2 font-semibold text-lg text-slate-600">
-                                                            Estación
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                        <div className="space-y-8">
+                                            {agregationByAntaresType
+                                                .sort(
+                                                    (a, b) => b.count - a.count
+                                                )
+                                                .map((antaresType) => (
+                                                    <div>
+                                                        <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
+                                                            {
+                                                                antaresType.antares_type
+                                                            }{' '}
+                                                            -{' '}
+                                                            {antaresType.count}{' '}
                                                             Servicios
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Ilesos
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Lesionados
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Transladados
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Fallecidos
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Total
-                                                        </td>
-                                                    </tr>
-                                                    {antares.details.map(stationDetail => (
-                                                        <tr className="border-t">
-                                                            <td className="py-2 text-sm">
-                                                                {getStationAbbreviationFor(stationDetail.stationId)} - ( {getStationDescriptionFor(stationDetail.stationId)} )
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.services}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.unharmed}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.injured}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.transported}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.deceased}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.percentage}%
-                                                            </td>
-                                                        </tr>
-                                                    ))}
+                                                        </div>
 
-                                                    <tr className="border-t font-semibold">
-                                                        <td className="py-2">Total</td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.services}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.unharmed}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.injured}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.transported}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.deceased}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.percentage}%
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </div>
+                                                        <div className="px-2 border rounded-b-md">
+                                                            <table className="w-full">
+                                                                <tr>
+                                                                    <td className="py-2 font-semibold text-lg text-slate-600">
+                                                                        Estación
+                                                                    </td>
+                                                                    <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                        Servicios
+                                                                    </td>
+                                                                    <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                        Ilesos
+                                                                    </td>
+                                                                    <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                        Lesionados
+                                                                    </td>
+                                                                    <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                        Transladados
+                                                                    </td>
+                                                                    <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                        Fallecidos
+                                                                    </td>
+                                                                    <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                        Total
+                                                                    </td>
+                                                                </tr>
+                                                                {antaresType.stations.map(
+                                                                    (
+                                                                        stationDetail
+                                                                    ) => (
+                                                                        <tr className="border-t">
+                                                                            <td className="py-2 text-sm">
+                                                                                {
+                                                                                    stationDetail.station_abbreviation
+                                                                                }{' '}
+                                                                                -
+                                                                                ({' '}
+                                                                                {
+                                                                                    stationDetail.station_name
+                                                                                }{' '}
+                                                                                )
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    stationDetail.count
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    stationDetail.unharmed
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    stationDetail.injured
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    stationDetail.transported
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    stationDetail.deceased
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {(
+                                                                                    (stationDetail.count /
+                                                                                        data.antaresTypeAggregationCount) *
+                                                                                    100
+                                                                                ).toFixed(
+                                                                                    2
+                                                                                )}
+
+                                                                                %
+                                                                            </td>
+                                                                        </tr>
+                                                                    )
+                                                                )}
+
+                                                                <tr className="border-t font-semibold">
+                                                                    <td className="py-2">
+                                                                        Total
+                                                                    </td>
+                                                                    <td className="py-2 text-center text-sm">
+                                                                        {
+                                                                            antaresType.count
+                                                                        }
+                                                                    </td>
+                                                                    <td className="py-2 text-center text-sm">
+                                                                        {antaresType.stations.reduce(
+                                                                            (
+                                                                                sum,
+                                                                                station
+                                                                            ) =>
+                                                                                sum +
+                                                                                station.unharmed,
+                                                                            0
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="py-2 text-center text-sm">
+                                                                        {antaresType.stations.reduce(
+                                                                            (
+                                                                                sum,
+                                                                                station
+                                                                            ) =>
+                                                                                sum +
+                                                                                station.injured,
+                                                                            0
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="py-2 text-center text-sm">
+                                                                        {antaresType.stations.reduce(
+                                                                            (
+                                                                                sum,
+                                                                                station
+                                                                            ) =>
+                                                                                sum +
+                                                                                station.transported,
+                                                                            0
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="py-2 text-center text-sm">
+                                                                        {antaresType.stations.reduce(
+                                                                            (
+                                                                                sum,
+                                                                                station
+                                                                            ) =>
+                                                                                sum +
+                                                                                station.deceased,
+                                                                            0
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="py-2 text-center text-sm">
+                                                                        {(
+                                                                            (antaresType.count /
+                                                                                data.antaresTypeAggregationCount) *
+                                                                            100
+                                                                        ).toFixed(
+                                                                            2
+                                                                        )}
+                                                                        %
+                                                                    </td>
+                                                                </tr>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                ))}
                                         </div>
-                                    ))}
+                                    </div>
+                                )}
+
+                            {groupBy == 'Stations' && agregationByStation && (
+                                <div className="space-y-4 pt-8">
+                                    <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
+                                        Detalles por Estación
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        {agregationByStation
+                                            .sort((a, b) => b.count - a.count)
+                                            .map((station) => (
+                                                <div>
+                                                    <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
+                                                        Estación{' '}
+                                                        {
+                                                            station.station_abbreviation
+                                                        }{' '}
+                                                        ( {station.station_name}{' '}
+                                                        ) - {station.count}{' '}
+                                                        Servicios
+                                                    </div>
+
+                                                    <div className="px-2 border rounded-b-md">
+                                                        <table className="w-full">
+                                                            <tr>
+                                                                <td className="py-2 font-semibold text-lg text-slate-600">
+                                                                    Antares
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Servicios
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Ilesos
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Lesionados
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Transladados
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Fallecidos
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Total
+                                                                </td>
+                                                            </tr>
+                                                            {station.antares.map(
+                                                                (
+                                                                    antaresDetail
+                                                                ) => {
+                                                                    // Calculate victim counts for this antares in this station
+                                                                    const antaresStationData =
+                                                                        data!.antaresStationAggregationJson.find(
+                                                                            (
+                                                                                item
+                                                                            ) =>
+                                                                                item.antares_id ===
+                                                                                    antaresDetail.antares_id &&
+                                                                                item.station_id ===
+                                                                                    station.station_id
+                                                                        )
+
+                                                                    // Get victim counts from the data
+                                                                    const unharmed =
+                                                                        antaresStationData
+                                                                            ? Number(
+                                                                                  antaresStationData.unharmed
+                                                                              )
+                                                                            : 0
+                                                                    const injured =
+                                                                        antaresStationData
+                                                                            ? Number(
+                                                                                  antaresStationData.injured
+                                                                              )
+                                                                            : 0
+                                                                    const transported =
+                                                                        antaresStationData
+                                                                            ? Number(
+                                                                                  antaresStationData.transported
+                                                                              )
+                                                                            : 0
+                                                                    const deceased =
+                                                                        antaresStationData
+                                                                            ? Number(
+                                                                                  antaresStationData.deceased
+                                                                              )
+                                                                            : 0
+
+                                                                    return (
+                                                                        <tr className="border-t">
+                                                                            <td className="py-2 text-sm">
+                                                                                {
+                                                                                    antaresDetail.antares_id
+                                                                                }{' '}
+                                                                                -{' '}
+                                                                                {
+                                                                                    antaresDetail.antares_name
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    antaresDetail.count
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    unharmed
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    injured
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    transported
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    deceased
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {(
+                                                                                    (antaresDetail.count /
+                                                                                        data.stationAggregationCount) *
+                                                                                    100
+                                                                                ).toFixed(
+                                                                                    2
+                                                                                )}
+
+                                                                                %
+                                                                            </td>
+                                                                        </tr>
+                                                                    )
+                                                                }
+                                                            )}
+
+                                                            <tr className="border-t font-semibold">
+                                                                <td className="py-2">
+                                                                    Total
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        station.count
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        station.unharmed
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        station.injured
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        station.transported
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        station.deceased
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {(
+                                                                        (station.count /
+                                                                            data.stationAggregationCount) *
+                                                                        100
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}
+                                                                    %
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                    </div>
                                 </div>
-                            </div>
-                        )}
-                        {groupBy == "AntaresTypes" && data && (
-                            <div className="space-y-4 pt-8">
-                                <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
-                                    Detalles por Tipos de Antares
-                                </div>
-
-                                <div className="space-y-8">
-                                    {antaresTypeDetail.map(antares => (
-                                        <div>
-                                            <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
-                                                {antares.antaresType} - {antares.summatory.services} Servicios
-                                            </div>
-
-                                            <div className="px-2 border rounded-b-md">
-                                                <table className="w-full">
-                                                    <tr>
-                                                        <td className="py-2 font-semibold text-lg text-slate-600">
-                                                            Estación
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Servicios
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Ilesos
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Lesionados
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Transladados
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Fallecidos
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Total
-                                                        </td>
-                                                    </tr>
-                                                    {antares.details.map(stationDetail => (
-                                                        <tr className="border-t">
-                                                            <td className="py-2 text-sm">
-                                                                {getStationAbbreviationFor(stationDetail.stationId)} - ( {getStationDescriptionFor(stationDetail.stationId)} )
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.services}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.unharmed}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.injured}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.transported}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.deceased}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {stationDetail.percentage}%
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-
-                                                    <tr className="border-t font-semibold">
-                                                        <td className="py-2">Total</td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.services}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.unharmed}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.injured}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.transported}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.deceased}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {antares.summatory.percentage}%
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                        {groupBy == "Stations" && data && (
-                            <div className="space-y-4 pt-8">
-                                <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
-                                    Detalles por Estación
-                                </div>
-
-                                <div className="space-y-8">
-                                    {data.stationsDetail.map(station => (
-                                        <div>
-                                            <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
-                                                Estación {getStationAbbreviationFor(station.stationId)} ( {getStationDescriptionFor(station.stationId)} ) - {station.summatory.services} Servicios
-                                            </div>
-
-                                            <div className="px-2 border rounded-b-md">
-                                                <table className="w-full">
-                                                    <tr>
-                                                        <td className="py-2 font-semibold text-lg text-slate-600">
-                                                            Antares
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Servicios
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Ilesos
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Lesionados
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Transladados
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Fallecidos
-                                                        </td>
-                                                        <td className="py-2 font-semibold text-center text-lg text-slate-600">
-                                                            Total
-                                                        </td>
-                                                    </tr>
-                                                    {station.details.map(antaresDetail => (
-                                                        <tr className="border-t">
-                                                            <td className="py-2 text-sm">
-                                                                {antaresDetail.antaresId} - {getAntaresDescriptionFor(antaresDetail.antaresId)}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {antaresDetail.services}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {antaresDetail.unharmed}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {antaresDetail.injured}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {antaresDetail.transported}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {antaresDetail.deceased}
-                                                            </td>
-                                                            <td className="py-2 text-center text-sm">
-                                                                {antaresDetail.percentage}%
-                                                            </td>
-                                                        </tr>
-                                                    ))}
-
-                                                    <tr className="border-t font-semibold">
-                                                        <td className="py-2">Total</td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {station.summatory.services}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {station.summatory.unharmed}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {station.summatory.injured}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {station.summatory.transported}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {station.summatory.deceased}
-                                                        </td>
-                                                        <td className="py-2 text-center text-sm">
-                                                            {station.summatory.percentage}%
-                                                        </td>
-                                                    </tr>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        )}
-                    </>
-                )}
-
-            </>
-        </PrintLayout>
-    </div>
+                            )}
+                        </>
+                    )}
+                </>
+            </PrintLayout>
+        </div>
+    )
 }
