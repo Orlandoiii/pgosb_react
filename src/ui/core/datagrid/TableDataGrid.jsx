@@ -20,9 +20,51 @@ import PrintIcon from '../icons/PrintIcon'
 import DateTimePickerRange from '../datetime_picker/DateTimePickerRange'
 import { parse, isAfter, isBefore, isEqual } from 'date-fns';
 import CleanIcon from '../icons/CleanIcon'
+import FilterIcon from '../icons/FilterIcon'
+import ModalContainer from '../modal/ModalContainer'
+import Select from '../inputs/Select'
+import Input from '../inputs/Input'
+import Button from '../buttons/Button'
+import DateTimePicker from '../datetime_picker/DateTimePicker'
 
 
 const alert = new AlertController()
+
+// Replace TypeScript types/interfaces with JSDoc comments for better documentation
+/**
+ * @typedef {'igual' | 'similar' | 'mayor' | 'menor' | 'mayorIgual' | 'menorIgual' | 'empieza' | 'termina' | 'vacio' | 'noVacio' | 'diferente'} FilterOperator
+ */
+
+/**
+ * @typedef {Object} FilterOption
+ * @property {string} column
+ * @property {FilterOperator} operator
+ * @property {string|boolean|Date[]|null} value
+ * @property {string} columnType
+ */
+
+// Add this helper function to get operators based on column type
+function getOperatorsByColumnType(columnType) {
+    switch (columnType) {
+        case 'bool':
+            return [
+                { value: 'igual', label: 'Es igual a' }
+            ];
+        case 'date':
+        case 'datetime':
+            return []; // Remove operators for date types
+        default:
+            return [
+                { value: 'igual', label: 'Es igual a' },
+                { value: 'diferente', label: 'Es diferente de' },
+                { value: 'similar', label: 'Contiene' },
+                { value: 'empieza', label: 'Empieza con' },
+                { value: 'termina', label: 'Termina con' },
+                { value: 'vacio', label: 'Está vacío' },
+                { value: 'noVacio', label: 'No está vacío' }
+            ];
+    }
+}
 
 function formatBooleanValue(value) {
     if (value === true || value === "true")
@@ -95,25 +137,53 @@ function dateRangeFilter(row, columnId, filterValue) {
 }
 
 function defaultFilter(row, columnId, filterValue) {
-
     const cellValue = row.getValue(columnId);
 
-
-    if (cellValue === null || cellValue === undefined) return false;
+    // Handle null/undefined values
+    if (cellValue === null || cellValue === undefined) {
+        // For isEmpty/notEmpty operators
+        if (typeof filterValue === 'object' && filterValue.operator) {
+            return filterValue.operator === 'vacio';
+        }
+        return false;
+    }
 
     if (Array.isArray(cellValue)) {
         return arrayFilter(row, columnId, filterValue);
     }
 
-
     if (typeof cellValue === 'boolean') {
-
         return booleanFilter(row, columnId, filterValue);
     }
 
-    const search = filterValue.toLowerCase();
+    // Handle object filter value with operator
+    if (typeof filterValue === 'object' && filterValue.operator) {
+        const value = filterValue.value.toString().toUpperCase();
+        const cellStr = cellValue.toString().toUpperCase();
 
-    return cellValue.toString().toLowerCase().includes(search);
+        switch (filterValue.operator) {
+            case 'igual':
+                return cellStr === value;
+            case 'diferente':
+                return cellStr !== value;
+            case 'similar':
+                return cellStr.includes(value);
+            case 'empieza':
+                return cellStr.startsWith(value);
+            case 'termina':
+                return cellStr.endsWith(value);
+            case 'vacio':
+                return cellStr.trim() === '';
+            case 'noVacio':
+                return cellStr.trim() !== '';
+            default:
+                return cellStr.includes(value);
+        }
+    }
+
+    // Default string contains search
+    const search = filterValue.toString().toUpperCase();
+    return cellValue.toString().toUpperCase().includes(search);
 }
 
 function booleanFilter(row, columnId, filterValue) {
@@ -273,10 +343,10 @@ function DefaultColumnFilter({ column }) {
             <input
                 onChange={(e) => column.setFilterValue(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
-                placeholder={`Search...`}
+               
                 type="text"
                 value={columnFilterValue ?? ''}
-                className="border-gray-300 border-stroke focus:border-[#3c50e0] focus:border-primary px-3 py-1 border rounded-sm w-full h-auto font-light text-sm outline-none"
+                className="border-black border-2  border-stroke bg-[#144773] text-white  focus:border-white px-3 py-1  rounded-md w-full h-auto font-light text-sm outline-none"
             />
         </span>
     )
@@ -345,7 +415,7 @@ function DateColumnFilter({ column }) {
 
     return (
         <>
-            <button className='w-full text-xs space-y-1 border border-gray-300 rounded-sm p-0.25' type='button' onClick={(e) => {
+            <button className='border-black border-2  border-stroke bg-[#144773] text-white  focus:border-white px-0.5 py-0.5  rounded-md w-full h-auto font-light text-sm outline-none' type='button' onClick={(e) => {
                 e.stopPropagation()
                 setOpen(true)
             }}>
@@ -407,6 +477,7 @@ function BooleanColumnFilter({ column }) {
                         el.indeterminate = checkboxState === 'indeterminate';
                     }
                 }}
+                className=""
                 checked={checkboxState === 'checked'}
                 onChange={handleChange}
                 onClick={(e) => e.stopPropagation()}
@@ -476,6 +547,247 @@ const checkBoxHeader = {
     ),
 }
 
+// Add this new component at the top of the file with other component definitions
+function DateRangeFilterInput({ startDate, endDate, handleDateChange, handleEndDateChange }) {
+    return (
+        <div className="w-full space-y-4">
+            <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Desde:</label>
+                <DateTimePicker
+                    selected={startDate}
+                    onChange={handleDateChange}
+                    placeholderText="Seleccione fecha inicial..."
+                    width="w-full"
+                />
+            </div>
+
+            <div className="flex flex-col gap-2">
+                <label className="text-sm font-medium">Hasta:</label>
+                <DateTimePicker
+                    selected={endDate}
+                    onChange={handleEndDateChange}
+                    placeholderText="Seleccione fecha final..."
+                    width="w-full"
+                    minDate={startDate ?? undefined}
+                    minTime={startDate ?? undefined}
+                    disabled={!startDate}
+                />
+            </div>
+        </div>
+    );
+}
+
+// Add the FilterModal component
+function FilterModal({ table, layout, onClose, activeFilters }) {
+    const [selectedColumn, setSelectedColumn] = useState('')
+    const [selectedColumnLabel, setSelectedColumnLabel] = useState('')
+    const [selectedOperator, setSelectedOperator] = useState('')
+    const [selectedOperatorLabel, setSelectedOperatorLabel] = useState('Es igual a')
+    const [filterValue, setFilterValue] = useState('')
+    const [startDate, setStartDate] = useState(null)
+    const [endDate, setEndDate] = useState(null)
+    const [booleanValue, setBooleanValue] = useState(null)
+
+    // Get visible columns with their full configuration
+    const visibleColumns = useMemo(() => {
+        return table.getAllColumns()
+            .filter(col => col.id !== 'select' && col.getIsVisible())
+            .map(col => {
+                const layoutConfig = layout?.find(v => v.column_name === col.id)
+                return {
+                    value: col.id,
+                    label: col.columnDef.header?.toString(),
+                    type: layoutConfig?.type || 'string'
+                }
+            })
+    }, [table, layout])
+
+    // Get column configuration from layout
+    const selectedColumnConfig = layout?.find(
+        (v) => v.column_name === selectedColumn
+    )
+
+    const columnType = selectedColumnConfig?.type || 'string'
+    const operators = getOperatorsByColumnType(columnType)
+
+    const handleApplyFilter = () => {
+        if (!selectedColumn) return;
+
+        const column = table.getColumn(selectedColumn)
+        if (!column) return;
+
+        let value;
+        switch (columnType) {
+            case 'bool':
+                value = booleanValue;
+                break;
+            case 'date':
+            case 'datetime':
+                value = [startDate, endDate];
+                break;
+            default:
+                if (['vacio', 'noVacio'].includes(selectedOperator)) {
+                    value = {
+                        operator: selectedOperator,
+                        value: ''
+                    };
+                } else {
+                    value = {
+                        value: filterValue.toUpperCase(),
+                        operator: selectedOperator
+                    };
+                }
+        }
+
+        column.setFilterValue(value);
+        
+        // Reset form for next filter
+        setSelectedColumn('');
+        setSelectedColumnLabel('');
+        setSelectedOperator('');
+        setSelectedOperatorLabel('Es igual a');
+        setFilterValue('');
+        setStartDate(null);
+        setEndDate(null);
+        setBooleanValue(null);
+    }
+
+    return (
+        <div className="w-full h-full min-h-[400px] min-w-[400px] pt-4 space-y-4">
+            {/* Active Filters Section */}
+            {activeFilters.length > 0 && (
+                <div className="mb-4">
+                    <h3 className="text-sm font-medium mb-2">Filtros Activos ({activeFilters.length})</h3>
+                    <div className="flex flex-wrap gap-2">
+                        {activeFilters.map((filter, index) => (
+                            <div 
+                                key={`${filter.column}-${index}`}
+                                className="flex items-center bg-gray-100 rounded-md px-2 py-1 text-sm"
+                            >
+                                <span className="mr-2">{filter.columnLabel}: {filter.value}</span>
+                                <button
+                                    onClick={() => {
+                                        const column = table.getColumn(filter.column);
+                                        if (column) {
+                                            column.setFilterValue(undefined);
+                                        }
+                                    }}
+                                    className="text-gray-500 hover:text-red-500"
+                                >
+                                    <span className="px-1">×</span>
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                 
+                    <hr className="my-4" />
+                </div>
+            )}
+
+            {/* Existing Filter Form */}
+            <div className="flex flex-col gap-2">
+                <h2 className='text-md font-medium'>Filtrar por</h2>
+                <Select
+                    inputName="column-select"
+                    label="Columna"
+                    value={selectedColumnLabel}
+                    options={visibleColumns.map(col => col.label)}
+                    onSelected={(value) => {
+                        const col = visibleColumns.find(c => c.label === value)
+                        if (col) {
+                            setSelectedColumn(col.value)
+                            setSelectedColumnLabel(value)
+                            
+                            // Only set operator for non-date columns
+                            if (col.type !== 'date' && col.type !== 'datetime') {
+                                const defaultOperator = getOperatorsByColumnType(col.type)[0]
+                                setSelectedOperator(defaultOperator?.value || 'igual')
+                                setSelectedOperatorLabel(defaultOperator?.label || 'Es igual a')
+                            } else {
+                                // For date columns, clear operator state
+                                setSelectedOperator('')
+                                setSelectedOperatorLabel('')
+                            }
+                            
+                            // Reset values
+                            setFilterValue('')
+                            setStartDate(null)
+                            setEndDate(null)
+                            setBooleanValue(null)
+                        }
+                    }}
+                />
+            </div>
+
+            {selectedColumn && (
+                <>
+                    {/* Only show operator select for non-date columns */}
+                    {columnType !== 'date' && columnType !== 'datetime' && (
+                        <div className="flex flex-col gap-2">
+                            <Select
+                                inputName="operator-select"
+                                label="Operador"
+                                value={selectedOperatorLabel}
+                                options={operators.map(op => op.label)}
+                                onSelected={(value) => {
+                                    const op = operators.find(o => o.label === value)
+                                    if (op) {
+                                        setSelectedOperator(op.value)
+                                        setSelectedOperatorLabel(value)
+                                    }
+                                }}
+                            />
+                        </div>
+                    )}
+                </>
+            )}
+
+            {/* Render appropriate input based on column type */}
+            {selectedColumn && !['vacio', 'noVacio'].includes(selectedOperator) && (
+                <div className="flex flex-col gap-2">
+                    {columnType === 'bool' ? (
+                        <Select
+                            inputName="boolean-select"
+                            label="Valor"
+                            value={booleanValue === null ? '' : (booleanValue ? 'SI' : 'NO')}
+                            options={['SI', 'NO']}
+                            onSelected={(value) => setBooleanValue(value === 'SI')}
+                        />
+                    ) : columnType === 'date' || columnType === 'datetime' ? (
+                        <DateRangeFilterInput
+                            startDate={startDate}
+                            endDate={endDate}
+                            handleDateChange={setStartDate}
+                            handleEndDateChange={setEndDate}
+                        />
+                    ) : (
+                        <Input
+                            inputName="filter-value"
+                            label="Valor"
+                            value={filterValue}
+                            onChange={(e) => setFilterValue(e.target.value.toUpperCase())}
+                        />
+                    )}
+                </div>
+            )}
+
+            <div className="flex justify-end space-x-2 pt-4">
+                <Button
+                    onClick={onClose}
+                    variant="secondary"
+                >
+                    Cancelar
+                </Button>
+                <Button
+                    onClick={handleApplyFilter}
+                    variant="primary"
+                >
+                    Aplicar
+                </Button>
+            </div>
+        </div>
+    )
+}
 
 export default function TableDataGrid({
     rawData,
@@ -492,7 +804,8 @@ export default function TableDataGrid({
     child,
     showDownloadButton = false,
     exportFileName = 'data',
-    showCleanFiltersButton = true
+    showCleanFiltersButton = true,
+    showFilterButton = true,
 }) {
     logger.log('LOAD MODAL Renderizo TableDataGrid')
 
@@ -577,6 +890,10 @@ export default function TableDataGrid({
 
     const [globalFilter, setGlobalFilter] = useState('')
 
+    const [openModal, setOpenModal] = useState(false)
+
+    const [activeFilters, setActiveFilters] = useState([]);
+
 
 
 
@@ -607,68 +924,60 @@ export default function TableDataGrid({
     })
 
 
-    const [appliedFilters, setAppliedFilters] = useState({})
-
-
 
 
 
     useEffect(() => {
-        const filters = {}
-
-        if (globalFilter) {
-            filters['Global'] = {
+        const filters = [];
+        
+        // Add global filter if present
+        if (globalFilter && globalFilter.trim() !== '') {
+            filters.push({
+                column: 'global',
+                columnLabel: 'Búsqueda global',
                 value: globalFilter,
                 type: 'global'
-            }
+            });
         }
-
-
+        
+        // Add column filters
         table.getAllColumns().forEach(column => {
-            const filterValue = column.getFilterValue()
+            const filterValue = column.getFilterValue();
             if (filterValue !== undefined) {
-                const layoutColumn = layout?.find(v => v.column_name === column.id)
-
-                if (layoutColumn?.type == 'date' || layoutColumn?.type == 'datetime') {
-
-                    if (Array.isArray(filterValue)) {
-
-                        if (filterValue.some(v => v != null)) {
-                            filters[layoutColumn?.display_name] = {
-
-                                value: `Desde: ${formatDate(filterValue[0])} - Hasta: ${formatDate(filterValue[1])}`,
-                                type: layoutColumn?.type || 'default'
-                            }
-                        } else {
-                            //remove the filter
-                            delete filters[layoutColumn?.display_name]
-                        }
+                const layoutConfig = layout?.find(v => v.column_name === column.id);
+                const columnLabel = column.columnDef.header?.toString();
+                
+                if (layoutConfig?.type === 'date' || layoutConfig?.type === 'datetime') {
+                    if (Array.isArray(filterValue) && filterValue.some(v => v != null)) {
+                        filters.push({
+                            column: column.id,
+                            columnLabel,
+                            value: `Desde: ${formatDate(filterValue[0])} - Hasta: ${formatDate(filterValue[1])}`,
+                            type: 'date'
+                        });
                     }
-
-                } else if (layoutColumn?.type == 'bool') {
-                    filters[layoutColumn?.display_name] = {
+                } else if (layoutConfig?.type === 'bool') {
+                    filters.push({
+                        column: column.id,
+                        columnLabel,
                         value: filterValue ? 'SI' : 'NO',
-                        type: layoutColumn?.type || 'default'
-                    }
-                }
-
-                else {
-                    filters[layoutColumn?.display_name] = {
-                        value: filterValue,
-                        type: layoutColumn?.type || 'default'
-                    }
+                        type: 'bool'
+                    });
+                } else if (typeof filterValue === 'object' && filterValue.operator) {
+                    const operatorLabel = getOperatorsByColumnType('string')
+                        .find(op => op.value === filterValue.operator)?.label || '';
+                    filters.push({
+                        column: column.id,
+                        columnLabel,
+                        value: `${operatorLabel} "${filterValue.value}"`,
+                        type: 'string'
+                    });
                 }
             }
-        })
-        setAppliedFilters(filters)
-        console.log('Applied Filters:', filters)
-    }, [table.getState().columnFilters, layout, globalFilter])
-
-    // Log applied filters whenever they change
-    useEffect(() => {
-        console.log('Applied Filters:', appliedFilters)
-    }, [appliedFilters])
-
+        });
+        
+        setActiveFilters(filters);
+    }, [table.getState().columnFilters, globalFilter, layout]);
 
     function getTotalSelectedRows() {
         const rowModel = table.getSelectedRowModel()
@@ -751,21 +1060,59 @@ export default function TableDataGrid({
         const rowsToPrint = table.getSortedRowModel()
             .rows.map(row => row.original);
 
-        let value = { "data": rowsToPrint, "filters": appliedFilters }
+        let value = { "data": rowsToPrint, "filters": activeFilters }
 
         logger.log('PRINT DATA:', value)
 
         onPrint(value)
     }
 
-
-
+    // Update the getActiveFiltersCount function
+    const getActiveFiltersCount = useMemo(() => {
+        let count = 0;
+        
+        // Count global filter if present
+        if (globalFilter && globalFilter.trim() !== '') {
+            count++;
+        }
+        
+        // Count column filters
+        table.getAllColumns().forEach(column => {
+            const filterValue = column.getFilterValue();
+            if (filterValue !== undefined && filterValue !== null) {
+                const layoutConfig = layout?.find(v => v.column_name === column.id);
+                
+                // Handle date range filters
+                if (layoutConfig?.type === 'date' || layoutConfig?.type === 'datetime') {
+                    if (Array.isArray(filterValue) && filterValue.some(v => v != null)) {
+                        count++;
+                    }
+                }
+                // Handle boolean filters
+                else if (layoutConfig?.type === 'bool') {
+                    if (filterValue !== undefined) {
+                        count++;
+                    }
+                }
+                // Handle string filters with operators
+                else if (typeof filterValue === 'object' && filterValue.operator) {
+                    count++;
+                }
+                // Handle simple string filters
+                else if (filterValue !== '') {
+                    count++;
+                }
+            }
+        });
+        
+        return count;
+    }, [table.getState().columnFilters, globalFilter, layout]);
 
     return (
         <>
             <div className='flex flex-col pb-24 w-full h-full'>
                 <div className="flex flex-col flex-1 bg-[white] h-60 overflow-hidden">
-                    <header className="flex justify-between mx-auto px-8 py-4 w-full">
+                    <header className="flex justify-between mx-auto px-8 py-4 w-full border border-gray-200 rounded-md">
                         {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
 
                         <div className="flex space-x-4">
@@ -921,10 +1268,26 @@ export default function TableDataGrid({
                                     className={`relative flex justify-center items-center bg-slate-200 
                                            shadow-md p-0.5 rounded-full w-[40px] h-[40px]`}
                                 >
-                                    <div className= {`absolute bg-transparent  top-0 left-0 w-full h-full  rounded-full  
-                                        ${Object.keys(appliedFilters).length > 0 ? 'ring-2 ring-blue-500 animate-pulse' : 'animate-none'}`}></div>
-                                    <CleanIcon color={Object.keys(appliedFilters).length > 0 ? 'black' : 'gray'} />
+                                    <div className={`absolute bg-transparent  top-0 left-0 w-full h-full  rounded-full  
+                                        ${Object.keys(activeFilters).length > 0 ? 'ring-2 ring-blue-500 animate-pulse' : 'animate-none'}`}></div>
+
+                                    <CleanIcon color={Object.keys(activeFilters).length > 0 ? 'black' : 'gray'} />
                                 </button>
+                            )}
+                            {showFilterButton && (
+                                <div className="relative">
+                                    <button 
+                                        onClick={() => setOpenModal(true)}
+                                        className="relative flex justify-center items-center bg-slate-200 shadow-md p-0.5 rounded-full w-[40px] h-[40px]"
+                                    >
+                                        <FilterIcon />
+                                    </button>
+                                    {activeFilters.length > 0 && (
+                                        <div className="absolute -top-2 -right-2 bg-rose-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-semibold">
+                                            {activeFilters.length}
+                                        </div>
+                                    )}
+                                </div>
                             )}
 
                         </div>
@@ -979,7 +1342,7 @@ export default function TableDataGrid({
                                         {headerGroup.headers.map((header) => (
                                             <th
                                                 key={header.column?.id}
-                                                className={`border-y bg-white 
+                                                className={`border-y bg-[#1C2434]
                                             border-gray-200 h-20 px-1 cursor-pointer 
                                              ${header.column.getCanSort() ? 'cursor-pointer' : 'cursor-none'}
                                             `}
@@ -989,7 +1352,7 @@ export default function TableDataGrid({
                                                 }}
                                             >
                                                 <div className="flex flex-col justify-center items-center">
-                                                    <div className="flex justify-center items-center p-2 w-full h-full font-medium text-[#64748b] text-center text-md whitespace-nowrap">
+                                                    <div className="flex justify-center items-center p-2 w-full h-full font-medium text-white text-center text-md whitespace-nowrap">
                                                         <p className="px-2">
                                                             {flexRender(
                                                                 header.column
@@ -1142,6 +1505,18 @@ export default function TableDataGrid({
                         <div>Registros: {table.getRowCount()}</div>
                     </footer>
                 </div>
+
+
+                <ModalContainer show={openModal} 
+                title='Filtros'
+                onClose={() => setOpenModal(false)} showX={true}>
+                    <FilterModal
+                        table={table}
+                        layout={layout}
+                        onClose={() => setOpenModal(false)}
+                        activeFilters={activeFilters}
+                    />
+                </ModalContainer>
             </div>
         </>
     )
