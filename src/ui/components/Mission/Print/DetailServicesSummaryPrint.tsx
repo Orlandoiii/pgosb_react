@@ -16,6 +16,10 @@ type GroupReport = {
     stationAggregationCount: number
     antaresTypeAggregationJson: AntaresTypeAggregationJson[]
     antaresTypeAggregationCount: number
+    municipalityAggregationJson: MunicipalityAggregationJson[]
+    municipalityAggregationCount: number
+    parishAggregationJson: ParishAggregationJson[]
+    parishAggregationCount: number
 }
 
 type AntaresStationAggregationJson = {
@@ -30,6 +34,9 @@ type AntaresStationAggregationJson = {
     injured: string
     transported: string
     deceased: string
+
+    municipality_origin: string
+    parish_origin: string
 }
 
 type AntaresAggregationJson = {
@@ -50,10 +57,20 @@ type AntaresTypeAggregationJson = {
     count: string
 }
 
+type MunicipalityAggregationJson = {
+    municipality_origin: string
+    count: string
+}
+
+type ParishAggregationJson = {
+    parish_origin: string
+    count: string
+}
+
 interface ServicePrintProps {
     missionsIds: string[]
     filters: { name: string; value: string }[]
-    groupBy: 'Antares' | 'Stations' | 'AntaresTypes'
+    groupBy: 'Antares' | 'Stations' | 'AntaresTypes' | 'Municipality' | 'Parish'
 }
 
 type AgregationByAntares = {
@@ -92,6 +109,26 @@ type AgregationByStation = {
     antares: SubAgregationAntares[]
 }
 
+type AgregationByMunicipality = {
+    municipality_name: string
+    count: number
+    unharmed: number
+    injured: number
+    transported: number
+    deceased: number
+    antares: SubAgregationAntares[]
+}
+
+type AgregationByParish = {
+    parish_name: string
+    count: number
+    unharmed: number
+    injured: number
+    transported: number
+    deceased: number
+    antares: SubAgregationAntares[]
+}
+
 type SubAgregationAntares = {
     antares_id: string
     antares_name: string
@@ -110,6 +147,10 @@ export function DetailServicesSummaryPrint({
         useState<AgregationByAntaresType[]>()
     const [agregationByStation, setAgregationByStation] =
         useState<AgregationByStation[]>()
+    const [AgregationByMunicipality, setAgregationByMunicipality] =
+        useState<AgregationByMunicipality[]>()
+    const [AgregationByParish, setAgregationByParish] =
+        useState<AgregationByParish[]>()
     const [loading, setLoading] = useState(false)
     const [antaresTypes] = useAntaresCollection()
 
@@ -145,6 +186,15 @@ export function DetailServicesSummaryPrint({
 
             const antaresTypeResult = await post<AntaresTypeAggregationJson[]>(
                 `mission-reports/aggregations/antares-type/in`,
+                missionsIds
+            )
+
+            const municipalityResult = await post<
+                MunicipalityAggregationJson[]
+            >(`mission-reports/aggregations/municipality/in`, missionsIds)
+
+            const parishResult = await post<ParishAggregationJson[]>(
+                `mission-reports/aggregations/parish/in`,
                 missionsIds
             )
 
@@ -195,6 +245,26 @@ export function DetailServicesSummaryPrint({
                     antaresTypeResult.success && antaresTypeResult.result
                         ? sumCount(antaresTypeResult.result)
                         : 0,
+                municipalityAggregationJson:
+                    municipalityResult.success && municipalityResult.result
+                        ? municipalityResult.result.sort(
+                              (a, b) => parseInt(b.count) - parseInt(a.count)
+                          )
+                        : [],
+                municipalityAggregationCount:
+                    municipalityResult.success && municipalityResult.result
+                        ? sumCount(municipalityResult.result)
+                        : 0,
+                parishAggregationJson:
+                    parishResult.success && parishResult.result
+                        ? parishResult.result.sort(
+                              (a, b) => parseInt(b.count) - parseInt(a.count)
+                          )
+                        : [],
+                parishAggregationCount:
+                    parishResult.success && parishResult.result
+                        ? sumCount(parishResult.result)
+                        : 0,
             })
         } finally {
             setLoading(false)
@@ -206,6 +276,8 @@ export function DetailServicesSummaryPrint({
             createAntaresAgregation()
             createAntaresTypeAggregation()
             createStationAggregation()
+            createMunicipalityAggregation()
+            createParishAggregation()
         }
     }, [data])
 
@@ -404,6 +476,140 @@ export function DetailServicesSummaryPrint({
         setAgregationByStation(stationResult)
     }
 
+    function createMunicipalityAggregation() {
+        const municipalityMap = new Map<string, AgregationByMunicipality>()
+        const antaresMunicipalityMap = new Map<
+            string,
+            Map<string, SubAgregationAntares>
+        >()
+
+        data!.antaresStationAggregationJson.forEach((element) => {
+            // Get or create station entry
+            const municipalityKey = element.municipality_origin
+            let municipalityEntry = municipalityMap.get(municipalityKey)
+
+            if (!municipalityEntry) {
+                municipalityEntry = {
+                    municipality_name: element.municipality_origin,
+                    count: 0,
+                    unharmed: 0,
+                    injured: 0,
+                    transported: 0,
+                    deceased: 0,
+                    antares: [],
+                }
+                municipalityMap.set(municipalityKey, municipalityEntry)
+            }
+
+            // Get or create antares entry
+            const antaresKey = element.antares_id
+            let antaresEntry = antaresMunicipalityMap
+                .get(municipalityKey)
+                ?.get(antaresKey)
+
+            // Convert string values to numbers
+            const numericCount = Number(element.count)
+            const numericUnharmed = Number(element.unharmed)
+            const numericInjured = Number(element.injured)
+            const numericTransported = Number(element.transported)
+            const numericDeceased = Number(element.deceased)
+
+            if (!antaresEntry) {
+                antaresEntry = {
+                    antares_id: element.antares_id,
+                    antares_name: element.antares_name,
+                    count: 0,
+                }
+
+                if (!antaresMunicipalityMap.has(municipalityKey)) {
+                    antaresMunicipalityMap.set(municipalityKey, new Map())
+                }
+                antaresMunicipalityMap
+                    .get(municipalityKey)!
+                    .set(antaresKey, antaresEntry)
+                municipalityEntry.antares.push(antaresEntry)
+            }
+
+            // Update antares counts
+            antaresEntry.count += numericCount
+
+            // Update station counts
+            municipalityEntry.count += numericCount
+            municipalityEntry.unharmed += numericUnharmed
+            municipalityEntry.injured += numericInjured
+            municipalityEntry.transported += numericTransported
+            municipalityEntry.deceased += numericDeceased
+        })
+
+        const municipalityResult = Array.from(municipalityMap.values())
+        setAgregationByMunicipality(municipalityResult)
+    }
+
+    function createParishAggregation() {
+        const parishMap = new Map<string, AgregationByParish>()
+        const antaresParishMap = new Map<
+            string,
+            Map<string, SubAgregationAntares>
+        >()
+
+        data!.antaresStationAggregationJson.forEach((element) => {
+            // Get or create station entry
+            const ParishKey = element.parish_origin
+            let parishEntry = parishMap.get(ParishKey)
+
+            if (!parishEntry) {
+                parishEntry = {
+                    parish_name: element.parish_origin,
+                    count: 0,
+                    unharmed: 0,
+                    injured: 0,
+                    transported: 0,
+                    deceased: 0,
+                    antares: [],
+                }
+                parishMap.set(ParishKey, parishEntry)
+            }
+
+            // Get or create antares entry
+            const antaresKey = element.antares_id
+            let antaresEntry = antaresParishMap.get(ParishKey)?.get(antaresKey)
+
+            // Convert string values to numbers
+            const numericCount = Number(element.count)
+            const numericUnharmed = Number(element.unharmed)
+            const numericInjured = Number(element.injured)
+            const numericTransported = Number(element.transported)
+            const numericDeceased = Number(element.deceased)
+
+            if (!antaresEntry) {
+                antaresEntry = {
+                    antares_id: element.antares_id,
+                    antares_name: element.antares_name,
+                    count: 0,
+                }
+
+                if (!antaresParishMap.has(ParishKey)) {
+                    antaresParishMap.set(ParishKey, new Map())
+                }
+                antaresParishMap.get(ParishKey)!.set(antaresKey, antaresEntry)
+                parishEntry.antares.push(antaresEntry)
+            }
+
+            // Update antares counts
+            antaresEntry.count += numericCount
+
+            // Update station counts
+            parishEntry.count += numericCount
+            parishEntry.unharmed += numericUnharmed
+            parishEntry.injured += numericInjured
+            parishEntry.transported += numericTransported
+            parishEntry.deceased += numericDeceased
+        })
+
+        const municipalityResult = Array.from(parishMap.values())
+        setAgregationByParish(municipalityResult)
+    }
+
     // Helper to get antares type
     function getAntaresType(antaresId: string): string {
         return antaresTypes.find((t) => t.id === antaresId)?.type || 'unknown'
@@ -424,7 +630,7 @@ export function DetailServicesSummaryPrint({
                     {data && (
                         <>
                             <div className="flex">
-                                {groupBy == 'AntaresTypes' && data ? (
+                                {groupBy == 'AntaresTypes' && data && (
                                     <div className="pt-4 w-1/2">
                                         <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
                                             Resumen por tipos de antares
@@ -463,25 +669,75 @@ export function DetailServicesSummaryPrint({
                                             )}
                                         </div>
                                     </div>
-                                ) : (
+                                )}
+
+                                {(groupBy == 'Stations' ||
+                                    groupBy == 'Antares') &&
+                                    data && (
+                                        <div className="pt-4 w-1/2">
+                                            <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
+                                                Resumen de antares
+                                            </div>
+
+                                            <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
+                                                {data.antaresAggregationJson.map(
+                                                    (antares) => (
+                                                        <div className="w-fit">
+                                                            <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                                                                <span>
+                                                                    ({' '}
+                                                                    {
+                                                                        antares.antares_id
+                                                                    }{' '}
+                                                                    {
+                                                                        antares.antares_name
+                                                                    }{' '}
+                                                                    )
+                                                                </span>
+                                                                <span>-</span>
+                                                                <span>
+                                                                    {
+                                                                        antares.count
+                                                                    }
+                                                                </span>
+                                                            </div>
+                                                            <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                                                                <span>
+                                                                    {(
+                                                                        (parseInt(
+                                                                            antares.count
+                                                                        ) /
+                                                                            data.antaresAggregationCount) *
+                                                                        100
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}
+                                                                    %
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    )
+                                                )}
+                                            </div>
+                                        </div>
+                                    )}
+
+                                {groupBy == 'Municipality' && data && (
                                     <div className="pt-4 w-1/2">
                                         <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
-                                            Resumen de antares
+                                            Resumen de Municipios
                                         </div>
 
                                         <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
-                                            {data.antaresAggregationJson.map(
+                                            {data.municipalityAggregationJson.map(
                                                 (antares) => (
                                                     <div className="w-fit">
                                                         <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
                                                             <span>
                                                                 ({' '}
                                                                 {
-                                                                    antares.antares_id
-                                                                }{' '}
-                                                                {
-                                                                    antares.antares_name
-                                                                }{' '}
+                                                                    antares.municipality_origin
+                                                                }
                                                                 )
                                                             </span>
                                                             <span>-</span>
@@ -495,7 +751,49 @@ export function DetailServicesSummaryPrint({
                                                                     (parseInt(
                                                                         antares.count
                                                                     ) /
-                                                                        data.antaresAggregationCount) *
+                                                                        data.municipalityAggregationCount) *
+                                                                    100
+                                                                ).toFixed(2)}
+                                                                %
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                )
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {groupBy == 'Parish' && data && (
+                                    <div className="pt-4 w-1/2">
+                                        <div className="flex justify-center items-center w-full font-semibold text-slate-700 text-xl">
+                                            Resumen de Parroquias
+                                        </div>
+
+                                        <div className="flex flex-wrap justify-center gap-x-6 gap-y-4 px-4 w-full pt-4">
+                                            {data.parishAggregationJson.map(
+                                                (antares) => (
+                                                    <div className="w-fit">
+                                                        <div className="w-full text-center space-x-1 bg-[#1C2434] px-4 py-1.5 rounded-t-lg font-semibold text-xs text-white">
+                                                            <span>
+                                                                ({' '}
+                                                                {
+                                                                    antares.parish_origin
+                                                                }
+                                                                )
+                                                            </span>
+                                                            <span>-</span>
+                                                            <span>
+                                                                {antares.count}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex justify-center items-center space-x-2 px-4 py-2 border border-t-0 rounded-b-lg font-semibold text-sm text-slate-600">
+                                                            <span>
+                                                                {(
+                                                                    (parseInt(
+                                                                        antares.count
+                                                                    ) /
+                                                                        data.parishAggregationCount) *
                                                                     100
                                                                 ).toFixed(2)}
                                                                 %
@@ -1082,6 +1380,373 @@ export function DetailServicesSummaryPrint({
                                                     </div>
                                                 </div>
                                             ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {groupBy == 'Municipality' &&
+                                AgregationByMunicipality && (
+                                    <div className="space-y-4 pt-8">
+                                        <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
+                                            Detalles por Municipio
+                                        </div>
+
+                                        <div className="space-y-8">
+                                            {AgregationByMunicipality.sort(
+                                                (a, b) => b.count - a.count
+                                            ).map((municipality) => (
+                                                <div>
+                                                    <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
+                                                        Municipio{' '}
+                                                        {
+                                                            municipality.municipality_name
+                                                        }{' '}
+                                                        - {municipality.count}{' '}
+                                                        Servicios
+                                                    </div>
+
+                                                    <div className="px-2 border rounded-b-md">
+                                                        <table className="w-full">
+                                                            <tr>
+                                                                <td className="py-2 font-semibold text-lg text-slate-600">
+                                                                    Antares
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Servicios
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Ilesos
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Lesionados
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Transladados
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Fallecidos
+                                                                </td>
+                                                                <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                    Total
+                                                                </td>
+                                                            </tr>
+                                                            {municipality.antares.map(
+                                                                (
+                                                                    antaresDetail
+                                                                ) => {
+                                                                    // Calculate victim counts for this antares in this station
+                                                                    const antaresMunicipalityData =
+                                                                        data!.antaresStationAggregationJson.filter(
+                                                                            (
+                                                                                item
+                                                                            ) =>
+                                                                                item.antares_id ===
+                                                                                    antaresDetail.antares_id &&
+                                                                                item.municipality_origin ===
+                                                                                    municipality.municipality_name
+                                                                        )
+
+                                                                    // Calculate totals from all matching records
+                                                                    let unharmed = 0
+                                                                    let injured = 0
+                                                                    let transported = 0
+                                                                    let deceased = 0
+
+                                                                    antaresMunicipalityData.forEach(
+                                                                        (
+                                                                            item
+                                                                        ) => {
+                                                                            unharmed +=
+                                                                                Number(
+                                                                                    item.unharmed
+                                                                                )
+                                                                            injured +=
+                                                                                Number(
+                                                                                    item.injured
+                                                                                )
+                                                                            transported +=
+                                                                                Number(
+                                                                                    item.transported
+                                                                                )
+                                                                            deceased +=
+                                                                                Number(
+                                                                                    item.deceased
+                                                                                )
+                                                                        }
+                                                                    )
+
+                                                                    return (
+                                                                        <tr className="border-t">
+                                                                            <td className="py-2 text-sm">
+                                                                                {
+                                                                                    antaresDetail.antares_id
+                                                                                }{' '}
+                                                                                -{' '}
+                                                                                {
+                                                                                    antaresDetail.antares_name
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    antaresDetail.count
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    unharmed
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    injured
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    transported
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {
+                                                                                    deceased
+                                                                                }
+                                                                            </td>
+                                                                            <td className="py-2 text-center text-sm">
+                                                                                {(
+                                                                                    (antaresDetail.count /
+                                                                                        data.municipalityAggregationCount) *
+                                                                                    100
+                                                                                ).toFixed(
+                                                                                    2
+                                                                                )}
+
+                                                                                %
+                                                                            </td>
+                                                                        </tr>
+                                                                    )
+                                                                }
+                                                            )}
+
+                                                            <tr className="border-t font-semibold">
+                                                                <td className="py-2">
+                                                                    Total
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        municipality.count
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        municipality.unharmed
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        municipality.injured
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        municipality.transported
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {
+                                                                        municipality.deceased
+                                                                    }
+                                                                </td>
+                                                                <td className="py-2 text-center text-sm">
+                                                                    {(
+                                                                        (municipality.count /
+                                                                            data.municipalityAggregationCount) *
+                                                                        100
+                                                                    ).toFixed(
+                                                                        2
+                                                                    )}
+                                                                    %
+                                                                </td>
+                                                            </tr>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                            {groupBy == 'Parish' && AgregationByParish && (
+                                <div className="space-y-4 pt-8">
+                                    <div className="flex items-center pl-4 w-full font-semibold text-slate-700 text-xl">
+                                        Detalles por Parroquia
+                                    </div>
+
+                                    <div className="space-y-8">
+                                        {AgregationByParish.sort(
+                                            (a, b) => b.count - a.count
+                                        ).map((parish) => (
+                                            <div>
+                                                <div className="bg-[#1C2434] px-6 py-2 rounded-t-lg font-semibold text-white text-xl">
+                                                    Parroquia{' '}
+                                                    {parish.parish_name} -{' '}
+                                                    {parish.count} Servicios
+                                                </div>
+
+                                                <div className="px-2 border rounded-b-md">
+                                                    <table className="w-full">
+                                                        <tr>
+                                                            <td className="py-2 font-semibold text-lg text-slate-600">
+                                                                Antares
+                                                            </td>
+                                                            <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                Servicios
+                                                            </td>
+                                                            <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                Ilesos
+                                                            </td>
+                                                            <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                Lesionados
+                                                            </td>
+                                                            <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                Transladados
+                                                            </td>
+                                                            <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                Fallecidos
+                                                            </td>
+                                                            <td className="py-2 font-semibold text-center text-lg text-slate-600">
+                                                                Total
+                                                            </td>
+                                                        </tr>
+                                                        {parish.antares.map(
+                                                            (antaresDetail) => {
+                                                                // Calculate victim counts for this antares in this station
+                                                                const antaresParishData =
+                                                                    data!.antaresStationAggregationJson.filter(
+                                                                        (
+                                                                            item
+                                                                        ) =>
+                                                                            item.antares_id ===
+                                                                                antaresDetail.antares_id &&
+                                                                            item.parish_origin ===
+                                                                                parish.parish_name
+                                                                    )
+
+                                                                // Calculate totals from all matching records
+                                                                let unharmed = 0
+                                                                let injured = 0
+                                                                let transported = 0
+                                                                let deceased = 0
+
+                                                                antaresParishData.forEach(
+                                                                    (item) => {
+                                                                        unharmed +=
+                                                                            Number(
+                                                                                item.unharmed
+                                                                            )
+                                                                        injured +=
+                                                                            Number(
+                                                                                item.injured
+                                                                            )
+                                                                        transported +=
+                                                                            Number(
+                                                                                item.transported
+                                                                            )
+                                                                        deceased +=
+                                                                            Number(
+                                                                                item.deceased
+                                                                            )
+                                                                    }
+                                                                )
+
+                                                                return (
+                                                                    <tr className="border-t">
+                                                                        <td className="py-2 text-sm">
+                                                                            {
+                                                                                antaresDetail.antares_id
+                                                                            }{' '}
+                                                                            -{' '}
+                                                                            {
+                                                                                antaresDetail.antares_name
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                antaresDetail.count
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                unharmed
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                injured
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                transported
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {
+                                                                                deceased
+                                                                            }
+                                                                        </td>
+                                                                        <td className="py-2 text-center text-sm">
+                                                                            {(
+                                                                                (antaresDetail.count /
+                                                                                    data.parishAggregationCount) *
+                                                                                100
+                                                                            ).toFixed(
+                                                                                2
+                                                                            )}
+                                                                            %
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            }
+                                                        )}
+
+                                                        <tr className="border-t font-semibold">
+                                                            <td className="py-2">
+                                                                Total
+                                                            </td>
+                                                            <td className="py-2 text-center text-sm">
+                                                                {parish.count}
+                                                            </td>
+                                                            <td className="py-2 text-center text-sm">
+                                                                {
+                                                                    parish.unharmed
+                                                                }
+                                                            </td>
+                                                            <td className="py-2 text-center text-sm">
+                                                                {parish.injured}
+                                                            </td>
+                                                            <td className="py-2 text-center text-sm">
+                                                                {
+                                                                    parish.transported
+                                                                }
+                                                            </td>
+                                                            <td className="py-2 text-center text-sm">
+                                                                {
+                                                                    parish.deceased
+                                                                }
+                                                            </td>
+                                                            <td className="py-2 text-center text-sm">
+                                                                {(
+                                                                    (parish.count /
+                                                                        data.parishAggregationCount) *
+                                                                    100
+                                                                ).toFixed(2)}
+                                                                %
+                                                            </td>
+                                                        </tr>
+                                                    </table>
+                                                </div>
+                                            </div>
+                                        ))}
                                     </div>
                                 </div>
                             )}

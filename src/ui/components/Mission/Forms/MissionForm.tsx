@@ -97,6 +97,7 @@ import { getDefaults } from '../../../core/context/CustomFormContext'
 import FormTextArea from '../../../optimized/components/form_inputs/form_text_area'
 import { TApiAntares } from '../../../../domain/models/antares/antares'
 import { ResultErr } from '../../../../domain/abstractions/types/resulterr'
+import { useSpecialOperativeCollection } from '../../../../domain/models/mission/special_operative/use_collection'
 
 interface MissionFormProps {
     isVisible: boolean
@@ -122,6 +123,7 @@ const MissionForm = ({
     const [templateUsed, setTemplateUsed] = useState(false)
     const [missionId, setId] = useState(initValue ? initValue.id : '')
 
+    const [specialOperative] = useSpecialOperativeCollection()
     const [_, missionsActions] = useMissionCollection()
 
     const [missionTemplates, missionTemplatesActions] =
@@ -281,6 +283,11 @@ const MissionForm = ({
             data.locationDestinyId = destinationLocation
             data.id = missionId
 
+            data.unharmed = data.unharmed ? '0' : data.unharmed
+            data.injured = data.injured ? '0' : data.injured
+            data.transported = data.transported ? '0' : data.transported
+            data.deceased = data.deceased ? '0' : data.deceased
+
             let result: ResultErr<MissionFront>
 
             if (saved) result = await missionsActions.updateFront(data)
@@ -372,6 +379,20 @@ const MissionForm = ({
                             <div className="bg-white px-4 py-2 rounded-md h-10 font-semibold text-lg">
                                 {missionId}
                             </div>
+                        </div>
+
+                        <div className="flex items-center space-x-4">
+                            <div className="font-semibold text-slate-700 text-xl">
+                                Operativo:
+                            </div>
+
+                            <FormSelectWithSearch<MissionFront, string>
+                                description=""
+                                addClearButton={true}
+                                fieldName={'specialOperation'}
+                                options={specialOperative}
+                                fatherLoading={specialOperative.length < 1}
+                            />
                         </div>
 
                         <div className="flex">

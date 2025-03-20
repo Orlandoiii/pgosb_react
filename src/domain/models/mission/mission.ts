@@ -29,6 +29,7 @@ export const MissionApiSchema = z.object({
     cancel_reason: z.string().optional().default(''),
     pending_for_data: z.boolean().optional().default(true),
     antares_id: z.string().optional().default(''),
+    special_operation: z.string().optional().default(''),
 })
 
 export const MissionFrontSchema = z.object({
@@ -56,9 +57,8 @@ export const MissionFrontSchema = z.object({
     cancelReason: z.string().optional().default(''),
     pendingForData: z.boolean().optional().default(true),
     antaresId: z.string().optional().default(''),
+    specialOperation: z.string().optional().default(''),
 })
-
-
 
 export type MissionApi = z.infer<typeof MissionApiSchema>
 export type MissionFront = z.infer<typeof MissionFrontSchema>
@@ -89,6 +89,7 @@ function fromApiInternal(data: MissionApi): MissionFront {
         cancelReason: data.cancel_reason,
         pendingForData: data.pending_for_data,
         antaresId: data.antares_id,
+        specialOperation: data.special_operation,
     }
 }
 
@@ -118,6 +119,7 @@ function toApiInternal(data: MissionFront): MissionApi {
         cancel_reason: data.cancelReason,
         pending_for_data: data.pendingForData,
         antares_id: data.antaresId,
+        special_operation: data.specialOperation,
     }
 }
 

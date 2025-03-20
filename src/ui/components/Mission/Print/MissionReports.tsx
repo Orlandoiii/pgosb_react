@@ -18,6 +18,8 @@ enum reportTypes {
     StatisticsForAntares = 'Estadísticas por Antares',
     StatisticsForAntaresTypes = 'Estadísticas por Tipos de Antares',
     StatisticsForStation = 'Estadísticas por Estaciones',
+    StatisticsForMunicipality = 'Estadísticas por Municipio',
+    StatisticsForParish = 'Estadísticas por Parroquia',
     ServiceDetails = 'Servicios detallados',
     NewsSummary = 'Resumen de Novedades',
 }
@@ -70,6 +72,24 @@ export function MissionReports({
                                 <DetailServicesSummaryPrint
                                     missionsIds={servicesIds}
                                     groupBy={'Stations'}
+                                    filters={filters}
+                                />
+                            )}
+
+                            {selectedReport ===
+                                reportTypes.StatisticsForMunicipality && (
+                                <DetailServicesSummaryPrint
+                                    missionsIds={servicesIds}
+                                    groupBy={'Municipality'}
+                                    filters={filters}
+                                />
+                            )}
+
+                            {selectedReport ===
+                                reportTypes.StatisticsForParish && (
+                                <DetailServicesSummaryPrint
+                                    missionsIds={servicesIds}
+                                    groupBy={'Parish'}
                                     filters={filters}
                                 />
                             )}
