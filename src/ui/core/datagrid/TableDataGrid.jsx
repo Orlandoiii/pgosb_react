@@ -346,7 +346,7 @@ function DefaultColumnFilter({ column }) {
                
                 type="text"
                 value={columnFilterValue ?? ''}
-                className="border-black border-2  border-stroke bg-[#144773] text-white  focus:border-white px-3 py-1  rounded-md w-full h-auto font-light text-sm outline-none"
+                className="border-black border-2  border-stroke bg-[#2A3956] text-white  focus:border-white px-3 py-1  rounded-md w-full h-auto font-light text-sm outline-none"
             />
         </span>
     )
@@ -415,7 +415,7 @@ function DateColumnFilter({ column }) {
 
     return (
         <>
-            <button className='border-black border-2  border-stroke bg-[#144773] text-white  focus:border-white px-0.5 py-0.5  rounded-md w-full h-auto font-light text-sm outline-none' type='button' onClick={(e) => {
+            <button className='border-black border-2  border-stroke bg-[#2A3956] text-white  focus:border-white px-0.5 py-0.5  rounded-md w-full h-auto font-light text-sm outline-none' type='button' onClick={(e) => {
                 e.stopPropagation()
                 setOpen(true)
             }}>
@@ -1112,7 +1112,7 @@ export default function TableDataGrid({
         <>
             <div className='flex flex-col pb-24 w-full h-full'>
                 <div className="flex flex-col flex-1 bg-[white] h-60 overflow-hidden">
-                    <header className="flex justify-between mx-auto px-8 py-4 w-full border border-gray-200 rounded-md">
+                    <header className="flex justify-between mx-auto px-8 py-4 w-full  bg-[#445C71] rounded-md">
                         {/* <pre>{JSON.stringify(table.getState().rowSelection, null, 2)}</pre> */}
 
                         <div className="flex space-x-4">
@@ -1308,7 +1308,7 @@ export default function TableDataGrid({
 
                         <div className="flex justify-end items-center font-medium">
                             <select
-                                className="bg-transparent pl-2"
+                                className="bg-transparent pl-2 text-gray-200"
                                 value={table.getState().pagination.pageSize}
                                 onChange={(e) => {
                                     const value = e.target.value
@@ -1324,14 +1324,14 @@ export default function TableDataGrid({
                                 <option>100</option>
                                 <option>500</option>
                             </select>
-                            <p className="pl-2 font-medium text-black text-sm">
+                            <p className="pl-2 font-medium text-gray-200 text-sm">
                                 Registros Por Página
                             </p>
                         </div>
                     </header>
 
                     <div className="h-full overflow-auto">
-                        <table className="border-collapse mt-2 w-full">
+                        <table className="border-collapse  w-full">
                             <thead>
                                 {/* {table.column} */}
                                 {table.getHeaderGroups().map((headerGroup) => (
