@@ -19,6 +19,7 @@ import FireLogo from '../logo/FireLogo'
 import AmbulanceIcon from '../icons/AmbulanceIcon'
 import AuthorityIcon from '../icons/AuthorityIcon'
 import HomeIcon from '../icons/HomeIcon'
+import TableIcon from '../icons/TableIcon'
 
 const alert = new AlertController();
 
@@ -123,7 +124,7 @@ export default function Sidebar({ }) {
                                 <SideBarLink collpase={collapse} link="/services" icon={<ServiceIcon />} name='Servicios' onClick={(e) => {
                                     handleClick(e, "Servicios")
                                 }} />
-                                <SideBarLink collpase={collapse} link="/template" icon={<ServiceIcon />} name='Plantillas' onClick={(e) => {
+                                <SideBarLink collpase={collapse} link="/template" icon={<TableIcon />} name='Plantillas' onClick={(e) => {
                                     handleClick(e, "Plantillas")
                                 }} />
 

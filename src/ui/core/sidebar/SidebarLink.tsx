@@ -23,8 +23,8 @@ export default function SideBarLink({ icon = null, name = "", link = "", onClick
                     ${isActive ? "md:bg-[#2286DD]" : ""}  md:hover:bg-[#2286DD] bg-opacity-80 rounded-xl shadow-sm cursor-pointer `}>
 
                         <div className={`relative ${isActive ? "bg-[#2286DD] " : ""} hover:bg-[#2286DD] 
-                        flex md:space-x-2 text-md justify-center  items-center py-2.5 px-3 rounded-xl`}>
-                            <div className='h-[34px] w-[34px] '>
+                        flex md:space-x-2 text-md justify-center  items-center py-1.5 px-3 rounded-xl`}>
+                            <div className='h-[32px] w-[32px] '>
                                 {icon}
                             </div>
 
