@@ -234,7 +234,7 @@ export function RelevantServicesReportPrint({
                                                                     <span className="font-semibold text-base">
                                                                         {' '}
                                                                         {
-                                                                            mission?.first_service_id
+                                                                            mission?.id
                                                                         }{' '}
                                                                         -{' '}
                                                                         {

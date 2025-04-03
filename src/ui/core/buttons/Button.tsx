@@ -1,7 +1,7 @@
 import React, { MouseEventHandler, PropsWithChildren } from 'react'
 
 const defaultBgColors = {
-    Primary: 'bg-[#0A2F4E]',
+    Primary: 'bg-btc_primary',
     Secondary: 'bg-[#2286DD]',
     Success: 'bg-[#28A745]',
     Danger: 'bg-[#DC3545]',
@@ -21,22 +21,24 @@ export default function Button({
     children,
     colorType = defaultBgColors.Primary,
     onClick,
-    hoverColor = 'hover:bg-[#0069D9]',
+    hoverColor = 'hover:bg-btc_secondary',
     width = '',
     height = '',
-    enable = true
+    enable = true,
 }: PropsWithChildren<ButtonProps>) {
     console.log('enable', enable)
 
-    return <button
-    disabled={!enable}
-    className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
-    text-md rounded-md shadow-md text-nowrap ${enable ? hoverColor : 'hover:bg-slate-500 pointer-events-none '} `}
-    onClick={(e) => {
-        if (!enable) return
-        onClick && onClick(e)
-    }}
->
-    {children}
-</button >
+    return (
+        <button
+            disabled={!enable}
+            className={`block ${height} ${width} px-3 py-2 ${enable ? colorType : 'bg-slate-500'} text-white 
+    text-xl rounded-md shadow-md text-nowrap font-semibold ${enable ? hoverColor : 'hover:bg-slate-500 pointer-events-none '} `}
+            onClick={(e) => {
+                if (!enable) return
+                onClick && onClick(e)
+            }}
+        >
+            {children}
+        </button>
+    )
 }
