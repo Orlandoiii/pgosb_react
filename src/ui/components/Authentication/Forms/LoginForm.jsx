@@ -12,7 +12,7 @@ function MessageIcon() {
     return (
         <span className="absolute top-1/2 right-4 transform -translate-y-1/2 ">
             <svg
-                className="fillCurrent"
+                className="fill-current"
                 width="22"
                 height="22"
                 viewBox="0 0 22 22"
@@ -81,17 +81,17 @@ export default function LoginForm({ onSubmit }) {
 
     return (
         <section
-            className="relative h-screen w-full  py-6 px-2 shadow-md rounded-xl 
-            border border-slate-150 flex flex-col justify-between items-center sm:h-auto sm:max-w-[30rem]  
-            bg-[whitesmoke] bg-opacity-[0.98] sm:z-10"
+            className="relative h-screen w-full  p-8 shadow-md rounded-xl 
+            border border-slate-150 flex flex-col justify-between items-center sm:h-auto sm:max-w-[38rem]  
+            bg-btc_gray sm:z-10"
         >
             <div className="py-6 px-6 min-w-[360px] sm:min-w-[440px]  md:min-w-[500px] md:min-h-[560px]">
                 <div className="mb-8 flex justify-center items-center space-x-2">
                     <FireLogo width="w-[70px]" height="h-[70px]" bgColor="" />
-                    <h1 className="uppercase text-5xl ">gres</h1>
+                    <h1 className="uppercase text-5xl text-btc_primary font-black">gres</h1>
                 </div>
 
-                <h2 className="text-center mb-8  text-lg md:text-xl">
+                <h2 className="text-center mb-8  text-lg md:text-xl text-btc_primary font-bold">
                     Coloca usuario y contraseña para ingresar
                 </h2>
                 <CustomForm
@@ -123,13 +123,13 @@ export default function LoginForm({ onSubmit }) {
                     </div>
                     <div className="w-full   mt-8">
                         <Button width="w-full" height="h-[60px]">
-                            Ingresar
+                        INGRESAR
                         </Button>
                     </div>
                 </CustomForm>
             </div>
 
-            <div className="text-center">
+            <div className="text-center text-btc_primary font-semibold">
                 <a className="">Terminos y condiciones</a>
             </div>
         </section>

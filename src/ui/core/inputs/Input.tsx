@@ -15,7 +15,7 @@ export interface InputProps extends ComponentPropsWithoutRef<'input'> {
     inputRef?: React.MutableRefObject<HTMLInputElement | null> | undefined
     refCallback?: React.RefCallback<HTMLInputElement> | undefined
     resetCount?: number
-    maskDefinition?: any,
+    maskDefinition?: any
     useUppercase?: boolean
 }
 
@@ -37,7 +37,6 @@ export default function Input({
         if (refCallback) refCallback(node)
     }, [])
 
-
     const { onChange } = rest
 
     useEffect(() => {
@@ -54,7 +53,7 @@ export default function Input({
         <div className={`group w-full relative flex flex-col justify-center`}>
             {label && (
                 <label
-                    className={`block text-[0.9rem] mb-2`}
+                    className={`block text-[0.9rem] mb-2 text-btc_primary font-semibold`}
                     htmlFor={inputName}
                 >
                     {label}
@@ -62,29 +61,29 @@ export default function Input({
             )}
 
             <div
-                className={`relative h-11 w-full  p-1 rounded-md shadow-sm
+                className={`relative h-11 w-full  p-1 rounded-md shadow-sm bg-white
                              border-2 
-                             ${!common.isErr(errMessage)
-                        ? CommonLogic.neutralColor
-                        : useStrongErrColor
-                            ? CommonLogic.errColor
-                            : CommonLogic.errSoftColor
-                    }  
+                             ${
+                                 !common.isErr(errMessage)
+                                     ? CommonLogic.neutralColor
+                                     : useStrongErrColor
+                                       ? CommonLogic.errColor
+                                       : CommonLogic.errSoftColor
+                             }  
                              hover:border-3.5  hover:${common.borderColor(errMessage, useStrongErrColor)} 
                              has-[:focus]:border-3.5 has-[:focus]:${common.borderColor(errMessage, useStrongErrColor)} `}
             >
                 <input
                     ref={mergedRef}
-                    className={`w-full h-full outline-none px-2 my-auto border-0 bg-transparent ${useUppercase ? "uppercase" : ""}`}
+                    className={`w-full h-full outline-none px-2 my-auto border-0 bg-white ${useUppercase ? 'uppercase' : ''}`}
                     id={inputName}
                     autoComplete="off"
                     name={inputName}
                     {...rest}
                 />
-                <div className='absolute right-2 top-1/2 -translate-y-1/2'>
+                <div className="absolute right-2 top-1/2 -translate-y-1/2 text-btc_primary">
                     {icons}
                 </div>
-
             </div>
 
             <span

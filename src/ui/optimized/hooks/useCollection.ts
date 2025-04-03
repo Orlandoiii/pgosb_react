@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from 'react'
 
-import { ResultErr } from "../../../domain/abstractions/types/resulterr"
-import { HttpActions, useHttpActions } from "./useHttpActions"
+import { ResultErr } from '../../../domain/abstractions/types/resulterr'
+import { HttpActions, useHttpActions } from './useHttpActions'
 
 type CollectionTypes = 'ALL' | 'SUMMARY' | 'SIMPLE' | 'GROUP' | 'NONE'
 interface BaseProps<F, T> {
@@ -24,11 +24,44 @@ interface CollectionProps<F, T> extends BaseProps<F, T> {
     id?: string
 }
 
-export function useCollection<F, T>({ endpointCompound, fromApiMapper = undefined, toApiMapper = undefined, type, id, onInsert, onUpdate, onDelete }: CollectionGroupProps<F, T> | CollectionProps<F, T>): [collection: F[], actions: HttpActions<F, T>, updateCollection: () => void] {
-    const actions = useHttpActions<F,T>({ endpointCompound, fromApiMapper, toApiMapper })
+export function useCollection<F, T>({
+    endpointCompound,
+    fromApiMapper = undefined,
+    toApiMapper = undefined,
+    type,
+    id,
+    onInsert,
+    onUpdate,
+    onDelete,
+}: CollectionGroupProps<F, T> | CollectionProps<F, T>): [
+    collection: F[],
+    actions: HttpActions<F, T>,
+    updateCollection: () => void,
+] {
+    const actions = useHttpActions<F, T>({
+        endpointCompound,
+        fromApiMapper,
+        toApiMapper,
+    })
     const [collection, setCollection] = useState<F[]>([])
 
-    const updateCollection = useCallback(async () => {
+    // const updateCollection = useCallback(async () => {
+    //     if (type == 'NONE') return
+
+    //     let response!: ResultErr<F[]>
+
+    //     if (type == 'ALL') response = await actions.getAll()
+    //     else if (type == 'SUMMARY') response = await actions.getSummary()
+    //     else if (type == 'SIMPLE') response = await actions.getAllSimple()
+    //     else if (type == 'GROUP' && id) response = await actions.getGroup(id)
+    //     else if (type == 'GROUP') return
+
+    //     if (endpointCompound.includes('station')) console.log(response)
+
+    //     if (response.success && response.result) setCollection(response.result)
+    // }, [actions, type, id])
+
+    async function updateCollection() {
         if (type == 'NONE') return
 
         let response!: ResultErr<F[]>
@@ -39,78 +72,93 @@ export function useCollection<F, T>({ endpointCompound, fromApiMapper = undefine
         else if (type == 'GROUP' && id) response = await actions.getGroup(id)
         else if (type == 'GROUP') return
 
-        if (endpointCompound.includes('station')) console.log(response);
+        if (endpointCompound.includes('station')) console.log(response)
 
-        if (response.success && response.result)
-            setCollection(response.result)
-    }, [actions, type, id])
+        if (response.success && response.result) setCollection(response.result)
+    }
 
     useEffect(() => {
         updateCollection()
     }, [id])
 
-    const insertFrontInternal = useCallback(async (data: F) => {
-        const result = await actions.insertFront(data)
+    console.log('Collection', endpointCompound, id)
 
-        if (result.success) {
-            updateCollection()
-            onInsert?.()
-        }
-        return result
-    }, [endpointCompound, fromApiMapper, toApiMapper])
-    const insertApiInternal = useCallback(async (data: T) => {
-        const result = await actions.insertApi(data)
+    const insertFrontInternal = useCallback(
+        async (data: F) => {
+            const result = await actions.insertFront(data)
 
-        if (result.success) {
-            updateCollection()
-            onInsert?.()
-        }
-        return result
-    }, [endpointCompound, fromApiMapper, toApiMapper])
+            if (result.success) {
+                onInsert?.()
+                updateCollection()
+            }
+            return result
+        },
+        [endpointCompound, fromApiMapper, toApiMapper]
+    )
+    const insertApiInternal = useCallback(
+        async (data: T) => {
+            const result = await actions.insertApi(data)
 
+            if (result.success) {
+                onInsert?.()
+                updateCollection()
+            }
+            return result
+        },
+        [endpointCompound, fromApiMapper, toApiMapper]
+    )
 
+    const updateFrontInternal = useCallback(
+        async (data: F) => {
+            const result = await actions.updateFront(data)
 
-    const updateFrontInternal = useCallback(async (data: F) => {
-        const result = await actions.updateFront(data)
+            if (result.success) {
+                onUpdate?.()
+                updateCollection()
+            }
+            return result
+        },
+        [endpointCompound, fromApiMapper, toApiMapper]
+    )
+    const updateApiInternal = useCallback(
+        async (data: T) => {
+            const result = await actions.updateApi(data)
 
-        if (result.success) {
-            updateCollection()
-            onUpdate?.()
-        }
-        return result
-    }, [endpointCompound, fromApiMapper, toApiMapper])
-    const updateApiInternal = useCallback(async (data: T) => {
-        const result = await actions.updateApi(data)
+            if (result.success) {
+                onUpdate?.()
+                updateCollection()
+            }
+            return result
+        },
+        [endpointCompound, fromApiMapper, toApiMapper]
+    )
 
-        if (result.success) {
-            updateCollection()
-            onUpdate?.()
-        }
-        return result
-    }, [endpointCompound, fromApiMapper, toApiMapper])
+    const removeInternal = useCallback(
+        async (id: string) => {
+            const result = await actions.remove(id)
 
+            if (result.success) {
+                onDelete?.()
+                updateCollection()
+            }
+            return result
+        },
+        [endpointCompound, fromApiMapper, toApiMapper]
+    )
 
+    return [
+        collection,
+        {
+            ...actions,
 
-    const removeInternal = useCallback(async (id: string) => {
-        const result = await actions.remove(id)
+            insertFront: insertFrontInternal,
+            insertApi: insertApiInternal,
 
-        if (result.success) {
-            updateCollection()
-            onDelete?.()
-        }
-        return result
-    }, [endpointCompound, fromApiMapper, toApiMapper])
+            updateFront: updateFrontInternal,
+            updateApi: updateApiInternal,
 
-    return [collection, {
-        ...actions,
-
-        insertFront: insertFrontInternal,
-        insertApi: insertApiInternal,
-
-        updateFront: updateFrontInternal,
-        updateApi: updateApiInternal,
-
-        remove: removeInternal
-    },
-        updateCollection]
+            remove: removeInternal,
+        },
+        updateCollection,
+    ]
 }

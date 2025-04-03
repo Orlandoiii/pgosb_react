@@ -200,6 +200,7 @@ const MissionForm = ({
         else return [Roles.Auxiliary.toString(), Roles.Driver.toString()]
     }, [missionFirefighters])
 
+    console.log('MissionId', missionId)
     const cancelReasons = useMemo(
         () => [
             'ALARMA FALSA',
@@ -516,7 +517,13 @@ const MissionForm = ({
                         //         missionServicesActions.insertFront(defaultValue)
                         //     }
                         // }}
-                        onDeleteButtonClick={missionServicesActions.remove}
+                        onDeleteButtonClick={(e) => {
+                            missionServicesActions.remove(e)
+
+                            setTimeout(() => {
+                                updateMissionServices()
+                            }, 300)
+                        }}
                     ></AddableTable>
 
                     <div className="h-8"></div>

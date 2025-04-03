@@ -30,7 +30,12 @@ export default {
                 purple: '#9F7AEA',
                 pink: '#ED64A6',
                 green: '#48BB78',
-                primary: '#0A2F4E'
+                primary: '#0A2F4E',
+                btc_primary: '#3158A4',
+                btc_secondary: '#689BD0',
+                btc_tertiary: '#E4ECF7',
+                btc_gray: '#EEEFEF',
+                btc_red: '#A32126',
             },
         },
     },
